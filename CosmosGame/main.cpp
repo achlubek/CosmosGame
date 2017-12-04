@@ -76,6 +76,7 @@ int main()
     marker->verticalAlignment = UIBitmap::VerticalAlignment::center;
 
     auto camera = new Camera();
+    float cameraFov = 80.0;
     camera->createProjectionPerspective(80.0f, (float)toolkit->windowWidth / (float)toolkit->windowHeight, 0.01f, 9000000.0f);
     glm::quat cameraLookatOffset = glm::quat(1.0, 0.0, 0.0, 0.0);
     // glm::dvec3 observerPosition;
@@ -116,6 +117,12 @@ int main()
             yaw = 0;
             pitch = 0;
         }
+    });
+
+    mouse->onMouseScroll.add([&](int yoffset) {
+        cameraFov -= (float)yoffset * 1.1f;
+        cameraFov = glm::clamp(cameraFov, 1.0f, 110.0f);
+        camera->createProjectionPerspective(cameraFov, (float)toolkit->windowWidth / (float)toolkit->windowHeight, 0.01f, 9000000.0f);
     });
 
     keyboard->onKeyPress.add([&](int key) {
@@ -407,11 +414,13 @@ int main()
                 return;
             }
             if (words.size() == 3 && words[0] == "tp") {
-                glm::dvec3 target = cosmosRenderer->nearbyStars[std::stoi(words[1])].planets[std::stoi(words[2])].getPosition(0.0) * cosmosRenderer->scale;
+                auto targetplanet = cosmosRenderer->nearbyStars[std::stoi(words[1])].planets[std::stoi(words[2])];
+                glm::dvec3 target = targetplanet.getPosition(0.0) * cosmosRenderer->scale;
                 enginesController.setReferenceFrameVelocity(glm::dvec3(0.0));
                 enginesController.setTargetAngularVelocity(glm::dvec3(0.0));
                 enginesController.setTargetLinearVelocity(glm::dvec3(0.0));
-                ship->setPosition(target - ship->getOrientation() * glm::dvec3(0.0, 0.0, 1.0));
+                ship->setPosition(target - ship->getOrientation() * glm::dvec3(0.0, 0.0, targetplanet.radius * 3.0 * cosmosRenderer->scale));
+               // ship->setPosition(ship->getPosition() - ship->getOrientation() * glm::dvec3(0.0, 0.0, 11111.0));
             }
             terminal->printMessage(UIColor(1.0, 1.0, 0.0, 1.0), "* Invalid command.");
             return;
@@ -469,6 +478,7 @@ int main()
         glm::dvec3 dir = w > 0.0 ? a : dw;
         glm::dvec3 newpos = player->getPosition();
         newpos += length(dir) > 0.0 ? (normalize(dir) * speed) : (glm::dvec3(0.0));
+
         glm::dvec2 cursor;
         auto tup = mouse->getCursorPosition();
         cursor.x = get<0>(tup);
@@ -479,14 +489,20 @@ int main()
 
         lastcx = cursor.x;
         lastcy = cursor.y;
-        yaw += dy * 0.2f;
-        pitch += dx * 0.2f;
-        if (yaw < -90.0) yaw = -90;
-        if (yaw > 90.0) yaw = 90;
-        if (pitch < -360.0f) pitch += 360.0f;
-        if (pitch > 360.0f) pitch -= 360.0f;
-        glm::quat newrot = glm::angleAxis(deg2rad(pitch), glm::vec3(0, 1, 0)) * glm::angleAxis(deg2rad(yaw), glm::vec3(1, 0, 0));
-        cameraLookatOffset = glm::slerp(newrot, cameraLookatOffset, 0.9f); 
+        if (mouse->isButtonPressed(GLFW_MOUSE_BUTTON_RIGHT)) {
+            mouse->setCursorMode(GLFW_CURSOR_HIDDEN);
+            yaw += dy * 0.2f;
+            pitch += dx * 0.2f;
+            if (yaw < -90.0) yaw = -90;
+            if (yaw > 90.0) yaw = 90;
+            if (pitch < -360.0f) pitch += 360.0f;
+            if (pitch > 360.0f) pitch -= 360.0f;
+            glm::quat newrot = glm::angleAxis(deg2rad(pitch), glm::vec3(0, 1, 0)) * glm::angleAxis(deg2rad(yaw), glm::vec3(1, 0, 0));
+            cameraLookatOffset = glm::slerp(newrot, cameraLookatOffset, 0.9f);
+        }
+        else {
+            mouse->setCursorMode(GLFW_CURSOR_NORMAL);
+        }
         //   camera->transformation->setOrientation(glm::slerp(newrot, camera->transformation->getOrientation(), 0.9f));
         //   player->setOrientation(newrot);
         // player->applyImpulse(glm::dvec3(0.0, 0.0, -1.0), length(dir) > 0.0 ? (normalize(dir) * speed) : (glm::dvec3(0.0)));

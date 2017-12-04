@@ -7,8 +7,8 @@
 #include "glm\gtx\intersect.hpp"
 
 
-SpaceShip::SpaceShip(Object3dInfo* info3d, glm::dvec3 pos, glm::dquat orient)
-    : PhysicalEntity(info3d, 1000.0, pos, orient), modules({})
+SpaceShip::SpaceShip(Object3dInfo* collisionShape, glm::dvec3 pos, glm::dquat orient)
+    : PhysicalEntity(collisionShape, 1000.0, pos, orient), modules({})
 {
 
 }

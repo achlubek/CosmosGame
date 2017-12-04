@@ -8,7 +8,7 @@ class Object3dInfo;
 class SpaceShip : public PhysicalEntity
 {
 public:
-    SpaceShip(Object3dInfo* info3d, glm::dvec3 pos, glm::dquat orient);
+    SpaceShip(Object3dInfo* collisionShape, glm::dvec3 pos, glm::dquat orient);
     ~SpaceShip();
     
     void setHyperDriveVelocity(glm::dvec3 vel);
