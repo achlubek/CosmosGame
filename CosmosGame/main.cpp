@@ -284,6 +284,17 @@ int main()
         }
     });
     background1.detach();
+    std::thread background2 = std::thread([&]() {
+        auto last = std::chrono::high_resolution_clock::now();
+        while (true) {
+            auto now = std::chrono::high_resolution_clock::now();
+            double elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(now - last).count();
+            pworld->stepEmulation(elapsed);
+            last = now;
+            std::this_thread::sleep_for(1ms);
+        }
+    });
+    background2.detach();
 
     /*
     transparency and fragment ordering :
@@ -650,7 +661,6 @@ int main()
             planetsLabels[i]->y = -1;
         }
 
-        pworld->stepEmulation(elapsed);
         camera->transformation->setOrientation(player->getOrientation() * glm::dquat(cameraLookatOffset));
        // ship->applyGravity(cosmosRenderer->lastGravity * elapsed * (keyboard->getKeyStatus(GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS ? 100.0f : 1.0f));
        // ship->stepEmulation(elapsed);
