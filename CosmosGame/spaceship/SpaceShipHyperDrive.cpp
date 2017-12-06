@@ -4,8 +4,8 @@
 #include "SpaceShip.h"
 
 
-SpaceShipHyperDrive::SpaceShipHyperDrive(glm::dvec3 relativePosition, glm::dquat relativeOrientation, double power, double imaxWattPower)
-    : SpaceShipModule(relativePosition, relativeOrientation, maxWattPower),
+SpaceShipHyperDrive::SpaceShipHyperDrive(Model3d* model, glm::dvec3 relativePosition, glm::dquat relativeOrientation, double power, double imaxWattPower)
+    : SpaceShipModule(model, relativePosition, relativeOrientation, maxWattPower),
     maxPower(power)
 {
 }

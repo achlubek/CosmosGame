@@ -7,6 +7,7 @@
 #include "spaceship/SpaceShipHyperDrive.h"
 #include "spaceship/SpaceShipAutopilot.h"
 #include "AbsShipEnginesController.h"
+#include "Model3d.h"
 #include "Maneuvering6DOFShipEnginesController.h"
 #include "CommandTerminal.h"
 #include "Player.h"
@@ -45,9 +46,7 @@ glm::dquat vec3toquat(glm::dvec3 dir, double angle = 0) {
     auto cr2 = glm::normalize(glm::cross(dir, cr1));
 
     glm::dmat3 m = glm::dmat3(cr1, cr2, dir);
-    return glm::quat_cast(m);
-
-    return glm::quat_cast(glm::lookAt(glm::dvec3(0.0), dir, up));
+    return glm::angleAxis(angle, dir) * glm::quat_cast(m);
 }
 
 int main()
@@ -151,8 +150,10 @@ int main()
     //glm::quat spaceshipOrientation = glm::quat(1.0, 0.0, 0.0, 0.0);
 
     PhysicalWorld* pworld = new PhysicalWorld();
-    Player* player = new Player(cosmosRenderer->assets.loadObject3dInfoFile("icos.raw"));
-    SpaceShip* ship = new SpaceShip(cosmosRenderer->spaceship3dInfo, cosmosRenderer->nearbyStars[9999].planets[0].getPosition(100.0) * cosmosRenderer->scale + glm::dvec3(10000.0, 0.0, 0.0), glm::dquat(1.0, 0.0, 0.0, 0.0));
+    auto placeholdercolshape = cosmosRenderer->assets.loadObject3dInfoFile("icos.raw");
+    Player* player = new Player(placeholdercolshape);
+    Model3d* shipModel = new Model3d(toolkit, cosmosRenderer->modelMRTLayout, "spaceship2d.ini");
+    SpaceShip* ship = new SpaceShip(placeholdercolshape, shipModel, cosmosRenderer->nearbyStars[9999].planets[0].getPosition(100.0) * cosmosRenderer->scale + glm::dvec3(10000.0, 0.0, 0.0), glm::dquat(1.0, 0.0, 0.0, 0.0));
     player->setPosition(ship->getPosition());
 
     pworld->entities.push_back(player);
@@ -207,10 +208,14 @@ int main()
             cosmosRenderer->recompileShaders(true);
         }
     });
-    SpaceShipHyperDrive* hyperdrive_engine = new SpaceShipHyperDrive(glm::dvec3(0.0, 0.0, 1.0), vec3toquat(glm::dvec3(0.0, 0.0, 1.0)), 2500000.19, 0.1);
+    Model3d* smallEngineModel = new Model3d(toolkit, cosmosRenderer->modelMRTLayout, "small_engine.ini");
+    Model3d* largeEngineModel = new Model3d(toolkit, cosmosRenderer->modelMRTLayout, "large_engine.ini");
+    Model3d* hyperEngineModel = new Model3d(toolkit, cosmosRenderer->modelMRTLayout, "hyperdrive.ini");
 
-    SpaceShipEngine* forward_engine = new SpaceShipEngine(glm::dvec3(0.0, 0.0, 1.0), vec3toquat(glm::dvec3(0.0, 0.0, 1.0)), 100000.19, 0.1);
-    SpaceShipEngine* backward_engine = new SpaceShipEngine(glm::dvec3(0.0, 0.0, -1.0), vec3toquat(glm::dvec3(0.0, 0.0, -1.0)), 100000.19, 0.01);
+    SpaceShipHyperDrive* hyperdrive_engine = new SpaceShipHyperDrive(hyperEngineModel, glm::dvec3(0.0, 0.0, 1.0), vec3toquat(glm::dvec3(0.0, 0.0, 1.0)), 2500000.19, 0.1);
+
+    SpaceShipEngine* forward_engine = new SpaceShipEngine(largeEngineModel, glm::dvec3(0.0, 0.0, 1.0), vec3toquat(glm::dvec3(0.0, 0.0, 1.0)), 100000.19, 0.1);
+    SpaceShipEngine* backward_engine = new SpaceShipEngine(largeEngineModel, glm::dvec3(0.0, 0.0, -1.0), vec3toquat(glm::dvec3(0.0, 0.0, -1.0)), 100000.19, 0.01);
 
     /*
              rX |   / rY
@@ -240,20 +245,20 @@ int main()
          posZDOWN
     */
     double helpersforce = 100.5;
-    SpaceShipEngine* negXUP = new SpaceShipEngine(glm::dvec3(-1.0, 0.0, 0.0), vec3toquat(glm::dvec3(0.0, 1.0, 0.0)), helpersforce, 0.1);
-    SpaceShipEngine* negXDOWN = new SpaceShipEngine(glm::dvec3(-1.0, 0.0, 0.0), vec3toquat(glm::dvec3(0.0, -1.0, 0.0)), helpersforce, 0.1);
-    SpaceShipEngine* posXUP = new SpaceShipEngine(glm::dvec3(1.0, 0.0, 0.0), vec3toquat(glm::dvec3(0.0, 1.0, 0.0)), helpersforce, 0.1);
-    SpaceShipEngine* posXDOWN = new SpaceShipEngine(glm::dvec3(1.0, 0.0, 0.0), vec3toquat(glm::dvec3(0.0, -1.0, 0.0)), helpersforce, 0.1);
+    SpaceShipEngine* negXUP = new SpaceShipEngine(smallEngineModel, glm::dvec3(-1.0, 0.0, 0.0), vec3toquat(glm::dvec3(0.0, 1.0, 0.0)), helpersforce, 0.1);
+    SpaceShipEngine* negXDOWN = new SpaceShipEngine(smallEngineModel, glm::dvec3(-1.0, 0.0, 0.0), vec3toquat(glm::dvec3(0.0, -1.0, 0.0)), helpersforce, 0.1);
+    SpaceShipEngine* posXUP = new SpaceShipEngine(smallEngineModel, glm::dvec3(1.0, 0.0, 0.0), vec3toquat(glm::dvec3(0.0, 1.0, 0.0)), helpersforce, 0.1);
+    SpaceShipEngine* posXDOWN = new SpaceShipEngine(smallEngineModel, glm::dvec3(1.0, 0.0, 0.0), vec3toquat(glm::dvec3(0.0, -1.0, 0.0)), helpersforce, 0.1);
 
-    SpaceShipEngine* negYFORWARD = new SpaceShipEngine(glm::dvec3(0.0, -1.0, 0.0), vec3toquat(glm::dvec3(0.0, 0.0, 1.0)), helpersforce, 0.1);
-    SpaceShipEngine* negYBACKWARD = new SpaceShipEngine(glm::dvec3(0.0, -1.0, 0.0), vec3toquat(glm::dvec3(0.0, 0.0, -1.0)), helpersforce, 0.1);
-    SpaceShipEngine* posYFORWARD = new SpaceShipEngine(glm::dvec3(0.0, 1.0, 0.0), vec3toquat(glm::dvec3(0.0, 0.0, 1.0)), helpersforce, 0.1);
-    SpaceShipEngine* posYBACKWARD = new SpaceShipEngine(glm::dvec3(0.0, 1.0, 0.0), vec3toquat(glm::dvec3(0.0, 0.0, -1.0)), helpersforce, 0.1);
+    SpaceShipEngine* negYFORWARD = new SpaceShipEngine(smallEngineModel, glm::dvec3(0.0, -1.0, 0.0), vec3toquat(glm::dvec3(0.0, 0.0, 1.0)), helpersforce, 0.1);
+    SpaceShipEngine* negYBACKWARD = new SpaceShipEngine(smallEngineModel, glm::dvec3(0.0, -1.0, 0.0), vec3toquat(glm::dvec3(0.0, 0.0, -1.0)), helpersforce, 0.1);
+    SpaceShipEngine* posYFORWARD = new SpaceShipEngine(smallEngineModel, glm::dvec3(0.0, 1.0, 0.0), vec3toquat(glm::dvec3(0.0, 0.0, 1.0)), helpersforce, 0.1);
+    SpaceShipEngine* posYBACKWARD = new SpaceShipEngine(smallEngineModel, glm::dvec3(0.0, 1.0, 0.0), vec3toquat(glm::dvec3(0.0, 0.0, -1.0)), helpersforce, 0.1);
 
-    SpaceShipEngine* negZLEFT = new SpaceShipEngine(glm::dvec3(0.0, 0.0, -1.0), vec3toquat(glm::dvec3(-1.0, 0.0, 0.0)), helpersforce, 0.1);
-    SpaceShipEngine* negZRIGHT = new SpaceShipEngine(glm::dvec3(0.0, 0.0, -1.0), vec3toquat(glm::dvec3(1.0, 0.0, 0.0)), helpersforce, 0.1);
-    SpaceShipEngine* posZLEFT = new SpaceShipEngine(glm::dvec3(0.0, 0.0, 1.0), vec3toquat(glm::dvec3(-1.0, 0.0, 0.0)), helpersforce, 0.1);
-    SpaceShipEngine* posZRIGHT = new SpaceShipEngine(glm::dvec3(0.0, 0.0, 1.0), vec3toquat(glm::dvec3(1.0, 0.0, 0.0)), helpersforce, 0.1);
+    SpaceShipEngine* negZLEFT = new SpaceShipEngine(smallEngineModel, glm::dvec3(0.0, 0.0, -1.0), vec3toquat(glm::dvec3(-1.0, 0.0, 0.0)), helpersforce, 0.1);
+    SpaceShipEngine* negZRIGHT = new SpaceShipEngine(smallEngineModel, glm::dvec3(0.0, 0.0, -1.0), vec3toquat(glm::dvec3(1.0, 0.0, 0.0)), helpersforce, 0.1);
+    SpaceShipEngine* posZLEFT = new SpaceShipEngine(smallEngineModel, glm::dvec3(0.0, 0.0, 1.0), vec3toquat(glm::dvec3(-1.0, 0.0, 0.0)), helpersforce, 0.1);
+    SpaceShipEngine* posZRIGHT = new SpaceShipEngine(smallEngineModel, glm::dvec3(0.0, 0.0, 1.0), vec3toquat(glm::dvec3(1.0, 0.0, 0.0)), helpersforce, 0.1);
 
     Maneuvering6DOFShipEnginesController enginesController = Maneuvering6DOFShipEnginesController();
     enginesController.negXUP = negXUP;
@@ -295,6 +300,8 @@ int main()
     for (int i = 0; i < ship->modules.size(); i++) {
         ship->modules[i]->enable();
     }
+
+    cosmosRenderer->ships.push_back(ship);
 
     cosmosRenderer->mapBuffers();
     cosmosRenderer->updateStars();
@@ -634,8 +641,7 @@ int main()
        // ship->applyGravity(cosmosRenderer->lastGravity * elapsed * (keyboard->getKeyStatus(GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS ? 100.0f : 1.0f));
        // ship->stepEmulation(elapsed);
         //camera->transformation->setOrientation(ship->getOrientation());
-        cosmosRenderer->updateCameraBuffer(camera, player->getPosition() , 
-            ship->getPosition(), ship->getOrientation());
+        cosmosRenderer->updateCameraBuffer(camera, player->getPosition());
         cosmosRenderer->updatePlanetsAndMoon(ship->getPosition());
         cosmosRenderer->draw();
         auto slp = ship->getLinearVelocity();

@@ -5,8 +5,13 @@ layout(location = 0) in vec2 UV;
 layout(location = 1) in flat uint inInstanceId;
 layout(location = 2) in vec3 inWorldPos;
 layout(location = 3) in vec3 inNormal;
-layout(set = 0, binding = 8) uniform sampler2D texShipColor;
 layout(location = 0) out vec4 outColor;
+layout(set = 1, binding = 1) uniform sampler2D texAlbedo;
+layout(set = 1, binding = 2) uniform sampler2D texNormal;
+layout(set = 1, binding = 3) uniform sampler2D texRoughness;
+layout(set = 1, binding = 4) uniform sampler2D texMetalness;
+layout(set = 1, binding = 5) uniform sampler2D texEmissionIdle;
+layout(set = 1, binding = 6) uniform sampler2D texEmissionPowered;
 
 #include celestialSet.glsl
 #include camera.glsl
@@ -59,6 +64,6 @@ vec3 thrustengine(vec3 rayorigin, vec3 raydir, vec3 position, vec3 direction, fl
 }
 Ray cameraRay;
 void main() {
-    outColor = vec4(texture(texShipColor, vec2(UV.x, 1.0 - UV.y)).rgb, 1.0);
+    outColor = vec4(texture(texAlbedo, vec2(UV.x, 1.0 - UV.y)).rgb, 1.0);
 
 }

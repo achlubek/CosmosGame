@@ -57,8 +57,3 @@ vec3 CameraPosition = hiFreq.inCameraPos.xyz;
 vec3 FrustumConeLeftBottom = hiFreq.inFrustumConeLeftBottom.xyz;
 vec3 FrustumConeBottomLeftToBottomRight = hiFreq.inFrustumConeBottomLeftToBottomRight.xyz;
 vec3 FrustumConeBottomLeftToTopLeft = hiFreq.inFrustumConeBottomLeftToTopLeft.xyz;
-
-layout(set = 0, binding = 7) buffer ShipsStorageBuffer {
-    mat4 transformation;
-    vec4 position;
-} shipBuffer;

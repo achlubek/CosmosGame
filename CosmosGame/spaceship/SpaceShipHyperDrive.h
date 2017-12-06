@@ -3,7 +3,7 @@
 class SpaceShipHyperDrive : public SpaceShipModule
 {
 public:
-    SpaceShipHyperDrive(glm::dvec3 relativePosition, glm::dquat relativeOrientation, double power, double imaxWattPower);
+    SpaceShipHyperDrive(Model3d* model, glm::dvec3 relativePosition, glm::dquat relativeOrientation, double power, double imaxWattPower);
     ~SpaceShipHyperDrive();
     double maxPower;
 

@@ -16,11 +16,16 @@ layout(location = 3) out vec3 outNormal;
 
 #include celestialSet.glsl
 
+layout(set = 1, binding = 0) buffer modelStorageBuffer {
+    mat4 transformation;
+    vec4 position;
+} modelBuffer;
+
 void main() {
-    vec3 WorldPos = (shipBuffer.transformation
-        * vec4(inPosition.xyz, 1.0)).rgb + shipBuffer.position.rgb;
+    vec3 WorldPos = (modelBuffer.transformation
+        * vec4(inPosition.xyz, 1.0)).rgb + modelBuffer.position.rgb;
     vec4 opo = (hiFreq.VPMatrix)
-        * ((shipBuffer.transformation * vec4(inPosition.xyz, 1.0)) + vec4(shipBuffer.position.rgb, 0.0));
+        * ((modelBuffer.transformation * vec4(inPosition.xyz, 1.0)) + vec4(modelBuffer.position.rgb, 0.0));
     vec3 Normal = inNormal;
     outNormal = normalize(Normal);
     outTexCoord = inTexCoord;

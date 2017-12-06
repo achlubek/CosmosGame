@@ -3,6 +3,7 @@
 class VulkanRenderer;
 class VulkanToolkit;
 #include "GalaxyGenerator.h"
+#include "spaceship/SpaceShip.h"
 
 class CosmosRenderer
 {
@@ -21,6 +22,7 @@ public:
     GeneratedPlanetInfo nearestPlanet;
     GeneratedMoonInfo nearestMoon;
     Camera* internalCamera;
+    std::vector<SpaceShip*> ships;
 
     GeneratedStarInfo getStar(int starIndex);
     GeneratedPlanetInfo getPlanet(int starIndex, int planetIndex);
@@ -44,31 +46,31 @@ public:
    // VulkanDescriptorSet* starsSet{ nullptr };
 
     VulkanRenderStage* planetDataStage{ nullptr };
-    VulkanRenderStage* shipStage{ nullptr };
+    VulkanRenderStage* modelsStage{ nullptr };
 
     VulkanRenderStage* combineStage{ nullptr };
     VulkanDescriptorSetLayout* combineLayout{ nullptr };
     VulkanDescriptorSet* combineSet{ nullptr };
 
+
+    VulkanDescriptorSetLayout* modelMRTLayout{ nullptr };
+
     VulkanGenericBuffer* cameraDataBuffer;
     VulkanGenericBuffer* starsDataBuffer;
     VulkanGenericBuffer* planetsDataBuffer;
     VulkanGenericBuffer* moonsDataBuffer;
-    VulkanGenericBuffer* shipDataBuffer;
 
     VulkanImage* celestialImage;
     VulkanImage* starsImage;
     //VulkanImage* cosmosImage;
-    VulkanImage* shipResultImage;
-    VulkanImage* shipDepthImage;
-    VulkanImage* shipColorTexture;
+    VulkanImage* modelsResultImage;
+    VulkanImage* modelsDepthImage; 
 
     VulkanImage* planetTerrainHeightImage;
     VulkanImage* planetTerrainColorImage;
     VulkanImage* planetAtmosphereFlunctuationsImage;
 
-    Object3dInfo* cube3dInfo;
-    Object3dInfo* spaceship3dInfo;
+    Object3dInfo* cube3dInfo; 
 
     const double scale = 0.01;
 
@@ -77,6 +79,7 @@ public:
     glm::dvec3 closestSurfacePosition;
     glm::dvec3 closestSurfaceNormal;
     glm::dvec3 closestObjectLinearAbsoluteSpeed;
+    glm::dvec3 observerCameraPosition;
     double closestSurfaceDistance;
 
     void* starsDataBufferPointer;
@@ -94,7 +97,7 @@ public:
 
     void updateNearestStar(glm::dvec3 observerPosition);
 
-    void updateCameraBuffer(Camera* cam, glm::dvec3 observerPosition, glm::dvec3 spaceShipPosition, glm::dquat spaceShipOrientation);
+    void updateCameraBuffer(Camera* cam, glm::dvec3 observerPosition);
     void draw();
 
     volatile bool readyForDrawing = false;

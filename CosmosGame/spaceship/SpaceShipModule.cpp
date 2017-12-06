@@ -2,9 +2,10 @@
 #include "SpaceShipModule.h"
 
 
-SpaceShipModule::SpaceShipModule(glm::dvec3 irelativePosition, glm::dquat irelativeOrientation, double imaxWattPower)
+SpaceShipModule::SpaceShipModule(Model3d* imodel, glm::dvec3 irelativePosition, glm::dquat irelativeOrientation, double imaxWattPower)
     : relativePosition (irelativePosition),
     maxWattPower(imaxWattPower),
+    model(imodel),
     relativeOrientation(irelativeOrientation)
 {
     enabled = false;
