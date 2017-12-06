@@ -593,13 +593,17 @@ void CosmosRenderer::draw()
     starsStage->endDrawing();
     starsStage->submitNoSemaphores({});
 
+    vkDeviceWaitIdle(vulkan->device);
     modelsStage->beginDrawing();
 
+    vkDeviceWaitIdle(vulkan->device);
     for (int i = 0; i < ships.size(); i++)ships[i]->drawShipAndModules(modelsStage, celestialSet, observerCameraPosition);
 
+    vkDeviceWaitIdle(vulkan->device);
     modelsStage->endDrawing();
+    vkDeviceWaitIdle(vulkan->device);
     modelsStage->submitNoSemaphores({});
-
+    vkDeviceWaitIdle(vulkan->device);
 
     renderer->beginDrawing();
 
