@@ -4,11 +4,9 @@
 #include "SpaceShip.h"
 
 
-SpaceShipHyperDrive::SpaceShipHyperDrive(glm::dvec3 relativePosition, glm::dvec3 ithrustDirection, double power, double fuelPerSecond)
-    : SpaceShipModule(relativePosition),
-    thrustDirection(ithrustDirection),
-    maxPower(power),
-    maxFuelConsumptionPerSecond(fuelPerSecond)
+SpaceShipHyperDrive::SpaceShipHyperDrive(glm::dvec3 relativePosition, glm::dquat relativeOrientation, double power, double imaxWattPower)
+    : SpaceShipModule(relativePosition, relativeOrientation, maxWattPower),
+    maxPower(power)
 {
 }
 
@@ -21,6 +19,8 @@ void SpaceShipHyperDrive::update(SpaceShip * ship, double time_elapsed)
 {
     // trust is negative of applied impulse
     auto m3 = glm::mat3_cast(ship->getOrientation());
+    auto m3_thrust = glm::mat3_cast(relativeOrientation);
+    auto thrustDirection = m3_thrust * glm::dvec3(0.0, 0.0, -1.0);
     glm::dvec3 vel = -thrustDirection * maxPower * realPower;
     if (realPower < currentPowerPercentage) {
         realPower += min(0.01 * time_elapsed, currentPowerPercentage - realPower);
@@ -30,9 +30,4 @@ void SpaceShipHyperDrive::update(SpaceShip * ship, double time_elapsed)
     }
     realPower = glm::clamp(realPower, 0.0, 1.0);
     ship->setHyperDriveVelocity(m3 * vel);
-}
-
-double SpaceShipHyperDrive::getFuelConsumptionPerSecond()
-{
-    return maxFuelConsumptionPerSecond * currentPowerPercentage;
 }

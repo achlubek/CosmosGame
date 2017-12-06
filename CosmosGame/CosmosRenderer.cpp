@@ -37,13 +37,13 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, int iwidth, int iheight) 
     // cosmosImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
    //      VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
 
-    planetTerrainHeightImage = new VulkanImage(vulkan, 1024 * 6, 1024 * 6, VK_FORMAT_R16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
+    planetTerrainHeightImage = new VulkanImage(vulkan, 1024 * 2, 1024 * 2, VK_FORMAT_R16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
         VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
 
-    planetTerrainColorImage = new VulkanImage(vulkan, 1024 * 6, 1024 * 6, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL,
+    planetTerrainColorImage = new VulkanImage(vulkan, 1024 * 2, 1024 * 2, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL,
         VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
 
-    planetAtmosphereFlunctuationsImage = new VulkanImage(vulkan, 1024 * 6, 1024 * 6, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL,
+    planetAtmosphereFlunctuationsImage = new VulkanImage(vulkan, 1024 * 2, 1024 * 2, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL,
         VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
 
     shipColorTexture = assets.loadTextureFile("spaceship2d_texture.png");
@@ -132,7 +132,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     auto planetdatafrag = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-planetdata.frag.spv");
 
     planetDataStage = new VulkanRenderStage(vulkan);
-    planetDataStage->setViewport(1024 * 6, 1024 * 6);
+    planetDataStage->setViewport(1024 * 2, 1024 * 2);
     planetDataStage->addShaderStage(planetdatavert->createShaderStage(VK_SHADER_STAGE_VERTEX_BIT, "main"));
     planetDataStage->addShaderStage(planetdatafrag->createShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT, "main"));
     planetDataStage->addDescriptorSetLayout(celestialLayout->layout);

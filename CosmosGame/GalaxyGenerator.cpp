@@ -121,7 +121,7 @@ GeneratedStarSystemInfo GalaxyGenerator::generateStarInfo(size_t index)
     star.spotsIntensity = drandnorm();
     star.rotationSpeed = drandnorm();
     star.orbitPlane = glm::normalize(glm::vec3(drandnorm(), drandnorm(), drandnorm()) * 2.0f - 1.0f);
-    star.planetsCount = randu64(3, 8);
+    star.planetsCount = randu64(8, 8);
     star.starIndex = index;
     system.star = star;
     system.planets = {};

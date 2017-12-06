@@ -1,5 +1,5 @@
 #pragma once
-#include "PhysicalEntity.h"
+#include "physics/PhysicalEntity.h"
 class Player : public PhysicalEntity
 {
 public:

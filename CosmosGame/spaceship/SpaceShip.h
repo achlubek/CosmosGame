@@ -1,8 +1,8 @@
 #pragma once 
 class SpaceShipModule;
 class Object3dInfo;
-#include "PhysicalEntity.h"
-#include "Player.h"
+#include "../physics/PhysicalEntity.h"
+#include "../Player.h"
 
 
 class SpaceShip : public PhysicalEntity

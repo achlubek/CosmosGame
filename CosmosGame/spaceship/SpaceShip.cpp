@@ -2,9 +2,9 @@
 #include "SpaceShip.h"
 #include "SpaceShipModule.h"
 #include "Object3dInfo.h"
-#include "PhysicalEntity.h"
-#define GLM_ENABLE_EXPERIMENTAL
-#include "glm\gtx\intersect.hpp"
+#include "../physics/PhysicalEntity.h"
+//#define GLM_ENABLE_EXPERIMENTAL
+//#include "glm\gtx\intersect.hpp"
 
 
 SpaceShip::SpaceShip(Object3dInfo* collisionShape, glm::dvec3 pos, glm::dquat orient)

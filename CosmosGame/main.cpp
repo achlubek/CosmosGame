@@ -1,17 +1,18 @@
 #include "stdafx.h"
 #include "CosmosRenderer.h"
 #include "GalaxyGenerator.h"
-#include "SpaceShip.h"
-#include "SpaceShipModule.h"
-#include "SpaceShipEngine.h"
-#include "SpaceShipHyperDrive.h"
-#include "SpaceShipAutopilot.h"
+#include "spaceship/SpaceShip.h"
+#include "spaceship/SpaceShipModule.h"
+#include "spaceship/SpaceShipEngine.h"
+#include "spaceship/SpaceShipHyperDrive.h"
+#include "spaceship/SpaceShipAutopilot.h"
 #include "AbsShipEnginesController.h"
 #include "Maneuvering6DOFShipEnginesController.h"
 #include "CommandTerminal.h"
 #include "Player.h"
-#include "PhysicalWorld.h"
+#include "physics/PhysicalWorld.h"
 #include <algorithm>
+ 
 void splitBySpaces(vector<string>& output, string src)
 {
     int i = 0, d = 0;
@@ -29,6 +30,26 @@ void splitBySpaces(vector<string>& output, string src)
         output.push_back(src.substr(d, i));
     }
 }
+
+glm::dquat vec3toquat(glm::dvec3 dir, double angle = 0) { 
+
+    glm::dvec3 up = glm::dvec3(0.0, 1.0, 0.0);
+    if (glm::dot(up, dir) > 0.9999999) {
+        up = glm::dvec3(1.0, 0.0, 0.0);
+    }
+    if (glm::dot(up, -dir) > 0.9999999) {
+        up = glm::dvec3(1.0, 0.0, 0.0);
+    }
+    // lets go full linear algebra here
+    auto cr1 = glm::normalize(glm::cross(dir, up));
+    auto cr2 = glm::normalize(glm::cross(dir, cr1));
+
+    glm::dmat3 m = glm::dmat3(cr1, cr2, dir);
+    return glm::quat_cast(m);
+
+    return glm::quat_cast(glm::lookAt(glm::dvec3(0.0), dir, up));
+}
+
 int main()
 { 
     Media::loadFileMap("../../media");
@@ -124,6 +145,21 @@ int main()
         cameraFov = glm::clamp(cameraFov, 1.0f, 110.0f);
         camera->createProjectionPerspective(cameraFov, (float)toolkit->windowWidth / (float)toolkit->windowHeight, 0.01f, 9000000.0f);
     });
+    //glm::vec3 spaceshipLinearVelocity = glm::vec3(0.0);
+    //glm::vec3 spaceshipAngularVelocity = glm::vec3(0.0);
+    //glm::dvec3 spaceshipPosition = glm::dvec3(0.0);
+    //glm::quat spaceshipOrientation = glm::quat(1.0, 0.0, 0.0, 0.0);
+
+    PhysicalWorld* pworld = new PhysicalWorld();
+    Player* player = new Player(cosmosRenderer->assets.loadObject3dInfoFile("icos.raw"));
+    SpaceShip* ship = new SpaceShip(cosmosRenderer->spaceship3dInfo, cosmosRenderer->nearbyStars[9999].planets[0].getPosition(100.0) * cosmosRenderer->scale + glm::dvec3(10000.0, 0.0, 0.0), glm::dquat(1.0, 0.0, 0.0, 0.0));
+    player->setPosition(ship->getPosition());
+
+    pworld->entities.push_back(player);
+    pworld->entities.push_back(ship);
+
+    ship->mainSeat = player;
+
 
     keyboard->onKeyPress.add([&](int key) {
         if (key == GLFW_KEY_T) {
@@ -138,8 +174,10 @@ int main()
         }
         if (terminal->isInputEnabled()) return;
         if (key == GLFW_KEY_O) {
-            flightHelperEnabled = !flightHelperEnabled;
-        } 
+            // flightHelperEnabled = !flightHelperEnabled;
+            ship->setLinearVelocity(glm::dvec3(0.0));
+            ship->setAngularVelocity(glm::dvec3(0.0));
+        }
         if (key == GLFW_KEY_F1) {
             speedmultiplier = 0.00015;
         }
@@ -169,26 +207,10 @@ int main()
             cosmosRenderer->recompileShaders(true);
         }
     });
-    //glm::vec3 spaceshipLinearVelocity = glm::vec3(0.0);
-    //glm::vec3 spaceshipAngularVelocity = glm::vec3(0.0);
-    //glm::dvec3 spaceshipPosition = glm::dvec3(0.0);
-    //glm::quat spaceshipOrientation = glm::quat(1.0, 0.0, 0.0, 0.0);
-    //double maxFuel = 10000.0;
-    //double fuel = maxFuel;
-    PhysicalWorld* pworld = new PhysicalWorld();
-    Player* player = new Player(cosmosRenderer->assets.loadObject3dInfoFile("icos.raw"));
-    SpaceShip* ship = new SpaceShip(cosmosRenderer->spaceship3dInfo, cosmosRenderer->nearbyStars[9999].planets[0].getPosition(100.0) * cosmosRenderer->scale + glm::dvec3(10000.0, 0.0, 0.0), glm::dquat(1.0, 0.0, 0.0, 0.0));
-    player->setPosition(ship->getPosition());
+    SpaceShipHyperDrive* hyperdrive_engine = new SpaceShipHyperDrive(glm::dvec3(0.0, 0.0, 1.0), vec3toquat(glm::dvec3(0.0, 0.0, 1.0)), 2500000.19, 0.1);
 
-    pworld->entities.push_back(player);
-    pworld->entities.push_back(ship);
-
-    ship->mainSeat = player;
-
-    SpaceShipHyperDrive* hyperdrive_engine = new SpaceShipHyperDrive(glm::dvec3(0.0, 0.0, 1.0), glm::dvec3(0.0, 0.0, 1.0), 2500000.19, 0.1);
-
-    SpaceShipEngine* forward_engine = new SpaceShipEngine(glm::dvec3(0.0, 0.0, 1.0), glm::dvec3(0.0, 0.0, 1.0), 100000.19, 0.1);
-    SpaceShipEngine* backward_engine = new SpaceShipEngine(glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(0.0, 0.0, -1.0), 100000.19, 0.01);
+    SpaceShipEngine* forward_engine = new SpaceShipEngine(glm::dvec3(0.0, 0.0, 1.0), vec3toquat(glm::dvec3(0.0, 0.0, 1.0)), 100000.19, 0.1);
+    SpaceShipEngine* backward_engine = new SpaceShipEngine(glm::dvec3(0.0, 0.0, -1.0), vec3toquat(glm::dvec3(0.0, 0.0, -1.0)), 100000.19, 0.01);
 
     /*
              rX |   / rY
@@ -218,20 +240,20 @@ int main()
          posZDOWN
     */
     double helpersforce = 100.5;
-    SpaceShipEngine* negXUP = new SpaceShipEngine(glm::dvec3(-1.0, 0.0, 0.0), glm::dvec3(0.0, 1.0, 0.0), helpersforce, 0.1);
-    SpaceShipEngine* negXDOWN = new SpaceShipEngine(glm::dvec3(-1.0, 0.0, 0.0), glm::dvec3(0.0, -1.0, 0.0), helpersforce, 0.1);
-    SpaceShipEngine* posXUP = new SpaceShipEngine(glm::dvec3(1.0, 0.0, 0.0), glm::dvec3(0.0, 1.0, 0.0), helpersforce, 0.1);
-    SpaceShipEngine* posXDOWN = new SpaceShipEngine(glm::dvec3(1.0, 0.0, 0.0), glm::dvec3(0.0, -1.0, 0.0), helpersforce, 0.1);
+    SpaceShipEngine* negXUP = new SpaceShipEngine(glm::dvec3(-1.0, 0.0, 0.0), vec3toquat(glm::dvec3(0.0, 1.0, 0.0)), helpersforce, 0.1);
+    SpaceShipEngine* negXDOWN = new SpaceShipEngine(glm::dvec3(-1.0, 0.0, 0.0), vec3toquat(glm::dvec3(0.0, -1.0, 0.0)), helpersforce, 0.1);
+    SpaceShipEngine* posXUP = new SpaceShipEngine(glm::dvec3(1.0, 0.0, 0.0), vec3toquat(glm::dvec3(0.0, 1.0, 0.0)), helpersforce, 0.1);
+    SpaceShipEngine* posXDOWN = new SpaceShipEngine(glm::dvec3(1.0, 0.0, 0.0), vec3toquat(glm::dvec3(0.0, -1.0, 0.0)), helpersforce, 0.1);
 
-    SpaceShipEngine* negYFORWARD = new SpaceShipEngine(glm::dvec3(0.0, -1.0, 0.0), glm::dvec3(0.0, 0.0, 1.0), helpersforce, 0.1);
-    SpaceShipEngine* negYBACKWARD = new SpaceShipEngine(glm::dvec3(0.0, -1.0, 0.0), glm::dvec3(0.0, 0.0, -1.0), helpersforce, 0.1);
-    SpaceShipEngine* posYFORWARD = new SpaceShipEngine(glm::dvec3(0.0, 1.0, 0.0), glm::dvec3(0.0, 0.0, 1.0), helpersforce, 0.1);
-    SpaceShipEngine* posYBACKWARD = new SpaceShipEngine(glm::dvec3(0.0, 1.0, 0.0), glm::dvec3(0.0, 0.0, -1.0), helpersforce, 0.1);
+    SpaceShipEngine* negYFORWARD = new SpaceShipEngine(glm::dvec3(0.0, -1.0, 0.0), vec3toquat(glm::dvec3(0.0, 0.0, 1.0)), helpersforce, 0.1);
+    SpaceShipEngine* negYBACKWARD = new SpaceShipEngine(glm::dvec3(0.0, -1.0, 0.0), vec3toquat(glm::dvec3(0.0, 0.0, -1.0)), helpersforce, 0.1);
+    SpaceShipEngine* posYFORWARD = new SpaceShipEngine(glm::dvec3(0.0, 1.0, 0.0), vec3toquat(glm::dvec3(0.0, 0.0, 1.0)), helpersforce, 0.1);
+    SpaceShipEngine* posYBACKWARD = new SpaceShipEngine(glm::dvec3(0.0, 1.0, 0.0), vec3toquat(glm::dvec3(0.0, 0.0, -1.0)), helpersforce, 0.1);
 
-    SpaceShipEngine* negZLEFT = new SpaceShipEngine(glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(-1.0, 0.0, 0.0), helpersforce, 0.1);
-    SpaceShipEngine* negZRIGHT = new SpaceShipEngine(glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(1.0, 0.0, 0.0), helpersforce, 0.1);
-    SpaceShipEngine* posZLEFT = new SpaceShipEngine(glm::dvec3(0.0, 0.0, 1.0), glm::dvec3(-1.0, 0.0, 0.0), helpersforce, 0.1);
-    SpaceShipEngine* posZRIGHT = new SpaceShipEngine(glm::dvec3(0.0, 0.0, 1.0), glm::dvec3(1.0, 0.0, 0.0), helpersforce, 0.1);
+    SpaceShipEngine* negZLEFT = new SpaceShipEngine(glm::dvec3(0.0, 0.0, -1.0), vec3toquat(glm::dvec3(-1.0, 0.0, 0.0)), helpersforce, 0.1);
+    SpaceShipEngine* negZRIGHT = new SpaceShipEngine(glm::dvec3(0.0, 0.0, -1.0), vec3toquat(glm::dvec3(1.0, 0.0, 0.0)), helpersforce, 0.1);
+    SpaceShipEngine* posZLEFT = new SpaceShipEngine(glm::dvec3(0.0, 0.0, 1.0), vec3toquat(glm::dvec3(-1.0, 0.0, 0.0)), helpersforce, 0.1);
+    SpaceShipEngine* posZRIGHT = new SpaceShipEngine(glm::dvec3(0.0, 0.0, 1.0), vec3toquat(glm::dvec3(1.0, 0.0, 0.0)), helpersforce, 0.1);
 
     Maneuvering6DOFShipEnginesController enginesController = Maneuvering6DOFShipEnginesController();
     enginesController.negXUP = negXUP;
@@ -318,59 +340,6 @@ int main()
                 terminal->printMessage(UIColor(0.1, 1.0, 0.1, 1.0), "*** Hope you enjoy.");
                 return;
             }
-            if (words.size() == 2 && words[0] == "warp_to_star") {
-                std::thread hyperdrive_proc([&]() {
-                    glm::dvec3 target = cosmosRenderer->nearbyStars[std::stoi(words[1])].star.getPosition() * cosmosRenderer->scale;
-                    pilot.setAngularMaxSpeed(1.0);
-                    pilot.setLinearMaxSpeed(100.0);
-                    pilot.setPositionCorrectionStrength(0.135);
-                    // terminal->printMessage(UIColor(0.1, 1.0, 0.1, 1.0), "*** Braking...");
-                    enginesController.setEnginesPower(0.1);
-                    enginesController.setReferenceFrameVelocity(glm::dvec3(0.0));
-                    enginesController.setTargetAngularVelocity(glm::dvec3(0.0));
-                    enginesController.setTargetLinearVelocity(glm::dvec3(0.0));
-                    auto dstorient = glm::normalize(target - ship->getPosition());
-                    while (true) {
-                        pilot.setTargetPosition(ship->getPosition() + ship->getLinearVelocity() * -100.0);
-                        if (glm::length(ship->getLinearVelocity()) < 0.01 && glm::length(ship->getAngularVelocity()) < 0.1) break;
-                        pilot.update(ship);
-                        pilot.getTargetOrientation(dstorient);
-                        enginesController.update(ship);
-                    }
-                    // terminal->printMessage(UIColor(0.1, 1.0, 0.1, 1.0), "*** Aligning...");
-                    pilot.setTargetPosition(ship->getPosition());
-                    pilot.getTargetOrientation(dstorient);
-                    while (true) {
-                        if (glm::length(ship->getLinearVelocity()) < 0.01 && glm::length(dstorient - ship->getOrientation() * glm::dvec3(0.0, 0.0, -1.0)) < 0.01
-                            && glm::length(ship->getAngularVelocity()) < 0.001) break;
-                        pilot.update(ship);
-                        enginesController.update(ship);
-                    }
-                    //  terminal->printMessage(UIColor(0.1, 1.0, 0.1, 1.0), "*** Enabling hyperdrive...");
-                    enginesController.setEnginesPower(1.0);
-                    hyperdrive_engine->currentPowerPercentage = 1.0;
-                    double targetdist = glm::length(target - ship->getPosition());
-                    glm::dvec3 start = ship->getPosition();
-                    while (true) {
-                        double dst = glm::length(start - ship->getPosition());
-                        double dst2 = glm::length(target - ship->getPosition());
-                        pilot.setTargetPosition(ship->getPosition());
-                        dstorient = glm::normalize(target - ship->getPosition());
-                        pilot.getTargetOrientation(dstorient);
-                        pilot.update(ship);
-                        enginesController.update(ship);
-                        hyperdrive_engine->currentPowerPercentage = glm::clamp(dst2 / (targetdist - 10000.0), 0.0, 1.0);
-                        printf("%f %f %f %f\n", hyperdrive_engine->currentPowerPercentage, targetdist, dst, dst2);
-                        if (dst > targetdist - 10000.0) {
-                            hyperdrive_engine->currentPowerPercentage = 0.0;
-                            break;
-                        }
-                    }
-                    // terminal->printMessage(UIColor(0.1, 1.0, 0.1, 1.0), "*** Done.");
-                });
-                hyperdrive_proc.detach();
-                return;
-            }
             if (words.size() == 3 && words[0] == "warp_to_planet") {
                 std::thread hyperdrive_proc([&]() {
                     glm::dvec3 target = cosmosRenderer->nearbyStars[std::stoi(words[1])].planets[std::stoi(words[2])].getPosition(0.0) * cosmosRenderer->scale;
@@ -401,7 +370,7 @@ int main()
                     }
                     //  terminal->printMessage(UIColor(0.1, 1.0, 0.1, 1.0), "*** Enabling hyperdrive...");
                     enginesController.setEnginesPower(1.0);
-                    hyperdrive_engine->currentPowerPercentage = 1.0;
+                    hyperdrive_engine->setPowerPercentage(1.0);
                     double targetdist = glm::length(target - ship->getPosition());
                     glm::dvec3 start = ship->getPosition();
                     while (true) {
@@ -412,10 +381,10 @@ int main()
                         pilot.getTargetOrientation(dstorient);
                         pilot.update(ship);
                         enginesController.update(ship);
-                        hyperdrive_engine->currentPowerPercentage = glm::clamp((dst2 - 3000.0) / (5400000.0), 0.0, 1.0) * 1.0;
-                        printf("%f %f %f %f\n", hyperdrive_engine->currentPowerPercentage, targetdist, dst, dst2);
+                        hyperdrive_engine->setPowerPercentage((dst2 - 3000.0) / (5400000.0));
+                        printf("%f %f %f %f\n", hyperdrive_engine->getPowerPercentage(), targetdist, dst, dst2);
                         if (dst > targetdist - 3000.0) {
-                            hyperdrive_engine->currentPowerPercentage = 0.0;
+                            hyperdrive_engine->setPowerPercentage(0.0);
                             break;
                         }
                     }
@@ -574,30 +543,30 @@ int main()
             }
             else {
                 // manual sterring
-                forward_engine->currentPowerPercentage = keyboard->getKeyStatus(GLFW_KEY_W) == GLFW_PRESS ? speedmultiplier : 0.0;
-                backward_engine->currentPowerPercentage = keyboard->getKeyStatus(GLFW_KEY_S) == GLFW_PRESS ? speedmultiplier : 0.0;
+                forward_engine->setPowerPercentage(keyboard->getKeyStatus(GLFW_KEY_W) == GLFW_PRESS ? speedmultiplier : 0.0);
+                backward_engine->setPowerPercentage(keyboard->getKeyStatus(GLFW_KEY_S) == GLFW_PRESS ? speedmultiplier : 0.0);
 
                 //X
                 float rotsped = 0.01;
-                negYFORWARD->currentPowerPercentage = keyboard->getKeyStatus(GLFW_KEY_J) == GLFW_PRESS ? rotsped : 0.0;
-                negYBACKWARD->currentPowerPercentage = keyboard->getKeyStatus(GLFW_KEY_U) == GLFW_PRESS ? rotsped : 0.0;
-                posYBACKWARD->currentPowerPercentage = keyboard->getKeyStatus(GLFW_KEY_J) == GLFW_PRESS ? rotsped : 0.0;
-                posYFORWARD->currentPowerPercentage = keyboard->getKeyStatus(GLFW_KEY_U) == GLFW_PRESS ? rotsped : 0.0;
+                negYFORWARD->setPowerPercentage(keyboard->getKeyStatus(GLFW_KEY_J) == GLFW_PRESS ? rotsped : 0.0);
+                negYBACKWARD->setPowerPercentage(keyboard->getKeyStatus(GLFW_KEY_U) == GLFW_PRESS ? rotsped : 0.0);
+                posYBACKWARD->setPowerPercentage(keyboard->getKeyStatus(GLFW_KEY_J) == GLFW_PRESS ? rotsped : 0.0);
+                posYFORWARD->setPowerPercentage(keyboard->getKeyStatus(GLFW_KEY_U) == GLFW_PRESS ? rotsped : 0.0);
 
                 //Y
-                negXUP->currentPowerPercentage = keyboard->getKeyStatus(GLFW_KEY_A) == GLFW_PRESS ? rotsped : 0.0;
-                negXDOWN->currentPowerPercentage = keyboard->getKeyStatus(GLFW_KEY_D) == GLFW_PRESS ? rotsped : 0.0;
-                posXDOWN->currentPowerPercentage = keyboard->getKeyStatus(GLFW_KEY_A) == GLFW_PRESS ? rotsped : 0.0;
-                posXUP->currentPowerPercentage = keyboard->getKeyStatus(GLFW_KEY_D) == GLFW_PRESS ? rotsped : 0.0;
+                negXUP->setPowerPercentage(keyboard->getKeyStatus(GLFW_KEY_A) == GLFW_PRESS ? rotsped : 0.0);
+                negXDOWN->setPowerPercentage(keyboard->getKeyStatus(GLFW_KEY_D) == GLFW_PRESS ? rotsped : 0.0);
+                posXDOWN->setPowerPercentage(keyboard->getKeyStatus(GLFW_KEY_A) == GLFW_PRESS ? rotsped : 0.0);
+                posXUP->setPowerPercentage(keyboard->getKeyStatus(GLFW_KEY_D) == GLFW_PRESS ? rotsped : 0.0);
 
                 //Z
-                negZLEFT->currentPowerPercentage = keyboard->getKeyStatus(GLFW_KEY_K) == GLFW_PRESS ? rotsped : 0.0;
-                negZRIGHT->currentPowerPercentage = keyboard->getKeyStatus(GLFW_KEY_H) == GLFW_PRESS ? rotsped : 0.0;
-                posZRIGHT->currentPowerPercentage = keyboard->getKeyStatus(GLFW_KEY_K) == GLFW_PRESS ? rotsped : 0.0;
-                posZLEFT->currentPowerPercentage = keyboard->getKeyStatus(GLFW_KEY_H) == GLFW_PRESS ? rotsped : 0.0;
+                negZLEFT->setPowerPercentage(keyboard->getKeyStatus(GLFW_KEY_K) == GLFW_PRESS ? rotsped : 0.0);
+                negZRIGHT->setPowerPercentage(keyboard->getKeyStatus(GLFW_KEY_H) == GLFW_PRESS ? rotsped : 0.0);
+                posZRIGHT->setPowerPercentage(keyboard->getKeyStatus(GLFW_KEY_K) == GLFW_PRESS ? rotsped : 0.0);
+                posZLEFT->setPowerPercentage(keyboard->getKeyStatus(GLFW_KEY_H) == GLFW_PRESS ? rotsped : 0.0);
 
 
-                // hyperdrive_engine->currentPowerPercentage = keyboard->getKeyStatus(GLFW_KEY_P) == GLFW_PRESS ? 1.0 : 0.0;
+                // hyperdrive_engine->setPowerPercentage(keyboard->getKeyStatus(GLFW_KEY_P) == GLFW_PRESS ? 1.0 : 0.0;
             }
             /*
             if (keyboard->getKeyStatus(GLFW_KEY_S) == GLFW_PRESS) {

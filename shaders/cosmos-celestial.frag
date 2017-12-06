@@ -176,13 +176,19 @@ vec4 tracePlanetAtmosphere(vec3 start, vec3 end, float lengthstart, float length
         currentPlanet.position_radius.a + currentPlanet.habitableChance_orbitSpeed_atmosphereRadius_atmosphereAbsorbStrength.b);
 
     vec3 atm = vec3(0.0);
-    float stepdistance = (currentPlanet.position_radius.a / 6.371) * 0.001;
+    float stepdistance = (currentPlanet.position_radius.a / 6.371) * 0.01;
     float stepdistanceinv = 1.0 / stepdistance;
     float iter = stepdistance + (1.0 + rand2s(UV)*1.0) * stepdistance;
     float coverage = 1.0;
     float coverage2 = 0.0;
     float dstnew = 0.0;
     float dsttrg = distance(start, end);
+
+    return dsttrg * vec4(1.0);
+
+
+
+
     vec3 drr = normalize(end - start);
     vec3 ssdir = normalize(start - currentPlanet.position_radius.rgb);
     while(dstnew < dsttrg){
