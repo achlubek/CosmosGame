@@ -13,6 +13,7 @@
 #include "Player.h"
 #include "physics/PhysicalWorld.h"
 #include <algorithm>
+#include "SQLiteDatabase.h"
  
 void splitBySpaces(vector<string>& output, string src)
 {
@@ -208,6 +209,21 @@ int main()
             cosmosRenderer->recompileShaders(true);
         }
     });
+
+    // try sql
+    SQLiteDatabase db = SQLiteDatabase("test.db");
+    db.query("create table test2 ('id' integer, 'name' text);");
+    db.query("insert into test2 (id, name) values (123, 'def');");
+    db.query("insert into test2 (id, name) values (666, 'asd');");
+    auto res = db.query("select * from test2");
+    for (int i = 0; i < res.size(); i++) {
+        std::cout << "row" << i << '\n';
+        for (auto p : res[i])
+        {
+            std::cout << p.first << " = " << p.second << '\n';
+        }
+    }
+
     Model3d* smallEngineModel1 = new Model3d(toolkit, cosmosRenderer->modelMRTLayout, "small_engine.ini");
     Model3d* smallEngineModel2 = new Model3d(toolkit, cosmosRenderer->modelMRTLayout, "small_engine.ini");
     Model3d* smallEngineModel3 = new Model3d(toolkit, cosmosRenderer->modelMRTLayout, "small_engine.ini");

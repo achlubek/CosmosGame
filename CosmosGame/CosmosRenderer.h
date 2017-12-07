@@ -12,6 +12,8 @@ public:
     ~CosmosRenderer();
     void recompileShaders(bool deleteOld);
 
+    static CosmosRenderer* instance;
+
     GalaxyGenerator* galaxy;
     UIRenderer* ui;
     AssetLoader assets;

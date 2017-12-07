@@ -4,9 +4,12 @@
 #include "stdafx.h"
 #include "vulkan.h"
 
+CosmosRenderer* CosmosRenderer::instance = nullptr;
+
 CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, int iwidth, int iheight) :
     width(iwidth), height(iheight), vulkan(ivulkan), assets(AssetLoader(ivulkan)), ships({})
 {
+    instance = this;
     internalCamera = new Camera();
     nearbyStars = {};
     galaxy = new GalaxyGenerator();

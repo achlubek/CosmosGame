@@ -1,6 +1,9 @@
 #pragma once
 class SpaceShip;
 class Model3d;
+class SpaceShipEngine;
+class SpaceShipHyperDrive;
+class VulkanToolkit;
 class SpaceShipModule
 {
 public:
@@ -19,6 +22,11 @@ public:
     void setPowerPercentage(double percent);
     double getPowerPercentage();
     Model3d* model;
+
+    // and most importantly
+    static SpaceShipEngine* loadSpaceShipEngine(string mediakey);
+    static SpaceShipHyperDrive* loadSpaceShipHyperDrive(string mediakey);
+
 protected:
     double maxWattPower;
     double currentPowerPercentage = 0.0;

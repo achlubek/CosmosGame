@@ -7,7 +7,8 @@
 SpaceShipEngine::SpaceShipEngine(Model3d* model, glm::dvec3 relativePosition, glm::dquat relativeOrientation, double power, double maxWattPower)
     : SpaceShipModule(model, relativePosition, relativeOrientation, maxWattPower),
     maxPower(power)
-{
+{ 
+
 }
 
 SpaceShipEngine::~SpaceShipEngine()
