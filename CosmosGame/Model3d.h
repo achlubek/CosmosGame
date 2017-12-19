@@ -8,6 +8,8 @@ class Model3d
 {
 public:
     Model3d(VulkanToolkit* vulkan, VulkanDescriptorSetLayout* descriptorSetLayout, std::string mediakey);
+    Model3d(VulkanToolkit* vulkan, VulkanDescriptorSetLayout* descriptorSetLayout, std::string info3d_file,
+        std::string albedo_image, std::string normal_image, std::string roughness_image, std::string metalness_image, std::string emission_idle_image, std::string emission_powered_image);
     ~Model3d();
     void draw(VulkanRenderStage* stage, VulkanDescriptorSet* celestialSet, glm::dvec3 position, glm::dquat orientation);
 private:

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "SpaceShip.h"
 #include "SpaceShipModule.h"
+#include "ShipEnginesUnitedController.h"
 #include "Object3dInfo.h"
 #include "../physics/PhysicalEntity.h"
 #include "../Model3d.h"
@@ -9,7 +10,7 @@
 
 
 SpaceShip::SpaceShip(Object3dInfo* collisionShape, Model3d* imodel, glm::dvec3 pos, glm::dquat orient)
-    : PhysicalEntity(collisionShape, 1000.0, pos, orient), modules({}), model(imodel)
+    : PhysicalEntity(collisionShape, 1000.0, pos, orient), modules({}), model(imodel), unitedController(new ShipEnginesUnitedController())
 {
 
 }
@@ -32,7 +33,7 @@ void SpaceShip::drawShipAndModules(VulkanRenderStage * stage, VulkanDescriptorSe
     auto m3_shiprot = glm::mat3_cast(getOrientation()); 
     for (int i = 0; i < modules.size(); i++) {
         auto modulepos = shippos + m3_shiprot * modules[i]->getRelativePosition();
-        auto moduleort = getOrientation() * modules[i]->getRelativeOrientation() * glm::angleAxis((double)PI * -0.5, glm::dvec3(1.0, 0.0, 0.0));
+        auto moduleort = getOrientation() * modules[i]->getRelativeOrientation() * glm::angleAxis((double)3.1415 * -0.5, glm::dvec3(1.0, 0.0, 0.0));
         modules[i]->model->draw(stage, celestialSet, modulepos, moduleort);
     }
 }

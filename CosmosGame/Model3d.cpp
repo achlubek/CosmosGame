@@ -31,6 +31,30 @@ Model3d::Model3d(VulkanToolkit* ivulkan, VulkanDescriptorSetLayout* descriptorSe
 
 }
 
+Model3d::Model3d(VulkanToolkit * vulkan, VulkanDescriptorSetLayout * descriptorSetLayout, std::string info3d_file, std::string albedo_image, 
+    std::string normal_image, std::string roughness_image, std::string metalness_image, std::string emission_idle_image, std::string emission_powered_image)
+{
+    AssetLoader assets = AssetLoader(vulkan);
+    info3d = assets.loadObject3dInfoFile(info3d_file);
+    albedoImage = assets.loadTextureFile(albedo_image);
+    normalImage = assets.loadTextureFile(normal_image);
+    roughnessImage = assets.loadTextureFile(roughness_image);
+    metalnessImage = assets.loadTextureFile(metalness_image);
+    emissionIdleImage = assets.loadTextureFile(emission_idle_image);
+    emissionPoweredImage = assets.loadTextureFile(emission_powered_image);
+
+    descriptorSet = descriptorSetLayout->generateDescriptorSet();
+    dataBuffer = new VulkanGenericBuffer(vulkan, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, sizeof(float) * 1024);
+    descriptorSet->bindStorageBuffer(0, dataBuffer);
+    descriptorSet->bindImageViewSampler(1, albedoImage);
+    descriptorSet->bindImageViewSampler(2, normalImage);
+    descriptorSet->bindImageViewSampler(3, roughnessImage);
+    descriptorSet->bindImageViewSampler(4, metalnessImage);
+    descriptorSet->bindImageViewSampler(5, emissionIdleImage);
+    descriptorSet->bindImageViewSampler(6, emissionPoweredImage);
+    descriptorSet->update();
+}
+
 
 Model3d::~Model3d()
 {

@@ -146,6 +146,8 @@
     <ClInclude Include="physics\PhysicalEntity.h" />
     <ClInclude Include="physics\PhysicalWorld.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="spaceship\SpaceShipDatabaseManager.h" />
+    <ClInclude Include="spaceship\ShipEnginesUnitedController.h" />
     <ClInclude Include="spaceship\SpaceShip.h" />
     <ClInclude Include="spaceship\SpaceShipAutopilot.h" />
     <ClInclude Include="spaceship\SpaceShipEngine.h" />
@@ -165,6 +167,8 @@
     <ClCompile Include="physics\PhysicalEntity.cpp" />
     <ClCompile Include="physics\PhysicalWorld.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="spaceship\SpaceShipDatabaseManager.cpp" />
+    <ClCompile Include="spaceship\ShipEnginesUnitedController.cpp" />
     <ClCompile Include="spaceship\SpaceShip.cpp" />
     <ClCompile Include="spaceship\SpaceShipAutopilot.cpp" />
     <ClCompile Include="spaceship\SpaceShipEngine.cpp" />

@@ -1,4 +1,5 @@
 #pragma once 
+class ShipEnginesUnitedController;
 class SpaceShipModule;
 class Object3dInfo;
 class Model3d;
@@ -15,6 +16,7 @@ public:
     
     void setHyperDriveVelocity(glm::dvec3 vel);
     std::vector<SpaceShipModule*> modules;
+    ShipEnginesUnitedController* unitedController;
     Player* mainSeat = nullptr;
     Model3d* model;
     glm::dvec3 mainSeatPosition = glm::dvec3(0.0, 0.6, 12.5);

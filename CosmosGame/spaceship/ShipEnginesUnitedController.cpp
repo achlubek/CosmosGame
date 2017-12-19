@@ -3,6 +3,24 @@
 
 
 ShipEnginesUnitedController::ShipEnginesUnitedController()
+    : // yay long init list
+    enginesLinearPositiveX({}),
+    enginesLinearNegativeX({}),
+
+    enginesLinearPositiveY({}),
+    enginesLinearNegativeY({}),
+
+    enginesLinearPositiveZ({}),
+    enginesLinearNegativeZ({}),
+
+    enginesAngularPositiveX({}),
+    enginesAngularNegativeX({}),
+
+    enginesAngularPositiveY({}),
+    enginesAngularNegativeY({}),
+
+    enginesAngularPositiveZ({}),
+    enginesAngularNegativeZ({})
 {
 }
 
