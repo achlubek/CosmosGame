@@ -106,6 +106,73 @@ void ShipEnginesUnitedController::setEnginesAngularNegativeZ(std::vector<SpaceSh
     enginesAngularNegativeZ = engines;
 }
 
+
+void ShipEnginesUnitedController::addEnginesLinearPositiveX(std::vector<SpaceShipEngine*> engines)
+{
+    enginesLinearPositiveX.insert(std::end(enginesLinearPositiveX), std::begin(engines), std::end(engines)); 
+}
+
+void ShipEnginesUnitedController::addEnginesLinearNegativeX(std::vector<SpaceShipEngine*> engines)
+{
+    enginesLinearPositiveX.insert(std::end(enginesLinearPositiveX), std::begin(engines), std::end(engines));
+}
+
+
+void ShipEnginesUnitedController::addEnginesLinearPositiveY(std::vector<SpaceShipEngine*> engines)
+{
+    enginesLinearPositiveY.insert(std::end(enginesLinearPositiveY), std::begin(engines), std::end(engines));
+}
+
+void ShipEnginesUnitedController::addEnginesLinearNegativeY(std::vector<SpaceShipEngine*> engines)
+{
+    enginesLinearNegativeY.insert(std::end(enginesLinearNegativeY), std::begin(engines), std::end(engines));
+}
+
+
+void ShipEnginesUnitedController::addEnginesLinearPositiveZ(std::vector<SpaceShipEngine*> engines)
+{
+    enginesLinearPositiveZ.insert(std::end(enginesLinearPositiveZ), std::begin(engines), std::end(engines));
+}
+
+void ShipEnginesUnitedController::addEnginesLinearNegativeZ(std::vector<SpaceShipEngine*> engines)
+{
+    enginesLinearNegativeZ.insert(std::end(enginesLinearNegativeZ), std::begin(engines), std::end(engines));
+}
+
+
+
+void ShipEnginesUnitedController::addEnginesAngularPositiveX(std::vector<SpaceShipEngine*> engines)
+{
+    enginesAngularPositiveX.insert(std::end(enginesAngularPositiveX), std::begin(engines), std::end(engines));
+}
+
+void ShipEnginesUnitedController::addEnginesAngularNegativeX(std::vector<SpaceShipEngine*> engines)
+{
+    enginesAngularNegativeX.insert(std::end(enginesAngularNegativeX), std::begin(engines), std::end(engines));
+}
+
+
+void ShipEnginesUnitedController::addEnginesAngularPositiveY(std::vector<SpaceShipEngine*> engines)
+{
+    enginesAngularPositiveY.insert(std::end(enginesAngularPositiveY), std::begin(engines), std::end(engines));
+}
+
+void ShipEnginesUnitedController::addEnginesAngularNegativeY(std::vector<SpaceShipEngine*> engines)
+{
+    enginesAngularNegativeY.insert(std::end(enginesAngularNegativeY), std::begin(engines), std::end(engines));
+}
+
+
+void ShipEnginesUnitedController::addEnginesAngularPositiveZ(std::vector<SpaceShipEngine*> engines)
+{
+    enginesAngularPositiveZ.insert(std::end(enginesAngularPositiveZ), std::begin(engines), std::end(engines));
+}
+
+void ShipEnginesUnitedController::addEnginesAngularNegativeZ(std::vector<SpaceShipEngine*> engines)
+{
+    enginesAngularNegativeZ.insert(std::end(enginesAngularNegativeZ), std::begin(engines), std::end(engines));
+}
+
 void ShipEnginesUnitedController::updateEnginesThrust()
 {
     // ship modules precentages are clamped on being set, to it makes this class simplier

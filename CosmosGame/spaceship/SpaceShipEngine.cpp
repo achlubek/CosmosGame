@@ -4,8 +4,8 @@
 #include "../Model3d.h"
 
 
-SpaceShipEngine::SpaceShipEngine(Model3d* model, glm::dvec3 relativePosition, glm::dquat relativeOrientation, double power, double maxWattPower)
-    : SpaceShipModule(model, relativePosition, relativeOrientation, maxWattPower),
+SpaceShipEngine::SpaceShipEngine(Model3d* model, std::string name, glm::dvec3 relativePosition, glm::dquat relativeOrientation, double power, double maxWattPower)
+    : SpaceShipModule(model, name, relativePosition, relativeOrientation, maxWattPower),
     maxPower(power)
 { 
 
@@ -22,5 +22,10 @@ void SpaceShipEngine::update(SpaceShip * ship, double time_elapsed)
     auto thrustDirection = m3_thrust * glm::dvec3(0.0, 0.0, 1.0);
     glm::dvec3 force = -thrustDirection * maxPower * currentPowerPercentage;
     ship->applyImpulse(relativePosition, force);
+}
+
+int SpaceShipEngine::getType()
+{
+    return 2;
 }
  

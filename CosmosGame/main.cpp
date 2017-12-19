@@ -3,6 +3,7 @@
 #include "GalaxyGenerator.h"
 #include "spaceship/SpaceShip.h"
 #include "spaceship/SpaceShipModule.h"
+#include "spaceship/SpaceShipDatabaseManager.h"
 #include "spaceship/SpaceShipEngine.h"
 #include "spaceship/SpaceShipHyperDrive.h"
 #include "spaceship/SpaceShipAutopilot.h"
@@ -32,7 +33,7 @@ void splitBySpaces(vector<string>& output, string src)
         output.push_back(src.substr(d, i));
     }
 }
-
+/*
 glm::dquat vec3toquat(glm::dvec3 dir, double angle = 0) { 
 
     glm::dvec3 up = glm::dvec3(0.0, 1.0, 0.0);
@@ -49,7 +50,7 @@ glm::dquat vec3toquat(glm::dvec3 dir, double angle = 0) {
     glm::dmat3 m = glm::dmat3(cr1, cr2, dir);
     return glm::angleAxis(angle, dir) * glm::quat_cast(m);
 }
-
+*/
 int main()
 { 
     Media::loadFileMap("../../media");
@@ -154,7 +155,12 @@ int main()
     auto placeholdercolshape = cosmosRenderer->assets.loadObject3dInfoFile("icos.raw");
     Player* player = new Player(placeholdercolshape);
     Model3d* shipModel = new Model3d(toolkit, cosmosRenderer->modelMRTLayout, "spaceship2d.ini");
-    SpaceShip* ship = new SpaceShip(placeholdercolshape, shipModel, cosmosRenderer->nearbyStars[9999].planets[0].getPosition(100.0) * cosmosRenderer->scale + glm::dvec3(10000.0, 0.0, 0.0), glm::dquat(1.0, 0.0, 0.0, 0.0));
+    //SpaceShip* ship = new SpaceShip(placeholdercolshape, shipModel, cosmosRenderer->nearbyStars[9999].planets[0].getPosition(100.0) * cosmosRenderer->scale + glm::dvec3(10000.0, 0.0, 0.0), glm::dquat(1.0, 0.0, 0.0, 0.0));
+
+    SQLiteDatabase* db = new SQLiteDatabase(Media::getPath("gamedata.db")); 
+    SpaceShipDatabaseManager* dbmngr = new SpaceShipDatabaseManager(db);
+    auto ship = dbmngr->readSpaceShip(1);
+
     player->setPosition(ship->getPosition());
 
     //pworld->entities.push_back(player);
@@ -209,9 +215,8 @@ int main()
             cosmosRenderer->recompileShaders(true);
         }
     });
-
+    /*
     // try sql
-    SQLiteDatabase db = SQLiteDatabase("test.db");
     db.query("create table test2 ('id' integer, 'name' text);");
     db.query("insert into test2 (id, name) values (123, 'def');");
     db.query("insert into test2 (id, name) values (666, 'asd');");
@@ -222,8 +227,8 @@ int main()
         {
             std::cout << p.first << " = " << p.second << '\n';
         }
-    }
-
+    }*/
+    /*
     Model3d* smallEngineModel1 = new Model3d(toolkit, cosmosRenderer->modelMRTLayout, "small_engine.ini");
     Model3d* smallEngineModel2 = new Model3d(toolkit, cosmosRenderer->modelMRTLayout, "small_engine.ini");
     Model3d* smallEngineModel3 = new Model3d(toolkit, cosmosRenderer->modelMRTLayout, "small_engine.ini");
@@ -248,7 +253,7 @@ int main()
 
     SpaceShipEngine* forward_engine = new SpaceShipEngine(largeEngineModel1, glm::dvec3(0.0, 0.0, 10.0), vec3toquat(glm::dvec3(0.0, 0.0, 1.0)), 100000.19, 0.1);
     SpaceShipEngine* backward_engine = new SpaceShipEngine(largeEngineModel2, glm::dvec3(0.0, 0.0, -10.0), vec3toquat(glm::dvec3(0.0, 0.0, -1.0)), 100000.19, 0.01);
-
+    */
     /*
              rX |   / rY
                 |  /
@@ -275,7 +280,7 @@ int main()
          negZDOWN
          posZUP
          posZDOWN
-    */
+    *//*
     double helpersforce = 100.5;
     SpaceShipEngine* negXUP = new SpaceShipEngine(smallEngineModel1, glm::dvec3(-10.0, 0.0, 0.0), vec3toquat(glm::dvec3(0.0, 1.0, 0.0)), helpersforce, 0.1);
     SpaceShipEngine* negXDOWN = new SpaceShipEngine(smallEngineModel2, glm::dvec3(-10.0, 0.0, 0.0), vec3toquat(glm::dvec3(0.0, -1.0, 0.0)), helpersforce, 0.1);
@@ -332,7 +337,7 @@ int main()
     for (int i = 0; i < ship->modules.size(); i++) {
         ship->modules[i]->enable();
     }
-
+    */
     cosmosRenderer->ships.push_back(ship);
 
     cosmosRenderer->mapBuffers();
@@ -369,7 +374,7 @@ int main()
     then render shit
     then order it and thats it done thank you bye
     */
-
+    /*
     terminal->onSendText.add([&](std::string s) {
         if (s[0] == '/') {
             std::string cmd = s.substr(1);
@@ -445,7 +450,7 @@ int main()
             return;
         }
         terminal->printMessage(UIColor(0.5, 0.5, 0.5, 1.0), s);
-    });
+    });*/
 
 
 #define multiplyscale(a,b) (std::pow(a, b))
@@ -530,12 +535,12 @@ int main()
         if (!hits || glm::distance(outposhit, player->getPosition()) > glm::distance(newpos, player->getPosition())) {
             player->setPosition(newpos);
         }*/
-        
+        /*
         if (!terminal->isInputEnabled()) {
             if (flightHelperEnabled) {
                 //debug
                 orientationAlignTarget = glm::normalize(cosmosRenderer->closestBodyPosition - ship->getPosition());
-
+                
                 glm::dvec3 angularThrust;
                 glm::dvec3 targetAngularSpeed;
                 if (helper_orientationMode == helper_orientationMode_dampingAbsolute) {
@@ -652,10 +657,10 @@ int main()
                 spaceshipAngularVelocity.x += elapsed_x100 * 0.001 * -axes[1];
                 spaceshipAngularVelocity.y += elapsed_x100 * 0.001 * -axes[2];
                 spaceshipAngularVelocity.z += elapsed_x100 * 0.001 * -axes[0];
-            }*/
+            }
 
         }
-
+        */
         int cnt = cosmosRenderer->nearestStarSystems.size() > 0 ? cosmosRenderer->nearestStarSystems[0].planets.size() : 0;
         for (int i = 0; i < cnt; i++) {
             glm::dvec3 pos = cosmosRenderer->nearestStarSystems[0].planets[i].getPosition(0.0) * cosmosRenderer->scale - player->getPosition();

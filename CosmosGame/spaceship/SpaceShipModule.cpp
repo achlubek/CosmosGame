@@ -7,8 +7,9 @@
 #include "../CosmosRenderer.h"
 
 
-SpaceShipModule::SpaceShipModule(Model3d* imodel, glm::dvec3 irelativePosition, glm::dquat irelativeOrientation, double imaxWattPower)
-    : relativePosition (irelativePosition),
+SpaceShipModule::SpaceShipModule(Model3d* imodel, std::string name, glm::dvec3 irelativePosition, glm::dquat irelativeOrientation, double imaxWattPower)
+    : relativePosition (irelativePosition), 
+    instanceName(name), 
     maxWattPower(imaxWattPower),
     model(imodel),
     relativeOrientation(irelativeOrientation)
@@ -77,21 +78,4 @@ double SpaceShipModule::getPowerPercentage()
 {
     return currentPowerPercentage;
 }
-
-SpaceShipEngine* SpaceShipModule::loadSpaceShipEngine(string mediakey)
-{
-    INIReader reader = INIReader(mediakey);
-    Model3d* model = new Model3d(CosmosRenderer::instance->vulkan, CosmosRenderer::instance->modelMRTLayout, reader.gets("model"));
-    double power = reader.getf("power");
-    double watt_power = reader.getf("watt_power");
-    return new SpaceShipEngine(model, glm::dvec3(0.0), glm::dquat(1.0, 0.0, 0.0, 0.0), power, watt_power);
-}
-
-SpaceShipHyperDrive* SpaceShipModule::loadSpaceShipHyperDrive(string mediakey)
-{
-    INIReader reader = INIReader(mediakey);
-    Model3d* model = new Model3d(CosmosRenderer::instance->vulkan, CosmosRenderer::instance->modelMRTLayout, reader.gets("model"));
-    double power = reader.getf("power");
-    double watt_power = reader.getf("watt_power");
-    return new SpaceShipHyperDrive(model, glm::dvec3(0.0), glm::dquat(1.0, 0.0, 0.0, 0.0), power, watt_power);
-}
+ 

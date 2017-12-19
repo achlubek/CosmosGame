@@ -1,6 +1,7 @@
 #pragma once
 class SpaceShip;
 class SQLiteDatabase;
+class Model3d;
 class SpaceShipDatabaseManager
 {
 public:

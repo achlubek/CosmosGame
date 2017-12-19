@@ -4,8 +4,8 @@
 #include "SpaceShip.h"
 
 
-SpaceShipHyperDrive::SpaceShipHyperDrive(Model3d* model, glm::dvec3 relativePosition, glm::dquat relativeOrientation, double power, double imaxWattPower)
-    : SpaceShipModule(model, relativePosition, relativeOrientation, maxWattPower),
+SpaceShipHyperDrive::SpaceShipHyperDrive(Model3d* model, std::string name, glm::dvec3 relativePosition, glm::dquat relativeOrientation, double power, double imaxWattPower)
+    : SpaceShipModule(model, name, relativePosition, relativeOrientation, maxWattPower),
     maxPower(power)
 {
 }
@@ -30,4 +30,9 @@ void SpaceShipHyperDrive::update(SpaceShip * ship, double time_elapsed)
     }
     realPower = glm::clamp(realPower, 0.0, 1.0);
     ship->setHyperDriveVelocity(m3 * vel);
+}
+
+int SpaceShipHyperDrive::getType()
+{
+    return 1;
 }

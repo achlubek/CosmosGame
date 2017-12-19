@@ -7,10 +7,11 @@ class VulkanToolkit;
 class SpaceShipModule
 {
 public:
-    SpaceShipModule(Model3d* model, glm::dvec3 relativePosition, glm::dquat relativeOrientation, double maxWattPower);
+    SpaceShipModule(Model3d* model, std::string name, glm::dvec3 relativePosition, glm::dquat relativeOrientation, double maxWattPower);
     ~SpaceShipModule();
     double getCurrentWattPower();
     virtual void update(SpaceShip* ship, double time_elapsed) = 0;
+    virtual int getType() = 0;
     bool isEnabled();
     void enable();
     void disable();
@@ -22,11 +23,8 @@ public:
     void setPowerPercentage(double percent);
     double getPowerPercentage();
     Model3d* model;
-
-    // and most importantly
-    static SpaceShipEngine* loadSpaceShipEngine(string mediakey);
-    static SpaceShipHyperDrive* loadSpaceShipHyperDrive(string mediakey);
-
+    std::string instanceName;
+     
 protected:
     double maxWattPower;
     double currentPowerPercentage = 0.0;

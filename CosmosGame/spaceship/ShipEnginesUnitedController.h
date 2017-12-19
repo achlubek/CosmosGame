@@ -22,6 +22,19 @@ public:
     void setEnginesAngularPositiveZ(std::vector<SpaceShipEngine*> engines);
     void setEnginesAngularNegativeZ(std::vector<SpaceShipEngine*> engines);
 
+    void addEnginesLinearPositiveX(std::vector<SpaceShipEngine*> engines);
+    void addEnginesLinearNegativeX(std::vector<SpaceShipEngine*> engines);
+    void addEnginesLinearPositiveY(std::vector<SpaceShipEngine*> engines);
+    void addEnginesLinearNegativeY(std::vector<SpaceShipEngine*> engines);
+    void addEnginesLinearPositiveZ(std::vector<SpaceShipEngine*> engines);
+    void addEnginesLinearNegativeZ(std::vector<SpaceShipEngine*> engines);
+    void addEnginesAngularPositiveX(std::vector<SpaceShipEngine*> engines);
+    void addEnginesAngularNegativeX(std::vector<SpaceShipEngine*> engines);
+    void addEnginesAngularPositiveY(std::vector<SpaceShipEngine*> engines);
+    void addEnginesAngularNegativeY(std::vector<SpaceShipEngine*> engines);
+    void addEnginesAngularPositiveZ(std::vector<SpaceShipEngine*> engines);
+    void addEnginesAngularNegativeZ(std::vector<SpaceShipEngine*> engines);
+
     void updateEnginesThrust();
 
 private:
