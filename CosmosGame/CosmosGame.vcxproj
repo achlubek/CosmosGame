@@ -141,6 +141,8 @@
     <ClInclude Include="CommandTerminal.h" />
     <ClInclude Include="CosmosRenderer.h" />
     <ClInclude Include="GalaxyGenerator.h" />
+    <ClInclude Include="GameControls.h" />
+    <ClInclude Include="GameObject.h" />
     <ClInclude Include="Maneuvering6DOFShipEnginesController.h" />
     <ClInclude Include="Model3d.h" />
     <ClInclude Include="physics\PhysicalEntity.h" />
@@ -160,6 +162,8 @@
     <ClCompile Include="AbsShipEnginesController.cpp" />
     <ClCompile Include="CommandTerminal.cpp" />
     <ClCompile Include="CosmosRenderer.cpp" />
+    <ClCompile Include="GameControls.cpp" />
+    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="GalaxyGenerator.cpp" />
     <ClCompile Include="Maneuvering6DOFShipEnginesController.cpp" />

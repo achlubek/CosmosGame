@@ -88,8 +88,44 @@ SpaceShip* SpaceShipDatabaseManager::readSpaceShip(int id)
             if (mod->instanceName == link["module_link_name"]) {
                 int type = asint(link["functionality"]);
                 switch (type) {
-                case 0:
-                    ship->unitedController->addEnginesAngularNegativeZ({static_cast<SpaceShipEngine*>(mod)});
+                case ShipEnginesUnitedControllerFunctionalities::forward:
+                    ship->unitedController->addEnginesLinearNegativeZ({ static_cast<SpaceShipEngine*>(mod) });
+                    break;
+                case ShipEnginesUnitedControllerFunctionalities::backward:
+                    ship->unitedController->addEnginesLinearPositiveZ({ static_cast<SpaceShipEngine*>(mod) });
+                    break;
+                case ShipEnginesUnitedControllerFunctionalities::left:
+                    ship->unitedController->addEnginesLinearNegativeX({ static_cast<SpaceShipEngine*>(mod) });
+                    break;
+                case ShipEnginesUnitedControllerFunctionalities::right:
+                    ship->unitedController->addEnginesLinearPositiveX({ static_cast<SpaceShipEngine*>(mod) });
+                    break;
+                case ShipEnginesUnitedControllerFunctionalities::up:
+                    ship->unitedController->addEnginesLinearPositiveY({ static_cast<SpaceShipEngine*>(mod) });
+                    break;
+                case ShipEnginesUnitedControllerFunctionalities::down:
+                    ship->unitedController->addEnginesLinearNegativeY({ static_cast<SpaceShipEngine*>(mod) });
+                    break;
+                    ///////////
+
+                case ShipEnginesUnitedControllerFunctionalities::pitch_up:
+                    ship->unitedController->addEnginesAngularNegativeX({ static_cast<SpaceShipEngine*>(mod) });
+                    break;
+                case ShipEnginesUnitedControllerFunctionalities::pitch_down:
+                    ship->unitedController->addEnginesAngularPositiveX({ static_cast<SpaceShipEngine*>(mod) });
+                    break;
+                case ShipEnginesUnitedControllerFunctionalities::roll_left:
+                    ship->unitedController->addEnginesAngularNegativeZ({ static_cast<SpaceShipEngine*>(mod) });
+                    break;
+                case ShipEnginesUnitedControllerFunctionalities::roll_right:
+                    ship->unitedController->addEnginesAngularPositiveZ({ static_cast<SpaceShipEngine*>(mod) });
+                    break;
+                case ShipEnginesUnitedControllerFunctionalities::yaw_left:
+                    ship->unitedController->addEnginesAngularNegativeY({ static_cast<SpaceShipEngine*>(mod) });
+                    break;
+                case ShipEnginesUnitedControllerFunctionalities::yaw_right:
+                    ship->unitedController->addEnginesAngularPositiveY({ static_cast<SpaceShipEngine*>(mod) });
+                    break;
                 }
             }
         }
