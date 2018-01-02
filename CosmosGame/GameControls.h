@@ -14,6 +14,8 @@ public:
     std::vector<KeyValuePair> binds;
     double currentValue = 0;
     bool keepOnRelease = false;
+    ControlKeyAxis() {
+    }
     ControlKeyAxis(std::vector<KeyValuePair> b, bool keepValue) {
         binds = b;
         keepOnRelease = keepValue;

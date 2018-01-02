@@ -7,14 +7,15 @@
 #include "spaceship/SpaceShipEngine.h"
 #include "spaceship/SpaceShipHyperDrive.h"
 #include "spaceship/SpaceShipAutopilot.h"
+#include "spaceship/ShipEnginesUnitedController.h"
 #include "AbsShipEnginesController.h"
 #include "Model3d.h"
 #include "Maneuvering6DOFShipEnginesController.h"
 #include "CommandTerminal.h"
-#include "Player.h"
 #include "physics/PhysicalWorld.h"
 #include <algorithm>
 #include "SQLiteDatabase.h"
+#include "GameControls.h"
  
 void splitBySpaces(vector<string>& output, string src)
 {
@@ -66,7 +67,7 @@ int main()
     //printf("gen");
     int64_t galaxyedge = 12490000000;
     int64_t galaxythickness = 1524900000;
-    for (int i = 0; i < 100000; i++) {
+    for (int i = 0; i < 10000; i++) {
         galaxy->generateStar(galaxyedge, galaxythickness, 1.0, i);
         cosmosRenderer->nearbyStars.push_back(galaxy->generateStarInfo(i));
     }
@@ -105,6 +106,9 @@ int main()
     
     Mouse* mouse = new Mouse(toolkit->window);
     Keyboard* keyboard = new Keyboard(toolkit->window);
+
+    GameControls controls = GameControls(keyboard, "controls.ini");
+
     Joystick* joystick = new Joystick(toolkit->window);
     CommandTerminal* terminal = new CommandTerminal(cosmosRenderer->ui, keyboard);
     float pitch = 0.0;
@@ -152,8 +156,7 @@ int main()
     //glm::quat spaceshipOrientation = glm::quat(1.0, 0.0, 0.0, 0.0);
 
     PhysicalWorld* pworld = new PhysicalWorld();
-    auto placeholdercolshape = cosmosRenderer->assets.loadObject3dInfoFile("icos.raw");
-    Player* player = new Player(placeholdercolshape);
+    PhysicalEntity* player = new PhysicalEntity(10.0, glm::dvec3(0.0));
     Model3d* shipModel = new Model3d(toolkit, cosmosRenderer->modelMRTLayout, "spaceship2d.ini");
     //SpaceShip* ship = new SpaceShip(placeholdercolshape, shipModel, cosmosRenderer->nearbyStars[9999].planets[0].getPosition(100.0) * cosmosRenderer->scale + glm::dvec3(10000.0, 0.0, 0.0), glm::dquat(1.0, 0.0, 0.0, 0.0));
 
@@ -674,6 +677,15 @@ int main()
             planetsLabels[i]->y = -1;
         }
 
+        auto linear_thrust_controls = glm::dvec3(
+            controls.readAxisValue("united_controller_manual_linear_left_right_axis"),
+            controls.readAxisValue("united_controller_manual_linear_up_down_axis"),
+            controls.readAxisValue("united_controller_manual_linear_forward_backward_axis")
+        );
+        ship->unitedController->setLinearThrust(
+            linear_thrust_controls
+        );
+
         camera->transformation->setOrientation(player->getOrientation() * glm::dquat(cameraLookatOffset));
        // ship->applyGravity(cosmosRenderer->lastGravity * elapsed * (keyboard->getKeyStatus(GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS ? 100.0f : 1.0f));
        // ship->stepEmulation(elapsed);
@@ -682,19 +694,19 @@ int main()
         cosmosRenderer->updatePlanetsAndMoon(ship->getPosition());
         cosmosRenderer->draw();
         auto slp = ship->getLinearVelocity();
-        auto slp2 = ship->closestSurface(player->getPosition());
-        auto uv = camera->projectToScreen(slp2 - player->getPosition());
-        marker->x = uv.x;
-        marker->y = uv.y;
-        slp2 = player->getPosition() - slp2;
+        //auto slp2 = ship->closestSurface(player->getPosition());
+        //auto uv = camera->projectToScreen(slp2 - player->getPosition());
+       // marker->x = uv.x;
+      //  marker->y = uv.y;
+       // slp2 = player->getPosition() - slp2;
         text->updateText("Distance to surface:" + std::to_string(cosmosRenderer->closestSurfaceDistance) + "| " + std::to_string(cosmosRenderer->closestObjectLinearAbsoluteSpeed.x)
             + " , " + std::to_string(cosmosRenderer->closestObjectLinearAbsoluteSpeed.y) + " , " + std::to_string(cosmosRenderer->closestObjectLinearAbsoluteSpeed.z)
             + "| " + std::to_string(slp.x)
             + " , " + std::to_string(slp.y)
             + " , " + std::to_string(slp.z)
-            + "| " + std::to_string(slp2.x)
-            + " , " + std::to_string(slp2.y)
-            + " , " + std::to_string(slp2.z));
+            + "| " + std::to_string(linear_thrust_controls.x)
+            + " , " + std::to_string(linear_thrust_controls.y)
+            + " , " + std::to_string(linear_thrust_controls.z));
         closestPlanetText->updateText("Closest planet:" + cosmosRenderer->nearestPlanet.getName());
         toolkit->poolEvents();
     }

@@ -9,8 +9,8 @@
 //#include "glm\gtx\intersect.hpp"
 
 
-SpaceShip::SpaceShip(Object3dInfo* collisionShape, Model3d* imodel, glm::dvec3 pos, glm::dquat orient)
-    : PhysicalEntity(collisionShape, 1000.0, pos, orient), modules({}), model(imodel), unitedController(new ShipEnginesUnitedController())
+SpaceShip::SpaceShip(Model3d* imodel, glm::dvec3 pos, glm::dquat orient)
+    : PhysicalEntity(1000.0, pos, orient), modules({}), model(imodel), unitedController(new ShipEnginesUnitedController())
 {
 
 }
@@ -40,6 +40,7 @@ void SpaceShip::drawShipAndModules(VulkanRenderStage * stage, VulkanDescriptorSe
 
 void SpaceShip::update(double time_elapsed)
 {
+    unitedController->updateEnginesThrust();
     for (int i = 0; i < modules.size(); i++) {
         if (modules[i]->isEnabled()) {
             modules[i]->update(this, time_elapsed);

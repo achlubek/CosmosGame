@@ -49,8 +49,7 @@ SpaceShip* SpaceShipDatabaseManager::readSpaceShip(int id)
      
     auto model3d = readModel3d(asint(ship_data["modelid"]));
 
-    auto placeholdercolshape = CosmosRenderer::instance->assets.loadObject3dInfoFile("icos.raw");
-    auto ship = new SpaceShip(placeholdercolshape, model3d, glm::dvec3(0.0), glm::dquat(1.0, 0.0, 0.0, 0.0));
+    auto ship = new SpaceShip(model3d, glm::dvec3(0.0), glm::dquat(1.0, 0.0, 0.0, 0.0));
 
     for (int i = 0; i < ship_modules.size(); i++) {
         auto mod = ship_modules[i];
@@ -62,6 +61,7 @@ SpaceShip* SpaceShipDatabaseManager::readSpaceShip(int id)
             auto engine_data = db->query("SELECT * FROM engines WHERE id = " + mod_data["id"])[0];
             auto engine = new SpaceShipEngine(module_model3d, mod["link_name"], pos, rot, asdouble(engine_data["power"]), asdouble(mod_data["wattage"]));
             ship->modules.push_back(engine);
+            engine->enable();
         }
     }
     /*

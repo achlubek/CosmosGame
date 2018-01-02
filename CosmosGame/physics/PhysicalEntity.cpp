@@ -85,6 +85,10 @@ void PhysicalEntity::stepEmulation(double time_delta)
     orientation = predictOrientation(time_delta);
     update(time_delta);
 }
+
+void PhysicalEntity::update(double time_delta)
+{ 
+}
  
 void PhysicalEntity::applyImpulse(glm::dvec3 relativePos, glm::dvec3 force)
 {

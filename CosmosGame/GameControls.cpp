@@ -7,7 +7,7 @@ vector<string> splitByChar(string src, unsigned char splitter)
     vector<string> output = {};
     int i = 0, d = 0;
     while (i < src.size()) {
-        if (src[i] == ' ') {
+        if (src[i] == splitter) {
             output.push_back(src.substr(d, i - d));
             d = i;
             while (src[i++] == splitter)  d++;
@@ -42,7 +42,7 @@ GameControls::GameControls(Keyboard* ikeyboard, std::string inifile)
             auto valuesmap = splitByChar(valuesstr, ',');
             std::vector<KeyValuePair> binds = {};
             for (auto valuekeyvalstr : valuesmap) {
-                auto valueskeyvalsplit = splitByChar(valuesstr, ':');
+                auto valueskeyvalsplit = splitByChar(valuekeyvalstr, ':');
                 int keyval = keynamemap.geti(valueskeyvalsplit[0]);
                 double value = std::stod(valueskeyvalsplit[1]);
                 binds.push_back(KeyValuePair(keyval, value));
@@ -60,6 +60,9 @@ GameControls::GameControls(Keyboard* ikeyboard, std::string inifile)
                 onKeyDown.invoke(p.first);
             }
         }
+        for (auto &p : keysAxisBinds) {
+            p.second.onKeyDown(key);
+        }
     });
 
     keyboard->onKeyRelease.add([&](int key) {
@@ -68,6 +71,9 @@ GameControls::GameControls(Keyboard* ikeyboard, std::string inifile)
             if (p.second == key) {
                 onKeyUp.invoke(p.first);
             }
+        }
+        for (auto &p : keysAxisBinds) {
+            p.second.onKeyUp(key);
         }
     });
 }

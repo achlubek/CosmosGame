@@ -147,7 +147,6 @@
     <ClInclude Include="Model3d.h" />
     <ClInclude Include="physics\PhysicalEntity.h" />
     <ClInclude Include="physics\PhysicalWorld.h" />
-    <ClInclude Include="Player.h" />
     <ClInclude Include="spaceship\SpaceShipDatabaseManager.h" />
     <ClInclude Include="spaceship\ShipEnginesUnitedController.h" />
     <ClInclude Include="spaceship\SpaceShip.h" />
@@ -170,7 +169,6 @@
     <ClCompile Include="Model3d.cpp" />
     <ClCompile Include="physics\PhysicalEntity.cpp" />
     <ClCompile Include="physics\PhysicalWorld.cpp" />
-    <ClCompile Include="Player.cpp" />
     <ClCompile Include="spaceship\SpaceShipDatabaseManager.cpp" />
     <ClCompile Include="spaceship\ShipEnginesUnitedController.cpp" />
     <ClCompile Include="spaceship\SpaceShip.cpp" />
@@ -184,6 +182,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="draft.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
