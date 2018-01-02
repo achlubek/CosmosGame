@@ -1,5 +1,6 @@
 #pragma once
-struct KeyValuePair {
+#include "EventHandler.h"
+class KeyValuePair {
 public:
     int key;
     double value;
@@ -8,7 +9,7 @@ public:
         value = v;
     }
 };
-struct ControlKeyAxis {
+class ControlKeyAxis {
 public:
     std::vector<KeyValuePair> binds;
     double currentValue = 0;
@@ -38,7 +39,15 @@ public:
 class GameControls
 {
 public:
-    GameControls();
+    GameControls(Keyboard* keyboard, std::string inifile);
     ~GameControls();
+    EventHandler<string> onKeyDown;
+    EventHandler<string> onKeyUp;
+    bool isKeyDown(std::string name);
+    double readAxisValue(std::string name);
+private:
+    Keyboard* keyboard;
+    std::map<std::string, int> simpleKeyBinds;
+    std::map<std::string, ControlKeyAxis> keysAxisBinds;
 };
 

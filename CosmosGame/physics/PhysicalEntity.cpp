@@ -2,23 +2,23 @@
 #include "PhysicalEntity.h"
 #include "Object3dInfo.h"
 
-PhysicalEntity::PhysicalEntity(Object3dInfo * info3d, double imass, glm::dvec3 iposition, glm::dquat iorientation, glm::dvec3 ilinearVelocity, glm::dvec3 iangularVelocity)
-    : collision3dInfo(info3d), mass(imass), position(iposition), orientation(iorientation), linearVelocity(ilinearVelocity), angularVelocity(iangularVelocity)
+PhysicalEntity::PhysicalEntity(double imass, glm::dvec3 iposition, glm::dquat iorientation, glm::dvec3 ilinearVelocity, glm::dvec3 iangularVelocity)
+    : mass(imass), position(iposition), orientation(iorientation), linearVelocity(ilinearVelocity), angularVelocity(iangularVelocity)
 {
 }
 
-PhysicalEntity::PhysicalEntity(Object3dInfo * info3d, double imass, glm::dvec3 iposition, glm::dquat iorientation, glm::dvec3 ilinearVelocity)
-    : collision3dInfo(info3d), mass(imass), position(iposition), orientation(iorientation), linearVelocity(ilinearVelocity)
+PhysicalEntity::PhysicalEntity(double imass, glm::dvec3 iposition, glm::dquat iorientation, glm::dvec3 ilinearVelocity)
+    : mass(imass), position(iposition), orientation(iorientation), linearVelocity(ilinearVelocity)
 {
 }
 
-PhysicalEntity::PhysicalEntity(Object3dInfo * info3d, double imass, glm::dvec3 iposition, glm::dquat iorientation)
-    : collision3dInfo(info3d), mass(imass), position(iposition), orientation(iorientation)
+PhysicalEntity::PhysicalEntity(double imass, glm::dvec3 iposition, glm::dquat iorientation)
+    : mass(imass), position(iposition), orientation(iorientation)
 {
 }
 
-PhysicalEntity::PhysicalEntity(Object3dInfo * info3d, double imass, glm::dvec3 iposition)
-    : collision3dInfo(info3d), mass(imass), position(iposition)
+PhysicalEntity::PhysicalEntity(double imass, glm::dvec3 iposition)
+    :  mass(imass), position(iposition)
 {
 }
 
@@ -163,7 +163,7 @@ glm::dvec3 closestPointOnLine(glm::dvec3 point, glm::dvec3 start, glm::dvec3 end
     auto len = glm::distance(a, b);
     return start + glm::clamp(glm::dot(a, b) / glm::dot(b, b), 0.0, 1.0) * b;
 }
-
+/*
 bool PhysicalEntity::hitRayPosition(glm::dvec3 position, glm::dvec3 direction, glm::dvec3 &outposvec, glm::dvec3 &outnormal)
 {
     double mindist = 9999999999999.0;
@@ -200,15 +200,7 @@ glm::dvec3 PhysicalEntity::closestSurface(glm::dvec3 position)
     glm::dvec3 outposvec = glm::dvec3(0.0);
     double mindist = 9999999999999.0;
     // no point for vertex search because edges are tested...
-    /*for (int i = 0; i < collision3dInfo->vbo.size(); i += 12) {
-    glm::dvec3 v1 = glm::dvec3(collision3dInfo->vbo[i], collision3dInfo->vbo[i + 1], collision3dInfo->vbo[i + 2]);
-    v1 = modelSpaceToWorld(v1);
-    double dst = glm::distance(v1, position);
-    if (dst < mindist) {
-    //   mindist = dst;
-    //   outposvec = v1;
-    }
-    }*/
+
     int tested = 0;
     for (int i = 0; i < collision3dInfo->vbo.size();) {
         glm::dvec3 v1 = glm::dvec3(collision3dInfo->vbo[i], collision3dInfo->vbo[i + 1], collision3dInfo->vbo[i + 2]);
@@ -263,4 +255,4 @@ glm::dvec3 PhysicalEntity::closestSurface(glm::dvec3 position)
         tested++;
     }
     return outposvec;
-}
+}*/

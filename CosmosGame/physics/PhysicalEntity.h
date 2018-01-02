@@ -3,10 +3,10 @@ class Object3dInfo;
 class PhysicalEntity
 {
 public:
-    PhysicalEntity(Object3dInfo * collisionInfo3d, double mass, glm::dvec3 position, glm::dquat orientation, glm::dvec3 linearVelocity, glm::dvec3 angularVelocity);
-    PhysicalEntity(Object3dInfo * collisionInfo3d, double mass, glm::dvec3 position, glm::dquat orientation, glm::dvec3 linearVelocity);
-    PhysicalEntity(Object3dInfo * collisionInfo3d, double mass, glm::dvec3 position, glm::dquat orientation);
-    PhysicalEntity(Object3dInfo * collisionInfo3d, double mass, glm::dvec3 position);
+    PhysicalEntity(double mass, glm::dvec3 position, glm::dquat orientation, glm::dvec3 linearVelocity, glm::dvec3 angularVelocity);
+    PhysicalEntity(double mass, glm::dvec3 position, glm::dquat orientation, glm::dvec3 linearVelocity);
+    PhysicalEntity(double mass, glm::dvec3 position, glm::dquat orientation);
+    PhysicalEntity(double mass, glm::dvec3 position);
     ~PhysicalEntity();
 
     double mass;
@@ -34,6 +34,6 @@ private:
     glm::dquat orientation = glm::dquat(1.0, 0.0, 0.0, 0.0);
     glm::dvec3 linearVelocity = glm::dvec3(0.0);
     glm::dvec3 angularVelocity = glm::dvec3(0.0);
-    Object3dInfo * collision3dInfo;
+    //Object3dInfo * collision3dInfo;
 };
 
