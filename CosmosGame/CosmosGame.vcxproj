@@ -137,7 +137,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="components\AbsComponent.h" />
     <ClInclude Include="AbsShipEnginesController.h" />
+    <ClInclude Include="camera\CameraOrbitStrategy.h" />
+    <ClInclude Include="camera\CameraController.h" />
     <ClInclude Include="CommandTerminal.h" />
     <ClInclude Include="CosmosRenderer.h" />
     <ClInclude Include="GalaxyGenerator.h" />
@@ -158,7 +161,10 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="components\AbsComponent.cpp" />
     <ClCompile Include="AbsShipEnginesController.cpp" />
+    <ClCompile Include="camera\CameraOrbitStrategy.cpp" />
+    <ClCompile Include="camera\CameraController.cpp" />
     <ClCompile Include="CommandTerminal.cpp" />
     <ClCompile Include="CosmosRenderer.cpp" />
     <ClCompile Include="GameControls.cpp" />

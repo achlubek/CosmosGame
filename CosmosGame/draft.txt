@@ -1,0 +1,66 @@
+ship db:
+
+CREATE TABLE models3d (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    info3d_file TEXT NOT NULL,
+    albedo_image TEXT NOT NULL,
+    normal_image TEXT NOT NULL,
+    roughness_image TEXT NOT NULL,
+    metalness_image TEXT NOT NULL,
+    emission_idle_image TEXT NOT NULL,
+    emission_powered_image TEXT NOT NULL
+);
+
+CREATE TABLE types(
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    name TEXT NOT NULL
+);
+
+CREATE TABLE modules(
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    modelid INTEGER REFERENCES models3d(id),
+    typeid INTEGER REFERENCES types(id),
+    manufacturer TEXT NOT NULL, 
+    name TEXT NOT NULL,
+    wattage REAL NOT NULL
+);
+
+
+
+CREATE TABLE engines(
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    moduleid INTEGER REFERENCES modules(id),
+    power REAL NOT NULL  
+);
+
+CREATE TABLE hyperdrives(
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    moduleid INTEGER REFERENCES modules(id), 
+    power REAL NOT NULL
+);
+
+CREATE TABLE ships(
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    modelid INTEGER REFERENCES models3d(id),
+    name TEXT NOT NULL,
+    mass REAL NOT NULL
+);
+
+CREATE TABLE ships_modules(
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    shipid INTEGER REFERENCES ships(id),
+    moduleid INTEGER REFERENCES modules(id), 
+    posx REAL NOT NULL,
+    posy REAL NOT NULL,
+    posz REAL NOT NULL,
+    dirx REAL NOT NULL,
+    diry REAL NOT NULL,
+    dirz REAL NOT NULL,
+    dirrot REAL NOT NULL
+);
+create table ship_modules_united_controls_map (
+    id integer primary key autoincrement,
+    shipid integer not null REFERENCES ships(id), 
+    module_link_name varchar(255) not null,
+    functionality integer not null
+);

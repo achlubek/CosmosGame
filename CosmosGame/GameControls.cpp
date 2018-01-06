@@ -2,6 +2,8 @@
 #include "GameControls.h"
 #include "INIReader.h"
 
+GameControls* GameControls::instance = nullptr;
+
 vector<string> splitByChar(string src, unsigned char splitter)
 {
     vector<string> output = {};
@@ -25,6 +27,7 @@ vector<string> splitByChar(string src, unsigned char splitter)
 GameControls::GameControls(Keyboard* ikeyboard, std::string inifile)
     : keyboard(ikeyboard)
 {
+    instance = this;
     INIReader reader = INIReader(inifile);
     INIReader keynamemap = INIReader("keys_name_value_map.ini");
     auto allkeys = reader.getAllKeys();
@@ -91,4 +94,9 @@ bool GameControls::isKeyDown(std::string name)
 double GameControls::readAxisValue(std::string name)
 {
     return keysAxisBinds[name].currentValue;
+}
+
+GameControls * GameControls::getInstance()
+{
+    return instance;
 }

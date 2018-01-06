@@ -47,9 +47,11 @@ public:
     EventHandler<string> onKeyUp;
     bool isKeyDown(std::string name);
     double readAxisValue(std::string name);
+    GameControls* getInstance();
 private:
     Keyboard* keyboard;
     std::map<std::string, int> simpleKeyBinds;
     std::map<std::string, ControlKeyAxis> keysAxisBinds;
+    static GameControls* instance;
 };
 

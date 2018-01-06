@@ -29,7 +29,7 @@ void SpaceShip::setHyperDriveVelocity(glm::dvec3 vel)
 void SpaceShip::drawShipAndModules(VulkanRenderStage * stage, VulkanDescriptorSet* celestialSet, glm::dvec3 observerPosition)
 {
     auto shippos = getPosition() - observerPosition;
- //   model->draw(stage, celestialSet, shippos, getOrientation());
+    model->draw(stage, celestialSet, shippos, getOrientation());
     auto m3_shiprot = glm::mat3_cast(getOrientation()); 
     for (int i = 0; i < modules.size(); i++) {
         auto modulepos = shippos + m3_shiprot * modules[i]->getRelativePosition();
