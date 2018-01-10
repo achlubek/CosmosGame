@@ -45,7 +45,7 @@ SpaceShip* SpaceShipDatabaseManager::readSpaceShip(int id)
 {
     auto ship_data = db->query("SELECT * FROM ships WHERE id = " + asstring(id))[0];
     auto ship_modules = db->query("SELECT * FROM ships_modules WHERE shipid = " + asstring(id));
-    auto ship_unicontrol_map = db->query("SELECT * FROM ship_modules_united_controls_map WHERE shipid = " + asstring(id));
+    auto ship_unicontrol_map = db->query("SELECT * FROM ship_modules_united_controls_map");
      
     auto model3d = readModel3d(asint(ship_data["modelid"]));
 
@@ -89,10 +89,10 @@ SpaceShip* SpaceShipDatabaseManager::readSpaceShip(int id)
                 int type = asint(link["functionality"]);
                 switch (type) {
                 case ShipEnginesUnitedControllerFunctionalities::forward:
-                    ship->unitedController->addEnginesLinearNegativeZ({ static_cast<SpaceShipEngine*>(mod) });
+                    ship->unitedController->addEnginesLinearPositiveZ({ static_cast<SpaceShipEngine*>(mod) });
                     break;
                 case ShipEnginesUnitedControllerFunctionalities::backward:
-                    ship->unitedController->addEnginesLinearPositiveZ({ static_cast<SpaceShipEngine*>(mod) });
+                    ship->unitedController->addEnginesLinearNegativeZ({ static_cast<SpaceShipEngine*>(mod) });
                     break;
                 case ShipEnginesUnitedControllerFunctionalities::left:
                     ship->unitedController->addEnginesLinearNegativeX({ static_cast<SpaceShipEngine*>(mod) });

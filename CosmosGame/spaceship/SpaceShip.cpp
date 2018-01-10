@@ -33,7 +33,7 @@ void SpaceShip::drawShipAndModules(VulkanRenderStage * stage, VulkanDescriptorSe
     auto m3_shiprot = glm::mat3_cast(getOrientation()); 
     for (int i = 0; i < modules.size(); i++) {
         auto modulepos = shippos + m3_shiprot * modules[i]->getRelativePosition();
-        auto moduleort = getOrientation() * modules[i]->getRelativeOrientation() * glm::angleAxis((double)3.1415 * -0.5, glm::dvec3(1.0, 0.0, 0.0));
+        auto moduleort = getOrientation() * modules[i]->getRelativeOrientation() * glm::angleAxis((double)3.1415 * 0.5, glm::dvec3(1.0, 0.0, 0.0));
         modules[i]->model->draw(stage, celestialSet, modulepos, moduleort);
     }
 }

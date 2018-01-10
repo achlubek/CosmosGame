@@ -17,6 +17,7 @@ GameObject::~GameObject()
 
 void GameObject::addComponent(AbsComponent * component)
 {
+    component->setOwner(this);
     components.push_back(component);
 }
 
@@ -39,16 +40,23 @@ void GameObject::removeAllComponents()
 
 void GameObject::removeComponentsByType(ComponentTypes type)
 {
-    for (int i = 0; i < components.size(); ++i)
-    {
-        if (components[i]->getType() == type)
-        {
+    for (int i = 0; i < components.size(); i++) {
+        if (components[i]->getType() == type) {
             delete components[i];
             components[i] = components[components.size() - 1];
             components.pop_back();
             --i;
         }
     }
+}
+
+GameObject * GameObject::clone()
+{
+    auto copy = new GameObject();
+    for (int i = 0; i < components.size(); i++) {
+        copy->addComponent(components[i]->clone());
+    }
+    return copy;
 }
 
 unsigned long GameObject::getID()

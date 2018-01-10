@@ -10,10 +10,6 @@ AbsComponent::AbsComponent(ComponentTypes itype)
 }
 
 
-AbsComponent::~AbsComponent()
-{
-}
-
 ComponentTypes AbsComponent::getType()
 {
     return type;
@@ -27,4 +23,9 @@ unsigned long AbsComponent::getID()
 void AbsComponent::setOwner(GameObject * obj)
 {
     owner = obj;
+}
+
+bool AbsComponent::isDrawable()
+{
+    return false;
 }

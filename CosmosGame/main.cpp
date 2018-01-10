@@ -16,7 +16,7 @@
 #include <algorithm>
 #include "SQLiteDatabase.h"
 #include "GameControls.h"
- 
+using namespace std;
 void splitBySpaces(vector<string>& output, string src)
 {
     int i = 0, d = 0;
@@ -169,7 +169,7 @@ int main()
     //pworld->entities.push_back(player);
     pworld->entities.push_back(ship);
 
-    //ship->mainSeat = player;
+    ship->mainSeat = player;
 
 
     keyboard->onKeyPress.add([&](int key) {

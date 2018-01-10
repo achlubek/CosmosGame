@@ -137,13 +137,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="components\AbsDrawableComponent.h" />
     <ClInclude Include="components\AbsComponent.h" />
     <ClInclude Include="AbsShipEnginesController.h" />
     <ClInclude Include="camera\CameraOrbitStrategy.h" />
     <ClInclude Include="camera\CameraController.h" />
     <ClInclude Include="CommandTerminal.h" />
+    <ClInclude Include="components\ComponentTypes.h" />
     <ClInclude Include="CosmosRenderer.h" />
     <ClInclude Include="GalaxyGenerator.h" />
+    <ClInclude Include="GameContainer.h" />
     <ClInclude Include="GameControls.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Maneuvering6DOFShipEnginesController.h" />
@@ -159,14 +162,17 @@
     <ClInclude Include="spaceship\SpaceShipModule.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="components\Transformation3DComponent.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="components\AbsDrawableComponent.cpp" />
     <ClCompile Include="components\AbsComponent.cpp" />
     <ClCompile Include="AbsShipEnginesController.cpp" />
     <ClCompile Include="camera\CameraOrbitStrategy.cpp" />
     <ClCompile Include="camera\CameraController.cpp" />
     <ClCompile Include="CommandTerminal.cpp" />
     <ClCompile Include="CosmosRenderer.cpp" />
+    <ClCompile Include="GameContainer.cpp" />
     <ClCompile Include="GameControls.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="main.cpp" />
@@ -188,6 +194,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="components\Transformation3DComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="draft.txt" />

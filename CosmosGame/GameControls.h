@@ -1,5 +1,6 @@
 #pragma once
 #include "EventHandler.h"
+#include "Keyboard.h"
 class KeyValuePair {
 public:
     int key;
@@ -43,15 +44,13 @@ class GameControls
 public:
     GameControls(Keyboard* keyboard, std::string inifile);
     ~GameControls();
-    EventHandler<string> onKeyDown;
-    EventHandler<string> onKeyUp;
+    EventHandler<std::string> onKeyDown;
+    EventHandler<std::string> onKeyUp;
     bool isKeyDown(std::string name);
     double readAxisValue(std::string name);
-    GameControls* getInstance();
 private:
     Keyboard* keyboard;
     std::map<std::string, int> simpleKeyBinds;
     std::map<std::string, ControlKeyAxis> keysAxisBinds;
-    static GameControls* instance;
 };
 
