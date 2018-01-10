@@ -10,6 +10,7 @@ public:
     void removeComponent(AbsComponent* component);
     void removeAllComponents();
     void removeComponentsByType(ComponentTypes type);
+    void update(double elapsed);
     GameObject* clone();
     unsigned long getID();
     template<class T>

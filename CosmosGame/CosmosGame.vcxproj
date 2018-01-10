@@ -139,6 +139,7 @@
   <ItemGroup>
     <ClInclude Include="AbsDrawableComponent.h" />
     <ClInclude Include="AbsComponent.h" />
+    <ClInclude Include="AbsGameObjectBuilder.h" />
     <ClInclude Include="AbsShipEnginesController.h" />
     <ClInclude Include="CameraOrbitStrategy.h" />
     <ClInclude Include="CameraController.h" />
@@ -149,10 +150,12 @@
     <ClInclude Include="GameContainer.h" />
     <ClInclude Include="GameControls.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="GameObjectFactory.h" />
     <ClInclude Include="Maneuvering6DOFShipEnginesController.h" />
     <ClInclude Include="Model3d.h" />
     <ClInclude Include="PhysicalEntity.h" />
     <ClInclude Include="PhysicalWorld.h" />
+    <ClInclude Include="ShipFactory.h" />
     <ClInclude Include="SpaceShipDatabaseManager.h" />
     <ClInclude Include="ShipEnginesUnitedController.h" />
     <ClInclude Include="SpaceShip.h" />
@@ -168,6 +171,7 @@
   <ItemGroup>
     <ClCompile Include="AbsDrawableComponent.cpp" />
     <ClCompile Include="AbsComponent.cpp" />
+    <ClCompile Include="AbsGameObjectBuilder.cpp" />
     <ClCompile Include="AbsShipEnginesController.cpp" />
     <ClCompile Include="CameraOrbitStrategy.cpp" />
     <ClCompile Include="CameraController.cpp" />
@@ -176,12 +180,14 @@
     <ClCompile Include="GameContainer.cpp" />
     <ClCompile Include="GameControls.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="GameObjectFactory.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="GalaxyGenerator.cpp" />
     <ClCompile Include="Maneuvering6DOFShipEnginesController.cpp" />
     <ClCompile Include="Model3d.cpp" />
     <ClCompile Include="PhysicalEntity.cpp" />
     <ClCompile Include="PhysicalWorld.cpp" />
+    <ClCompile Include="ShipFactory.cpp" />
     <ClCompile Include="SpaceShipDatabaseManager.cpp" />
     <ClCompile Include="ShipEnginesUnitedController.cpp" />
     <ClCompile Include="SpaceShip.cpp" />
