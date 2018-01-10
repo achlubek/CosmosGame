@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "SpaceShipAutopilot.h"
-#include "../AbsShipEnginesController.h"
+#include "AbsShipEnginesController.h"
 #include "SpaceShip.h"
 
 

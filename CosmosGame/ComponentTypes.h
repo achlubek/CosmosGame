@@ -1,9 +1,9 @@
 #pragma once
 enum ComponentTypes {
     Transformation3D,
-    Physics,
-    Graphics,
+    Physics, 
     ThrustGenerator,
     Battery,
-    Attachment
+    Attachment,
+    SimpleDrawable
 };

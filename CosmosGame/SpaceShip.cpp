@@ -3,8 +3,8 @@
 #include "SpaceShipModule.h"
 #include "ShipEnginesUnitedController.h"
 #include "Object3dInfo.h"
-#include "../physics/PhysicalEntity.h"
-#include "../Model3d.h"
+#include "PhysicalEntity.h"
+#include "Model3d.h"
 //#define GLM_ENABLE_EXPERIMENTAL
 //#include "glm\gtx\intersect.hpp"
 

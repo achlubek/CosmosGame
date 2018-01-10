@@ -3,8 +3,8 @@
 #include "SpaceShip.h"
 #include "SpaceShipEngine.h"
 #include "ShipEnginesUnitedController.h"
-#include "../Model3d.h"
-#include "../CosmosRenderer.h"
+#include "Model3d.h"
+#include "CosmosRenderer.h"
 #include "SQLiteDatabase.h"
 
 

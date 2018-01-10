@@ -25,8 +25,7 @@ public:
     glm::dvec3 getAngularVelocity();
     void setLinearVelocity(glm::dvec3 v);
     void setAngularVelocity(glm::dvec3 v);
-    void stepEmulation(double time_delta);
-    virtual void update(double time_delta);
+    void stepEmulation(double time_delta); 
     void applyImpulse(glm::dvec3 relativePos, glm::dvec3 force);
     void applyAbsoluteImpulse(glm::dvec3 relativePos, glm::dvec3 force);
     void applyGravity(glm::dvec3 force);

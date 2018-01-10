@@ -1,6 +1,6 @@
 #pragma once
 class AbsComponent;
-#include "components\ComponentTypes.h"
+#include "ComponentTypes.h"
 class GameObject
 {
 public:
@@ -22,14 +22,14 @@ private:
     unsigned long id;
 };
 
-template<class T>
+template<typename T>
 inline T * GameObject::getComponent(ComponentTypes type)
 {
     for (int i = 0; i < components.size(); ++i)
     {
         if (components[i]->getType() == type)
         {
-            return components[i];
+            return static_cast<T*>(components[i]);
         }
     }
 }

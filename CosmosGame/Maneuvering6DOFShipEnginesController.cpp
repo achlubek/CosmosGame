@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Maneuvering6DOFShipEnginesController.h"
-#include "spaceship/SpaceShipEngine.h"
-#include "spaceship/SpaceShip.h"
+#include "SpaceShipEngine.h"
+#include "SpaceShip.h"
 
 
 Maneuvering6DOFShipEnginesController::Maneuvering6DOFShipEnginesController()

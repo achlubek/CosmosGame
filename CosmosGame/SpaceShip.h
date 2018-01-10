@@ -4,7 +4,7 @@ class SpaceShipModule;
 class Object3dInfo;
 class Model3d;
 class VulkanRenderStage;
-#include "../physics/PhysicalEntity.h"
+#include "PhysicalEntity.h"
 
 
 class SpaceShip : public PhysicalEntity

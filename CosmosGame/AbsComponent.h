@@ -1,6 +1,6 @@
 #pragma once
 #include "ComponentTypes.h"
-#include "../GameObject.h"
+#include "GameObject.h"
 class AbsComponent
 {
 public:

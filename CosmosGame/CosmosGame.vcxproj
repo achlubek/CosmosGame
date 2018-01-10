@@ -137,13 +137,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="components\AbsDrawableComponent.h" />
-    <ClInclude Include="components\AbsComponent.h" />
+    <ClInclude Include="AbsDrawableComponent.h" />
+    <ClInclude Include="AbsComponent.h" />
     <ClInclude Include="AbsShipEnginesController.h" />
-    <ClInclude Include="camera\CameraOrbitStrategy.h" />
-    <ClInclude Include="camera\CameraController.h" />
+    <ClInclude Include="CameraOrbitStrategy.h" />
+    <ClInclude Include="CameraController.h" />
     <ClInclude Include="CommandTerminal.h" />
-    <ClInclude Include="components\ComponentTypes.h" />
+    <ClInclude Include="ComponentTypes.h" />
     <ClInclude Include="CosmosRenderer.h" />
     <ClInclude Include="GalaxyGenerator.h" />
     <ClInclude Include="GameContainer.h" />
@@ -151,25 +151,26 @@
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Maneuvering6DOFShipEnginesController.h" />
     <ClInclude Include="Model3d.h" />
-    <ClInclude Include="physics\PhysicalEntity.h" />
-    <ClInclude Include="physics\PhysicalWorld.h" />
-    <ClInclude Include="spaceship\SpaceShipDatabaseManager.h" />
-    <ClInclude Include="spaceship\ShipEnginesUnitedController.h" />
-    <ClInclude Include="spaceship\SpaceShip.h" />
-    <ClInclude Include="spaceship\SpaceShipAutopilot.h" />
-    <ClInclude Include="spaceship\SpaceShipEngine.h" />
-    <ClInclude Include="spaceship\SpaceShipHyperDrive.h" />
-    <ClInclude Include="spaceship\SpaceShipModule.h" />
+    <ClInclude Include="PhysicalEntity.h" />
+    <ClInclude Include="PhysicalWorld.h" />
+    <ClInclude Include="SpaceShipDatabaseManager.h" />
+    <ClInclude Include="ShipEnginesUnitedController.h" />
+    <ClInclude Include="SpaceShip.h" />
+    <ClInclude Include="SpaceShipAutopilot.h" />
+    <ClInclude Include="SpaceShipEngine.h" />
+    <ClInclude Include="SpaceShipHyperDrive.h" />
+    <ClInclude Include="SpaceShipModule.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="components\Transformation3DComponent.h" />
+    <ClInclude Include="Transformation3DComponent.h" />
+    <ClInclude Include="ThrustGeneratorComponent.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="components\AbsDrawableComponent.cpp" />
-    <ClCompile Include="components\AbsComponent.cpp" />
+    <ClCompile Include="AbsDrawableComponent.cpp" />
+    <ClCompile Include="AbsComponent.cpp" />
     <ClCompile Include="AbsShipEnginesController.cpp" />
-    <ClCompile Include="camera\CameraOrbitStrategy.cpp" />
-    <ClCompile Include="camera\CameraController.cpp" />
+    <ClCompile Include="CameraOrbitStrategy.cpp" />
+    <ClCompile Include="CameraController.cpp" />
     <ClCompile Include="CommandTerminal.cpp" />
     <ClCompile Include="CosmosRenderer.cpp" />
     <ClCompile Include="GameContainer.cpp" />
@@ -179,22 +180,23 @@
     <ClCompile Include="GalaxyGenerator.cpp" />
     <ClCompile Include="Maneuvering6DOFShipEnginesController.cpp" />
     <ClCompile Include="Model3d.cpp" />
-    <ClCompile Include="physics\PhysicalEntity.cpp" />
-    <ClCompile Include="physics\PhysicalWorld.cpp" />
-    <ClCompile Include="spaceship\SpaceShipDatabaseManager.cpp" />
-    <ClCompile Include="spaceship\ShipEnginesUnitedController.cpp" />
-    <ClCompile Include="spaceship\SpaceShip.cpp" />
-    <ClCompile Include="spaceship\SpaceShipAutopilot.cpp" />
-    <ClCompile Include="spaceship\SpaceShipEngine.cpp" />
-    <ClCompile Include="spaceship\SpaceShipHyperDrive.cpp" />
-    <ClCompile Include="spaceship\SpaceShipModule.cpp" />
+    <ClCompile Include="PhysicalEntity.cpp" />
+    <ClCompile Include="PhysicalWorld.cpp" />
+    <ClCompile Include="SpaceShipDatabaseManager.cpp" />
+    <ClCompile Include="ShipEnginesUnitedController.cpp" />
+    <ClCompile Include="SpaceShip.cpp" />
+    <ClCompile Include="SpaceShipAutopilot.cpp" />
+    <ClCompile Include="SpaceShipEngine.cpp" />
+    <ClCompile Include="SpaceShipHyperDrive.cpp" />
+    <ClCompile Include="SpaceShipModule.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="components\Transformation3DComponent.cpp" />
+    <ClCompile Include="Transformation3DComponent.cpp" />
+    <ClCompile Include="ThrustGeneratorComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="draft.txt" />

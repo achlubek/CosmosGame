@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "GameObject.h"
-#include "components\AbsComponent.h"
+#include "AbsComponent.h"
 
 unsigned long GameObject::idSharedCounter = 0;
 

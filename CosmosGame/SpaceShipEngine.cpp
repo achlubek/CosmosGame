@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "SpaceShipEngine.h"
 #include "SpaceShip.h"
-#include "../Model3d.h"
+#include "Model3d.h"
 
 
 SpaceShipEngine::SpaceShipEngine(Model3d* model, std::string name, glm::dvec3 relativePosition, glm::dquat relativeOrientation, double power, double maxWattPower)

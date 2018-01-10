@@ -4,13 +4,19 @@ class Model3d;
 class AbsDrawableComponent : public AbsComponent
 {
 public:
+    AbsDrawableComponent(Model3d* model, glm::dvec3 relativePosition, glm::dquat relativeOrientation);
     AbsDrawableComponent(ComponentTypes type, Model3d* model, glm::dvec3 relativePosition, glm::dquat relativeOrientation);
-    ~AbsDrawableComponent();
+    virtual ~AbsDrawableComponent() {};
     virtual bool isDrawable() override;
     void draw(glm::dvec3 observerPosition);
-private:
+    virtual void update(double elapsed) override;
+    virtual void loadFromFile(std::string mediakey) override;
+    virtual AbsDrawableComponent * clone() override;
+protected:
     glm::dvec3 relativePosition;
     glm::dquat relativeOrientation;
     Model3d* model;
+
+    // Odziedziczono za poœrednictwem elementu AbsComponent
 };
 

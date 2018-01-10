@@ -3,8 +3,8 @@
 #include "SpaceShipEngine.h"
 #include "SpaceShipHyperDrive.h"
 #include "INIReader.h";
-#include "../Model3d.h"
-#include "../CosmosRenderer.h"
+#include "Model3d.h"
+#include "CosmosRenderer.h"
 
 
 SpaceShipModule::SpaceShipModule(Model3d* imodel, std::string name, glm::dvec3 irelativePosition, glm::dquat irelativeOrientation, double imaxWattPower)
