@@ -70,3 +70,18 @@ unsigned long GameObject::getID()
 {
     return id;
 }
+
+std::vector<AbsComponent*> GameObject::getAllComponents()
+{
+    return components;
+}
+
+bool GameObject::isDead()
+{
+    return dead;
+}
+
+void GameObject::die()
+{
+    dead = true;
+}

@@ -37,4 +37,5 @@ ThrustGeneratorComponent * ThrustGeneratorComponent::clone()
 
 void ThrustGeneratorComponent::setPowerPercentage(double p)
 {
+    powerPercentage = p;
 }

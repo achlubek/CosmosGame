@@ -13,14 +13,18 @@ public:
     void update(double elapsed);
     GameObject* clone();
     unsigned long getID();
+    std::vector<AbsComponent*> getAllComponents();
     template<class T>
     T* getComponent(ComponentTypes type);
     template<class T>
     std::vector<T*> getAllComponentsByType(ComponentTypes type);
+    bool isDead();
+    void die();
 private:
     std::vector<AbsComponent*> components;
     static unsigned long idSharedCounter;
     unsigned long id;
+    bool dead{ false };
 };
 
 template<typename T>

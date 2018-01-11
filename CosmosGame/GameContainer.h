@@ -7,13 +7,20 @@ class CosmosRenderer;
 class GameControls;
 class PhysicalWorld;
 class SQLiteDatabase;
-class SpaceShipDatabaseManager;
+class ShipFactory;
+class GameObject;
 
 class GameContainer
 {
 public:
     GameContainer();
     ~GameContainer();
+    ShipFactory* getShipFactory();
+    void addObject(GameObject* object);
+    void removeObject(GameObject* object);
+    void removeAllObjects();
+    void updateObjects();
+    void drawDrawableObjects();
 private:
     VulkanToolkit* vulkanToolkit;
     AssetLoader* assetLoader;
@@ -22,6 +29,9 @@ private:
     GameControls* gameControls;
     PhysicalWorld* physicalWorld;
     SQLiteDatabase* database;
-    SpaceShipDatabaseManager* shipDatabaseManager;
+    ShipFactory* shipFactory;
+    std::vector<GameObject*> activeObjects;
+    GameObject* player;
+    double lastTime;
 };
 
