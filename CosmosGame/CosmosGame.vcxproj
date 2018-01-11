@@ -141,6 +141,8 @@
     <ClInclude Include="AbsComponent.h" />
     <ClInclude Include="AbsGameObjectBuilder.h" />
     <ClInclude Include="AbsShipEnginesController.h" />
+    <ClInclude Include="BatteryComponent.h" />
+    <ClInclude Include="BatteryDrainer.h" />
     <ClInclude Include="CameraOrbitStrategy.h" />
     <ClInclude Include="CameraController.h" />
     <ClInclude Include="CommandTerminal.h" />
@@ -173,6 +175,8 @@
     <ClCompile Include="AbsComponent.cpp" />
     <ClCompile Include="AbsGameObjectBuilder.cpp" />
     <ClCompile Include="AbsShipEnginesController.cpp" />
+    <ClCompile Include="BatteryComponent.cpp" />
+    <ClCompile Include="BatteryDrainer.cpp" />
     <ClCompile Include="CameraOrbitStrategy.cpp" />
     <ClCompile Include="CameraController.cpp" />
     <ClCompile Include="CommandTerminal.cpp" />
