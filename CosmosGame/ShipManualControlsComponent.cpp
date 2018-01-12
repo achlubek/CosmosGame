@@ -23,9 +23,17 @@ void ShipManualControlsComponent::update(double elapsed)
         controls->readAxisValue("united_controller_manual_linear_up_down_axis"),
         controls->readAxisValue("united_controller_manual_linear_forward_backward_axis")
     );
+    auto angular_thrust_controls = glm::dvec3(
+        controls->readAxisValue("united_controller_manual_angular_pitch_axis"),
+        controls->readAxisValue("united_controller_manual_angular_yaw_axis"),
+        controls->readAxisValue("united_controller_manual_angular_roll_axis")
+    );
     auto thrustController = owner->getComponent<ThrustControllerComponent>(ComponentTypes::ThrustController);
     thrustController->setLinearThrust(
         linear_thrust_controls
+    );
+    thrustController->setAngularThrust(
+        angular_thrust_controls
     );
 }
 

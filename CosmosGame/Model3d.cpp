@@ -28,12 +28,14 @@ Model3d::Model3d(VulkanToolkit* ivulkan, VulkanDescriptorSetLayout* descriptorSe
     descriptorSet->bindImageViewSampler(5, emissionIdleImage);
     descriptorSet->bindImageViewSampler(6, emissionPoweredImage);
     descriptorSet->update();
-
+    orientationCorrection = glm::dquat(1.0, 0.0, 0.0, 0.0);
 }
 
 Model3d::Model3d(VulkanToolkit * vulkan, VulkanDescriptorSetLayout * descriptorSetLayout, std::string info3d_file, std::string albedo_image, 
-    std::string normal_image, std::string roughness_image, std::string metalness_image, std::string emission_idle_image, std::string emission_powered_image)
+    std::string normal_image, std::string roughness_image, std::string metalness_image, std::string emission_idle_image, std::string emission_powered_image,
+    glm::dquat iorientationCorrection)
 {
+    orientationCorrection = iorientationCorrection;
     AssetLoader assets = AssetLoader(vulkan);
     info3d = assets.loadObject3dInfoFile(info3d_file);
     albedoImage = assets.loadTextureFile(albedo_image);
@@ -72,7 +74,7 @@ Model3d::~Model3d()
 void Model3d::draw(VulkanRenderStage * stage, VulkanDescriptorSet* celestialSet, glm::dvec3 position, glm::dquat orientation)
 {
     VulkanBinaryBufferBuilder bb2 = VulkanBinaryBufferBuilder();
-    glm::mat4 shipmat = glm::mat4_cast(orientation);
+    glm::mat4 shipmat = glm::mat4_cast(orientationCorrection * orientation);
     bb2.emplaceGeneric((unsigned char*)&shipmat, sizeof(shipmat));
     bb2.emplaceFloat32((float)(position).x);
     bb2.emplaceFloat32((float)(position).y);
