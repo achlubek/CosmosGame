@@ -273,6 +273,7 @@ void CosmosRenderer::updateStars()
 
 void CosmosRenderer::updatePlanetsAndMoon(glm::dvec3 observerPosition)
 {
+    observerPosition *= scale;
     VulkanBinaryBufferBuilder planetsBB = VulkanBinaryBufferBuilder();
     VulkanBinaryBufferBuilder moonsBB = VulkanBinaryBufferBuilder();
 
@@ -386,6 +387,7 @@ void CosmosRenderer::updatePlanetsAndMoon(glm::dvec3 observerPosition)
 
 void CosmosRenderer::updateGravity(glm::dvec3 observerPosition)
 {
+    observerPosition *= scale;
     glm::vec3 newGravity = glm::vec3(0.0);
     glm::vec3 newSurfacePos = glm::vec3(0.0);
     glm::vec3 newBodyPos = glm::vec3(0.0);
@@ -466,6 +468,7 @@ void CosmosRenderer::updateGravity(glm::dvec3 observerPosition)
 
 void CosmosRenderer::updateNearestStar(glm::dvec3 observerPosition)
 {
+    observerPosition *= scale;
     // int closestStar = 0;
     double closestDistance = 9999999999.0;
     std::vector<GeneratedStarSystemInfo> newinfos = {};
@@ -552,7 +555,7 @@ void CosmosRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosi
     bb.emplaceFloat32((float)ypos / (float)height);
     bb.emplaceGeneric((unsigned char*)&rpmatrix, sizeof(rpmatrix));
 
-    glm::vec3 newcamerapos = glm::vec3(observerPosition);
+    glm::vec3 newcamerapos = glm::vec3(observerPosition * scale);
     bb.emplaceGeneric((unsigned char*)&newcamerapos, sizeof(internalCamera->cone->leftBottom));
     bb.emplaceFloat32(0.0f);
 

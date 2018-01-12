@@ -3,6 +3,8 @@
 #include "Model3d.h"
 #include "VulkanToolkit.h"
 #include "AssetLoader.h"
+#include "GameContainer.h"
+#include "CosmosRenderer.h"
 
 
 Model3d::Model3d(VulkanToolkit* ivulkan, VulkanDescriptorSetLayout* descriptorSetLayout, std::string mediakey)
@@ -76,10 +78,11 @@ void Model3d::draw(VulkanRenderStage * stage, VulkanDescriptorSet* celestialSet,
     VulkanBinaryBufferBuilder bb2 = VulkanBinaryBufferBuilder();
     glm::mat4 shipmat = glm::mat4_cast(orientationCorrection * orientation);
     bb2.emplaceGeneric((unsigned char*)&shipmat, sizeof(shipmat));
+    position *= GameContainer::getInstance()->getCosmosRenderer()->scale;
     bb2.emplaceFloat32((float)(position).x);
     bb2.emplaceFloat32((float)(position).y);
     bb2.emplaceFloat32((float)(position).z);
-    bb2.emplaceFloat32(0.0f);
+    bb2.emplaceFloat32((float)GameContainer::getInstance()->getCosmosRenderer()->scale);
     void* data;
     dataBuffer->map(0, bb2.buffer.size(), &data);
     memcpy(data, bb2.getPointer(), bb2.buffer.size());

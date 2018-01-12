@@ -23,9 +23,9 @@ layout(set = 1, binding = 0) buffer modelStorageBuffer {
 
 void main() {
     vec3 WorldPos = (modelBuffer.transformation
-        * vec4(inPosition.xyz, 1.0)).rgb + modelBuffer.position.rgb;
+        * vec4(inPosition.xyz * modelBuffer.position.a, 1.0)).rgb + modelBuffer.position.rgb;
     vec4 opo = (hiFreq.VPMatrix)
-        * ((modelBuffer.transformation * vec4(inPosition.xyz, 1.0)) + vec4(modelBuffer.position.rgb, 0.0));
+        * ((modelBuffer.transformation * vec4(inPosition.xyz * modelBuffer.position.a, 1.0)) + vec4(modelBuffer.position.rgb, 0.0));
     vec3 Normal = inNormal;
     outNormal = normalize(Normal);
     outTexCoord = inTexCoord;

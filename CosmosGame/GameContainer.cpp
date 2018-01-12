@@ -58,7 +58,11 @@ GameContainer::GameContainer()
     viewCamera = new CameraController();
 
     // a test
-    activeObjects.push_back(shipFactory->build(1));
+    auto testship = shipFactory->build(1);
+    auto testspawnpos = cosmosRenderer->nearbyStars[111].planets[2].getPosition(0.0);
+    auto testspawnradius = cosmosRenderer->nearbyStars[111].planets[2].radius;
+    testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(testspawnpos + glm::dvec3(0.0, 0.0, -testspawnradius * 2.0));
+    activeObjects.push_back(testship);
     viewCamera->setTarget(activeObjects[0]);
 }
 

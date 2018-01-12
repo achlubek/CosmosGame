@@ -52,36 +52,6 @@ vec3 tonemapUncharted2(vec3 color) {
 vec3 gammacorrect(vec3 c){
     return pow(c, vec3(1.0 / 2.4));
 }
-vec4 blur(sampler2D ss, float radius){
-    vec4 res = vec4(0.0, 0.0, 0.0, 0.0);
-    float wsum = 0.001;
-    vec2 ratio = vec2(1.0, Resolution.x/Resolution.y);
-    vec2 seed = UV;
-    for(int i=0;i<50;i++){
-        float x = rand2s(seed) * 3.1415 * 2.0;
-        seed += 1.0;
-        float y = rand2s(seed);
-        seed += 1.0;
-        vec2 newuv = clamp(UV + vec2(sin(x), cos(x)) * y * radius * ratio, 0.001, 0.999);
-        res += texture(ss, newuv).rgba;
-        wsum += 1.0;
-    }
-    return res.xyzw / wsum;
-}
-
-vec4 boxynonoiseblur(sampler2D ss, int axissamples){
-    vec4 res = vec4(0.0, 0.0, 0.0, 0.0);
-    float wsum = 0.001;
-    vec2 pixel = 1.0 / Resolution;
-    for(int i=-axissamples;i<axissamples;i++){
-        for(int g=-axissamples;g<axissamples;g++){
-            vec2 newuv = clamp(UV + vec2(i*pixel.x, g*pixel.y), 0.001, 0.999);
-            res += texture(ss, newuv).rgba;
-            wsum += 1.0;
-        }
-    }
-    return res.xyzw / wsum;
-}
 
 vec3 CameraPosition = hiFreq.inCameraPos.xyz;
 vec3 FrustumConeLeftBottom = hiFreq.inFrustumConeLeftBottom.xyz;
@@ -91,16 +61,14 @@ vec3 FrustumConeBottomLeftToTopLeft = hiFreq.inFrustumConeBottomLeftToTopLeft.xy
 #include camera.glsl
 void main() {
     vec4 celestial = texture(texCelestial, UV);
-    vec4 celestialblur = boxynonoiseblur(texCelestial, 2);
     vec3 dir = reconstructCameraSpaceDistance(UV, 1.0);
     dir *= 2.0;
     vec3 stars = texture(texStars, UV).rgb ;//texture(texStars, UV);
     vec4 ui = texture(uiTexture, UV);
     //stars.rgb /= max(0.0001, stars.a);
-    vec3 a = mix(stars, celestial.rgb + celestialblur.rgb * (1.0 - celestial.a), celestialblur.a);
+    vec3 a = mix(stars, celestial.rgb, celestial.a);
     vec4 shipdata = texture(texShip, UV).rgba;
-    vec4 shipdatablur = boxynonoiseblur(texShip, 2);
-    a = mix(a, shipdata.rgb + shipdatablur.rgb * (1.0 - shipdata.a), shipdatablur.a);
+    a = mix(a, shipdata.rgb, shipdata.a);
     a = mix(a, ui.rgb, ui.a);
     outColor = vec4(gammacorrect(clamp(a * 0.1, 0.0, 10000.0)), 1.0);
 }
