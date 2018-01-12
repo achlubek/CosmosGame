@@ -17,6 +17,7 @@ ThrustGeneratorComponent::~ThrustGeneratorComponent()
 
 void ThrustGeneratorComponent::update(double elapsed)
 {
+    drainer->setOwner(owner);
     double realPower = drainer->extractEnergy(elapsed, powerPercentage) * powerPercentage;
     Transformation3DComponent* transform = owner->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D);
 
@@ -37,5 +38,5 @@ ThrustGeneratorComponent * ThrustGeneratorComponent::clone()
 
 void ThrustGeneratorComponent::setPowerPercentage(double p)
 {
-    powerPercentage = p;
+    powerPercentage = glm::clamp(p, 0.0, 1.0);
 }

@@ -7,6 +7,10 @@
 #include "CosmosRenderer.h"
 #include "Transformation3DComponent.h"
 #include "AbsDrawableComponent.h"
+#include "ThrustGeneratorComponent.h"
+#include "ThrustControllerComponent.h"
+#include "ShipManualControlsComponent.h"
+#include "BatteryComponent.h"
 
 
 ShipFactory::ShipFactory()
@@ -51,6 +55,9 @@ glm::dquat vec3toquat(glm::dvec3 dir, double angle = 0) {
     return glm::angleAxis(angle, dir) * glm::quat_cast(m);
 }
 
+#define MODULE_TYPE_HYPERDRIVE 1
+#define MODULE_TYPE_ENGINE 2
+
 GameObject * ShipFactory::build(int id)
 {
     auto db = GameContainer::getInstance()->getDatabase();
@@ -67,7 +74,9 @@ GameObject * ShipFactory::build(int id)
     auto transformComponent = new Transformation3DComponent(asdouble(ship_data["mass"]), glm::dvec3(0.0));
     ship->addComponent(drawableComponent);
     ship->addComponent(transformComponent);
-    /*
+
+    ship->addComponent(new BatteryComponent(100000, 100000));
+    
     for (int i = 0; i < ship_modules.size(); i++) {
         auto mod = ship_modules[i];
         glm::dvec3 pos = glm::dvec3(asdouble(mod["posx"]), asdouble(mod["posy"]), asdouble(mod["posz"]));
@@ -76,10 +85,12 @@ GameObject * ShipFactory::build(int id)
         auto module_model3d = readModel3d(asint(mod_data["modelid"]));
         if (asint(mod_data["typeid"]) == MODULE_TYPE_ENGINE) {
             auto engine_data = db->query("SELECT * FROM engines WHERE id = " + mod_data["id"])[0];
-            auto engine = new SpaceShipEngine(module_model3d, mod["link_name"], pos, rot, asdouble(engine_data["power"]), asdouble(mod_data["wattage"]));
-            ship->modules.push_back(engine);
-            engine->enable();
+            auto thrustgencomponent = new ThrustGeneratorComponent(module_model3d, pos, rot, asdouble(engine_data["power"]), asdouble(mod_data["wattage"]));
+            ship->addComponent(thrustgencomponent);
         }
-    }*/
+    }
+    ship->addComponent(new ThrustControllerComponent());
+    ship->addComponent(new ShipManualControlsComponent());
+    
     return ship;
 }

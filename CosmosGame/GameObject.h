@@ -47,7 +47,7 @@ inline std::vector<T*> GameObject::getAllComponentsByType(ComponentTypes type)
     {
         if (components[i]->getType() == type)
         {
-            res.push_back(components[i]);
+            res.push_back(static_cast<T*>(components[i]));
         }
     }
     return res;

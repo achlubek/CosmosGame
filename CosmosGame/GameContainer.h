@@ -26,6 +26,7 @@ public:
     CosmosRenderer* getCosmosRenderer();
     VulkanToolkit* getVulkanToolkit();
     SQLiteDatabase* getDatabase();
+    GameControls* getControls();
     glm::vec2 getResolution();
     void startGameLoops();
 private:

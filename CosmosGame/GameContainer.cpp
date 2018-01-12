@@ -134,6 +134,11 @@ SQLiteDatabase * GameContainer::getDatabase()
     return database;
 }
 
+GameControls * GameContainer::getControls()
+{
+    return gameControls;
+}
+
 glm::vec2 GameContainer::getResolution()
 {
     return glm::vec2((float)vulkanToolkit->windowWidth, (float)vulkanToolkit->windowHeight);
