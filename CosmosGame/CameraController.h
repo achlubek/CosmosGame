@@ -13,6 +13,8 @@ public:
     glm::dvec3 getPosition();
     void setPosition(glm::dvec3 pos);
     void lookAt(glm::dvec3 point);
+    void lookAtDirection(glm::dvec3 dir);
+    void setOrientation(glm::dquat orient);
     void update(double elapsed);
     Camera* getInternalCamera();
 private:

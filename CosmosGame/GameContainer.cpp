@@ -46,7 +46,7 @@ GameContainer::GameContainer()
     Mouse* mouse = new Mouse(vulkanToolkit->window);
     Keyboard* keyboard = new Keyboard(vulkanToolkit->window);
 
-    gameControls = new GameControls(keyboard, "controls.ini");
+    gameControls = new GameControls(keyboard, mouse, "controls.ini");
 
     physicalWorld = new PhysicalWorld();
 
@@ -59,6 +59,7 @@ GameContainer::GameContainer()
 
     // a test
     activeObjects.push_back(shipFactory->build(1));
+    viewCamera->setTarget(activeObjects[0]);
 }
 
 

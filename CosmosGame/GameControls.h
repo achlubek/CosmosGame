@@ -42,14 +42,16 @@ public:
 class GameControls
 {
 public:
-    GameControls(Keyboard* keyboard, std::string inifile);
+    GameControls(Keyboard* keyboard, Mouse* mouse, std::string inifile);
     ~GameControls();
     EventHandler<std::string> onKeyDown;
     EventHandler<std::string> onKeyUp;
     bool isKeyDown(std::string name);
     double readAxisValue(std::string name);
+    glm::ivec2 getCursorPosition();
 private:
-    Keyboard* keyboard;
+    Keyboard * keyboard;
+    Mouse* mouse;
     std::map<std::string, int> simpleKeyBinds;
     std::map<std::string, ControlKeyAxis> keysAxisBinds;
 };

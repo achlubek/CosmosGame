@@ -23,8 +23,8 @@ vector<string> splitByChar(string src, unsigned char splitter)
     return output;
 }
 
-GameControls::GameControls(Keyboard* ikeyboard, std::string inifile)
-    : keyboard(ikeyboard)
+GameControls::GameControls(Keyboard* ikeyboard, Mouse* imouse, std::string inifile)
+    : keyboard(ikeyboard), mouse(imouse)
 {
     INIReader reader = INIReader(inifile);
     INIReader keynamemap = INIReader("keys_name_value_map.ini");
@@ -92,5 +92,11 @@ bool GameControls::isKeyDown(std::string name)
 double GameControls::readAxisValue(std::string name)
 {
     return keysAxisBinds[name].currentValue;
+}
+
+glm::ivec2 GameControls::getCursorPosition()
+{
+    auto tup = mouse->getCursorPosition();
+    return glm::ivec2(get<0>(tup), get<1>(tup));
 }
  

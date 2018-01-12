@@ -54,6 +54,16 @@ void CameraController::lookAt(glm::dvec3 point)
     internalCamera->transformation->setOrientation(glm::quat_cast(glm::lookAt(glm::vec3(0.0), lowresRelative, glm::vec3(0.0, 1.0, 0.0))));
 }
 
+void CameraController::lookAtDirection(glm::dvec3 dir)
+{
+    internalCamera->transformation->setOrientation(glm::lookAt(glm::vec3(0.0), glm::normalize(glm::vec3(dir)), glm::vec3(0.0, 1.0, 0.0)));
+}
+
+void CameraController::setOrientation(glm::dquat orient)
+{
+    internalCamera->transformation->setOrientation(orient);
+}
+
 void CameraController::update(double elapsed)
 {
     activeViewStrategy->update(elapsed, this);
