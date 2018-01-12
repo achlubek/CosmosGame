@@ -17,7 +17,7 @@ SpaceShipDatabaseManager::SpaceShipDatabaseManager(SQLiteDatabase* idb)
 SpaceShipDatabaseManager::~SpaceShipDatabaseManager()
 {
 }
-
+/*
 glm::dquat vec3toquat(glm::dvec3 dir, double angle = 0) {
 
     glm::dvec3 up = glm::dvec3(0.0, 1.0, 0.0);
@@ -33,7 +33,7 @@ glm::dquat vec3toquat(glm::dvec3 dir, double angle = 0) {
 
     glm::dmat3 m = glm::dmat3(cr1, cr2, dir);
     return glm::angleAxis(angle, dir) * glm::quat_cast(m);
-}
+}*/
 
 #define asstring(a) std::to_string(a)
 #define asdouble(a) std::stod(a)
@@ -43,6 +43,7 @@ glm::dquat vec3toquat(glm::dvec3 dir, double angle = 0) {
 
 SpaceShip* SpaceShipDatabaseManager::readSpaceShip(int id)
 {
+    /*
     auto ship_data = db->query("SELECT * FROM ships WHERE id = " + asstring(id))[0];
     auto ship_modules = db->query("SELECT * FROM ships_modules WHERE shipid = " + asstring(id));
     auto ship_unicontrol_map = db->query("SELECT * FROM ship_modules_united_controls_map");
@@ -64,7 +65,6 @@ SpaceShip* SpaceShipDatabaseManager::readSpaceShip(int id)
             engine->enable();
         }
     }
-    /*
     its getting spaghetti in here
     functionalities:
     forward = 0
@@ -80,7 +80,6 @@ SpaceShip* SpaceShipDatabaseManager::readSpaceShip(int id)
     roll_right = 9
     yaw_left = 10
     yaw_right = 11
-    */
     for (int i = 0; i < ship_unicontrol_map.size(); i++) {
         auto link = ship_unicontrol_map[i];
         for (int g = 0; g < ship->modules.size(); g++) {
@@ -130,15 +129,17 @@ SpaceShip* SpaceShipDatabaseManager::readSpaceShip(int id)
             }
         }
     }
-    return ship;
+    */
+    return nullptr;
 }
 
 Model3d * SpaceShipDatabaseManager::readModel3d(int id)
 {
+    return nullptr;/*
     auto model3d_data = db->query("SELECT * FROM models3d WHERE id = " + asstring(id))[0];
     auto vulkan = CosmosRenderer::instance->vulkan;
     auto modeldset = CosmosRenderer::instance->modelMRTLayout;
     auto model3d = new Model3d(vulkan, modeldset, model3d_data["info3d_file"], model3d_data["albedo_image"], model3d_data["normal_image"],
         model3d_data["roughness_image"], model3d_data["metalness_image"], model3d_data["emission_idle_image"], model3d_data["emission_powered_image"]);
-    return model3d;
+    return model3d;*/
 }

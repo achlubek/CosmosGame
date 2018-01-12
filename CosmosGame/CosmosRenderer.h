@@ -10,9 +10,7 @@ class CosmosRenderer
 public:
     CosmosRenderer(VulkanToolkit* ivulkan, int iwidth, int iheight);
     ~CosmosRenderer();
-    void recompileShaders(bool deleteOld);
-
-    static CosmosRenderer* instance;
+    void recompileShaders(bool deleteOld); 
 
     GalaxyGenerator* galaxy;
     UIRenderer* ui;
@@ -23,8 +21,7 @@ public:
     //int nearestStarIndex; 
     GeneratedPlanetInfo nearestPlanet;
     GeneratedMoonInfo nearestMoon;
-    Camera* internalCamera;
-    std::vector<SpaceShip*> ships;
+    Camera* internalCamera; 
 
     GeneratedStarInfo getStar(int starIndex);
     GeneratedPlanetInfo getPlanet(int starIndex, int planetIndex);

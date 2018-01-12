@@ -3,13 +3,12 @@
 #include "GalaxyGenerator.h"
 #include "stdafx.h"
 #include "vulkan.h"
-
-CosmosRenderer* CosmosRenderer::instance = nullptr;
+#include "GameContainer.h"
+ 
 
 CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, int iwidth, int iheight) :
-    width(iwidth), height(iheight), vulkan(ivulkan), assets(AssetLoader(ivulkan)), ships({})
-{
-    instance = this;
+    width(iwidth), height(iheight), vulkan(ivulkan), assets(AssetLoader(ivulkan))
+{ 
     internalCamera = new Camera();
     nearbyStars = {};
     galaxy = new GalaxyGenerator();
@@ -600,7 +599,8 @@ void CosmosRenderer::draw()
     modelsStage->beginDrawing();
 
     vkDeviceWaitIdle(vulkan->device);
-    for (int i = 0; i < ships.size(); i++)ships[i]->drawShipAndModules(modelsStage, celestialSet, observerCameraPosition);
+    //for (int i = 0; i < ships.size(); i++)ships[i]->drawShipAndModules(modelsStage, celestialSet, observerCameraPosition);
+    GameContainer::getInstance()->drawDrawableObjects();
 
     vkDeviceWaitIdle(vulkan->device);
     modelsStage->endDrawing();

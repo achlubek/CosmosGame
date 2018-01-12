@@ -1,12 +1,65 @@
 #include "stdafx.h"
 #include "CameraController.h"
+#include "AbsCameraViewStrategy.h" 
+#include "GameContainer.h" 
+#include "CameraOrbitStrategy.h" 
 
 
 CameraController::CameraController()
+    : internalCamera(new Camera()), position(glm::dvec3(0.0)), activeViewStrategy(new CameraOrbitStrategy())
 {
+    auto resolution = GameContainer::getInstance()->getResolution();
+    internalCamera->createProjectionPerspective(90.0f, resolution.x / resolution.y, 0.01f, 9000000.0f);
 }
 
 
 CameraController::~CameraController()
 {
+}
+
+float CameraController::getFov()
+{
+    return internalCamera->fov;
+}
+
+void CameraController::setFov(float fov)
+{
+    auto resolution = GameContainer::getInstance()->getResolution();
+    internalCamera->createProjectionPerspective(fov, resolution.x / resolution.y, 0.01f, 9000000.0f);
+}
+
+GameObject * CameraController::getTarget()
+{
+    return target;
+}
+
+void CameraController::setTarget(GameObject * obj)
+{
+    target = obj;
+}
+
+glm::dvec3 CameraController::getPosition()
+{
+    return position;
+}
+
+void CameraController::setPosition(glm::dvec3 pos)
+{
+    position = pos;
+}
+
+void CameraController::lookAt(glm::dvec3 point)
+{
+    glm::vec3 lowresRelative = glm::normalize(point - getPosition());
+    internalCamera->transformation->setOrientation(glm::quat_cast(glm::lookAt(glm::vec3(0.0), lowresRelative, glm::vec3(0.0, 1.0, 0.0))));
+}
+
+void CameraController::update(double elapsed)
+{
+    activeViewStrategy->update(elapsed, this);
+}
+
+Camera * CameraController::getInternalCamera()
+{
+    return internalCamera;
 }

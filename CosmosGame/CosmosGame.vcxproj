@@ -137,6 +137,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AbsCameraViewStrategy.h" />
     <ClInclude Include="AbsDrawableComponent.h" />
     <ClInclude Include="AbsComponent.h" />
     <ClInclude Include="AbsGameObjectBuilder.h" />
@@ -171,6 +172,7 @@
     <ClInclude Include="ThrustGeneratorComponent.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AbsCameraViewStrategy.cpp" />
     <ClCompile Include="AbsDrawableComponent.cpp" />
     <ClCompile Include="AbsComponent.cpp" />
     <ClCompile Include="AbsGameObjectBuilder.cpp" />

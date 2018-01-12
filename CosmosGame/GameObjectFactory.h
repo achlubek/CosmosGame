@@ -12,6 +12,6 @@ public:
     ~GameObjectFactory();
 
 private:
-    std::unordered_map<GameObjectArcheTypes, AbsGameObjectBuilder> builders;
+    //std::unordered_map<GameObjectArcheTypes, AbsGameObjectBuilder> builders;
 };
 

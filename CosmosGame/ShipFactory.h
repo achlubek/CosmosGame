@@ -6,8 +6,6 @@ public:
     ShipFactory();
     ~ShipFactory();
 
-    static GameObject* build(int id) {
-
-    }
+    GameObject* build(int id);
 };
 

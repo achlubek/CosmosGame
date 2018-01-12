@@ -5,6 +5,6 @@ class AbsGameObjectBuilder
 public:
     AbsGameObjectBuilder();
     virtual ~AbsGameObjectBuilder() {}
-    virtual GameObject build();
+    //virtual GameObject build();
 };
 

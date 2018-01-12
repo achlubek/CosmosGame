@@ -12,11 +12,14 @@
 #include "AbsComponent.h"
 #include "AbsDrawableComponent.h"
 #include "Transformation3DComponent.h"
+#include "CameraController.h"
 
+GameContainer* GameContainer::instance = nullptr;
 
 // kids, this is how to not do single responsibility principle
 GameContainer::GameContainer()
 {
+    instance = this;
     activeObjects = {};
 
     INIReader* configreader = new INIReader("settings.ini");
@@ -50,6 +53,12 @@ GameContainer::GameContainer()
     database = new SQLiteDatabase(Media::getPath("gamedata.db"));
 
     shipFactory = new ShipFactory();
+
+    // fuck it for now
+    viewCamera = new CameraController();
+
+    // a test
+    activeObjects.push_back(shipFactory->build(1));
 }
 
 
@@ -69,7 +78,7 @@ void GameContainer::addObject(GameObject * object)
 
 void GameContainer::removeObject(GameObject * object)
 {
-    auto found = std::find(activeObjects.begin, activeObjects.end, object);
+    auto found = std::find(activeObjects.begin(), activeObjects.end(), object);
 
     if (found != activeObjects.end()) {
         activeObjects.erase(found);
@@ -87,13 +96,13 @@ void GameContainer::updateObjects()
     for (int i = 0; i < activeObjects.size(); i++) {
         activeObjects[i]->update(nowtime - lastTime);
     }
+    viewCamera->update(nowtime - lastTime);
     lastTime = nowtime;
 }
 
 void GameContainer::drawDrawableObjects()
 {
-    auto playerTransformation = player->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D);
-    auto observerPosition = playerTransformation->getPosition();
+    auto observerPosition = viewCamera->getPosition();
     for (int i = 0; i < activeObjects.size(); i++) {
         auto comps = activeObjects[i]->getAllComponents();
         for (int g = 0; g < comps.size(); g++) {
@@ -103,4 +112,70 @@ void GameContainer::drawDrawableObjects()
             }
         }
     }
+}
+
+GameContainer * GameContainer::getInstance()
+{
+    return instance;
+}
+
+CosmosRenderer * GameContainer::getCosmosRenderer()
+{
+    return cosmosRenderer;
+}
+
+VulkanToolkit * GameContainer::getVulkanToolkit()
+{
+    return vulkanToolkit;
+}
+
+SQLiteDatabase * GameContainer::getDatabase()
+{
+    return database;
+}
+
+glm::vec2 GameContainer::getResolution()
+{
+    return glm::vec2((float)vulkanToolkit->windowWidth, (float)vulkanToolkit->windowHeight);
+}
+
+void GameContainer::startGameLoops()
+{
+    cosmosRenderer->mapBuffers();
+    cosmosRenderer->updateStars();
+    std::thread background1 = std::thread([&]() {
+        while (true) {
+            cosmosRenderer->updateNearestStar(viewCamera->getPosition());
+            cosmosRenderer->updateGravity(viewCamera->getPosition());
+
+        }
+    });
+    background1.detach();
+    int frames = 0;
+    double lastTime = 0.0;
+    double lastRawTime = 0.0;
+    while (!vulkanToolkit->shouldCloseWindow()) {
+        frames++;
+        double time = glfwGetTime();
+        double nowtime = floor(time);
+        if (nowtime != lastTime) {
+            printf("FPS %d\n", frames);
+            frames = 0;
+        }
+        double elapsed_x100 = (float)(100.0 * (time - lastRawTime));
+        double elapsed = (float)((time - lastRawTime));
+        lastRawTime = time;
+        lastTime = nowtime;
+
+        //
+
+        cosmosRenderer->updateCameraBuffer(viewCamera->getInternalCamera(), viewCamera->getPosition());
+        cosmosRenderer->updatePlanetsAndMoon(viewCamera->getPosition());
+        cosmosRenderer->draw();
+
+        updateObjects();
+
+        vulkanToolkit->poolEvents();
+    }
+    cosmosRenderer->unmapBuffers();
 }

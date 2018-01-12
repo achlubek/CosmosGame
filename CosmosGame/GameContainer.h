@@ -9,6 +9,7 @@ class PhysicalWorld;
 class SQLiteDatabase;
 class ShipFactory;
 class GameObject;
+class CameraController;
 
 class GameContainer
 {
@@ -21,6 +22,12 @@ public:
     void removeAllObjects();
     void updateObjects();
     void drawDrawableObjects();
+    static GameContainer* getInstance();
+    CosmosRenderer* getCosmosRenderer();
+    VulkanToolkit* getVulkanToolkit();
+    SQLiteDatabase* getDatabase();
+    glm::vec2 getResolution();
+    void startGameLoops();
 private:
     VulkanToolkit* vulkanToolkit;
     AssetLoader* assetLoader;
@@ -31,7 +38,8 @@ private:
     SQLiteDatabase* database;
     ShipFactory* shipFactory;
     std::vector<GameObject*> activeObjects;
-    GameObject* player;
+    CameraController* viewCamera;
     double lastTime;
+    static GameContainer* instance;
 };
 
