@@ -76,7 +76,7 @@ Model3d::~Model3d()
 void Model3d::draw(VulkanRenderStage * stage, VulkanDescriptorSet* celestialSet, glm::dvec3 position, glm::dquat orientation)
 {
     VulkanBinaryBufferBuilder bb2 = VulkanBinaryBufferBuilder();
-    glm::mat4 shipmat = glm::mat4_cast(orientationCorrection * orientation);
+    glm::mat4 shipmat = glm::mat4_cast(orientation * orientationCorrection);
     bb2.emplaceGeneric((unsigned char*)&shipmat, sizeof(shipmat));
     position *= GameContainer::getInstance()->getCosmosRenderer()->scale;
     bb2.emplaceFloat32((float)(position).x);

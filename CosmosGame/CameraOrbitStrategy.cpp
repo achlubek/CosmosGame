@@ -19,7 +19,8 @@ void CameraOrbitStrategy::update(double elapsed, CameraController * controller)
 {
     auto targetPos = controller->getTarget()->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->getPosition();
 
-    auto cursorpos = GameContainer::getInstance()->getControls()->getCursorPosition();
+    auto controls = GameContainer::getInstance()->getControls();
+    auto cursorpos = controls->getCursorPosition();
 
     glm::vec2 delta = cursorpos - lastCursorPos;
 
@@ -33,8 +34,7 @@ void CameraOrbitStrategy::update(double elapsed, CameraController * controller)
 
     if (roty < 0.0) roty = PI * 2.0;
     if (roty > PI * 2.0) roty = 0.0;
-
-    printf("%f\n", rotx);
+     
 
     auto rotxmat = glm::angleAxis(rotx, glm::dvec3(1.0, 0.0, 0.0));
     auto rotymat = glm::angleAxis(roty, glm::dvec3(0.0, 1.0, 0.0));
@@ -46,4 +46,6 @@ void CameraOrbitStrategy::update(double elapsed, CameraController * controller)
   //  double abstime = glfwGetTime();
  //   glm::vec2 sincos = glm::vec2(sin(abstime), cos(abstime));
 //    controller->lookAt(glm::dvec3(sincos.x, 0.0, sincos.y));
+    distance += controls->readAxisValue("camera_orbit_distance_axis") * 0.1;
+    distance = glm::clamp(distance, 1.0, 1000.0);
 }
