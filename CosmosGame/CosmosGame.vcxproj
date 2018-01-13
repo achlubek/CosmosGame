@@ -140,10 +140,9 @@
     <ClInclude Include="AbsCameraViewStrategy.h" />
     <ClInclude Include="AbsDrawableComponent.h" />
     <ClInclude Include="AbsComponent.h" />
-    <ClInclude Include="AbsGameObjectBuilder.h" />
-    <ClInclude Include="AbsShipEnginesController.h" />
     <ClInclude Include="BatteryComponent.h" />
     <ClInclude Include="BatteryDrainer.h" />
+    <ClInclude Include="CameraChaseStrategy.h" />
     <ClInclude Include="CameraOrbitStrategy.h" />
     <ClInclude Include="CameraController.h" />
     <ClInclude Include="CommandTerminal.h" />
@@ -153,19 +152,8 @@
     <ClInclude Include="GameContainer.h" />
     <ClInclude Include="GameControls.h" />
     <ClInclude Include="GameObject.h" />
-    <ClInclude Include="GameObjectFactory.h" />
-    <ClInclude Include="Maneuvering6DOFShipEnginesController.h" />
     <ClInclude Include="Model3d.h" />
-    <ClInclude Include="PhysicalEntity.h" />
-    <ClInclude Include="PhysicalWorld.h" />
     <ClInclude Include="ShipFactory.h" />
-    <ClInclude Include="SpaceShipDatabaseManager.h" />
-    <ClInclude Include="ShipEnginesUnitedController.h" />
-    <ClInclude Include="SpaceShip.h" />
-    <ClInclude Include="SpaceShipAutopilot.h" />
-    <ClInclude Include="SpaceShipEngine.h" />
-    <ClInclude Include="SpaceShipHyperDrive.h" />
-    <ClInclude Include="SpaceShipModule.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="ThrustControllerComponent.h" />
@@ -177,10 +165,9 @@
     <ClCompile Include="AbsCameraViewStrategy.cpp" />
     <ClCompile Include="AbsDrawableComponent.cpp" />
     <ClCompile Include="AbsComponent.cpp" />
-    <ClCompile Include="AbsGameObjectBuilder.cpp" />
-    <ClCompile Include="AbsShipEnginesController.cpp" />
     <ClCompile Include="BatteryComponent.cpp" />
     <ClCompile Include="BatteryDrainer.cpp" />
+    <ClCompile Include="CameraChaseStrategy.cpp" />
     <ClCompile Include="CameraOrbitStrategy.cpp" />
     <ClCompile Include="CameraController.cpp" />
     <ClCompile Include="CommandTerminal.cpp" />
@@ -188,21 +175,10 @@
     <ClCompile Include="GameContainer.cpp" />
     <ClCompile Include="GameControls.cpp" />
     <ClCompile Include="GameObject.cpp" />
-    <ClCompile Include="GameObjectFactory.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="GalaxyGenerator.cpp" />
-    <ClCompile Include="Maneuvering6DOFShipEnginesController.cpp" />
     <ClCompile Include="Model3d.cpp" />
-    <ClCompile Include="PhysicalEntity.cpp" />
-    <ClCompile Include="PhysicalWorld.cpp" />
     <ClCompile Include="ShipFactory.cpp" />
-    <ClCompile Include="SpaceShipDatabaseManager.cpp" />
-    <ClCompile Include="ShipEnginesUnitedController.cpp" />
-    <ClCompile Include="SpaceShip.cpp" />
-    <ClCompile Include="SpaceShipAutopilot.cpp" />
-    <ClCompile Include="SpaceShipEngine.cpp" />
-    <ClCompile Include="SpaceShipHyperDrive.cpp" />
-    <ClCompile Include="SpaceShipModule.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

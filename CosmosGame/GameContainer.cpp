@@ -4,8 +4,7 @@
 #include "VulkanToolkit.h"
 #include "CosmosRenderer.h"
 #include "AssetLoader.h"
-#include "GameControls.h"
-#include "PhysicalWorld.h"
+#include "GameControls.h" 
 #include "SQLiteDatabase.h"
 #include "ShipFactory.h"
 #include "GameObject.h"
@@ -47,8 +46,7 @@ GameContainer::GameContainer()
     Keyboard* keyboard = new Keyboard(vulkanToolkit->window);
 
     gameControls = new GameControls(keyboard, mouse, "controls.ini");
-
-    physicalWorld = new PhysicalWorld();
+     
 
     database = new SQLiteDatabase(Media::getPath("gamedata.db"));
 

@@ -3,10 +3,11 @@
 #include "AbsCameraViewStrategy.h" 
 #include "GameContainer.h" 
 #include "CameraOrbitStrategy.h" 
+#include "CameraChaseStrategy.h" 
 
 
 CameraController::CameraController()
-    : internalCamera(new Camera()), position(glm::dvec3(0.0)), activeViewStrategy(new CameraOrbitStrategy())
+    : internalCamera(new Camera()), position(glm::dvec3(0.0)), activeViewStrategy(new CameraChaseStrategy())
 {
     auto resolution = GameContainer::getInstance()->getResolution();
     internalCamera->createProjectionPerspective(90.0f, resolution.x / resolution.y, 0.01f, 9000000.0f);

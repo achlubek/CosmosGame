@@ -2,8 +2,7 @@
 
 class VulkanRenderer;
 class VulkanToolkit;
-#include "GalaxyGenerator.h"
-#include "SpaceShip.h"
+#include "GalaxyGenerator.h" 
 
 class CosmosRenderer
 {
