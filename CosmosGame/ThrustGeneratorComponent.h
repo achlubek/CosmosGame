@@ -29,7 +29,7 @@ public:
     ThrustGroup functionalityGroup;
 private:
     BatteryDrainer * drainer;
-    double powerPercentage;
+    double powerPercentage{ 0 };
     double maxThrust;
 };
 

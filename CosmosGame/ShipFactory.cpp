@@ -100,7 +100,7 @@ GameObject * ShipFactory::build(int id)
         auto mod_data = db->query("SELECT * FROM modules WHERE id = " + mod["moduleid"])[0];
         auto module_model3d = readModel3d(asint(mod_data["modelid"]));
         if (asint(mod_data["typeid"]) == MODULE_TYPE_ENGINE) {
-            auto engine_data = db->query("SELECT * FROM engines WHERE id = " + mod_data["id"])[0];
+            auto engine_data = db->query("SELECT * FROM engines WHERE moduleid = " + mod_data["id"])[0];
             auto thrustgencomponent = new ThrustGeneratorComponent(module_model3d, pos, rot, asdouble(engine_data["power"]), asdouble(mod_data["wattage"]));
             thrustgencomponent->functionalityGroup = static_cast<ThrustGroup>(functionalityMap[mod["link_name"]]);
             ship->addComponent(thrustgencomponent);

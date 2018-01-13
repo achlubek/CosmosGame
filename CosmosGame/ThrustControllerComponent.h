@@ -15,7 +15,7 @@ public:
     virtual ThrustControllerComponent * clone() override;
 private:
 
-    glm::dvec3 linearThrust;
-    glm::dvec3 angularThrust;
+    glm::dvec3 linearThrust{ glm::dvec3(0.0) };
+    glm::dvec3 angularThrust{ glm::dvec3(0.0) };
 };
 

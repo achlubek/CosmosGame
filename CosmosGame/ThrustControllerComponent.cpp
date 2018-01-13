@@ -20,10 +20,10 @@ void ThrustControllerComponent::update(double elapsed)
         auto gen = thrustGens[i];
         switch (gen->functionalityGroup) {
 
-        case ThrustGroup::backward:
+        case ThrustGroup::forward:
             gen->setPowerPercentage(linearThrust.z);
             break;
-        case ThrustGroup::forward:
+        case ThrustGroup::backward:
             gen->setPowerPercentage(-linearThrust.z);
             break;
         case ThrustGroup::up:
