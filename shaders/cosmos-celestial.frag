@@ -109,11 +109,12 @@ vec4 traceRings(Ray ray, Sphere surface, vec3 sundir){
         float r1 = hash(currentPlanet.terrainMaxLevel_fluidMaxLevel_starDistance_seed.a);
         float r2 = hash(currentPlanet.terrainMaxLevel_fluidMaxLevel_starDistance_seed.a + 100.0);
         float r4 = hash(currentPlanet.terrainMaxLevel_fluidMaxLevel_starDistance_seed.a + 400.0);
-        float multprimary = smoothstep(currentPlanet.position_radius.a * 0.4, currentPlanet.position_radius.a * (1.0 + r1 * 2.0), planetdist);
-        float multsecondary = 1.0 - smoothstep(currentPlanet.position_radius.a *  (6.0 + r2 * 2.0), currentPlanet.position_radius.a*  (9.0 + r3 * 2.0), planetdist);
-        float multflunc = smoothstep(0.5, 0.55, noise1d(planetdist * 0.015 * (0.3 + 0.7 * r4)));
+        float multprimary = smoothstep(currentPlanet.position_radius.a * 1.4, currentPlanet.position_radius.a * (2.0 + r1 * 2.0), planetdist);
+        float multsecondary = 1.0 - smoothstep(currentPlanet.position_radius.a *  (3.0 + r2 * 2.0), currentPlanet.position_radius.a*  (4.0 + r3 * 2.0), planetdist);
+        float multflunc = smoothstep(0.1, 0.65, noise1d(planetdist * 0.065 * (0.3 + 0.7 * r4) * 5.0 * noise1d(planetdist * 0.015 * (0.3 + 0.7 * r4))));
+        vec3 partcolor = vec3( noise1d(planetdist * 0.065 * (0.3 + 0.7 * r4)),  noise1d(1000.0 + planetdist * 0.065 * (0.3 + 0.7 * r4)),  noise1d(2000.0 + planetdist * 0.065 * (0.3 + 0.7 * r4)));
         float hit_Surface2 = hits(rsi2(Ray(pos, sundir), surface).x) ? 0.0 : 1.0;
-        color += hit_Surface2 * multprimary * multsecondary * currentPlanet.preferredColor_zero.rgb;
+        color += partcolor * hit_Surface2 * multprimary * multsecondary * currentPlanet.preferredColor_zero.rgb;
         coverage += multprimary * multsecondary * multflunc;
     }
     storeFragment(plane, coverage, color);
@@ -184,37 +185,48 @@ vec4 tracePlanetAtmosphere(vec3 start, vec3 end, float lengthstart, float length
     float dstnew = 0.0;
     float dsttrg = distance(start, end);
 
-    return dsttrg * vec4(1.0);
+    //return dsttrg * vec4(1.0);
 
-
-
-
+    vec3 sundir = normalize(SUNDIR - start);
+    #line 192
+    vec2 hit_Atmosphere = rsi2(Ray(start, sundir), atmosphere);
+    vec3 dir = normalize(start - currentPlanet.position_radius.rgb);
     vec3 drr = normalize(end - start);
+    float f2 = pow(texture(planetAtmosphereFlunctuationsImage, xyzToPolar(-dir)).g, 3.0);
+    float heightmix = smoothstep(lengthstart, lengthstop, distance(currentPlanet.position_radius.rgb, end));
+    float flunctuations = smoothstep(0.013, 0.0135 + 0.24 * f2, mix(0.0, texture(planetAtmosphereFlunctuationsImage, xyzToPolar(dir)).g * noise1d(heightmix * 20.0), sqrt(1.0 - heightmix)));
+    float absorbstrength = currentPlanet.habitableChance_orbitSpeed_atmosphereRadius_atmosphereAbsorbStrength.a * (0.1 + 0.9 * flunctuations);
+    vec3 atmo_start = max(vec3(0.0), extra_cheap_atmosphere(101.0 * stepdistance, clamp(101.0 * max(hit_Atmosphere.x, hit_Atmosphere.y), 0.0, 10000.0), 323.0
+            * absorbstrength,
+            currentPlanet.atmosphereAbsorbColor_zero.rgb *  (0.7 + 0.3 * flunctuations),
+            dot(drr, sundir)));
+    vec3 directsuncolor =  extra_cheap_atmosphere(clamp(101.0 * max(hit_Atmosphere.x, hit_Atmosphere.y), 0.0, 10000.0), clamp(101.0 * max(hit_Atmosphere.x, hit_Atmosphere.y), 0.0, 10000.0), 323.0
+            * absorbstrength,
+            currentPlanet.atmosphereAbsorbColor_zero.rgb ,
+            1.0) * 0.2 + max(dot(dir, sundir), 0.0);
+    sundir = normalize(SUNDIR - end);
+    hit_Atmosphere = rsi2(Ray(end, sundir), atmosphere);
+    vec3 atmo_end = max(vec3(0.0), extra_cheap_atmosphere(101.0 * stepdistance, clamp(101.0 * max(hit_Atmosphere.x, hit_Atmosphere.y), 0.0, 10000.0), 323.0
+            * absorbstrength,
+            currentPlanet.atmosphereAbsorbColor_zero.rgb *  (0.7 + 0.3 * flunctuations),
+            dot(drr, sundir)));
+ 
+
     vec3 ssdir = normalize(start - currentPlanet.position_radius.rgb);
     while(dstnew < dsttrg){
         vec3 p = start + drr * iter;
+        vec3 atmocolor = atmo_end; //TODO
         dstnew = distance(start, p);
-        vec3 sundir = normalize(SUNDIR - p);
-        vec2 hit_Atmosphere = rsi2(Ray(p, sundir), atmosphere);
+        sundir = normalize(SUNDIR - p);
+        hit_Atmosphere = rsi2(Ray(p, sundir), atmosphere);
         float hit_Surface = rsi2(Ray(p, sundir), surface).x;//raymarchTerrain(Ray(p, sundir), currentPlanet.position_radius.xyz, 0.001);
         iter += stepdistance;
-        float heightmix = smoothstep(lengthstart, lengthstop, distance(currentPlanet.position_radius.rgb, p));
-        vec3 dir = normalize(p - currentPlanet.position_radius.rgb);
-        float f2 = pow(texture(planetAtmosphereFlunctuationsImage, xyzToPolar(-dir)).g, 3.0);
-        float flunctuations = smoothstep(0.013, 0.0135 + 0.24 * f2, mix(0.0, texture(planetAtmosphereFlunctuationsImage, xyzToPolar(dir)).g * noise1d(heightmix * 20.0), sqrt(1.0 - heightmix)));
         float dst = length(p - currentPlanet.position_radius.rgb);
         vec4 coorddir = vec4(dir * (1.0 + 0.1 * heightmix) * 11.0 * (0.2 + rd2 * 3.0), hiFreq.Time * 0.001);
         float cloudiness = clouds(dir ,  1.0 - abs( heightmix * 2.0 - 1.0)  );
         float shadow = 1.0;// - traceRings(Ray(p, sundir), surface, sundir).a;
-        float absorbstrength = currentPlanet.habitableChance_orbitSpeed_atmosphereRadius_atmosphereAbsorbStrength.a * (0.1 + 0.9 * flunctuations);
-        vec3 AC = max(vec3(0.0), extra_cheap_atmosphere(101.0 * stepdistance, clamp(101.0 * max(hit_Atmosphere.x, hit_Atmosphere.y), 0.0, 10000.0), 323.0
-                * absorbstrength,
-                currentPlanet.atmosphereAbsorbColor_zero.rgb *  (0.7 + 0.3 * flunctuations),
-                dot(drr, sundir)));
-        vec3 directsuncolor =  extra_cheap_atmosphere(clamp(101.0 * max(hit_Atmosphere.x, hit_Atmosphere.y), 0.0, 10000.0), clamp(101.0 * max(hit_Atmosphere.x, hit_Atmosphere.y), 0.0, 10000.0), 323.0
-                * absorbstrength,
-                currentPlanet.atmosphereAbsorbColor_zero.rgb ,
-                1.0) * 0.2 + max(dot(dir, sundir), 0.0);
+        vec3 AC = atmocolor;
+
         float planetshadow = (1.0 - step(0.0, hit_Surface)) * (1.0 / (1.0 + 10.0 * clamp(max(hit_Atmosphere.x, hit_Atmosphere.y), 0.0, 10000.0)));
         vec3 cloudscolor = mix(currentPlanet.atmosphereAbsorbColor_zero.rgb * 0.3, vec3(1.0), currentPlanet.habitableChance_orbitSpeed_atmosphereRadius_atmosphereAbsorbStrength.r);
         atm += vec3(cloudscolor * stepdistance * cloudiness * directsuncolor * planetshadow  * clamp(coverage, 0.0, 1.0) * 15000.507 * (0.3+0.7 * ( heightmix)))

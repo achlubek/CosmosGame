@@ -47,6 +47,9 @@ GameContainer::GameContainer()
 
     gameControls = new GameControls(keyboard, mouse, "controls.ini");
      
+    gameControls->onKeyDown.add([&](std::string key) {
+        if (key == "recompile_shaders") getCosmosRenderer()->recompileShaders(true);
+    });
 
     database = new SQLiteDatabase(Media::getPath("gamedata.db"));
 
@@ -57,9 +60,9 @@ GameContainer::GameContainer()
 
     // a test
     auto testship = shipFactory->build(1);
-    auto testspawnpos = cosmosRenderer->nearbyStars[121].planets[4].getPosition(0.0);
-    auto testspawnradius = cosmosRenderer->nearbyStars[121].planets[4].radius;
-    testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(testspawnpos + glm::dvec3(0.0, 0.0, -testspawnradius * 2.0));
+    auto testspawnpos = cosmosRenderer->nearbyStars[666].planets[6].getPosition(0.0);
+    auto testspawnradius = cosmosRenderer->nearbyStars[666].planets[6].radius;
+    testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(testspawnpos + glm::dvec3(0.0, testspawnradius * 3.0, -testspawnradius * 3.0));
     activeObjects.push_back(testship);
     viewCamera->setTarget(activeObjects[0]);
 }
