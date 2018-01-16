@@ -5,7 +5,6 @@
 #include <limits>
 
 GalaxyGenerator::GalaxyGenerator()
-    : stars({})
 {
     eng = std::mt19937_64(rd());
 }
@@ -26,26 +25,7 @@ int64_t GalaxyGenerator::randi64(int64_t min, int64_t max) {
     std::uniform_int_distribution<int64_t> distr = std::uniform_int_distribution<int64_t>(min, max);
     return distr(eng);
 }
-
-size_t GalaxyGenerator::findClosestStar(int64_t x, int64_t y, int64_t z)
-{
-    size_t cnt = stars.size();
-    int64_t mindist = 0;
-    size_t choosenIndex = 0;
-    for (int i = 0; i < cnt; i++) {
-        int64_t dx = stars[i].x - x;
-        int64_t dy = stars[i].y - y;
-        int64_t dz = stars[i].z - z;
-        int64_t brief = abs(dx) + abs(dy) + abs(dz);
-        if (i == 0 || brief < mindist) {
-            mindist = brief;
-            choosenIndex = i;
-            // printf("%d\n", i);
-        }
-        //int64_t dist = sqrt(pow(dx, 2i64) + pow(dy, 2i64) + pow(dz, 2i64));
-    }
-    return choosenIndex;
-}
+ 
 
 double GalaxyGenerator::drandnorm() {
     std::uniform_int_distribution<uint64_t> distr = std::uniform_int_distribution<uint64_t>();
@@ -60,12 +40,12 @@ glm::dvec2 rotate(glm::dvec2 v, double a) {
 double hashx(double n) {
     return glm::fract(sin(n)*758.5453);
 }
-void GalaxyGenerator::generateStar(int64_t galaxyradius, int64_t centerThickness, double centerGravity, uint64_t seed)
-{
-    SingleStar s = {};
-    s.seed = seed;
+GeneratedStarSystemInfo GalaxyGenerator::generateStar(int64_t galaxyradius, int64_t centerThickness, double centerGravity, uint64_t seed)
+{ 
     eng.seed(seed);
     eng.seed(randi64(0, UINT64_MAX));
+    auto system = GeneratedStarSystemInfo();
+    GeneratedStarInfo star = {};
     double ss = drandnorm() * 100.0;
 #define rnd() hashx(ss);ss+=100.0;
 
@@ -96,33 +76,16 @@ void GalaxyGenerator::generateStar(int64_t galaxyradius, int64_t centerThickness
     // point c is in -1 -> 1
     w = 1.0 - w;
     lu = w*w*(3.0 - 2.0 * w);
-    s.x = static_cast<double>(galaxyradius) * c.x;
-    s.z = static_cast<double>(galaxyradius) * c.y;
-    s.y = static_cast<double>(centerThickness) * (gauss1 * (drand2rn() * drand2rn() * drand2rn()));
-
-    stars.push_back(s);
-}
-
-void GalaxyGenerator::addStar(SingleStar s)
-{
-    stars.push_back(s);
-}
-
-GeneratedStarSystemInfo GalaxyGenerator::generateStarInfo(size_t index)
-{
-    auto system = GeneratedStarSystemInfo();
-    auto s = stars[index];
-    eng.seed(s.seed);
-    GeneratedStarInfo star = {};
-    star.starData = s;
+    star.x = static_cast<double>(galaxyradius) * c.x;
+    star.z = static_cast<double>(galaxyradius) * c.y;
+    star.y = static_cast<double>(centerThickness) * (gauss1 * (drand2rn() * drand2rn() * drand2rn()));
     star.radius = randu64(39100, 139100);
     star.color = glm::vec3(0.5 + drandnorm() * drandnorm(), 0.5 + drandnorm() * drandnorm(), 0.5 + drandnorm() * drandnorm());
     star.age = drandnorm();
     star.spotsIntensity = drandnorm();
     star.rotationSpeed = drandnorm();
     star.orbitPlane = glm::normalize(glm::vec3(drandnorm(), drandnorm(), drandnorm()) * 2.0f - 1.0f);
-    star.planetsCount = randu64(8, 8);
-    star.starIndex = index;
+    star.planetsCount = randu64(8, 8); 
     system.star = star;
     system.planets = {};
     //double stardisthelper = 5800000;
@@ -138,10 +101,10 @@ GeneratedStarSystemInfo GalaxyGenerator::generateStarInfo(size_t index)
     system.moons = {};
     for (int i = 0; i < star.planetsCount; i++) {
         GeneratedPlanetInfo planet = GeneratedPlanetInfo(star);
-       // planet.host = star;
+        // planet.host = star;
         planet.starDistance = arra[i];
         planet.planetIndex = i;
-       // stardisthelper += randu64(4000000, 162600000);
+        // stardisthelper += randu64(4000000, 162600000);
 
         uint64_t habitableStart = 1080000;// 1082000;
         uint64_t habitableEnd = 2280000;// 3279000;
@@ -217,9 +180,14 @@ GeneratedStarSystemInfo GalaxyGenerator::generateStarInfo(size_t index)
             GeneratedMoonInfo moon = GeneratedMoonInfo(planet);
             moon.moonIndex = g;
             moon.planetIndex = planet.planetIndex;
-           // moon.host = planet;
+            // moon.host = planet;
             moon.radius = randu64(planet.radius / 30, planet.radius / 15);
             moon.terrainMaxLevel = drandnorm();
+            moon.fluidMaxLevel = drandnorm();
+            moon.habitableChance = drandnorm();
+            moon.atmosphereRadius = (moon.radius * 0.009709 * drandnorm()); 
+            moon.atmosphereAbsorbColor = glm::vec3(0.1 + drandnorm() * 0.8, 0.1 + drandnorm() * 0.8, 0.1 + drandnorm() * 0.8);
+
             moon.orbitPlane = glm::normalize(glm::vec3(drandnorm(), drandnorm(), drandnorm()) * 2.0f - 1.0f);
             moon.orbitSpeed = drandnorm();
             moon.planetDistance = planet.radius * 3.0 + planet.radius * drandnorm() * 3.0;
@@ -229,3 +197,4 @@ GeneratedStarSystemInfo GalaxyGenerator::generateStarInfo(size_t index)
     }
     return system;
 }
+  

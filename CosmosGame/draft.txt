@@ -1,3 +1,23 @@
+Game COMPONENT SPLIT into separate libraries:
+
+- Cosmos renderer
+ responsible for rendering cosmos and objects Models3ds in it, basically a rendering engine but another abstraction over vengine internals
+
+- Engine (reusable shit)
+ game object, game factory, camera controllers, some base components like transformation3d, also world that contain them
+ Must not be bound to renderer!
+
+- Game (not reusable shit)
+ ~other shit
+
+
+
+
+
+
+
+
+
 ship db:
 
 CREATE TABLE models3d (

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -20,33 +20,33 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{EE1E42DA-4CCF-45FA-94DB-D1BCAF2764BA}</ProjectGuid>
+    <ProjectGuid>{20406D44-5955-4CEA-ACE9-9432A3010A6A}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>CosmosGame</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <RootNamespace>GameSpecificsLib</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -84,19 +84,20 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Code\SFML-2.4.2\include\;C:\Code\squirrel3\include;C:\Code\bullet3-2.86.1\src;C:\Code\glfw-3.2.1\include;C:\VulkanSDK\1.0.57.0\Include\vulkan;C:\Code\VEngineNative\VESound;C:\Code\glm-0.9.9-a1;C:\Code\VEngineNative\VECommon;C:\Code\VEngineNative\VEInput;C:\Code\VEngineNative\VERenderer;C:\Code\VEngineNative\VEUserInterface;C:\Code\VEngineNative\VEMultiplayer;C:\Code\VEngineNative\VEngineNative;C:\Code\VEngineNative\VESQLite3Wrapper</AdditionalIncludeDirectories>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>C:\Code\glfw-3.2.1\glfw3.lib;C:\Code\SFML-2.4.2\lib\flac.lib;C:\Code\SFML-2.4.2\lib\freetype.lib;C:\Code\SFML-2.4.2\lib\jpeg.lib;C:\Code\SFML-2.4.2\lib\ogg.lib;C:\Code\SFML-2.4.2\lib\openal32.lib;C:\Code\SFML-2.4.2\lib\sfml-audio.lib;C:\Code\SFML-2.4.2\lib\sfml-main.lib;C:\Code\SFML-2.4.2\lib\sfml-network.lib;C:\Code\SFML-2.4.2\lib\sfml-system.lib;C:\Code\SFML-2.4.2\lib\sfml-window.lib;C:\Code\SFML-2.4.2\lib\vorbis.lib;C:\Code\SFML-2.4.2\lib\vorbisenc.lib;C:\Code\SFML-2.4.2\lib\vorbisfile.lib;C:\VulkanSDK\1.0.57.0\Lib\vulkan-1.lib;C:\Code\VEngineNative\x64\Release\VECommon.lib;C:\Code\VEngineNative\x64\Release\VESound.lib;C:\Code\VEngineNative\x64\Release\VEPhysics.lib;C:\Code\VEngineNative\x64\Release\VEInput.lib;C:\Code\VEngineNative\x64\Release\VERenderer.lib;C:\Code\VEngineNative\x64\Release\VEUserInterface.lib;C:\Code\VEngineNative\x64\Release\VEMultiplayer.lib;C:\Code\VEngineNative\x64\Release\VEngineNative.lib;C:\Code\VEngineNative\x64\Release\VESQLite3Wrapper.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -104,10 +105,13 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -115,81 +119,44 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AbsCameraViewStrategy.h" />
-    <ClInclude Include="AbsDrawableComponent.h" />
-    <ClInclude Include="AbsComponent.h" />
-    <ClInclude Include="BatteryComponent.h" />
-    <ClInclude Include="BatteryDrainer.h" />
-    <ClInclude Include="CameraChaseStrategy.h" />
-    <ClInclude Include="CameraOrbitStrategy.h" />
-    <ClInclude Include="CameraController.h" />
-    <ClInclude Include="CommandTerminal.h" />
-    <ClInclude Include="ComponentTypes.h" />
-    <ClInclude Include="CosmosRenderer.h" />
-    <ClInclude Include="GameContainer.h" />
-    <ClInclude Include="GameControls.h" />
-    <ClInclude Include="GameObject.h" />
-    <ClInclude Include="Model3d.h" />
-    <ClInclude Include="ShipFactory.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="ThrustControllerComponent.h" />
-    <ClInclude Include="ShipManualControlsComponent.h" />
-    <ClInclude Include="Transformation3DComponent.h" />
-    <ClInclude Include="ThrustGeneratorComponent.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AbsCameraViewStrategy.cpp" />
-    <ClCompile Include="AbsDrawableComponent.cpp" />
-    <ClCompile Include="AbsComponent.cpp" />
-    <ClCompile Include="BatteryComponent.cpp" />
-    <ClCompile Include="BatteryDrainer.cpp" />
-    <ClCompile Include="CameraChaseStrategy.cpp" />
-    <ClCompile Include="CameraOrbitStrategy.cpp" />
-    <ClCompile Include="CameraController.cpp" />
-    <ClCompile Include="CommandTerminal.cpp" />
-    <ClCompile Include="CosmosRenderer.cpp" />
-    <ClCompile Include="GameContainer.cpp" />
-    <ClCompile Include="GameControls.cpp" />
-    <ClCompile Include="GameObject.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Model3d.cpp" />
-    <ClCompile Include="ShipFactory.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="ThrustControllerComponent.cpp" />
-    <ClCompile Include="ShipManualControlsComponent.cpp" />
-    <ClCompile Include="Transformation3DComponent.cpp" />
-    <ClCompile Include="ThrustGeneratorComponent.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="draft.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
