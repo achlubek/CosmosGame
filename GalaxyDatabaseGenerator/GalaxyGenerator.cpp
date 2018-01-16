@@ -46,6 +46,7 @@ GeneratedStarSystemInfo GalaxyGenerator::generateStar(int64_t galaxyradius, int6
     eng.seed(randi64(0, UINT64_MAX));
     auto system = GeneratedStarSystemInfo();
     GeneratedStarInfo star = {};
+    star.seed = seed;
     double ss = drandnorm() * 100.0;
 #define rnd() hashx(ss);ss+=100.0;
 
@@ -100,18 +101,19 @@ GeneratedStarSystemInfo GalaxyGenerator::generateStar(int64_t galaxyradius, int6
 
     system.moons = {};
     for (int i = 0; i < star.planetsCount; i++) {
-        GeneratedPlanetInfo planet = GeneratedPlanetInfo(star);
+        GeneratedPlanetInfo planet = GeneratedPlanetInfo();
+        planet.planetId = i;
         // planet.host = star;
         planet.starDistance = arra[i];
-        planet.planetIndex = i;
         // stardisthelper += randu64(4000000, 162600000);
 
         uint64_t habitableStart = 1080000;// 1082000;
         uint64_t habitableEnd = 2280000;// 3279000;
+        int moonsCount = 0;
         if (planet.starDistance < habitableStart) {
             // Rocky and small ONLY
             planet.radius = randu64(244, 544); // ranges from mercury to roughly 2x mercury
-            planet.moonsCount = randu64(1, 2);
+            moonsCount = randu64(1, 2);
             planet.atmosphereRadius = 0.0;
             planet.atmosphereAbsorbStrength = 0.0;
             planet.atmosphereAbsorbColor = glm::vec3(0.0);
@@ -124,7 +126,7 @@ GeneratedStarSystemInfo GalaxyGenerator::generateStar(int64_t galaxyradius, int6
         else if (planet.starDistance >= habitableStart && planet.starDistance <= habitableEnd) {
             // earth like or venus/mars like
             planet.radius = randu64(339, 937.1); // ranges from mars to 1,5x earth
-            planet.moonsCount = randu64(1, 4);
+            moonsCount = randu64(1, 4);
             planet.atmosphereRadius = (planet.radius * 0.004709);
             planet.terrainMaxLevel = drandnorm();
             float rand1 = drandnorm();
@@ -151,7 +153,7 @@ GeneratedStarSystemInfo GalaxyGenerator::generateStar(int64_t galaxyradius, int6
             if (rand1 < 0.8) {
                 // gaseous giant
                 planet.radius = randu64(2536.2, 6991.1); // ranges from uranus to jupiter
-                planet.moonsCount = randu64(5, 16);
+                moonsCount = randu64(5, 16);
                 planet.atmosphereRadius = (drandnorm() + 2.0) * (planet.radius * 0.1);
                 planet.atmosphereAbsorbStrength = 0.7 + 0.3 * drandnorm();
                 planet.atmosphereAbsorbColor = glm::vec3(0.1 + drandnorm() * 0.8, 0.1 + drandnorm() * 0.8, 0.1 + drandnorm() * 0.8);
@@ -163,7 +165,7 @@ GeneratedStarSystemInfo GalaxyGenerator::generateStar(int64_t galaxyradius, int6
             else {
                 // rocky
                 planet.radius = randu64(244.0, 544.0); // ranges from mercury to roughly 2x mercury
-                planet.moonsCount = randu64(1, 2);
+                moonsCount = randu64(1, 2);
                 planet.atmosphereRadius = 0.0;
                 planet.atmosphereAbsorbStrength = 0.0;
                 planet.atmosphereAbsorbColor = glm::vec3(0.0);
@@ -176,11 +178,9 @@ GeneratedStarSystemInfo GalaxyGenerator::generateStar(int64_t galaxyradius, int6
 
         planet.orbitSpeed = 0.0*drandnorm();
         system.planets.push_back(planet);
-        for (int g = 0; g < planet.moonsCount; g++) {
-            GeneratedMoonInfo moon = GeneratedMoonInfo(planet);
-            moon.moonIndex = g;
-            moon.planetIndex = planet.planetIndex;
-            // moon.host = planet;
+        for (int g = 0; g < moonsCount; g++) {
+            GeneratedMoonInfo moon = GeneratedMoonInfo(); 
+            moon.host = planet;
             moon.radius = randu64(planet.radius / 30, planet.radius / 15);
             moon.terrainMaxLevel = drandnorm();
             moon.fluidMaxLevel = drandnorm();
