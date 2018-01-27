@@ -17,6 +17,7 @@ public:
     glm::dvec3 orbitPlane; // normalized direction, normalize(cross(orbitPlane, up_vector)) == planet line
     uint8_t planetsCount;
     uint64_t starId;
+    std::vector<size_t> idsOfPlanets = {};
 
     virtual glm::dvec3 getPosition(double at_time) {
         return glm::dvec3(x, y, z);

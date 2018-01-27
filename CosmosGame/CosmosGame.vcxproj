@@ -147,7 +147,6 @@
     <ClInclude Include="CameraController.h" />
     <ClInclude Include="CommandTerminal.h" />
     <ClInclude Include="ComponentTypes.h" />
-    <ClInclude Include="CosmosRenderer.h" />
     <ClInclude Include="GameContainer.h" />
     <ClInclude Include="GameControls.h" />
     <ClInclude Include="GameObject.h" />
@@ -170,7 +169,6 @@
     <ClCompile Include="CameraOrbitStrategy.cpp" />
     <ClCompile Include="CameraController.cpp" />
     <ClCompile Include="CommandTerminal.cpp" />
-    <ClCompile Include="CosmosRenderer.cpp" />
     <ClCompile Include="GameContainer.cpp" />
     <ClCompile Include="GameControls.cpp" />
     <ClCompile Include="GameObject.cpp" />

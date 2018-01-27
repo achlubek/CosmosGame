@@ -15,7 +15,7 @@ public:
         auto objectPos = getPosition(at_time);
         double distance = glm::distance(at_point, objectPos);
         double G = 0.00000000006674;
-        double strength = G * (mass / glm::max(radius, distance * distance)); // the max is here to avoid infinities around 0 distance okay
+        double strength = G * (mass / max(radius, distance * distance)); // the max is here to avoid infinities around 0 distance okay
         return glm::normalize(objectPos - at_point) * strength;
     }
 

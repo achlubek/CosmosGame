@@ -1,19 +1,14 @@
 #include "stdafx.h"
 #include "CosmosRenderer.h"
-#include "GalaxyGenerator.h"
+#include "GalaxyContainer.h"
 #include "stdafx.h"
 #include "vulkan.h"
-#include "GameContainer.h"
  
 
-CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, int iwidth, int iheight) :
-    width(iwidth), height(iheight), vulkan(ivulkan), assets(AssetLoader(ivulkan))
+CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, GalaxyContainer* igalaxy, VulkanImage* ioverlayImage, int iwidth, int iheight) :
+    galaxy(igalaxy), overlayImage(ioverlayImage), width(iwidth), height(iheight), vulkan(ivulkan), assets(AssetLoader(ivulkan))
 { 
     internalCamera = new Camera();
-    nearbyStars = {};
-    galaxy = new GalaxyGenerator();
-    nearestStarSystems = {};
-    ui = new UIRenderer(vulkan, width, height);
 
     cube3dInfo = assets.loadObject3dInfoFile("cube1unitradius.raw");
 
@@ -90,7 +85,7 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, int iwidth, int iheight) 
     combineSet = combineLayout->generateDescriptorSet();
     combineSet->bindImageViewSampler(0, celestialImage);
     combineSet->bindImageViewSampler(1, starsImage);
-    combineSet->bindImageViewSampler(2, ui->outputImage);
+    combineSet->bindImageViewSampler(2, overlayImage);
     combineSet->bindUniformBuffer(3, cameraDataBuffer);
     combineSet->bindImageViewSampler(4, modelsResultImage);
     combineSet->update();
@@ -203,25 +198,6 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     planetDataStage->enabled = true;
 }
 
-GeneratedStarInfo CosmosRenderer::getStar(int starIndex)
-{
-    return nearbyStars[starIndex].star;
-}
-
-GeneratedPlanetInfo CosmosRenderer::getPlanet(int starIndex, int planetIndex)
-{
-    return nearbyStars[starIndex].planets[planetIndex];
-}
-
-GeneratedMoonInfo CosmosRenderer::getMoon(int starIndex, int planetIndex, int moonIndex)
-{
-    for (int i = 0; i < nearbyStars[starIndex].moons.size(); i++) {
-        auto m = nearbyStars[starIndex].moons[i];
-        if (m.planetIndex == planetIndex && m.moonIndex == moonIndex) return m;
-    }
-    return GeneratedMoonInfo();
-}
-
 void CosmosRenderer::mapBuffers()
 {
     starsDataBuffer->map(0, starsDataBuffer->size, &starsDataBufferPointer);
@@ -236,17 +212,18 @@ void CosmosRenderer::unmapBuffers()
     moonsDataBuffer->unmap();
 }
 
-void CosmosRenderer::updateStars()
+void CosmosRenderer::updateStarsBuffer()
 {
     VulkanBinaryBufferBuilder starsBB = VulkanBinaryBufferBuilder();
-    starsBB.emplaceInt32(nearbyStars.size());
-    starsBB.emplaceInt32(nearbyStars.size());
-    starsBB.emplaceInt32(nearbyStars.size());
-    starsBB.emplaceInt32(nearbyStars.size());
-    for (int s = 0; s < nearbyStars.size(); s++) {
-        auto star = nearbyStars[s].star;
+    auto stars = galaxy->getAllStars();
+    starsBB.emplaceInt32(stars.size());
+    starsBB.emplaceInt32(stars.size());
+    starsBB.emplaceInt32(stars.size());
+    starsBB.emplaceInt32(stars.size());
+    for (int s = 0; s < stars.size(); s++) {
+        auto star = stars[s];
 
-        glm::dvec3 starpos = star.getPosition() * scale;
+        glm::dvec3 starpos = star.getPosition(glfwGetTime()) * scale;
 
         starsBB.emplaceFloat32((float)starpos.x);
         starsBB.emplaceFloat32((float)starpos.y);
@@ -277,257 +254,93 @@ void CosmosRenderer::updatePlanetsAndMoon(glm::dvec3 observerPosition)
     VulkanBinaryBufferBuilder planetsBB = VulkanBinaryBufferBuilder();
     VulkanBinaryBufferBuilder moonsBB = VulkanBinaryBufferBuilder();
 
+    auto planet = galaxy->getClosestPlanet();
+    auto moons = galaxy->getClosestPlanetMoons();
+
     int planetsCount = 1;
-    int moonsCount = 0;
-    for (int s = 0; s < nearestStarSystems.size(); s++) {
-        auto cstar = nearestStarSystems[s];
+    int moonsCount = moons.size();
+    
+    planetsBB.emplaceInt32(planetsCount);
+    planetsBB.emplaceInt32(planetsCount);
+    planetsBB.emplaceInt32(planetsCount);
+    planetsBB.emplaceInt32(planetsCount);
 
-        for (int p = 0; p < cstar.planets.size(); p++) {
-            auto planet = cstar.planets[p];
-            if (planet.host.starIndex == nearestPlanet.host.starIndex && planet.planetIndex == nearestPlanet.planetIndex) {
-                for (int m = 0; m < cstar.moons.size(); m++) {
-                    moonsCount++;
-                }
-            }
-        }
+    moonsBB.emplaceInt32(moonsCount);
+    moonsBB.emplaceInt32(moonsCount);
+    moonsBB.emplaceInt32(moonsCount);
+    moonsBB.emplaceInt32(moonsCount);
+
+    glm::dvec3 planetpos = planet.getPosition(0.0) * scale;
+    glm::dvec3 ppos = planetpos - observerPosition;
+
+    planetsBB.emplaceFloat32((float)ppos.x);
+    planetsBB.emplaceFloat32((float)ppos.y);
+    planetsBB.emplaceFloat32((float)ppos.z);
+    planetsBB.emplaceFloat32((float)planet.radius * scale);
+
+    planetsBB.emplaceFloat32((float)planet.terrainMaxLevel);
+    planetsBB.emplaceFloat32((float)planet.fluidMaxLevel);
+    planetsBB.emplaceFloat32((float)planet.starDistance * scale);
+    planetsBB.emplaceFloat32((float)planet.host.seed + (float)planet.planetId);
+
+    planetsBB.emplaceFloat32((float)planet.habitableChance);
+    planetsBB.emplaceFloat32((float)planet.orbitSpeed);
+    planetsBB.emplaceFloat32((float)planet.atmosphereRadius * scale);
+    planetsBB.emplaceFloat32((float)planet.atmosphereAbsorbStrength);
+
+    planetsBB.emplaceFloat32((float)planet.preferredColor.x);
+    planetsBB.emplaceFloat32((float)planet.preferredColor.y);
+    planetsBB.emplaceFloat32((float)planet.preferredColor.z);
+    planetsBB.emplaceFloat32((float)0.0f);
+
+    planetsBB.emplaceFloat32((float)planet.atmosphereAbsorbColor.x);
+    planetsBB.emplaceFloat32((float)planet.atmosphereAbsorbColor.y);
+    planetsBB.emplaceFloat32((float)planet.atmosphereAbsorbColor.z);
+    planetsBB.emplaceFloat32((float)0.0f);
+
+    planetsBB.emplaceInt32((int)planet.host.starId);
+    planetsBB.emplaceInt32((int)0);
+    planetsBB.emplaceInt32((int)0);
+    planetsBB.emplaceInt32((int)0);
+
+        
+    for (int m = 0; m < moons.size(); m++) {
+        auto moon = moons[m];
+        glm::dvec3 moonpos = moon.getPosition(0.0) * scale;
+        glm::dvec3 mpos = moonpos - observerPosition;
+
+        moonsBB.emplaceFloat32((float)mpos.x);
+        moonsBB.emplaceFloat32((float)mpos.y);
+        moonsBB.emplaceFloat32((float)mpos.z);
+        moonsBB.emplaceFloat32((float)moon.radius * scale);
+
+        moonsBB.emplaceFloat32((float)moon.orbitPlane.x);
+        moonsBB.emplaceFloat32((float)moon.orbitPlane.y);
+        moonsBB.emplaceFloat32((float)moon.orbitPlane.z);
+        moonsBB.emplaceFloat32((float)moon.orbitSpeed);
+
+        moonsBB.emplaceFloat32((float)moon.preferredColor.x);
+        moonsBB.emplaceFloat32((float)moon.preferredColor.y);
+        moonsBB.emplaceFloat32((float)moon.preferredColor.z);
+        moonsBB.emplaceFloat32((float)moon.terrainMaxLevel);
+
+        moonsBB.emplaceFloat32((float)moon.planetDistance * scale);
+        moonsBB.emplaceFloat32((float)0.0f);
+        moonsBB.emplaceFloat32((float)0.0f);
+        moonsBB.emplaceFloat32((float)0.0f);
+
+        moonsBB.emplaceInt32((int)0);
+        moonsBB.emplaceInt32((int)0);
+        moonsBB.emplaceInt32((int)0);
+        moonsBB.emplaceInt32((int)0);
     }
-
-    planetsBB.emplaceInt32(planetsCount);
-    planetsBB.emplaceInt32(planetsCount);
-    planetsBB.emplaceInt32(planetsCount);
-    planetsBB.emplaceInt32(planetsCount);
-
-    moonsBB.emplaceInt32(nearestPlanet.moonsCount);
-    moonsBB.emplaceInt32(nearestPlanet.moonsCount);
-    moonsBB.emplaceInt32(nearestPlanet.moonsCount);
-    moonsBB.emplaceInt32(nearestPlanet.moonsCount);
-
-    int planetIndex = 0;
-    for (int s = 0; s < nearestStarSystems.size(); s++) {
-        auto cstar = nearestStarSystems[s];
-        glm::dvec3 starpos = cstar.star.getPosition() * scale;
-        for (int p = 0; p < cstar.planets.size(); p++) {
-            auto planet = cstar.planets[p];
-            if (planet.host.starIndex == nearestPlanet.host.starIndex && planet.planetIndex == nearestPlanet.planetIndex) {
-                glm::dvec3 planetpos = planet.getPosition(0.0) * scale;
-                glm::dvec3 ppos = planetpos - observerPosition;
-
-                planetsBB.emplaceFloat32((float)ppos.x);
-                planetsBB.emplaceFloat32((float)ppos.y);
-                planetsBB.emplaceFloat32((float)ppos.z);
-                planetsBB.emplaceFloat32((float)planet.radius * scale);
-
-                planetsBB.emplaceFloat32((float)planet.terrainMaxLevel);
-                planetsBB.emplaceFloat32((float)planet.fluidMaxLevel);
-                planetsBB.emplaceFloat32((float)planet.starDistance * scale);
-                planetsBB.emplaceFloat32((float)s + p);
-
-                planetsBB.emplaceFloat32((float)planet.habitableChance);
-                planetsBB.emplaceFloat32((float)planet.orbitSpeed);
-                planetsBB.emplaceFloat32((float)planet.atmosphereRadius * scale);
-                planetsBB.emplaceFloat32((float)planet.atmosphereAbsorbStrength);
-
-                planetsBB.emplaceFloat32((float)planet.preferredColor.x);
-                planetsBB.emplaceFloat32((float)planet.preferredColor.y);
-                planetsBB.emplaceFloat32((float)planet.preferredColor.z);
-                planetsBB.emplaceFloat32((float)0.0f);
-
-                planetsBB.emplaceFloat32((float)planet.atmosphereAbsorbColor.x);
-                planetsBB.emplaceFloat32((float)planet.atmosphereAbsorbColor.y);
-                planetsBB.emplaceFloat32((float)planet.atmosphereAbsorbColor.z);
-                planetsBB.emplaceFloat32((float)0.0f);
-
-                planetsBB.emplaceInt32((int)cstar.star.starIndex);
-                planetsBB.emplaceInt32((int)0);
-                planetsBB.emplaceInt32((int)0);
-                planetsBB.emplaceInt32((int)0);
-
-            }
-            planetIndex++;
-        }
-        for (int m = 0; m < cstar.moons.size(); m++) {
-            auto moon = cstar.moons[m];
-            if (moon.host.host.starIndex == nearestPlanet.host.starIndex && moon.host.planetIndex == nearestPlanet.planetIndex) {
-                glm::dvec3 moonpos = moon.getPosition(0.0) * scale;
-                glm::dvec3 mpos = moonpos - observerPosition;
-
-                moonsBB.emplaceFloat32((float)mpos.x);
-                moonsBB.emplaceFloat32((float)mpos.y);
-                moonsBB.emplaceFloat32((float)mpos.z);
-                moonsBB.emplaceFloat32((float)moon.radius * scale);
-
-                moonsBB.emplaceFloat32((float)moon.orbitPlane.x);
-                moonsBB.emplaceFloat32((float)moon.orbitPlane.y);
-                moonsBB.emplaceFloat32((float)moon.orbitPlane.z);
-                moonsBB.emplaceFloat32((float)moon.orbitSpeed);
-
-                moonsBB.emplaceFloat32((float)moon.preferredColor.x);
-                moonsBB.emplaceFloat32((float)moon.preferredColor.y);
-                moonsBB.emplaceFloat32((float)moon.preferredColor.z);
-                moonsBB.emplaceFloat32((float)moon.terrainMaxLevel);
-
-                moonsBB.emplaceFloat32((float)moon.planetDistance * scale);
-                moonsBB.emplaceFloat32((float)0.0f);
-                moonsBB.emplaceFloat32((float)0.0f);
-                moonsBB.emplaceFloat32((float)0.0f);
-
-                moonsBB.emplaceInt32((int)0);
-                moonsBB.emplaceInt32((int)0);
-                moonsBB.emplaceInt32((int)0);
-                moonsBB.emplaceInt32((int)0);
-            }
-
-        }
-    }
+    
 
     memcpy(planetsDataBufferPointer, planetsBB.getPointer(), planetsBB.buffer.size());
 
     memcpy(moonsDataBufferPointer, moonsBB.getPointer(), moonsBB.buffer.size());
 }
 
-void CosmosRenderer::updateGravity(glm::dvec3 observerPosition)
-{
-    observerPosition *= scale;
-    glm::vec3 newGravity = glm::vec3(0.0);
-    glm::vec3 newSurfacePos = glm::vec3(0.0);
-    glm::vec3 newBodyPos = glm::vec3(0.0);
-    glm::vec3 newSurfaceNorm = glm::vec3(0.0);
-    glm::vec3 newClosestObjectLinearAbsoluteSpeed = glm::vec3(0.0);
-    double newSurfaceDist = 99999999999999.0;
-    for (int s = 0; s < nearestStarSystems.size(); s++) {
-        auto starss = nearestStarSystems[s];
-        auto star = starss.star;
-        auto planets = starss.planets;
-        auto moons = starss.moons;
-
-        glm::dvec3 starpos = star.getPosition() * scale;
-        glm::dvec3 spos = starpos - observerPosition;
-        glm::vec3 sdir = glm::length(spos) == 0 ? glm::vec3(0.0) : glm::normalize(spos);
-
-        glm::dvec3 ssurfacepos = starpos - glm::dvec3(sdir) * star.radius * scale;
-        double ssurfacedistance = glm::distance(observerPosition, starpos) - star.radius * scale;
-        if (ssurfacedistance < newSurfaceDist) {
-            newSurfaceDist = ssurfacedistance;
-            newSurfacePos = ssurfacepos;
-            newBodyPos = starpos;
-            newSurfaceNorm = glm::normalize(starpos - ssurfacepos);
-            newClosestObjectLinearAbsoluteSpeed = glm::vec3(0.0f); // stars are not moving yet
-        }
-
-        double sdistance = glm::length(spos) / scale;
-        newGravity += glm::dvec3(sdir) * galaxy->calculateGravity(sdistance, galaxy->calculateMass(star.radius, 1408.0));
-
-        for (int p = 0; p < planets.size(); p++) {
-            auto planet = planets[p];
-            glm::dvec3 planetpos = planet.getPosition(0.0) * scale;
-            glm::dvec3 ppos = planetpos - observerPosition;
-            glm::vec3 pdir = glm::length(ppos) == 0 ? glm::vec3(0.0) : glm::normalize(ppos);
-
-            glm::dvec3 psurfacepos = planetpos - glm::dvec3(pdir) * planet.radius * scale;
-            double psurfacedistance = glm::distance(observerPosition, planetpos) - planet.radius * scale;
-            if (psurfacedistance < newSurfaceDist) {
-                newSurfaceDist = psurfacedistance;
-                newSurfacePos = psurfacepos;
-                newBodyPos = planetpos;
-                newSurfaceNorm = glm::normalize(planetpos - psurfacepos);
-                newClosestObjectLinearAbsoluteSpeed = planet.getLinearVelocity() * scale;
-            }
-
-            double pdistance = glm::length(ppos) / scale;
-            newGravity += glm::dvec3(pdir) * galaxy->calculateGravity(pdistance, galaxy->calculateMass(planet.radius));
-
-            for (int m = 0; m < moons.size(); m++) {
-                auto moon = moons[m];
-                glm::dvec3 moonpos = moon.getPosition(0.0) * scale;
-                glm::dvec3 mpos = moonpos - observerPosition;
-                glm::vec3 mdir = glm::length(mpos) == 0 ? glm::vec3(0.0) : glm::normalize(mpos);
-
-                glm::dvec3 msurfacepos = moonpos - glm::dvec3(mdir) * moon.radius * scale;
-                double msurfacedistance = glm::distance(observerPosition, moonpos) - moon.radius * scale;
-                if (msurfacedistance < newSurfaceDist) {
-                    newSurfaceDist = msurfacedistance;
-                    newSurfacePos = msurfacepos;
-                    newBodyPos = moonpos;
-                    newSurfaceNorm = glm::normalize(moonpos - msurfacepos);
-                    closestObjectLinearAbsoluteSpeed = moon.getLinearVelocity() * scale;
-                }
-
-                double mdistance = glm::length(mpos) / scale;
-                newGravity += glm::dvec3(mdir) * galaxy->calculateGravity(mdistance, galaxy->calculateMass(moon.radius));
-
-            }
-        }
-    }
-    lastGravity = newGravity;
-    closestBodyPosition = newBodyPos;
-    closestSurfaceDistance = newSurfaceDist;
-    closestSurfacePosition = newSurfacePos;
-    closestSurfaceNormal = newSurfaceNorm;
-    closestObjectLinearAbsoluteSpeed = newClosestObjectLinearAbsoluteSpeed;
-}
-
-void CosmosRenderer::updateNearestStar(glm::dvec3 observerPosition)
-{
-    observerPosition *= scale;
-    // int closestStar = 0;
-    double closestDistance = 9999999999.0;
-    std::vector<GeneratedStarSystemInfo> newinfos = {};
-    newinfos.resize(0);
-    for (int s = 0; s < nearbyStars.size(); s++) {
-        auto star = nearbyStars[s];
-
-        glm::dvec3 starpos = star.star.getPosition() * scale;
-        glm::dvec3 spos = starpos - observerPosition;
-
-        double dst = glm::length(spos);
-        if (dst < star.planets[star.planets.size() - 1].starDistance * 1.1 * scale) {
-            newinfos.push_back(galaxy->generateStarInfo(s));
-        }
-    }
-    //  if (newinfos.size() > 0) {
-    nearestStarSystems = newinfos;
-    // }
-    // nearestStarIndex = closestStar;
-
-    closestDistance = 9999999999.0;
-    GeneratedPlanetInfo np;
-    for (int l = 0; l < nearestStarSystems.size(); l++) {
-        auto nearestStar = nearestStarSystems[l];
-
-        for (int s = 0; s < nearestStar.planets.size(); s++) {
-            auto body = nearestStar.planets[s];
-
-            glm::dvec3 pos = body.getPosition(0.0) * scale;
-            pos = pos - observerPosition;
-
-            float dst = glm::length(pos);
-            if (dst < closestDistance) {
-                closestDistance = dst;
-                np = body;
-            }
-        }
-    }
-    nearestPlanet = np;
-
-    closestDistance = 9999999999.0;
-    GeneratedMoonInfo nm;
-    for (int l = 0; l < nearestStarSystems.size(); l++) {
-        auto nearestStar = nearestStarSystems[l];
-        for (int s = 0; s < nearestStar.moons.size(); s++) {
-            auto body = nearestStar.moons[s];
-
-            glm::dvec3 pos = body.getPosition(0.0) * scale;
-            pos = pos - observerPosition;
-
-            float dst = glm::length(pos);
-            if (dst < closestDistance) {
-                closestDistance = dst;
-                nm = body;
-            }
-        }
-    }
-    nearestMoon = nm;
-}
 
 void CosmosRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosition)
 {
@@ -581,19 +394,17 @@ void CosmosRenderer::draw()
 {
     if (!readyForDrawing) return;
 
-    if (nearestStarSystems.size() > 0) {
-        if (lastStarId != nearestPlanet.host.starIndex || lastPlanetId != nearestPlanet.planetIndex) {
-            lastStarId = nearestPlanet.host.starIndex;
-            lastPlanetId = nearestPlanet.planetIndex;
-            planetDataStage->enabled = true;
-        }
-    }
+    auto closestPlanet = galaxy->getClosestPlanet();
 
-    ui->draw();
+    if (lastPlanetId != closestPlanet.planetId) {
+        lastPlanetId = closestPlanet.planetId;
+        planetDataStage->enabled = true;
+    }
+    
 
     starsStage->beginDrawing();
 
-    starsStage->drawMesh(cube3dInfo, nearbyStars.size());
+    starsStage->drawMesh(cube3dInfo, galaxy->getStarsCount());
 
     starsStage->endDrawing();
     starsStage->submitNoSemaphores({});
@@ -603,7 +414,7 @@ void CosmosRenderer::draw()
 
     vkDeviceWaitIdle(vulkan->device);
     //for (int i = 0; i < ships.size(); i++)ships[i]->drawShipAndModules(modelsStage, celestialSet, observerCameraPosition);
-    GameContainer::getInstance()->drawDrawableObjects();
+    //GameContainer::getInstance()->drawDrawableObjects();
 
     vkDeviceWaitIdle(vulkan->device);
     modelsStage->endDrawing();

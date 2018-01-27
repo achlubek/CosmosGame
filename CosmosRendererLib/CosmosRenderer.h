@@ -2,31 +2,21 @@
 
 class VulkanRenderer;
 class VulkanToolkit;
-#include "GalaxyGenerator.h" 
+#include "GalaxyContainer.h" 
 
 class CosmosRenderer
 {
 public:
-    CosmosRenderer(VulkanToolkit* ivulkan, int iwidth, int iheight);
+    CosmosRenderer(VulkanToolkit* ivulkan, GalaxyContainer* galaxy, VulkanImage* overlayImage, int iwidth, int iheight);
     ~CosmosRenderer();
     void recompileShaders(bool deleteOld); 
 
-    GalaxyGenerator* galaxy;
-    UIRenderer* ui;
+    GalaxyContainer* galaxy;
+    VulkanImage* overlayImage;
     AssetLoader assets;
 
-    std::vector<GeneratedStarSystemInfo> nearbyStars;
-    std::vector<GeneratedStarSystemInfo> nearestStarSystems;
-    //int nearestStarIndex; 
-    GeneratedPlanetInfo nearestPlanet;
-    GeneratedMoonInfo nearestMoon;
     Camera* internalCamera; 
 
-    GeneratedStarInfo getStar(int starIndex);
-    GeneratedPlanetInfo getPlanet(int starIndex, int planetIndex);
-    GeneratedMoonInfo getMoon(int starIndex, int planetIndex, int moonIndex);
-
-    int lastStarId;
     int lastPlanetId;
 
     int width{ 0 };
@@ -72,11 +62,6 @@ public:
 
     const double scale = 0.01;
 
-    glm::vec3 lastGravity;
-    glm::dvec3 closestBodyPosition;
-    glm::dvec3 closestSurfacePosition;
-    glm::dvec3 closestSurfaceNormal;
-    glm::dvec3 closestObjectLinearAbsoluteSpeed;
     glm::dvec3 observerCameraPosition;
     double closestSurfaceDistance;
 
@@ -87,14 +72,9 @@ public:
     void mapBuffers();
     void unmapBuffers();
 
-    void updateStars();
-
+    void updateStarsBuffer();
     void updatePlanetsAndMoon(glm::dvec3 observerPosition);
-
-    void updateGravity(glm::dvec3 observerPosition);
-
-    void updateNearestStar(glm::dvec3 observerPosition);
-
+    
     void updateCameraBuffer(Camera* cam, glm::dvec3 observerPosition);
     void draw();
 

@@ -16,7 +16,8 @@ public:
     double atmosphereAbsorbStrength;//0->1
     glm::vec3 atmosphereAbsorbColor;//0->1
     GeneratedStarInfo host;
-    uint64_t planetId; 
+    uint64_t planetId;
+    std::vector<size_t> idsOfMoons = {};
 
     virtual glm::dvec3 getPosition(double at_time) {
         double time = at_time;

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -20,33 +20,33 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{1A8000FF-04F4-4D3A-B6FB-47E9342CE22B}</ProjectGuid>
+    <ProjectGuid>{4608E0BF-1903-44B6-A914-94034D6F29C4}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>CosmosRendererLib</RootNamespace>
+    <RootNamespace>CelestialBodyEditor</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -90,15 +90,16 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Code\glm-0.9.9-a1;C:\Code\VEngineNative\VESQLite3Wrapper;C:\VulkanSDK\1.0.57.0\Include\vulkan;C:\Code\glfw-3.2.1\include;C:\Code\VEngineNative\VEngineNative;C:\Code\VEngineNative\VERenderer;C:\Code\VEngineNative\VECommon;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Code\glm-0.9.9-a1;C:\Code\VEngineNative\VESQLite3Wrapper;C:\VulkanSDK\1.0.57.0\Include\vulkan;C:\Code\glfw-3.2.1\include;C:\Code\VEngineNative\VEngineNative;C:\Code\VEngineNative\VERenderer;C:\Code\VEngineNative\VECommon;C:\Code\CosmosGame\CosmosRendererLib;C:\Code\VEngineNative\VEUserInterface;C:\Code\VEngineNative\VEInput;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>C:\Code\glfw-3.2.1\glfw3.lib;C:\Code\SFML-2.4.2\lib\flac.lib;C:\Code\SFML-2.4.2\lib\freetype.lib;C:\Code\SFML-2.4.2\lib\jpeg.lib;C:\Code\SFML-2.4.2\lib\ogg.lib;C:\Code\SFML-2.4.2\lib\openal32.lib;C:\Code\SFML-2.4.2\lib\sfml-audio.lib;C:\Code\SFML-2.4.2\lib\sfml-main.lib;C:\Code\SFML-2.4.2\lib\sfml-network.lib;C:\Code\SFML-2.4.2\lib\sfml-system.lib;C:\Code\SFML-2.4.2\lib\sfml-window.lib;C:\Code\SFML-2.4.2\lib\vorbis.lib;C:\Code\SFML-2.4.2\lib\vorbisenc.lib;C:\Code\SFML-2.4.2\lib\vorbisfile.lib;C:\VulkanSDK\1.0.57.0\Lib\vulkan-1.lib;C:\Code\VEngineNative\x64\Release\VECommon.lib;C:\Code\VEngineNative\x64\Release\VESound.lib;C:\Code\VEngineNative\x64\Release\VEPhysics.lib;C:\Code\VEngineNative\x64\Release\VEInput.lib;C:\Code\VEngineNative\x64\Release\VERenderer.lib;C:\Code\VEngineNative\x64\Release\VEUserInterface.lib;C:\Code\VEngineNative\x64\Release\VEMultiplayer.lib;C:\Code\VEngineNative\x64\Release\VEngineNative.lib;C:\Code\VEngineNative\x64\Release\VESQLite3Wrapper.lib;C:\Code\CosmosGame\x64\Release\CosmosRendererLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -107,11 +108,11 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -121,11 +122,11 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -137,33 +138,22 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AbsCelestialObject.h" />
-    <ClInclude Include="CosmosRenderer.h" />
-    <ClInclude Include="GalaxyContainer.h" />
-    <ClInclude Include="GeneratedMoonInfo.h" />
-    <ClInclude Include="GeneratedPlanetInfo.h" />
-    <ClInclude Include="GeneratedStarInfo.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AbsCelestialObject.cpp" />
-    <ClCompile Include="CosmosRenderer.cpp" />
-    <ClCompile Include="GalaxyContainer.cpp" />
-    <ClCompile Include="GeneratedMoonInfo.cpp" />
-    <ClCompile Include="GeneratedPlanetInfo.cpp" />
-    <ClCompile Include="GeneratedStarInfo.cpp" />
+    <ClCompile Include="CelestialBodyEditor.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
