@@ -210,7 +210,7 @@ vec4 tracePlanetAtmosphere(vec3 start, vec3 end, float lengthstart, float length
             * absorbstrength,
             currentPlanet.atmosphereAbsorbColor_zero.rgb *  (0.7 + 0.3 * flunctuations),
             dot(drr, sundir)));
- 
+
 
     vec3 ssdir = normalize(start - currentPlanet.position_radius.rgb);
     while(dstnew < dsttrg){

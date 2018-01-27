@@ -14,6 +14,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GalaxyDatabaseGenerator", "GalaxyDatabaseGenerator\GalaxyDatabaseGenerator.vcxproj", "{3CEC7E5C-96EA-4EC7-90E1-824B1F8AC82A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CelestialBodyEditor", "CelestialBodyEditor\CelestialBodyEditor.vcxproj", "{4608E0BF-1903-44B6-A914-94034D6F29C4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1A8000FF-04F4-4D3A-B6FB-47E9342CE22B} = {1A8000FF-04F4-4D3A-B6FB-47E9342CE22B}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -185,7 +185,8 @@ GeneratedStarSystemInfo GalaxyGenerator::generateStar(int64_t galaxyradius, int6
             moon.terrainMaxLevel = drandnorm();
             moon.fluidMaxLevel = drandnorm();
             moon.habitableChance = drandnorm();
-            moon.atmosphereRadius = (moon.radius * 0.009709 * drandnorm()); 
+            moon.atmosphereRadius = (moon.radius * 0.009709 * drandnorm());
+            moon.atmosphereAbsorbStrength = 0.7 + 0.3 * drandnorm();
             moon.atmosphereAbsorbColor = glm::vec3(0.1 + drandnorm() * 0.8, 0.1 + drandnorm() * 0.8, 0.1 + drandnorm() * 0.8);
 
             moon.orbitPlane = glm::normalize(glm::vec3(drandnorm(), drandnorm(), drandnorm()) * 2.0f - 1.0f);

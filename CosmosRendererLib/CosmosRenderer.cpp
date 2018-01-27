@@ -250,7 +250,6 @@ void CosmosRenderer::updateStarsBuffer()
 
 void CosmosRenderer::updatePlanetsAndMoon(glm::dvec3 observerPosition)
 {
-    observerPosition *= scale;
     VulkanBinaryBufferBuilder planetsBB = VulkanBinaryBufferBuilder();
     VulkanBinaryBufferBuilder moonsBB = VulkanBinaryBufferBuilder();
 
@@ -271,7 +270,8 @@ void CosmosRenderer::updatePlanetsAndMoon(glm::dvec3 observerPosition)
     moonsBB.emplaceInt32(moonsCount);
 
     glm::dvec3 planetpos = planet.getPosition(0.0) * scale;
-    glm::dvec3 ppos = planetpos - observerPosition;
+    glm::dvec3 ppos = planetpos - observerPosition * scale;
+    printf("distance %f radius %f len %f\n", glm::distance(planetpos, observerPosition * scale), planet.radius, glm::length(ppos));
 
     planetsBB.emplaceFloat32((float)ppos.x);
     planetsBB.emplaceFloat32((float)ppos.y);
@@ -298,7 +298,7 @@ void CosmosRenderer::updatePlanetsAndMoon(glm::dvec3 observerPosition)
     planetsBB.emplaceFloat32((float)planet.atmosphereAbsorbColor.z);
     planetsBB.emplaceFloat32((float)0.0f);
 
-    planetsBB.emplaceInt32((int)planet.host.starId);
+    planetsBB.emplaceInt32((int)planet.host.starId - 1);
     planetsBB.emplaceInt32((int)0);
     planetsBB.emplaceInt32((int)0);
     planetsBB.emplaceInt32((int)0);
@@ -307,7 +307,7 @@ void CosmosRenderer::updatePlanetsAndMoon(glm::dvec3 observerPosition)
     for (int m = 0; m < moons.size(); m++) {
         auto moon = moons[m];
         glm::dvec3 moonpos = moon.getPosition(0.0) * scale;
-        glm::dvec3 mpos = moonpos - observerPosition;
+        glm::dvec3 mpos = moonpos - observerPosition * scale;
 
         moonsBB.emplaceFloat32((float)mpos.x);
         moonsBB.emplaceFloat32((float)mpos.y);
@@ -393,6 +393,9 @@ void CosmosRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosi
 void CosmosRenderer::draw()
 {
     if (!readyForDrawing) return;
+
+    galaxy->update(observerCameraPosition);
+    updatePlanetsAndMoon(observerCameraPosition);
 
     auto closestPlanet = galaxy->getClosestPlanet();
 

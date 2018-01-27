@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "GalaxyContainer.h"
-
+#include "SQLiteDatabase.h"
 
 GalaxyContainer::GalaxyContainer()
 {
@@ -24,11 +24,6 @@ GeneratedStarInfo GalaxyContainer::getClosestStar()
 GeneratedPlanetInfo GalaxyContainer::getClosestPlanet()
 {
     return closestPlanet;
-}
-
-GeneratedMoonInfo GalaxyContainer::getClosestMoon()
-{
-    return closestMoon;
 }
 
 std::vector<GeneratedPlanetInfo>& GalaxyContainer::getClosestStarPlanets()
@@ -57,15 +52,13 @@ long GalaxyContainer::getStarsCount()
 #define aslong(a) std::stol(a)
 void GalaxyContainer::loadFromDatabase(SQLiteDatabase * db)
 {
+    database = db;
     allStars = {};
-    allPlanets = {};
-    allMoons = {};
-    auto starsdata = db->query("SELECT * FROM stars ORDER BY id ASC");
-    printf("stars got");
+    auto starsdata = database->query("SELECT * FROM stars ORDER BY id ASC");
     for (int i = 0; i < starsdata.size(); i++) {
         auto starrow = starsdata[i];
         auto star = GeneratedStarInfo();
-        star.starId = aslong(starrow["id"]) - 1;
+        star.starId = aslong(starrow["id"]);
         star.x = asdouble(starrow["x"]);
         star.y = asdouble(starrow["y"]);
         star.z = asdouble(starrow["z"]);
@@ -82,14 +75,31 @@ void GalaxyContainer::loadFromDatabase(SQLiteDatabase * db)
         star.orbitPlane.z = asdouble(starrow["orbit_plane_z"]);
         allStars.push_back(star);
     }
-    auto planetsdata = db->query("SELECT * FROM planets ORDER BY id");
-    printf("pl got");
+}
+
+void GalaxyContainer::update(glm::dvec3 observerPosition)
+{
+    updateClosestStar(observerPosition);
+    if (lastStarId != closestStar.starId) {
+        lastStarId = closestStar.starId;
+        closestStarPlanets = loadPlanetsByStar(closestStar);
+    }
+    updateClosestPlanet(observerPosition);
+    if (lastPlanetId != closestPlanet.planetId) {
+        lastPlanetId = closestPlanet.planetId;
+        closestPlanetMoons = loadMoonsByPlanet(closestPlanet);
+    }
+}
+
+std::vector<GeneratedPlanetInfo> GalaxyContainer::loadPlanetsByStar(GeneratedStarInfo star)
+{
+    auto planets = std::vector<GeneratedPlanetInfo>();
+    auto planetsdata = database->query("SELECT * FROM planets WHERE starid = " + std::to_string(star.starId));
     for (int i = 0; i < planetsdata.size(); i++) {
         auto planetrow = planetsdata[i];
         auto planet = GeneratedPlanetInfo();
-        planet.planetId = aslong(planetrow["id"]) - 1;
-        planet.host = allStars[aslong(planetrow["starid"])];
-        planet.host.idsOfPlanets.push_back(planet.planetId);
+        planet.planetId = aslong(planetrow["id"]);
+        planet.host = star;
         planet.radius = asdouble(planetrow["radius"]);
         planet.terrainMaxLevel = asdouble(planetrow["terrain_max"]);
         planet.fluidMaxLevel = asdouble(planetrow["fluid_max"]);
@@ -104,15 +114,21 @@ void GalaxyContainer::loadFromDatabase(SQLiteDatabase * db)
         planet.atmosphereAbsorbColor.r = asdouble(planetrow["atmosphere_absorption_r"]);
         planet.atmosphereAbsorbColor.g = asdouble(planetrow["atmosphere_absorption_g"]);
         planet.atmosphereAbsorbColor.b = asdouble(planetrow["atmosphere_absorption_b"]);
-    }/*
-    auto moonsdata = db->query("SELECT * FROM moons ORDER BY id ASC LIMIT 1000");
-    printf("mn got");
+        planets.push_back(planet);
+    }
+    printf("loaded %d planets\n", planets.size());
+    return planets;
+}
+
+std::vector<GeneratedMoonInfo> GalaxyContainer::loadMoonsByPlanet(GeneratedPlanetInfo planet)
+{
+    auto moons = std::vector<GeneratedMoonInfo>();
+    auto moonsdata = database->query("SELECT * FROM moons WHERE planetid = " + std::to_string(planet.planetId));
     for (int i = 0; i < moonsdata.size(); i++) {
         auto moonrow = moonsdata[i];
         auto moon = GeneratedMoonInfo();
-        moon.moonId = aslong(moonrow["id"]) - 1;
-        moon.host = allPlanets[aslong(moonrow["planetid"])];
-        moon.host.idsOfMoons.push_back(moon.moonId);
+        moon.moonId = aslong(moonrow["id"]);
+        moon.host = planet;
         moon.radius = asdouble(moonrow["radius"]);
         moon.terrainMaxLevel = asdouble(moonrow["terrain_max"]);
         moon.fluidMaxLevel = asdouble(moonrow["fluid_max"]);
@@ -130,9 +146,46 @@ void GalaxyContainer::loadFromDatabase(SQLiteDatabase * db)
         moon.orbitPlane.x = asdouble(moonrow["orbit_plane_x"]);
         moon.orbitPlane.y = asdouble(moonrow["orbit_plane_y"]);
         moon.orbitPlane.z = asdouble(moonrow["orbit_plane_z"]);
-    }*/
+        moons.push_back(moon);
+    }
+    printf("loaded %d moons\n", moons.size());
+    return moons;
 }
 
-void GalaxyContainer::update(glm::dvec3 observerPosition)
+void GalaxyContainer::updateClosestStar(glm::dvec3 observerPosition)
 {
+    GeneratedStarInfo result;
+    double closestDistance = 9999999999.0;
+    for (int s = 0; s < allStars.size(); s++) {
+        auto star = allStars[s];
+
+        glm::dvec3 pos = star.getPosition(glfwGetTime());
+        glm::dvec3 relpos = pos - observerPosition;
+
+        double dst = glm::length(relpos);
+        if (dst < closestDistance) {
+            closestDistance = dst;
+            result = star;
+        }
+    }
+    closestStar = result;
+}
+
+void GalaxyContainer::updateClosestPlanet(glm::dvec3 observerPosition)
+{
+    GeneratedPlanetInfo result;
+    double closestDistance = 9999999999.0;
+    for (int s = 0; s < closestStarPlanets.size(); s++) {
+        auto planet = closestStarPlanets[s];
+
+        glm::dvec3 pos = planet.getPosition(glfwGetTime());
+        glm::dvec3 relpos = pos - observerPosition;
+
+        double dst = glm::length(relpos);
+        if (dst < closestDistance) {
+            closestDistance = dst;
+            result = planet;
+        }
+    }
+    closestPlanet = result;
 }
