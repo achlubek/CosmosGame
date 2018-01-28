@@ -70,5 +70,5 @@ void main() {
     vec4 shipdata = texture(texShip, UV).rgba;
     a = mix(a, shipdata.rgb, shipdata.a);
     a = mix(a, ui.rgb, ui.a);
-    outColor = vec4(gammacorrect(clamp(a * 0.1, 0.0, 10000.0)), 1.0);
+    outColor = vec4(tonemapUncharted2(clamp(a * 0.1, 0.0, 10000.0)), 1.0);
 }

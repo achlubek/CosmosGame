@@ -271,7 +271,6 @@ void CosmosRenderer::updatePlanetsAndMoon(glm::dvec3 observerPosition)
 
     glm::dvec3 planetpos = planet.getPosition(0.0) * scale;
     glm::dvec3 ppos = planetpos - observerPosition * scale;
-    printf("distance %f radius %f len %f\n", glm::distance(planetpos, observerPosition * scale), planet.radius, glm::length(ppos));
 
     planetsBB.emplaceFloat32((float)ppos.x);
     planetsBB.emplaceFloat32((float)ppos.y);

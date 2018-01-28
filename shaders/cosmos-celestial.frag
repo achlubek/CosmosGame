@@ -22,13 +22,30 @@ float rand2s(vec2 co){
 
 Ray cameraRay;
 
-// BEGIN MOON RENDERING
 GeneratedMoonInfo currentMoon;
 GeneratedStarInfo moonHostStar;
 GeneratedPlanetInfo moonHostPlanet;
 
-// END MOON RENDERING
+/*
+There are only 2 main types of celstial bodies:
+    planets and moons
+but there are several types of celestial bodies in 2 categories:
+1 - Have atmosphere
+    a.  Bodies with not dense atmosphere
+        thinking here of bodies varying from pluto (very low atmo) by earth to venus
+        Means - you can land, you can have fluid oceans, and theres atmosphere layer that you can see through (or not as in venus)
+    b. Bodies with very dense atmosphere that is not transparent at all and landing is not possible too (jupiter, saturn, uran, neptune)
+        No landing possible, death once crossing atmosphere
 
+2- Don't have atmosphere
+    - Rocky stuff that are easily rendered
+    Important - No water possible on nonatmospheric bodies!!! easy on rendering, really
+
+These types allow to categorize celestial bodies into following rendering categories:
+1. No atmosphere - render only surface (atmosphere height = 0)
+2. Little atmosphere - render atmosphere and surface - hardest (atmosphere height > 0  && atmosphere height < 50)
+3. Dense atmosphere - render only upper atmosphere layer
+*/
 
 #define MSUNDIR (moonHostStar.position_radius.rgb - CameraPosition)
 #define MCANDIR (currentMoon.position_radius.rgb)
@@ -165,6 +182,33 @@ float raymarchTerrainShadow(Ray ray, vec3 center){
     }
     return clamp(s, 0.0, 1.0);
 }
+
+vec3 getAtmosphereColorAtPoint(vec3 raydir, vec3 point){
+
+    vec3 sundir = normalize(SUNDIR - point);
+    Sphere surface = Sphere(currentPlanet.position_radius.rgb, currentPlanet.position_radius.a);
+    Sphere atmosphere = Sphere(currentPlanet.position_radius.rgb,
+        currentPlanet.position_radius.a + currentPlanet.habitableChance_orbitSpeed_atmosphereRadius_atmosphereAbsorbStrength.b);
+        float hit_Surface = rsi2(Ray(point, sundir), surface).x;
+    vec2 hit_Atmosphere = rsi2(Ray(point, sundir), atmosphere);
+    float planetshadow = (1.0 - step(0.0, hit_Surface)) * (1.0 / (1.0 + 10.0 * clamp(max(hit_Atmosphere.x, hit_Atmosphere.y), 0.0, 10000.0)));
+
+    vec3 dir = normalize(point - currentPlanet.position_radius.rgb);
+    float f2 = pow(texture(planetAtmosphereFlunctuationsImage, xyzToPolar(-dir)).g, 3.0);
+    float absorbstrength = currentPlanet.habitableChance_orbitSpeed_atmosphereRadius_atmosphereAbsorbStrength.a;
+    vec3 atmo = max(vec3(0.0), extra_cheap_atmosphere(1.0, clamp(101.0 * max(hit_Atmosphere.x, hit_Atmosphere.y), 0.0, 10000.0), 323.0
+            * absorbstrength,
+            currentPlanet.atmosphereAbsorbColor_zero.rgb,
+            dot(raydir, sundir)));
+    return 10.0*atmo * planetshadow;
+}
+
+float getAtmosphereDensityAtPoint(vec3 point){
+    float lengthstart = currentPlanet.position_radius.a;
+    float lengthend = currentPlanet.position_radius.a + currentPlanet.habitableChance_orbitSpeed_atmosphereRadius_atmosphereAbsorbStrength.b;
+    return smoothstep(lengthstart, lengthend, distance(currentPlanet.position_radius.rgb, point));
+}
+
 vec4 tracePlanetAtmosphere(vec3 start, vec3 end, float lengthstart, float lengthstop){
     float seed = currentPlanet.terrainMaxLevel_fluidMaxLevel_starDistance_seed.a;
     float rd1 = hash(seed);
@@ -179,7 +223,7 @@ vec4 tracePlanetAtmosphere(vec3 start, vec3 end, float lengthstart, float length
     vec3 atm = vec3(0.0);
     float stepdistance = (currentPlanet.position_radius.a / 6.371) * 0.01;
     float stepdistanceinv = 1.0 / stepdistance;
-    float iter = stepdistance + (1.0 + rand2s(UV)*1.0) * stepdistance;
+    float iter = (rand2s(UV)*1.0) * stepdistance;
     float coverage = 1.0;
     float coverage2 = 0.0;
     float dstnew = 0.0;
@@ -211,6 +255,14 @@ vec4 tracePlanetAtmosphere(vec3 start, vec3 end, float lengthstart, float length
             currentPlanet.atmosphereAbsorbColor_zero.rgb *  (0.7 + 0.3 * flunctuations),
             dot(drr, sundir)));
 
+    vec3 colotest = vec3(0.0);
+    while(dstnew < dsttrg){
+        vec3 p = start + drr * iter;
+        dstnew = distance(start, p);
+        colotest += getAtmosphereColorAtPoint(drr, p) * stepdistance * 1000.0;
+        iter += stepdistance;
+    }
+    return vec4(colotest, min(1.0, 1.0 - (0.001 / (distance(start, end) * 10.0 * absorbstrength + 0.01))));
 
     vec3 ssdir = normalize(start - currentPlanet.position_radius.rgb);
     while(dstnew < dsttrg){
@@ -231,12 +283,12 @@ vec4 tracePlanetAtmosphere(vec3 start, vec3 end, float lengthstart, float length
         vec3 cloudscolor = mix(currentPlanet.atmosphereAbsorbColor_zero.rgb * 0.3, vec3(1.0), currentPlanet.habitableChance_orbitSpeed_atmosphereRadius_atmosphereAbsorbStrength.r);
         atm += vec3(cloudscolor * stepdistance * cloudiness * directsuncolor * planetshadow  * clamp(coverage, 0.0, 1.0) * 15000.507 * (0.3+0.7 * ( heightmix)))
             + clamp( heightmix* flunctuations  * clamp(coverage, 0.0, 1.0) * 56990.18 * stepdistance * planetshadow * (AC ) * clamp(1.0 - 0.4 * clamp(max(hit_Atmosphere.x, hit_Atmosphere.y), 0.0, 10000.0) * absorbstrength, 0.0, 1.0), 0.0,100000.0);
-        coverage *= 1.0 - (heightmix * stepdistance * absorbstrength * 50.507 *flunctuations  + stepdistance * 5000.507 * cloudiness);
+        coverage *= 1.0 - (heightmix * stepdistance * absorbstrength * 0.507 *flunctuations  + stepdistance * 5000.507 * cloudiness);
         //coverage2 += heightmix * stepdistance * absorbstrength * 50.507 * flunctuations + cloudiness;
         if(coverage < 0.01) break;
     }
     //atm *= 0.1;
-    return vec4(atm, clamp(1.0 - coverage, 0.0, 1.0));
+    return vec4(atm, 1.0+clamp(1.0 - coverage, 0.0, 1.0));
 }
 
 vec4 tracePlanet(Ray ray){
@@ -293,7 +345,7 @@ vec4 tracePlanet(Ray ray){
             vec4 datatex = texture(planetTerrainColorImage, xyzToPolar(dir)).rgba;
             float hit_Surface = raymarchTerrain(Ray(ray.d * hit_Surface, sdir), currentPlanet.position_radius.xyz, 0.001);
             float shadow = 0.1 + 0.9 * (1.0 - step(0.0, hit_Surface));
-            vec3 colo = shadow * 4.0 *  datatex.rgb * pow(max(0.0, dot(norm, sdir)), 2.0 + 3.0 * (1.0 - datatex.a));
+            vec3 colo = shadow * 4000.0 *  datatex.rgb * pow(max(0.0, dot(norm, sdir)), 2.0 + 3.0 * (1.0 - datatex.a));
             color = atm.rgb * atm.a + (1.0 - atm.a) * colo;
             coverage = 1.0;
         }
@@ -307,14 +359,14 @@ vec4 tracePlanet(Ray ray){
         if(hitcount == 2){ // scenario c
             vec4 atm = tracePlanetAtmosphere(ray.o, ray.d * hit_Surface,
                 currentPlanet.position_radius.a , atmoradius);
-                vec3 norm = getplanetnormal(normalize((ray.d * hit_Surface) - currentPlanet.position_radius.rgb));
-                vec3 sdir = normalize(SUNDIR - (ray.d * hit_Surface));
-                vec3 dir = normalize(ray.d * hit_Surface - currentPlanet.position_radius.rgb);
-                vec4 datatex = texture(planetTerrainColorImage, xyzToPolar(dir)).rgba;
-                float hit_Surface = raymarchTerrain(Ray(ray.d * hit_Surface, sdir), currentPlanet.position_radius.xyz, 0.001);
-                float shadow = 0.1 + 0.9 * (1.0 - step(0.0, hit_Surface));
-                vec3 colo = shadow * 4.0 *  datatex.rgb * pow(max(0.0, dot(norm, sdir)), 1.0 + 3.0 * (1.0 - datatex.a));
-                color = atm.rgb * atm.a  + (1.0 - atm.a) * colo;
+            vec3 norm = getplanetnormal(normalize((ray.d * hit_Surface) - currentPlanet.position_radius.rgb));
+            vec3 sdir = normalize(SUNDIR - (ray.d * hit_Surface));
+            vec3 dir = normalize(ray.d * hit_Surface - currentPlanet.position_radius.rgb);
+            vec4 datatex = texture(planetTerrainColorImage, xyzToPolar(dir)).rgba;
+            float hit_Surface = raymarchTerrain(Ray(ray.d * hit_Surface, sdir), currentPlanet.position_radius.xyz, 0.001);
+            float shadow = 0.1 + 0.9 * (1.0 - step(0.0, hit_Surface));
+            vec3 colo = shadow * 4000.0 *  datatex.rgb * pow(max(0.0, dot(norm, sdir)), 1.0 + 3.0 * (1.0 - datatex.a));
+            color = atm.rgb * atm.a  + (1.0 - atm.a) * colo;
             coverage = 1.0;
         }
     } else if(centerDistance < currentPlanet.position_radius.a && centerDistance < atmoradius){
