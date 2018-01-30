@@ -16,6 +16,8 @@ layout(set = 0, binding = 6) uniform sampler2D planetAtmosphereFlunctuationsImag
 #include transparencyLinkedList.glsl
 #include rotmat3d.glsl
 
+#include celestialCommons.glsl
+
 float rand2s(vec2 co){
     return fract(sin(dot(co.xy * Time,vec2(12.9898,78.233))) * 43758.5453);
 }
