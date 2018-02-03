@@ -6,17 +6,8 @@ layout(location = 1) in flat uint inInstanceId;
 layout(location = 2) in vec3 inWorldPos;
 layout(location = 0) out vec4 outColor;
 
-layout(set = 0, binding = 0) uniform UniformBufferObject1 {
-    float Time;
-    float Zero;
-    vec2 Mouse;
-    mat4 VPMatrix;
-    vec4 inCameraPos;
-    vec4 inFrustumConeLeftBottom;
-    vec4 inFrustumConeBottomLeftToBottomRight;
-    vec4 inFrustumConeBottomLeftToTopLeft;
-    vec2 Resolution;
-} hiFreq;
+#include rendererDataSet.glsl
+#include camera.glsl
 
 struct GeneratedStarInfo {
     vec4 position_radius;
@@ -25,46 +16,11 @@ struct GeneratedStarInfo {
     vec4 spotsIntensity_zero_zero_zero; //0->1
 };
 
-struct GeneratedPlanetInfo {
-    vec4 position_radius;
-    vec4 terrainMaxLevel_fluidMaxLevel_starDistance_zero;
-    vec4 habitableChance_orbitSpeed_atmosphereRadius_atmosphereAbsorbStrength;
-    vec4 preferredColor_zero;//0->1
-    vec4 atmosphereAbsorbColor_zero;//0->1
-    ivec4 hoststarindex_zero_zero_zero;
-};
-
-struct GeneratedMoonInfo {
-    vec4 position_radius;
-    vec4 orbitPlane_orbitSpeed;
-    vec4 preferredColor_terrainMaxLevel;//0->1
-    vec4 planetDistance_zero_zero_zero; //0->1
-    ivec4 hostplanetindex_zero_zero_zero;
-};
-
-layout(set = 0, binding = 1) buffer StarsStorageBuffer {
+layout(set = 1, binding = 0) buffer StarsStorageBuffer {
     ivec4 count;
     GeneratedStarInfo stars[];
 } starsBuffer;
 
-layout(set = 0, binding = 2) buffer PlanetsStorageBuffer {
-    ivec4 count;
-    GeneratedPlanetInfo planets[];
-} planetsBuffer;
-
-layout(set = 0, binding = 3) buffer MoonsStorageBuffer {
-    ivec4 count;
-    GeneratedMoonInfo moons[];
-} moonsBuffer;
-
-float Time = hiFreq.Time;
-
-vec3 CameraPosition = hiFreq.inCameraPos.xyz;
-vec3 FrustumConeLeftBottom = hiFreq.inFrustumConeLeftBottom.xyz;
-vec3 FrustumConeBottomLeftToBottomRight = hiFreq.inFrustumConeBottomLeftToBottomRight.xyz;
-vec3 FrustumConeBottomLeftToTopLeft = hiFreq.inFrustumConeBottomLeftToTopLeft.xyz;
-
-#include camera.glsl
 
 struct Ray { vec3 o; vec3 d; };
 struct Sphere { vec3 pos; float rad; };

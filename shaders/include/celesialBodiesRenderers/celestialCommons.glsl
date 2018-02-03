@@ -33,17 +33,17 @@ float raymarchCelestialTerrain(Ray ray, sampler2D s, RenderedCelestialBody body,
     return -0.01;
 }
 
-vec4 celestialGetColorRoughnessForDirection(RenderedCelestialBody body, vec3 direction){
-    return texture(getCelestialColorSampler(body), xyzToPolar(direction)).rgba;
+vec4 celestialGetColorRoughnessForDirection(vec3 direction){
+    return texture(baseColorImage, xyzToPolar(direction)).rgba;
 }
 vec4 celestialGetColorRoughnessRaycast(RenderedCelestialBody body, vec3 position){
-    return celestialGetColorRoughnessForDirection(body, normalize(position - body.position));
+    return celestialGetColorRoughnessForDirection(normalize(position - body.position));
 }
 
 void updatePassHits(inout RenderPass pass){
     float hit_Surface = rsi2(pass.ray, pass.body.surfaceSphere).y;
     if(distance(pass.body.position, pass.ray.o) < pass.body.radius * 4.0){
-        hit_Surface = raymarchCelestialTerrain(pass.ray, getCelestialHeightSampler(pass.body), pass.body, 1.0);
+        hit_Surface = raymarchCelestialTerrain(pass.ray, heightMapImage, pass.body, 0.001);
     }
     vec2 hits_Atmosphere = rsi2(pass.ray, pass.body.atmosphereSphere);
     if(hit_Surface > 0.0 && hit_Surface < DISTANCE_INFINITY) {
@@ -83,18 +83,5 @@ vec4 renderCelestialBody(RenderedCelestialBody body, Ray ray){
             result = renderCelestialBodyThickAtmosphere(pass);
         }
     }
-    return vec4(0.0);
-}
-
-vec4 renderAllCelestialBodies(Ray ray){
-    for(int i=0;i<celestialBuffer.count.x;i++){
-        RenderedCelestialBody body = celestialBuffer.celestialBodies[i];
-        float dist = length(body.position);
-
-        vec4 pl = renderCelestialBody(body, ray);
-        if(pl.a > 0.0) {
-            storeFragment(dist, max(pl.a, 0.0), pl.rgb);
-        }
-    }
-    return resolveFragments();
+    return result;
 }

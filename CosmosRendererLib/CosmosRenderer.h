@@ -26,14 +26,15 @@ public:
     VulkanRenderer* renderer{ nullptr };
 
     VulkanRenderStage* celestialStage{ nullptr };
-    VulkanDescriptorSetLayout* celestialLayout{ nullptr };
-    VulkanDescriptorSet* celestialSet{ nullptr };
+    VulkanDescriptorSetLayout* rendererDataLayout{ nullptr };
+    VulkanDescriptorSet* rendererDataSet{ nullptr };
+    VulkanDescriptorSetLayout* starsDataLayout{ nullptr };
+    VulkanDescriptorSet* starsDataSet{ nullptr };
 
     VulkanRenderStage* starsStage{ nullptr };
    // VulkanDescriptorSetLayout* starsLayout{ nullptr };
    // VulkanDescriptorSet* starsSet{ nullptr };
 
-    VulkanRenderStage* planetDataStage{ nullptr };
     VulkanRenderStage* modelsStage{ nullptr };
 
     VulkanRenderStage* combineStage{ nullptr };

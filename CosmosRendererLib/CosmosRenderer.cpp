@@ -40,28 +40,22 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, GalaxyContainer* igalaxy,
 
     planetAtmosphereFlunctuationsImage = new VulkanImage(vulkan, 1024 * 2, 1024 * 2, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL,
         VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
-    
-    celestialLayout = new VulkanDescriptorSetLayout(vulkan);
-    celestialLayout->addField(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
-    celestialLayout->addField(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
-    celestialLayout->addField(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
-    celestialLayout->addField(3, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
-    celestialLayout->addField(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    celestialLayout->addField(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    celestialLayout->addField(6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    celestialLayout->addField(7, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
-    celestialLayout->addField(8, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    celestialLayout->compile();
 
-    celestialSet = celestialLayout->generateDescriptorSet();
-    celestialSet->bindUniformBuffer(0, cameraDataBuffer);
-    celestialSet->bindStorageBuffer(1, starsDataBuffer);
-    celestialSet->bindStorageBuffer(2, planetsDataBuffer);
-    celestialSet->bindStorageBuffer(3, moonsDataBuffer);
-    celestialSet->bindImageViewSampler(4, planetTerrainHeightImage);
-    celestialSet->bindImageViewSampler(5, planetTerrainColorImage);
-    celestialSet->bindImageViewSampler(6, planetAtmosphereFlunctuationsImage);
-    celestialSet->update();
+    rendererDataLayout = new VulkanDescriptorSetLayout(vulkan);
+    rendererDataLayout->addField(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
+    rendererDataLayout->compile();
+
+    starsDataLayout = new VulkanDescriptorSetLayout(vulkan);
+    starsDataLayout->addField(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
+    starsDataLayout->compile();
+
+    rendererDataSet = rendererDataLayout->generateDescriptorSet();
+    rendererDataSet->bindUniformBuffer(0, cameraDataBuffer);
+    rendererDataSet->update();
+
+    starsDataSet = starsDataLayout->generateDescriptorSet();
+    starsDataSet->bindStorageBuffer(0, starsDataBuffer);
+    starsDataSet->update();
 
     modelMRTLayout = new VulkanDescriptorSetLayout(vulkan);
     modelMRTLayout->addField(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
@@ -83,7 +77,7 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, GalaxyContainer* igalaxy,
     combineLayout->compile();
 
     celestialBodyDataSetLayout = new VulkanDescriptorSetLayout(vulkan);
-    celestialBodyDataSetLayout->addField(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
+    celestialBodyDataSetLayout->addField(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT);
     celestialBodyDataSetLayout->addField(1, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_COMPUTE_BIT);
     celestialBodyDataSetLayout->addField(2, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_COMPUTE_BIT);
     celestialBodyDataSetLayout->addField(3, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_COMPUTE_BIT);
@@ -123,7 +117,6 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     readyForDrawing = false;
     if (deleteOld) {
         vkDeviceWaitIdle(vulkan->device);
-        safedelete(planetDataStage);
         safedelete(celestialStage);
         safedelete(starsStage);
         safedelete(combineStage);
@@ -148,24 +141,12 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     celestialStage->setViewport(width, height);
     celestialStage->addShaderStage(celestialvert->createShaderStage(VK_SHADER_STAGE_VERTEX_BIT, "main"));
     celestialStage->addShaderStage(celestialfrag->createShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT, "main"));
+    celestialStage->addDescriptorSetLayout(rendererDataLayout->layout);
     celestialStage->addDescriptorSetLayout(celestialBodyRenderSetLayout->layout);
     celestialStage->addOutputImage(celestialImage);
+    celestialStage->alphaBlending = true;
+    celestialStage->cullFlags = VK_CULL_MODE_BACK_BIT;
     celestialStage->compile();
-
-    //**********************//
-
-    auto planetdatavert = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-planetdata.vert.spv");
-    auto planetdatafrag = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-planetdata.frag.spv");
-
-    planetDataStage = new VulkanRenderStage(vulkan);
-    planetDataStage->setViewport(1024 * 2, 1024 * 2);
-    planetDataStage->addShaderStage(planetdatavert->createShaderStage(VK_SHADER_STAGE_VERTEX_BIT, "main"));
-    planetDataStage->addShaderStage(planetdatafrag->createShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT, "main"));
-    planetDataStage->addDescriptorSetLayout(celestialLayout->layout);
-    planetDataStage->addOutputImage(planetTerrainHeightImage);
-    planetDataStage->addOutputImage(planetTerrainColorImage);
-    planetDataStage->addOutputImage(planetAtmosphereFlunctuationsImage);
-    planetDataStage->setSets({ celestialSet });
 
     //**********************//
     auto starsvert = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-stars.vert.spv");
@@ -175,9 +156,10 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     starsStage->setViewport(width, height);
     starsStage->addShaderStage(starsvert->createShaderStage(VK_SHADER_STAGE_VERTEX_BIT, "main"));
     starsStage->addShaderStage(starsfrag->createShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT, "main"));
-    starsStage->addDescriptorSetLayout(celestialLayout->layout);
+    starsStage->addDescriptorSetLayout(rendererDataLayout->layout);
+    starsStage->addDescriptorSetLayout(starsDataLayout->layout);
     starsStage->addOutputImage(starsImage);
-    starsStage->setSets({ celestialSet });
+    starsStage->setSets({ rendererDataSet, starsDataSet });
     starsStage->additiveBlending = true;
     starsStage->cullFlags = VK_CULL_MODE_BACK_BIT;
     // starsStage->topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
@@ -191,7 +173,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     modelsStage->setViewport(width, height);
     modelsStage->addShaderStage(shipvert->createShaderStage(VK_SHADER_STAGE_VERTEX_BIT, "main"));
     modelsStage->addShaderStage(shipfrag->createShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT, "main"));
-    modelsStage->addDescriptorSetLayout(celestialLayout->layout);
+    modelsStage->addDescriptorSetLayout(rendererDataLayout->layout);
     modelsStage->addDescriptorSetLayout(modelMRTLayout->layout);
     modelsStage->addOutputImage(modelsResultImage);
     modelsStage->addOutputImage(modelsDepthImage);
@@ -335,10 +317,12 @@ void CosmosRenderer::draw()
     celestialStage->beginDrawing();
 
     for (int i = 0; i < renderablePlanets.size(); i++) {
-        renderablePlanets[i]->draw(celestialStage, vulkan->fullScreenQuad3dInfo);
+        renderablePlanets[i]->updateBuffer(observerCameraPosition, scale, glfwGetTime());
+        renderablePlanets[i]->draw(celestialStage, rendererDataSet, cube3dInfo);
     }
     for (int i = 0; i < renderableMoons.size(); i++) {
-        renderableMoons[i]->draw(celestialStage, vulkan->fullScreenQuad3dInfo);
+        renderableMoons[i]->updateBuffer(observerCameraPosition, scale, glfwGetTime());
+        renderableMoons[i]->draw(celestialStage, rendererDataSet, cube3dInfo);
     }
 
     celestialStage->endDrawing();
@@ -360,8 +344,6 @@ void CosmosRenderer::draw()
     renderer->beginDrawing();
 
     renderer->endDrawing();
-
-    planetDataStage->enabled = false;
 }
 
 void CosmosRenderer::onClosestStarChange(GeneratedStarInfo star)

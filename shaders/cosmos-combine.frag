@@ -66,7 +66,7 @@ void main() {
     vec3 stars = texture(texStars, UV).rgb ;//texture(texStars, UV);
     vec4 ui = texture(uiTexture, UV);
     //stars.rgb /= max(0.0001, stars.a);
-    vec3 a = mix(stars, celestial.rgb, celestial.a);
+    vec3 a = mix(stars, celestial.rgb, 1.0);//celestial.a);
     vec4 shipdata = texture(texShip, UV).rgba;
     a = mix(a, shipdata.rgb, shipdata.a);
     a = mix(a, ui.rgb, ui.a);

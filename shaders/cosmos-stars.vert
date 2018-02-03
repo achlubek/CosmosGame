@@ -12,18 +12,7 @@ layout(location = 0) out vec2 outTexCoord;
 layout(location = 1) out flat uint inInstanceId;
 layout(location = 2) out vec3 outWorldPos;
 
-layout(set = 0, binding = 0) uniform UniformBufferObject1 {
-    float Time;
-    float Zero;
-    vec2 Mouse;
-    mat4 VPMatrix;
-    vec4 inCameraPos;
-    vec4 inFrustumConeLeftBottom;
-    vec4 inFrustumConeBottomLeftToBottomRight;
-    vec4 inFrustumConeBottomLeftToTopLeft;
-    vec2 Resolution;
-} hiFreq;
-vec3 CameraPosition = hiFreq.inCameraPos.xyz;
+#include rendererDataSet.glsl
 
 struct GeneratedStarInfo {
     vec4 position_radius;
@@ -32,7 +21,7 @@ struct GeneratedStarInfo {
     vec4 spotsIntensity_zero_zero_zero; //0->1
 };
 
-layout(set = 0, binding = 1) buffer StarsStorageBuffer {
+layout(set = 1, binding = 0) buffer StarsStorageBuffer {
     ivec4 count;
     GeneratedStarInfo stars[];
 } starsBuffer;

@@ -15,7 +15,7 @@ RenderedCelestialBody::RenderedCelestialBody(VulkanToolkit* itoolkit, CelestialB
     cloudsImage = new VulkanImage(toolkit, TEXTURES_WIDTH, TEXTURES_HEIGHT, VK_FORMAT_R16G16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
         VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
 
-    dataBuffer = new VulkanGenericBuffer(toolkit, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, sizeof(float) * 1024 * 10);
+    dataBuffer = new VulkanGenericBuffer(toolkit, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, 65535);
 
     dataSet = dataSetLayout->generateDescriptorSet();
     dataSet->bindUniformBuffer(0, dataBuffer);
@@ -49,36 +49,36 @@ void RenderedCelestialBody::updateData(VulkanComputeStage * stage)
     stage->dispatch({ dataSet }, TEXTURES_WIDTH, TEXTURES_HEIGHT, 1);
 }
 
-void RenderedCelestialBody::draw(VulkanRenderStage * stage, Object3dInfo * info3d)
+void RenderedCelestialBody::draw(VulkanRenderStage * stage, VulkanDescriptorSet* rendererDataSet, Object3dInfo * info3d)
 {
-    stage->setSets({ renderSet });
+    stage->setSets({ rendererDataSet, renderSet });
     stage->drawMesh(info3d, 1);
 }
 
-void RenderedCelestialBody::updateBuffer()
+void RenderedCelestialBody::updateBuffer(glm::dvec3 observerPosition, double scale, double time)
 {
     VulkanBinaryBufferBuilder bb = VulkanBinaryBufferBuilder();
-    bb.emplaceFloat32(glfwGetTime());
+    bb.emplaceFloat32(time);
     bb.emplaceFloat32(0.0f);
     bb.emplaceFloat32(0.0f);
     bb.emplaceFloat32(0.0f);
 
-    auto bodyPosition = body.getPosition(0);
+    auto bodyPosition = body.getPosition(0) - observerPosition;
 
     bb.emplaceInt32((int)body.getRenderMethod());
     bb.emplaceInt32(0);
     bb.emplaceInt32(0);
     bb.emplaceInt32(0);
 
-    bb.emplaceFloat32(bodyPosition.x);
-    bb.emplaceFloat32(bodyPosition.y);
-    bb.emplaceFloat32(bodyPosition.z);
-    bb.emplaceFloat32(body.radius);
+    bb.emplaceFloat32(bodyPosition.x * scale);
+    bb.emplaceFloat32(bodyPosition.y * scale);
+    bb.emplaceFloat32(bodyPosition.z * scale);
+    bb.emplaceFloat32(body.radius * scale);
 
     bb.emplaceFloat32(body.preferredColor.r);
     bb.emplaceFloat32(body.preferredColor.g);
     bb.emplaceFloat32(body.preferredColor.b);
-    bb.emplaceFloat32(body.atmosphereRadius);
+    bb.emplaceFloat32(body.atmosphereRadius * scale);
 
     bb.emplaceFloat32((float)body.bodyId);
     bb.emplaceFloat32(body.terrainMaxLevel);
@@ -89,4 +89,9 @@ void RenderedCelestialBody::updateBuffer()
     bb.emplaceFloat32(body.atmosphereAbsorbColor.g);
     bb.emplaceFloat32(body.atmosphereAbsorbColor.b);
     bb.emplaceFloat32(body.atmosphereAbsorbStrength);
+
+    void* data;
+    dataBuffer->map(0, bb.buffer.size(), &data);
+    memcpy(data, bb.getPointer(), bb.buffer.size());
+    dataBuffer->unmap();
 }
