@@ -43,6 +43,10 @@ public:
 
     VulkanDescriptorSetLayout* modelMRTLayout{ nullptr };
 
+    VulkanDescriptorSetLayout* celestialBodyDataSetLayout{ nullptr };
+    VulkanDescriptorSetLayout* celestialBodyRenderSetLayout{ nullptr };
+    VulkanComputeStage* celestialDataUpdateComputeStage;
+
     VulkanGenericBuffer* cameraDataBuffer;
     VulkanGenericBuffer* starsDataBuffer;
     VulkanGenericBuffer* planetsDataBuffer;
@@ -77,6 +81,12 @@ public:
     
     void updateCameraBuffer(Camera* cam, glm::dvec3 observerPosition);
     void draw();
+
+    void onClosestStarChange(GeneratedStarInfo star);
+    void onClosestPlanetChange(CelestialBody planet);
+
+    std::vector<RenderedCelestialBody*> renderablePlanets;
+    std::vector<RenderedCelestialBody*> renderableMoons;
 
     volatile bool readyForDrawing = false;
 };

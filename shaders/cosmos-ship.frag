@@ -13,7 +13,23 @@ layout(set = 1, binding = 4) uniform sampler2D texMetalness;
 layout(set = 1, binding = 5) uniform sampler2D texEmissionIdle;
 layout(set = 1, binding = 6) uniform sampler2D texEmissionPowered;
 
-#include celestialSet.glsl
+layout(set = 0, binding = 0) uniform UniformBufferObject1 {
+    float Time;
+    float Zero;
+    vec2 Mouse;
+    mat4 VPMatrix;
+    vec4 inCameraPos;
+    vec4 inFrustumConeLeftBottom;
+    vec4 inFrustumConeBottomLeftToBottomRight;
+    vec4 inFrustumConeBottomLeftToTopLeft;
+    vec2 Resolution;
+} hiFreq;
+float Time = hiFreq.Time;
+vec3 CameraPosition = hiFreq.inCameraPos.xyz;
+vec3 FrustumConeLeftBottom = hiFreq.inFrustumConeLeftBottom.xyz;
+vec3 FrustumConeBottomLeftToBottomRight = hiFreq.inFrustumConeBottomLeftToBottomRight.xyz;
+vec3 FrustumConeBottomLeftToTopLeft = hiFreq.inFrustumConeBottomLeftToTopLeft.xyz;
+
 #include camera.glsl
 #include sphereRaytracing.glsl
 #include polar.glsl

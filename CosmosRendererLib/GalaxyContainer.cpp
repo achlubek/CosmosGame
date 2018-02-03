@@ -4,6 +4,8 @@
 
 GalaxyContainer::GalaxyContainer()
 {
+    onClosestStarChange = EventHandler<GeneratedStarInfo>();
+    onClosestPlanetChange = EventHandler<CelestialBody>();
 }
 
 
@@ -21,17 +23,17 @@ GeneratedStarInfo GalaxyContainer::getClosestStar()
     return closestStar;
 }
 
-GeneratedPlanetInfo GalaxyContainer::getClosestPlanet()
+CelestialBody GalaxyContainer::getClosestPlanet()
 {
     return closestPlanet;
 }
 
-std::vector<GeneratedPlanetInfo>& GalaxyContainer::getClosestStarPlanets()
+std::vector<CelestialBody>& GalaxyContainer::getClosestStarPlanets()
 {
     return closestStarPlanets;
 }
 
-std::vector<GeneratedMoonInfo>& GalaxyContainer::getClosestPlanetMoons()
+std::vector<CelestialBody>& GalaxyContainer::getClosestPlanetMoons()
 {
     return closestPlanetMoons;
 }
@@ -83,27 +85,29 @@ void GalaxyContainer::update(glm::dvec3 observerPosition)
     if (lastStarId != closestStar.starId) {
         lastStarId = closestStar.starId;
         closestStarPlanets = loadPlanetsByStar(closestStar);
+        onClosestStarChange.invoke(closestStar);
     }
     updateClosestPlanet(observerPosition);
-    if (lastPlanetId != closestPlanet.planetId) {
-        lastPlanetId = closestPlanet.planetId;
+    if (lastPlanetId != closestPlanet.bodyId) {
+        lastPlanetId = closestPlanet.bodyId;
         closestPlanetMoons = loadMoonsByPlanet(closestPlanet);
+        onClosestPlanetChange.invoke(closestPlanet);
     }
 }
 
-std::vector<GeneratedPlanetInfo> GalaxyContainer::loadPlanetsByStar(GeneratedStarInfo star)
+std::vector<CelestialBody> GalaxyContainer::loadPlanetsByStar(GeneratedStarInfo& star)
 {
-    auto planets = std::vector<GeneratedPlanetInfo>();
-    auto planetsdata = database->query("SELECT * FROM planets WHERE starid = " + std::to_string(star.starId));
+    auto planets = std::vector<CelestialBody>();
+    auto planetsdata = database->query("SELECT * FROM bodies WHERE parentid = 0 AND starid = " + std::to_string(star.starId));
     for (int i = 0; i < planetsdata.size(); i++) {
         auto planetrow = planetsdata[i];
-        auto planet = GeneratedPlanetInfo();
-        planet.planetId = aslong(planetrow["id"]);
-        planet.host = star;
+        auto planet = CelestialBody();
+        planet.bodyId = aslong(planetrow["id"]);
+        planet.host = &star;
         planet.radius = asdouble(planetrow["radius"]);
         planet.terrainMaxLevel = asdouble(planetrow["terrain_max"]);
         planet.fluidMaxLevel = asdouble(planetrow["fluid_max"]);
-        planet.starDistance = asdouble(planetrow["star_distance"]);
+        planet.hostDistance = asdouble(planetrow["host_distance"]);
         planet.habitableChance = asdouble(planetrow["habitable_chance"]);
         planet.orbitSpeed = asdouble(planetrow["orbit_speed"]);
         planet.preferredColor.x = asdouble(planetrow["base_color_r"]);
@@ -114,25 +118,28 @@ std::vector<GeneratedPlanetInfo> GalaxyContainer::loadPlanetsByStar(GeneratedSta
         planet.atmosphereAbsorbColor.r = asdouble(planetrow["atmosphere_absorption_r"]);
         planet.atmosphereAbsorbColor.g = asdouble(planetrow["atmosphere_absorption_g"]);
         planet.atmosphereAbsorbColor.b = asdouble(planetrow["atmosphere_absorption_b"]);
+        planet.orbitPlane.x = asdouble(planetrow["orbit_plane_x"]);
+        planet.orbitPlane.y = asdouble(planetrow["orbit_plane_y"]);
+        planet.orbitPlane.z = asdouble(planetrow["orbit_plane_z"]);
         planets.push_back(planet);
     }
     printf("loaded %d planets\n", planets.size());
     return planets;
 }
 
-std::vector<GeneratedMoonInfo> GalaxyContainer::loadMoonsByPlanet(GeneratedPlanetInfo planet)
+std::vector<CelestialBody> GalaxyContainer::loadMoonsByPlanet(CelestialBody& planet)
 {
-    auto moons = std::vector<GeneratedMoonInfo>();
-    auto moonsdata = database->query("SELECT * FROM moons WHERE planetid = " + std::to_string(planet.planetId));
+    auto moons = std::vector<CelestialBody>();
+    auto moonsdata = database->query("SELECT * FROM bodies WHERE parentid = " + std::to_string(planet.bodyId));
     for (int i = 0; i < moonsdata.size(); i++) {
         auto moonrow = moonsdata[i];
-        auto moon = GeneratedMoonInfo();
-        moon.moonId = aslong(moonrow["id"]);
-        moon.host = planet;
+        auto moon = CelestialBody();
+        moon.bodyId = aslong(moonrow["id"]);
+        moon.host = &planet;
         moon.radius = asdouble(moonrow["radius"]);
         moon.terrainMaxLevel = asdouble(moonrow["terrain_max"]);
         moon.fluidMaxLevel = asdouble(moonrow["fluid_max"]);
-        moon.planetDistance = asdouble(moonrow["planet_distance"]);
+        moon.hostDistance = asdouble(moonrow["host_distance"]);
         moon.habitableChance = asdouble(moonrow["habitable_chance"]);
         moon.orbitSpeed = asdouble(moonrow["orbit_speed"]);
         moon.preferredColor.x = asdouble(moonrow["base_color_r"]);
@@ -173,7 +180,7 @@ void GalaxyContainer::updateClosestStar(glm::dvec3 observerPosition)
 
 void GalaxyContainer::updateClosestPlanet(glm::dvec3 observerPosition)
 {
-    GeneratedPlanetInfo result;
+    CelestialBody result;
     double closestDistance = 9999999999.0;
     for (int s = 0; s < closestStarPlanets.size(); s++) {
         auto planet = closestStarPlanets[s];

@@ -5,13 +5,6 @@ out gl_PerVertex {
     vec4 gl_Position;
 };
 
-#include celestialSet.glsl
-
-vec2 project(vec3 pos){
-    vec4 tmp = (hiFreq.VPMatrix * vec4(pos, 1.0));
-    return (tmp.xy / tmp.w) * 0.5 + 0.5;
-}
-
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec2 inTexCoord;
 

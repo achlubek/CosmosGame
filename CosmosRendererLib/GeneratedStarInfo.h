@@ -26,8 +26,5 @@ public:
     virtual glm::dvec3 getLinearVelocity(double at_time) {
         return glm::dvec3(0.0);
     }
-    virtual ObjectType getObjectType() {
-        return ObjectType::Star;
-    }
 };
 

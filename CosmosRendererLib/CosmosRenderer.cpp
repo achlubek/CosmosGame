@@ -6,7 +6,7 @@
  
 
 CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, GalaxyContainer* igalaxy, VulkanImage* ioverlayImage, int iwidth, int iheight) :
-    galaxy(igalaxy), overlayImage(ioverlayImage), width(iwidth), height(iheight), vulkan(ivulkan), assets(AssetLoader(ivulkan))
+    galaxy(igalaxy), overlayImage(ioverlayImage), width(iwidth), height(iheight), vulkan(ivulkan), assets(AssetLoader(ivulkan)), renderablePlanets({}), renderableMoons({})
 { 
     internalCamera = new Camera();
 
@@ -82,6 +82,20 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, GalaxyContainer* igalaxy,
     combineLayout->addField(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
     combineLayout->compile();
 
+    celestialBodyDataSetLayout = new VulkanDescriptorSetLayout(vulkan);
+    celestialBodyDataSetLayout->addField(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
+    celestialBodyDataSetLayout->addField(1, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_COMPUTE_BIT);
+    celestialBodyDataSetLayout->addField(2, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_COMPUTE_BIT);
+    celestialBodyDataSetLayout->addField(3, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_COMPUTE_BIT);
+    celestialBodyDataSetLayout->compile();
+
+    celestialBodyRenderSetLayout = new VulkanDescriptorSetLayout(vulkan);
+    celestialBodyRenderSetLayout->addField(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
+    celestialBodyRenderSetLayout->addField(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
+    celestialBodyRenderSetLayout->addField(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
+    celestialBodyRenderSetLayout->addField(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
+    celestialBodyRenderSetLayout->compile();
+
     combineSet = combineLayout->generateDescriptorSet();
     combineSet->bindImageViewSampler(0, celestialImage);
     combineSet->bindImageViewSampler(1, starsImage);
@@ -91,6 +105,9 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, GalaxyContainer* igalaxy,
     combineSet->update();
 
     recompileShaders(false);
+
+    galaxy->onClosestStarChange.add([&](GeneratedStarInfo star) { onClosestStarChange(star); });
+    galaxy->onClosestPlanetChange.add([&](CelestialBody planet) { onClosestPlanetChange(planet); });
 
     readyForDrawing = true;
 }
@@ -115,6 +132,14 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     vkDeviceWaitIdle(vulkan->device);
 
     //**********************//
+    auto celestialdatacompute = new VulkanShaderModule(vulkan, "../../shaders/compiled/celestial-updatedata.comp.spv");
+
+    celestialDataUpdateComputeStage = new VulkanComputeStage(vulkan);
+    celestialDataUpdateComputeStage->setShaderStage(celestialdatacompute->createShaderStage(VK_SHADER_STAGE_COMPUTE_BIT, "main"));
+    celestialDataUpdateComputeStage->addDescriptorSetLayout(celestialBodyDataSetLayout->layout);
+    celestialDataUpdateComputeStage->compile();
+
+    //**********************//
 
     auto celestialvert = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-celestial.vert.spv");
     auto celestialfrag = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-celestial.frag.spv");
@@ -123,9 +148,9 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     celestialStage->setViewport(width, height);
     celestialStage->addShaderStage(celestialvert->createShaderStage(VK_SHADER_STAGE_VERTEX_BIT, "main"));
     celestialStage->addShaderStage(celestialfrag->createShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT, "main"));
-    celestialStage->addDescriptorSetLayout(celestialLayout->layout);
+    celestialStage->addDescriptorSetLayout(celestialBodyRenderSetLayout->layout);
     celestialStage->addOutputImage(celestialImage);
-    celestialStage->setSets({ celestialSet });
+    celestialStage->compile();
 
     //**********************//
 
@@ -189,13 +214,10 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     //**********************//
 
     renderer = new VulkanRenderer(vulkan);
-    renderer->addPostProcessingStage(planetDataStage);
-    renderer->addPostProcessingStage(celestialStage);
     renderer->setOutputStage(combineStage);
     renderer->compile();
 
     readyForDrawing = true;
-    planetDataStage->enabled = true;
 }
 
 void CosmosRenderer::mapBuffers()
@@ -246,98 +268,6 @@ void CosmosRenderer::updateStarsBuffer()
         starsBB.emplaceFloat32((float)0.0f);
     }
     memcpy(starsDataBufferPointer, starsBB.getPointer(), starsBB.buffer.size());
-}
-
-void CosmosRenderer::updatePlanetsAndMoon(glm::dvec3 observerPosition)
-{
-    VulkanBinaryBufferBuilder planetsBB = VulkanBinaryBufferBuilder();
-    VulkanBinaryBufferBuilder moonsBB = VulkanBinaryBufferBuilder();
-
-    auto planet = galaxy->getClosestPlanet();
-    auto moons = galaxy->getClosestPlanetMoons();
-
-    int planetsCount = 1;
-    int moonsCount = moons.size();
-    
-    planetsBB.emplaceInt32(planetsCount);
-    planetsBB.emplaceInt32(planetsCount);
-    planetsBB.emplaceInt32(planetsCount);
-    planetsBB.emplaceInt32(planetsCount);
-
-    moonsBB.emplaceInt32(moonsCount);
-    moonsBB.emplaceInt32(moonsCount);
-    moonsBB.emplaceInt32(moonsCount);
-    moonsBB.emplaceInt32(moonsCount);
-
-    glm::dvec3 planetpos = planet.getPosition(0.0) * scale;
-    glm::dvec3 ppos = planetpos - observerPosition * scale;
-
-    planetsBB.emplaceFloat32((float)ppos.x);
-    planetsBB.emplaceFloat32((float)ppos.y);
-    planetsBB.emplaceFloat32((float)ppos.z);
-    planetsBB.emplaceFloat32((float)planet.radius * scale);
-
-    planetsBB.emplaceFloat32((float)planet.terrainMaxLevel);
-    planetsBB.emplaceFloat32((float)planet.fluidMaxLevel);
-    planetsBB.emplaceFloat32((float)planet.starDistance * scale);
-    planetsBB.emplaceFloat32((float)planet.host.seed + (float)planet.planetId);
-
-    planetsBB.emplaceFloat32((float)planet.habitableChance);
-    planetsBB.emplaceFloat32((float)planet.orbitSpeed);
-    planetsBB.emplaceFloat32((float)planet.atmosphereRadius * scale);
-    planetsBB.emplaceFloat32((float)planet.atmosphereAbsorbStrength);
-
-    planetsBB.emplaceFloat32((float)planet.preferredColor.x);
-    planetsBB.emplaceFloat32((float)planet.preferredColor.y);
-    planetsBB.emplaceFloat32((float)planet.preferredColor.z);
-    planetsBB.emplaceFloat32((float)0.0f);
-
-    planetsBB.emplaceFloat32((float)planet.atmosphereAbsorbColor.x);
-    planetsBB.emplaceFloat32((float)planet.atmosphereAbsorbColor.y);
-    planetsBB.emplaceFloat32((float)planet.atmosphereAbsorbColor.z);
-    planetsBB.emplaceFloat32((float)0.0f);
-
-    planetsBB.emplaceInt32((int)planet.host.starId - 1);
-    planetsBB.emplaceInt32((int)0);
-    planetsBB.emplaceInt32((int)0);
-    planetsBB.emplaceInt32((int)0);
-
-        
-    for (int m = 0; m < moons.size(); m++) {
-        auto moon = moons[m];
-        glm::dvec3 moonpos = moon.getPosition(0.0) * scale;
-        glm::dvec3 mpos = moonpos - observerPosition * scale;
-
-        moonsBB.emplaceFloat32((float)mpos.x);
-        moonsBB.emplaceFloat32((float)mpos.y);
-        moonsBB.emplaceFloat32((float)mpos.z);
-        moonsBB.emplaceFloat32((float)moon.radius * scale);
-
-        moonsBB.emplaceFloat32((float)moon.orbitPlane.x);
-        moonsBB.emplaceFloat32((float)moon.orbitPlane.y);
-        moonsBB.emplaceFloat32((float)moon.orbitPlane.z);
-        moonsBB.emplaceFloat32((float)moon.orbitSpeed);
-
-        moonsBB.emplaceFloat32((float)moon.preferredColor.x);
-        moonsBB.emplaceFloat32((float)moon.preferredColor.y);
-        moonsBB.emplaceFloat32((float)moon.preferredColor.z);
-        moonsBB.emplaceFloat32((float)moon.terrainMaxLevel);
-
-        moonsBB.emplaceFloat32((float)moon.planetDistance * scale);
-        moonsBB.emplaceFloat32((float)0.0f);
-        moonsBB.emplaceFloat32((float)0.0f);
-        moonsBB.emplaceFloat32((float)0.0f);
-
-        moonsBB.emplaceInt32((int)0);
-        moonsBB.emplaceInt32((int)0);
-        moonsBB.emplaceInt32((int)0);
-        moonsBB.emplaceInt32((int)0);
-    }
-    
-
-    memcpy(planetsDataBufferPointer, planetsBB.getPointer(), planetsBB.buffer.size());
-
-    memcpy(moonsDataBufferPointer, moonsBB.getPointer(), moonsBB.buffer.size());
 }
 
 
@@ -394,15 +324,6 @@ void CosmosRenderer::draw()
     if (!readyForDrawing) return;
 
     galaxy->update(observerCameraPosition);
-    updatePlanetsAndMoon(observerCameraPosition);
-
-    auto closestPlanet = galaxy->getClosestPlanet();
-
-    if (lastPlanetId != closestPlanet.planetId) {
-        lastPlanetId = closestPlanet.planetId;
-        planetDataStage->enabled = true;
-    }
-    
 
     starsStage->beginDrawing();
 
@@ -410,6 +331,18 @@ void CosmosRenderer::draw()
 
     starsStage->endDrawing();
     starsStage->submitNoSemaphores({});
+
+    celestialStage->beginDrawing();
+
+    for (int i = 0; i < renderablePlanets.size(); i++) {
+        renderablePlanets[i]->draw(celestialStage, vulkan->fullScreenQuad3dInfo);
+    }
+    for (int i = 0; i < renderableMoons.size(); i++) {
+        renderableMoons[i]->draw(celestialStage, vulkan->fullScreenQuad3dInfo);
+    }
+
+    celestialStage->endDrawing();
+    celestialStage->submitNoSemaphores({});
 
     vkDeviceWaitIdle(vulkan->device);
     modelsStage->beginDrawing();
@@ -429,4 +362,40 @@ void CosmosRenderer::draw()
     renderer->endDrawing();
 
     planetDataStage->enabled = false;
+}
+
+void CosmosRenderer::onClosestStarChange(GeneratedStarInfo star)
+{
+    for (int i = 0; i < renderablePlanets.size(); i++) {
+        delete renderablePlanets[i];
+        renderablePlanets[i] = nullptr;
+    }
+    renderablePlanets.clear();
+    auto planets = galaxy->getClosestStarPlanets();
+    celestialDataUpdateComputeStage->beginRecording();
+    for (int i = 0; i < planets.size(); i++) {
+        auto renderable = new RenderedCelestialBody(vulkan, planets[i], celestialBodyDataSetLayout, celestialBodyRenderSetLayout);
+        renderablePlanets.push_back(renderable);
+        renderable->updateData(celestialDataUpdateComputeStage);
+    }
+    celestialDataUpdateComputeStage->endRecording();
+    celestialDataUpdateComputeStage->submitNoSemaphores({});
+}
+
+void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
+{
+    for (int i = 0; i < renderableMoons.size(); i++) {
+        delete renderableMoons[i];
+        renderableMoons[i] = nullptr;
+    }
+    renderableMoons.clear();
+    auto moons = galaxy->getClosestPlanetMoons();
+    celestialDataUpdateComputeStage->beginRecording();
+    for (int i = 0; i < moons.size(); i++) {
+        auto renderable = new RenderedCelestialBody(vulkan, moons[i], celestialBodyDataSetLayout, celestialBodyRenderSetLayout);
+        renderableMoons.push_back(renderable);
+        renderable->updateData(celestialDataUpdateComputeStage);
+    }
+    celestialDataUpdateComputeStage->endRecording();
+    celestialDataUpdateComputeStage->submitNoSemaphores({});
 }

@@ -1,52 +1,5 @@
 #pragma once
 
-#define CELESTIAL_RENDER_METHOD_NO_ATMOSPHERE 1
-#define CELESTIAL_RENDER_METHOD_LIGHT_ATMOSPHERE 2
-#define CELESTIAL_RENDER_METHOD_THICK_ATMOSPHERE 3
-
-struct RenderedCelestialBody {
-    int renderMethod;
-    int samplerSet;
-    vec3 position;
-    float radius;
-    Sphere surfaceSphere;
-    Sphere atmosphereSphere;
-    float seed;
-    vec3 sufraceMainColor;
-    float terrainMaxLevel;
-    float fluidMaxLevel;
-    float habitableChance; //render green according
-    float atmosphereAbsorbStrength;
-    vec3 atmosphereAbsorbColor;
-};
-
-struct CelestialBodyAlignedData {
-    ivec4 renderMethod_samplerSet_zero_zero;
-    vec4 position_radius;
-    vec4 sufraceMainColor_atmosphereHeight;
-    vec4 seed_terrainMaxLevel_fluidMaxLevel_habitableChance;
-    vec4 sufraceMainColor_zero;
-    vec4 atmosphereAbsorbColor_atmosphereAbsorbStrength;
-};
-
-RenderedCelestialBody getRenderedBody(CelestialBodyAlignedData aligned){
-    return RenderedCelestialBody(
-        aligned.renderMethod_samplerSet_zero_zero.x,
-        aligned.renderMethod_samplerSet_zero_zero.y,
-        aligned.position_radius.xyz,
-        aligned.position_radius.a,
-        Sphere(aligned.position_radius.xyz, aligned.position_radius.a),
-        Sphere(aligned.position_radius.xyz, aligned.position_radius.a + aligned.sufraceMainColor_atmosphereHeight.a),
-        aligned.seed_terrainMaxLevel_fluidMaxLevel_habitableChance.x, //seed
-        aligned.sufraceMainColor_zero.xyz, // color
-        aligned.seed_terrainMaxLevel_fluidMaxLevel_habitableChance.y, //terrainMaxLevel
-        aligned.seed_terrainMaxLevel_fluidMaxLevel_habitableChance.z, //fluidMaxLevel
-        aligned.seed_terrainMaxLevel_fluidMaxLevel_habitableChance.w, //habitableChance
-        aligned.atmosphereAbsorbColor_atmosphereAbsorbStrength.w,
-        aligned.atmosphereAbsorbColor_atmosphereAbsorbStrength.rgb
-    );
-}
-
 struct RenderPass {
         Ray ray;
         RenderedCelestialBody body;
@@ -59,62 +12,6 @@ struct RenderPass {
         bool isAtmosphereHit;
         bool isSurfaceHit;
 };
-
-layout(set = 0, binding = 4) uniform sampler2D celestialHeightImage_set0;
-layout(set = 0, binding = 5) uniform sampler2D celestialColorImage_set0;
-layout(set = 0, binding = 6) uniform sampler2D celestialAtmosphereImage_set0;
-
-layout(set = 0, binding = 7) uniform sampler2D celestialHeightImage_set1;
-layout(set = 0, binding = 8) uniform sampler2D celestialColorImage_set1;
-layout(set = 0, binding = 9) uniform sampler2D celestialAtmosphereImage_set1;
-
-layout(set = 0, binding = 10) uniform sampler2D celestialHeightImage_set2;
-layout(set = 0, binding = 11) uniform sampler2D celestialColorImage_set2;
-layout(set = 0, binding = 12) uniform sampler2D celestialAtmosphereImage_set2;
-
-layout(set = 0, binding = 13) uniform sampler2D celestialHeightImage_set3;
-layout(set = 0, binding = 14) uniform sampler2D celestialColorImage_set3;
-layout(set = 0, binding = 15) uniform sampler2D celestialAtmosphereImage_set3;
-
-layout(set = 0, binding = 16) uniform sampler2D celestialHeightImage_set4;
-layout(set = 0, binding = 17) uniform sampler2D celestialColorImage_set4;
-layout(set = 0, binding = 18) uniform sampler2D celestialAtmosphereImage_set4;
-
-struct CelestialSamplerSet {
-    sampler2D heightImage;
-    sampler2D colorImage;
-    sampler2D atmosphereImage;
-};
-
-sampler2D getCelestialHeightSampler(RenderedCelestialBody body){
-    switch(body.samplerSet){
-        case 0: return celestialHeightImage_set0;
-        case 1: return celestialHeightImage_set1;
-        case 2: return celestialHeightImage_set2;
-        case 3: return celestialHeightImage_set3;
-        case 4: return celestialHeightImage_set4;
-    }
-}
-
-sampler2D getCelestialColorSampler(RenderedCelestialBody body){
-    switch(body.samplerSet){
-        case 0: return celestialColorImage_set0;
-        case 1: return celestialColorImage_set1;
-        case 2: return celestialColorImage_set2;
-        case 3: return celestialColorImage_set3;
-        case 4: return celestialColorImage_set4;
-    }
-}
-
-sampler2D getCelestialAtmosphereSampler(RenderedCelestialBody body){
-    switch(body.samplerSet){
-        case 0: return celestialAtmosphereImage_set0;
-        case 1: return celestialAtmosphereImage_set1;
-        case 2: return celestialAtmosphereImage_set2;
-        case 3: return celestialAtmosphereImage_set3;
-        case 4: return celestialAtmosphereImage_set4;
-    }
-}
 
 #define DISTANCE_INFINITY 99999999.0
 
@@ -187,4 +84,17 @@ vec4 renderCelestialBody(RenderedCelestialBody body, Ray ray){
         }
     }
     return vec4(0.0);
+}
+
+vec4 renderAllCelestialBodies(Ray ray){
+    for(int i=0;i<celestialBuffer.count.x;i++){
+        RenderedCelestialBody body = celestialBuffer.celestialBodies[i];
+        float dist = length(body.position);
+
+        vec4 pl = renderCelestialBody(body, ray);
+        if(pl.a > 0.0) {
+            storeFragment(dist, max(pl.a, 0.0), pl.rgb);
+        }
+    }
+    return resolveFragments();
 }

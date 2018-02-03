@@ -14,7 +14,18 @@ layout(location = 1) out flat uint inInstanceId;
 layout(location = 2) out vec3 outWorldPos;
 layout(location = 3) out vec3 outNormal;
 
-#include celestialSet.glsl
+
+layout(set = 0, binding = 0) uniform UniformBufferObject1 {
+    float Time;
+    float Zero;
+    vec2 Mouse;
+    mat4 VPMatrix;
+    vec4 inCameraPos;
+    vec4 inFrustumConeLeftBottom;
+    vec4 inFrustumConeBottomLeftToBottomRight;
+    vec4 inFrustumConeBottomLeftToTopLeft;
+    vec2 Resolution;
+} hiFreq;
 
 layout(set = 1, binding = 0) buffer modelStorageBuffer {
     mat4 transformation;

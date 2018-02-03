@@ -3,6 +3,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerWorkingDirectory>$(OutputPath)</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>222 5</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>222 2</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>
