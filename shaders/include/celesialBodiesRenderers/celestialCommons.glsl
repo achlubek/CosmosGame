@@ -41,9 +41,9 @@ vec4 celestialGetColorRoughnessRaycast(RenderedCelestialBody body, vec3 position
 }
 
 void updatePassHits(inout RenderPass pass){
-    float hit_Surface = rsi2(pass.ray, pass.body.surfaceSphere).y;
+    float hit_Surface = rsi2(pass.ray, pass.body.surfaceSphere).x;
     if(distance(pass.body.position, pass.ray.o) < pass.body.radius * 4.0){
-        hit_Surface = raymarchCelestialTerrain(pass.ray, heightMapImage, pass.body, 0.001);
+    //    hit_Surface = raymarchCelestialTerrain(pass.ray, heightMapImage, pass.body, 0.001);
     }
     vec2 hits_Atmosphere = rsi2(pass.ray, pass.body.atmosphereSphere);
     if(hit_Surface > 0.0 && hit_Surface < DISTANCE_INFINITY) {

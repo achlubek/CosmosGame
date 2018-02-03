@@ -95,3 +95,8 @@ void RenderedCelestialBody::updateBuffer(glm::dvec3 observerPosition, double sca
     memcpy(data, bb.getPointer(), bb.buffer.size());
     dataBuffer->unmap();
 }
+
+double RenderedCelestialBody::getDistance(glm::dvec3 position, double at_time)
+{
+    return glm::distance(position, body.getPosition(at_time));
+}

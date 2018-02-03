@@ -35,6 +35,7 @@ public:
     void updateData(VulkanComputeStage* stage);
     void draw(VulkanRenderStage* stage, VulkanDescriptorSet* rendererDataSet, Object3dInfo* info3d);
     void updateBuffer(glm::dvec3 observerPosition, double scale, double time);
+    double getDistance(glm::dvec3 position, double at_time);
 private:
 
     const int TEXTURES_WIDTH = 2048;
