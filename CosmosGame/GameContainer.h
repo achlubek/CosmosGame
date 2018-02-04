@@ -9,8 +9,9 @@ class SQLiteDatabase;
 class ShipFactory;
 class GameObject;
 class CameraController;
+#include "SceneProvider.h"
 
-class GameContainer
+class GameContainer : public SceneProvider
 {
 public:
     GameContainer();
@@ -20,7 +21,7 @@ public:
     void removeObject(GameObject* object);
     void removeAllObjects();
     void updateObjects();
-    void drawDrawableObjects();
+    virtual void drawDrawableObjects(VulkanRenderStage* stage, VulkanDescriptorSet* set) override;
     static GameContainer* getInstance();
     CosmosRenderer* getCosmosRenderer();
     VulkanToolkit* getVulkanToolkit();
@@ -33,6 +34,7 @@ private:
     AssetLoader* assetLoader;
     GalaxyGenerator* galaxyGenerator;
     CosmosRenderer* cosmosRenderer;
+    UIRenderer* ui;
     GameControls* gameControls; 
     SQLiteDatabase* database;
     ShipFactory* shipFactory;

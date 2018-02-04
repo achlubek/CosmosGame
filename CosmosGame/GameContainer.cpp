@@ -21,26 +21,19 @@ GameContainer::GameContainer()
     instance = this;
     activeObjects = {};
 
+    auto galaxydb = new SQLiteDatabase("galaxy.db");
+    auto galaxy = new GalaxyContainer();
+    galaxy->loadFromDatabase(galaxydb);
+
     INIReader* configreader = new INIReader("settings.ini");
     vulkanToolkit = new VulkanToolkit();
     vulkanToolkit->initialize(configreader->geti("window_width"), configreader->geti("window_height"));
 
-    cosmosRenderer = new CosmosRenderer(vulkanToolkit, vulkanToolkit->windowWidth, vulkanToolkit->windowHeight);
+    ui = new UIRenderer(vulkanToolkit, vulkanToolkit->windowWidth, vulkanToolkit->windowHeight);
+
+    cosmosRenderer = new CosmosRenderer(vulkanToolkit, this, galaxy, ui->outputImage, vulkanToolkit->windowWidth, vulkanToolkit->windowHeight);
 
     assetLoader = new AssetLoader(vulkanToolkit);
-
-    galaxyGenerator = cosmosRenderer->galaxy;
-
-    int64_t galaxyedge = 12490000000;
-    int64_t galaxythickness = 1524900000;
-    for (int i = 0; i < 10000; i++) {
-        galaxyGenerator->generateStar(galaxyedge, galaxythickness, 1.0, i);
-        cosmosRenderer->nearbyStars.push_back(galaxyGenerator->generateStarInfo(i));
-    }
-    for (int i = 0; i < cosmosRenderer->nearbyStars[1234].planets.size(); i++) {
-        cosmosRenderer->nearbyStars[1234].planets[i].orbitSpeed = 0.0;
-    }
-
 
     Mouse* mouse = new Mouse(vulkanToolkit->window);
     Keyboard* keyboard = new Keyboard(vulkanToolkit->window);
@@ -60,8 +53,8 @@ GameContainer::GameContainer()
 
     // a test
     auto testship = shipFactory->build(1);
-    auto testspawnpos = cosmosRenderer->nearbyStars[666].planets[6].getPosition(0.0);
-    auto testspawnradius = cosmosRenderer->nearbyStars[666].planets[6].radius;
+    auto testspawnpos = cosmosRenderer->galaxy->getAllStars()[666].getPosition(0);
+    auto testspawnradius = cosmosRenderer->galaxy->getAllStars()[666].radius;
     testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(testspawnpos + glm::dvec3(0.0, testspawnradius * 3.0, -testspawnradius * 3.0));
     activeObjects.push_back(testship);
     viewCamera->setTarget(activeObjects[0]);
@@ -106,7 +99,7 @@ void GameContainer::updateObjects()
     lastTime = nowtime;
 }
 
-void GameContainer::drawDrawableObjects()
+void GameContainer::drawDrawableObjects(VulkanRenderStage* stage, VulkanDescriptorSet* set)
 {
     auto observerPosition = viewCamera->getPosition();
     for (int i = 0; i < activeObjects.size(); i++) {
@@ -114,7 +107,7 @@ void GameContainer::drawDrawableObjects()
         for (int g = 0; g < comps.size(); g++) {
             if (comps[g]->isDrawable()) {
                 auto drawable = static_cast<AbsDrawableComponent*>(comps[g]);
-                drawable->draw(observerPosition);
+                drawable->draw(observerPosition, stage, set);
             }
         }
     }
@@ -153,11 +146,10 @@ glm::vec2 GameContainer::getResolution()
 void GameContainer::startGameLoops()
 {
     cosmosRenderer->mapBuffers();
-    cosmosRenderer->updateStars();
+    cosmosRenderer->updateStarsBuffer();
     std::thread background1 = std::thread([&]() {
         while (true) {
-            cosmosRenderer->updateNearestStar(viewCamera->getPosition());
-            cosmosRenderer->updateGravity(viewCamera->getPosition());
+            cosmosRenderer->galaxy->update(viewCamera->getPosition());
 
         }
     });
@@ -181,7 +173,6 @@ void GameContainer::startGameLoops()
         //
 
         cosmosRenderer->updateCameraBuffer(viewCamera->getInternalCamera(), viewCamera->getPosition());
-        cosmosRenderer->updatePlanetsAndMoon(viewCamera->getPosition());
         cosmosRenderer->draw();
 
         updateObjects();

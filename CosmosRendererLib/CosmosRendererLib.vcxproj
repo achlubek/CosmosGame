@@ -154,6 +154,7 @@
     <ClInclude Include="GalaxyContainer.h" />
     <ClInclude Include="GeneratedStarInfo.h" />
     <ClInclude Include="RenderedCelestialBody.h" />
+    <ClInclude Include="SceneProvider.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
@@ -164,6 +165,7 @@
     <ClCompile Include="GalaxyContainer.cpp" />
     <ClCompile Include="GeneratedStarInfo.cpp" />
     <ClCompile Include="RenderedCelestialBody.cpp" />
+    <ClCompile Include="SceneProvider.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

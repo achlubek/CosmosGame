@@ -11,6 +11,9 @@ vec4 celestialLightAtmosphereGetColorRoughnessMap(RenderedCelestialBody body, fl
     float variance = height;
     vec3 newHsvColor = vec3(mix(hsvColor.x, 0.15, variance), hsvColor.y, hsvColor.z);
     vec3 newRgbColor = hsv2rgb(newHsvColor);
+    if(height * 2.0 * body.terrainMaxLevel < body.fluidMaxLevel){
+        newRgbColor = vec3(0.0, 0.3, 0.7);
+    }
     return vec4(newRgbColor, 1.0);
 }
 vec2 celestialLightAtmosphereGetCloudsMap(RenderedCelestialBody body, float height, vec3 dir){

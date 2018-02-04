@@ -1,12 +1,14 @@
 #include "stdafx.h"
 #include "CosmosRenderer.h"
+#include "SceneProvider.h"
 #include "GalaxyContainer.h"
 #include "stdafx.h"
 #include "vulkan.h"
  
 
-CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, GalaxyContainer* igalaxy, VulkanImage* ioverlayImage, int iwidth, int iheight) :
-    galaxy(igalaxy), overlayImage(ioverlayImage), width(iwidth), height(iheight), vulkan(ivulkan), assets(AssetLoader(ivulkan)), renderablePlanets({}), renderableMoons({})
+CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, SceneProvider* isceneProvider, GalaxyContainer* igalaxy, VulkanImage* ioverlayImage, int iwidth, int iheight) :
+    galaxy(igalaxy), overlayImage(ioverlayImage), width(iwidth), height(iheight), 
+    vulkan(ivulkan), sceneProvider(isceneProvider), assets(AssetLoader(ivulkan)), renderablePlanets({}), renderableMoons({})
 { 
     internalCamera = new Camera();
 
@@ -368,6 +370,7 @@ void CosmosRenderer::draw()
     vkDeviceWaitIdle(vulkan->device);
     //for (int i = 0; i < ships.size(); i++)ships[i]->drawShipAndModules(modelsStage, celestialSet, observerCameraPosition);
     //GameContainer::getInstance()->drawDrawableObjects();
+  //  sceneProvider->drawDrawableObjects(modelsStage, rendererDataSet);
 
     vkDeviceWaitIdle(vulkan->device);
     modelsStage->endDrawing();
@@ -382,26 +385,25 @@ void CosmosRenderer::draw()
 
 void CosmosRenderer::onClosestStarChange(GeneratedStarInfo star)
 {
+}
+
+void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
+{
     for (int i = 0; i < renderablePlanets.size(); i++) {
         delete renderablePlanets[i];
         renderablePlanets[i] = nullptr;
     }
     renderablePlanets.clear();
-    auto planets = galaxy->getClosestStarPlanets();
     celestialDataUpdateComputeStage->beginRecording();
-    for (int i = 0; i < planets.size(); i++) {
-        auto renderable = new RenderedCelestialBody(vulkan, planets[i], celestialBodyDataSetLayout, celestialBodyRenderSetLayout);
-        renderable->updateBuffer(observerCameraPosition, scale, glfwGetTime());
-        renderablePlanets.push_back(renderable);
-        renderable->updateData(celestialDataUpdateComputeStage);
-    }
+    auto renderable = new RenderedCelestialBody(vulkan, planet, celestialBodyDataSetLayout, celestialBodyRenderSetLayout);
+    renderable->updateBuffer(observerCameraPosition, scale, glfwGetTime());
+    renderablePlanets.push_back(renderable);
+    renderable->updateData(celestialDataUpdateComputeStage);
+    
     celestialDataUpdateComputeStage->endRecording();
     celestialDataUpdateComputeStage->submitNoSemaphores({});
     vkDeviceWaitIdle(vulkan->device);
-}
 
-void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
-{
     for (int i = 0; i < renderableMoons.size(); i++) {
         delete renderableMoons[i];
         renderableMoons[i] = nullptr;

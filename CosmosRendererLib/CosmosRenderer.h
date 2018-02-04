@@ -2,12 +2,13 @@
 
 class VulkanRenderer;
 class VulkanToolkit;
+class SceneProvider;
 #include "GalaxyContainer.h" 
 
 class CosmosRenderer
 {
 public:
-    CosmosRenderer(VulkanToolkit* ivulkan, GalaxyContainer* galaxy, VulkanImage* overlayImage, int iwidth, int iheight);
+    CosmosRenderer(VulkanToolkit* ivulkan, SceneProvider* sceneProvider, GalaxyContainer* galaxy, VulkanImage* overlayImage, int iwidth, int iheight);
     ~CosmosRenderer();
     void recompileShaders(bool deleteOld); 
 
@@ -16,6 +17,8 @@ public:
     AssetLoader assets;
 
     Camera* internalCamera; 
+
+    SceneProvider* sceneProvider;
 
     int lastPlanetId;
 
@@ -78,7 +81,6 @@ public:
     void unmapBuffers();
 
     void updateStarsBuffer();
-    void updatePlanetsAndMoon(glm::dvec3 observerPosition);
     
     void updateCameraBuffer(Camera* cam, glm::dvec3 observerPosition);
     void draw();

@@ -22,7 +22,7 @@ bool AbsDrawableComponent::isDrawable()
     return true;
 }
 
-void AbsDrawableComponent::draw(glm::dvec3 observerPosition)
+void AbsDrawableComponent::draw(glm::dvec3 observerPosition, VulkanRenderStage* stage, VulkanDescriptorSet* set)
 {
     Transformation3DComponent* parentTransform = owner->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D);
 
@@ -31,7 +31,7 @@ void AbsDrawableComponent::draw(glm::dvec3 observerPosition)
 
     auto modulepos = pos + m3_rot * relativePosition;
     auto moduleort = parentTransform->getOrientation() * relativeOrientation * glm::angleAxis((double)3.1415 * 0.5, glm::dvec3(1.0, 0.0, 0.0));
-    model->draw(GameContainer::getInstance()->getCosmosRenderer()->modelsStage, GameContainer::getInstance()->getCosmosRenderer()->celestialSet, modulepos, moduleort);
+    model->draw(stage, set, modulepos, moduleort);
 }
 
 void AbsDrawableComponent::update(double elapsed)

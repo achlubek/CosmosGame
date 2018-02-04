@@ -15,8 +15,9 @@ float crater(vec3 dir, float seed){
 }
 
 float generateTerrain(vec4 coord){
-    float low_freq_plates = pow(smoothstep(0.3, 0.6, FBM4(coord, 7, 1.5, 0.5)), 1.0);
+    float low_freq_plates = FBM4(coord, 3, 1.5, 0.5);
     float mid_freq_lands = FBM4(coord * 3.0 + 4.0 * FBM4(coord * 3.0, 7, 2.0, 0.5), 7, 2.0, 0.5);
+    float hi_freq_lands = FBM4(coord * 16.0 + 4.0 * FBM4(coord * 16.0, 7, 2.0, 0.5), 7, 2.0, 0.5);
     float craters2 = 0.0;
     float seed = coord.a;
     int craterscount = int(oct(coord.a)*100.0);
@@ -25,5 +26,5 @@ float generateTerrain(vec4 coord){
         craters2 += crater(coord.xyz, seed);
         seed += 10.0;
     }
-    return low_freq_plates * mid_freq_lands * 0.1 + craters2 * cratersStrength;
+    return low_freq_plates + (mid_freq_lands * 0.05) + (hi_freq_lands * 0.01) + craters2 * cratersStrength;
 }
