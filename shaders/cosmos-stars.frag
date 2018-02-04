@@ -71,15 +71,10 @@ vec3 traceStarGlow(Ray ray){
     //camdist = min(camdist, 66000.0);
     float cst2 = camdist * 0.001;
     float dim = clamp(1.0 /(1.0 + cst2 * cst2 * 0.06), 0.0001, 1.0);
-    dim = pow(dim,2.0);
-    camdist = min(camdist, 12000.0);
-    camdist = min(camdist, 700.0);
-    float sqrlen = camdist * camdist;
-    float specialtrick1 = clamp(1.0 / max( 0.1, 10.0 * sqrlen * (1.0 - dotz) - 1.0), 0.0, 4.0);
+    dim = pow(dim,1.2);
 
-return dim * (smoothstep(0.00, 0.3, prcnt) * 14.9 ) * currentStar.color_age.xyz;
+    return dim * (smoothstep(0.00, 0.3, prcnt) * 14.9 ) * currentStar.color_age.xyz;
 
-    return dim * specialtrick1 * currentStar.color_age.xyz * 0.21;
 }
 
 void main() {
@@ -88,15 +83,7 @@ void main() {
     posradius.xyz -= CameraPosition;
     float dist = min(300000.0, length(posradius.xyz));
     Ray cameraRay = Ray(CameraPosition, reconstructCameraSpaceDistance(gl_FragCoord.xy / Resolution, 1.0));
-    Sphere surface = Sphere( normalize(posradius.xyz) * dist + CameraPosition, currentStar.position_radius.a);
-    vec2 hit = rsi2(cameraRay, surface);
-    float hitmult = hits(hit.x) ? 1.0 : 0.0;
-    vec3 hitnorm = normalize((cameraRay.o + cameraRay.d * hit.x) - posradius.xyz);
-    float camdist = distance(CameraPosition, currentStar.position_radius.rgb);
-    camdist *= 0.001;
-    camdist = min(camdist, 20000.0);
-    float dim = 1.0 - smoothstep(1000.0, 30000.0, camdist);
-    vec3 a = dim * currentStar.color_age.rgb * hitmult * 2.0;
+
     outColor = vec4(traceStarGlow(cameraRay), 1.0);
 
 }

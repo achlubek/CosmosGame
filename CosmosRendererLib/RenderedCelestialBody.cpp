@@ -46,7 +46,7 @@ RenderedCelestialBody::~RenderedCelestialBody()
 
 void RenderedCelestialBody::updateData(VulkanComputeStage * stage)
 {
-    stage->dispatch({ dataSet }, TEXTURES_WIDTH, TEXTURES_HEIGHT, 1);
+    stage->dispatch({ dataSet }, TEXTURES_WIDTH / 256, TEXTURES_HEIGHT / 2, 1);
 }
 
 void RenderedCelestialBody::draw(VulkanRenderStage * stage, VulkanDescriptorSet* rendererDataSet, Object3dInfo * info3d)
@@ -59,8 +59,8 @@ void RenderedCelestialBody::updateBuffer(glm::dvec3 observerPosition, double sca
 {
     VulkanBinaryBufferBuilder bb = VulkanBinaryBufferBuilder();
     bb.emplaceFloat32(time);
-    bb.emplaceFloat32(0.0f);
-    bb.emplaceFloat32(0.0f);
+    bb.emplaceFloat32((float)TEXTURES_WIDTH);
+    bb.emplaceFloat32((float)TEXTURES_HEIGHT);
     bb.emplaceFloat32(0.0f);
 
     auto bodyPosition = body.getPosition(0) - observerPosition;

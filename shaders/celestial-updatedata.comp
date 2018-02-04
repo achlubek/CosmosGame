@@ -1,7 +1,7 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+layout(local_size_x = 256, local_size_y = 2, local_size_z = 1) in;
 
 #include sphereRaytracing.glsl
 #include celestialDataStructs.glsl
@@ -19,7 +19,7 @@ layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 void main()
 {
     ivec2 pixel = ivec2(gl_GlobalInvocationID.xy);
-    ivec2 resolution = imageSize(heightMapImage);
+    vec2 resolution = celestialBuffer.time_dataresolution.yz;
     vec2 UV = vec2(pixel) / vec2(resolution);
     vec3 dir = polarToXyz(UV);
 

@@ -49,11 +49,11 @@ vec4 celestialGetColorRoughnessRaycast(RenderedCelestialBody body, vec3 position
     return celestialGetColorRoughnessForDirection(normalize(position - body.position));
 }
 
-vec3 celestialGetNormal(RenderedCelestialBody body, vec3 dir){
+vec3 celestialGetNormal(RenderedCelestialBody body, float dxrange, vec3 dir){
     vec3 tangdir = normalize(cross(dir, vec3(0.0, 1.0, 0.0)));
     vec3 bitangdir = normalize(cross(tangdir, dir));
-    mat3 normrotmat1 = rotationMatrix(tangdir, 0.05);
-    mat3 normrotmat2 = rotationMatrix(bitangdir, 0.05);
+    mat3 normrotmat1 = rotationMatrix(tangdir, dxrange);
+    mat3 normrotmat2 = rotationMatrix(bitangdir, dxrange);
     vec3 dir2 = normrotmat1 * dir;
     vec3 dir3 = normrotmat2 * dir;
     vec3 p1 = dir * (body.radius + celestialGetHeight(dir));
@@ -62,8 +62,8 @@ vec3 celestialGetNormal(RenderedCelestialBody body, vec3 dir){
     return normalize(cross(normalize(p3 - p1), normalize(p2 - p1)));
 }
 
-vec3 celestialGetNormalRaycast(RenderedCelestialBody body, vec3 position){
-    return celestialGetNormal(body, normalize(position - body.position));
+vec3 celestialGetNormalRaycast(RenderedCelestialBody body, float dxrange, vec3 position){
+    return celestialGetNormal(body, dxrange, normalize(position - body.position));
 }
 
 void updatePassHits(inout RenderPass pass){

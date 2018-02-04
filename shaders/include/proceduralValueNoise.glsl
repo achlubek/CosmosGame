@@ -192,14 +192,27 @@ float FBM3(vec3 p, int octaves, float dx, float ww){
     }
     return a;
 }
+float aBitBetterNoise(vec4 x){
+    // this trick here works for all IQ noises, it makes cost 2x but makes it look a lot lot better
+    // it is not required of course
+    float a = noise4d(x);
+    float b = noise4d(x + .5);
+    return (a+b)*.5;
+}
+#include rotmat3d.glsl
 float FBM4(vec4 p, int octaves, float dx, float ww){
     float a = 0.0;
     float w = 0.5;
     float sw = 0.0;
+    mat3 rotmatx = rotationMatrix(vec3(1.0, 0.0, 0.0), 2.3999632);
+    mat3 rotmaty = rotationMatrix(vec3(0.0, 1.0, 0.0), 2.3999632);
+    mat3 rotmatz = rotationMatrix(vec3(0.0, 0.0, 1.0), 2.3999632);
+    mat3 resmatrot = rotmatx * rotmaty * rotmatz;
     for(int i=0;i<octaves;i++){
-        a += noise4d(p) * w;
+        a += aBitBetterNoise(p) * w;
         w *= ww;
         p *= dx;
+        p.xyz *= resmatrot;
     }
     return a;
 }

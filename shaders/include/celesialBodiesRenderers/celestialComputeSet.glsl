@@ -1,7 +1,7 @@
 #pragma once
 
 layout(set = 0, binding = 0) uniform CelestialStorageBuffer {
-    vec4 time;
+    vec4 time_dataresolution;
     CelestialBodyAlignedData celestialBody;
 } celestialBuffer;
 
