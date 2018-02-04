@@ -9,6 +9,7 @@ layout(location = 0) out vec4 outColor;
 #include celestialDataStructs.glsl
 #include celestialRenderSet.glsl
 #include polar.glsl
+#include rotmat3d.glsl
 #include celestialCommons.glsl
 #include camera.glsl
 
@@ -30,7 +31,7 @@ vec3 extra_cheap_atmosphere(float raylen, float sunraylen, float absorbstrength,
 
 void main() {
     RenderedCelestialBody body = getRenderedBody(celestialBuffer.celestialBody);
-    vec3 dir = reconstructCameraSpaceDistance(gl_FragCoord.xy / hiFreq.Resolution, 1.0);
+    vec3 dir = reconstructCameraSpaceDistance(gl_FragCoord.xy / Resolution, 1.0);
     vec4 result = renderCelestialBody(body, Ray(vec3(0.0), dir));
     outColor = result;
 }

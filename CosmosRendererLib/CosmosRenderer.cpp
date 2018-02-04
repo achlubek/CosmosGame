@@ -273,6 +273,9 @@ void CosmosRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosi
     glm::mat4 rpmatrix = internalCamera->projectionMatrix * inverse(cameraRotMatrix);
     internalCamera->cone->update(inverse(rpmatrix));
 
+    auto star = galaxy->getClosestStar();
+    glm::dvec3 closesStarRelPos = (star.getPosition(glfwGetTime()) - observerPosition) * scale;
+
     bb.emplaceFloat32((float)glfwGetTime());
     bb.emplaceFloat32(0.0f);
     bb.emplaceFloat32((float)xpos / (float)width);
@@ -291,6 +294,18 @@ void CosmosRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosi
     bb.emplaceFloat32(0.0f);
     bb.emplaceFloat32((float)width);
     bb.emplaceFloat32((float)height);
+    bb.emplaceFloat32(0.0f);
+    bb.emplaceFloat32(0.0f);
+
+    bb.emplaceFloat32(closesStarRelPos.x);
+    bb.emplaceFloat32(closesStarRelPos.y);
+    bb.emplaceFloat32(closesStarRelPos.z);
+    bb.emplaceFloat32(0.0f);
+
+    bb.emplaceFloat32(star.color.r);
+    bb.emplaceFloat32(star.color.g);
+    bb.emplaceFloat32(star.color.b);
+    bb.emplaceFloat32(0.0f);
 
     void* data;
     cameraDataBuffer->map(0, bb.buffer.size(), &data);

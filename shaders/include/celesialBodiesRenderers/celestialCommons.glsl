@@ -24,7 +24,7 @@ float raymarchCelestialTerrain(Ray ray, sampler2D s, RenderedCelestialBody body,
         vec3 p = ray.o + ray.d * dist;
         vec3 dir = normalize(p - center);
         float dc = distance(p, center);
-        float ds = dc - (body.radius + texture(s, xyzToPolar(dir)).r * body.terrainMaxLevel);
+        float ds = dc - (body.radius - texture(s, xyzToPolar(dir)).r * body.terrainMaxLevel);
         if(ds < limit) return dist;
         if(dc > maxheight2 && lastdst < dc) return -0.01;
         lastdst = dc;
@@ -33,17 +33,43 @@ float raymarchCelestialTerrain(Ray ray, sampler2D s, RenderedCelestialBody body,
     return -0.01;
 }
 
+float celestialGetHeight(vec3 direction){
+    return texture(heightMapImage, xyzToPolar(direction)).r;
+}
+
+float celestialGetHeightRaycast(RenderedCelestialBody body, vec3 position){
+    return celestialGetHeight(normalize(position - body.position));
+}
+
 vec4 celestialGetColorRoughnessForDirection(vec3 direction){
     return texture(baseColorImage, xyzToPolar(direction)).rgba;
 }
+
 vec4 celestialGetColorRoughnessRaycast(RenderedCelestialBody body, vec3 position){
     return celestialGetColorRoughnessForDirection(normalize(position - body.position));
+}
+
+vec3 celestialGetNormal(RenderedCelestialBody body, vec3 dir){
+    vec3 tangdir = normalize(cross(dir, vec3(0.0, 1.0, 0.0)));
+    vec3 bitangdir = normalize(cross(tangdir, dir));
+    mat3 normrotmat1 = rotationMatrix(tangdir, 0.05);
+    mat3 normrotmat2 = rotationMatrix(bitangdir, 0.05);
+    vec3 dir2 = normrotmat1 * dir;
+    vec3 dir3 = normrotmat2 * dir;
+    vec3 p1 = dir * (body.radius + celestialGetHeight(dir));
+    vec3 p2 = dir2 * (body.radius + celestialGetHeight(dir2));
+    vec3 p3 = dir3 * (body.radius + celestialGetHeight(dir3));
+    return normalize(cross(normalize(p3 - p1), normalize(p2 - p1)));
+}
+
+vec3 celestialGetNormalRaycast(RenderedCelestialBody body, vec3 position){
+    return celestialGetNormal(body, normalize(position - body.position));
 }
 
 void updatePassHits(inout RenderPass pass){
     float hit_Surface = rsi2(pass.ray, pass.body.surfaceSphere).x;
     if(distance(pass.body.position, pass.ray.o) < pass.body.radius * 4.0){
-    //    hit_Surface = raymarchCelestialTerrain(pass.ray, heightMapImage, pass.body, 0.001);
+        hit_Surface = raymarchCelestialTerrain(pass.ray, heightMapImage, pass.body, 0.001);
     }
     vec2 hits_Atmosphere = rsi2(pass.ray, pass.body.atmosphereSphere);
     if(hit_Surface > 0.0 && hit_Surface < DISTANCE_INFINITY) {

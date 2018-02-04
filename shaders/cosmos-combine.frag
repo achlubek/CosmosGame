@@ -9,17 +9,7 @@ layout(set = 0, binding = 1) uniform sampler2D texStars;
 layout(set = 0, binding = 2) uniform sampler2D uiTexture;
 layout(set = 0, binding = 4) uniform sampler2D texShip;
 
-layout(set = 0, binding = 3) uniform UniformBufferObject1 {
-    float Time;
-    float Zero;
-    vec2 Mouse;
-    mat4 VPMatrix;
-    vec4 inCameraPos;
-    vec4 inFrustumConeLeftBottom;
-    vec4 inFrustumConeBottomLeftToBottomRight;
-    vec4 inFrustumConeBottomLeftToTopLeft;
-    vec2 Resolution;
-} hiFreq;
+#include rendererDataSet.glsl
 
 float rand2s(vec2 co){
     return fract(sin(dot(co.xy * hiFreq.Time,vec2(12.9898,78.233))) * 43758.5453);
@@ -27,8 +17,6 @@ float rand2s(vec2 co){
 float rand2s2(vec2 co){
     return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
 }
-
-vec2 Resolution = hiFreq.Resolution;
 
 float A = 0.15;
 float B = 0.50;
@@ -52,12 +40,7 @@ vec3 tonemapUncharted2(vec3 color) {
 vec3 gammacorrect(vec3 c){
     return pow(c, vec3(1.0 / 2.4));
 }
-
-vec3 CameraPosition = hiFreq.inCameraPos.xyz;
-vec3 FrustumConeLeftBottom = hiFreq.inFrustumConeLeftBottom.xyz;
-vec3 FrustumConeBottomLeftToBottomRight = hiFreq.inFrustumConeBottomLeftToBottomRight.xyz;
-vec3 FrustumConeBottomLeftToTopLeft = hiFreq.inFrustumConeBottomLeftToTopLeft.xyz;
-
+ 
 #include camera.glsl
 void main() {
     vec4 celestial = texture(texCelestial, UV);

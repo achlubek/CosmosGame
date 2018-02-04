@@ -87,7 +87,7 @@ void main() {
     vec4 posradius = currentStar.position_radius;
     posradius.xyz -= CameraPosition;
     float dist = min(300000.0, length(posradius.xyz));
-    Ray cameraRay = Ray(CameraPosition, reconstructCameraSpaceDistance(gl_FragCoord.xy / hiFreq.Resolution, 1.0));
+    Ray cameraRay = Ray(CameraPosition, reconstructCameraSpaceDistance(gl_FragCoord.xy / Resolution, 1.0));
     Sphere surface = Sphere( normalize(posradius.xyz) * dist + CameraPosition, currentStar.position_radius.a);
     vec2 hit = rsi2(cameraRay, surface);
     float hitmult = hits(hit.x) ? 1.0 : 0.0;

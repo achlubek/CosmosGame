@@ -173,31 +173,32 @@ float achnoise(vec4 x){
 
 float FBM2(vec2 p, int octaves, float dx){
     float a = 0.0;
-        float w = 0.5;
+    float w = 0.5;
     for(int i=0;i<octaves;i++){
         a += noise2d(p) * w;
-            w *= 0.5;
+        w *= 0.5;
         p *= dx;
     }
     return a;
 }
 float FBM3(vec3 p, int octaves, float dx, float ww){
     float a = 0.0;
-        float w = 0.5;
-        float sw = 0.0;
+    float w = 0.5;
+    float sw = 0.0;
     for(int i=0;i<octaves;i++){
         a += noise3d(p) * w;
-            w *= ww;
+        w *= ww;
         p *= dx;
     }
     return a;
 }
-float FBM4(vec4 p, int octaves, float dx){
+float FBM4(vec4 p, int octaves, float dx, float ww){
     float a = 0.0;
-        float w = 0.5;
+    float w = 0.5;
+    float sw = 0.0;
     for(int i=0;i<octaves;i++){
         a += noise4d(p) * w;
-            w *= 0.5;
+        w *= ww;
         p *= dx;
     }
     return a;

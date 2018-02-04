@@ -81,8 +81,8 @@ void RenderedCelestialBody::updateBuffer(glm::dvec3 observerPosition, double sca
     bb.emplaceFloat32(body.atmosphereRadius * scale);
 
     bb.emplaceFloat32((float)body.bodyId);
-    bb.emplaceFloat32(body.terrainMaxLevel);
-    bb.emplaceFloat32(body.fluidMaxLevel);
+    bb.emplaceFloat32(body.terrainMaxLevel * scale);
+    bb.emplaceFloat32(body.fluidMaxLevel * scale);
     bb.emplaceFloat32(body.habitableChance);
 
     bb.emplaceFloat32(body.atmosphereAbsorbColor.r);
