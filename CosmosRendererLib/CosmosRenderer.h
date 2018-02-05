@@ -3,19 +3,21 @@
 class VulkanRenderer;
 class VulkanToolkit;
 class SceneProvider;
-#include "InvokeQueue.h" 
+class TimeProvider;
 #include "GalaxyContainer.h" 
+#include "InvokeQueue.h" 
 
 class CosmosRenderer
 {
 public:
-    CosmosRenderer(VulkanToolkit* ivulkan, SceneProvider* sceneProvider, GalaxyContainer* galaxy, VulkanImage* overlayImage, int iwidth, int iheight);
+    CosmosRenderer(VulkanToolkit* ivulkan, TimeProvider* timeProvider, SceneProvider* sceneProvider, GalaxyContainer* galaxy, VulkanImage* overlayImage, int iwidth, int iheight);
     ~CosmosRenderer();
     void recompileShaders(bool deleteOld); 
 
     GalaxyContainer* galaxy;
     VulkanImage* overlayImage;
     AssetLoader assets;
+    TimeProvider* timeProvider;
 
     Camera* internalCamera; 
 

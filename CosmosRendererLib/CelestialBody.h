@@ -24,10 +24,9 @@ public:
     uint64_t bodyId;
 
     glm::dvec3 getPosition(double at_time) {
-        double time = at_time;
         glm::dvec3 orbitplaneTangent = glm::normalize(glm::cross(orbitPlane, glm::dvec3(0.0, 1.0, 0.0)));
         return host->getPosition(at_time)
-            + glm::dvec3(glm::angleAxis(orbitSpeed * time * 0.001, glm::dvec3(orbitPlane)) * glm::dvec3(orbitplaneTangent)) * hostDistance;
+            + glm::dvec3(glm::angleAxis(orbitSpeed * at_time * 0.001, glm::dvec3(orbitPlane)) * glm::dvec3(orbitplaneTangent)) * hostDistance;
     }
 
     virtual glm::dvec3 getLinearVelocity(double at_time) {

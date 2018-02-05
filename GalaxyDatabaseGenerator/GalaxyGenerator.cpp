@@ -175,7 +175,7 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
             }
         }
 
-        planet->orbitSpeed = 0.0*drandnorm();
+        planet->orbitSpeed = 1000000.0 * drandnorm() / planet->hostDistance;
         planet->orbitPlane = glm::normalize(glm::vec3(drandnorm(), drandnorm(), drandnorm()) * 2.0f - 1.0f);
         system->bodies.push_back(planet);
         for (int g = 0; g < moonsCount; g++) {
@@ -190,8 +190,8 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
             moon->atmosphereAbsorbColor = glm::vec3(0.1 + drandnorm() * 0.8, 0.1 + drandnorm() * 0.8, 0.1 + drandnorm() * 0.8);
 
             moon->orbitPlane = glm::normalize(glm::vec3(drandnorm(), drandnorm(), drandnorm()) * 2.0f - 1.0f);
-            moon->orbitSpeed = drandnorm();
             moon->hostDistance = planet->radius * 3.0 + planet->radius * drandnorm() * 3.0;
+            moon->orbitSpeed = 1000000.0 * drandnorm() / moon->hostDistance;
             moon->preferredColor = glm::vec3(0.6 + 0.4 * drandnorm(), 0.6 + 0.4 * drandnorm(), 0.6 + 0.4 * drandnorm());
             system->bodies.push_back(moon);
         }

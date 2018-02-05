@@ -12,6 +12,8 @@
 #include "AbsDrawableComponent.h"
 #include "Transformation3DComponent.h"
 #include "CameraController.h"
+#include "GalaxyContainer.h"
+#include "TimeProvider.h"
 
 GameContainer* GameContainer::instance = nullptr;
 
@@ -20,6 +22,8 @@ GameContainer::GameContainer()
 {
     instance = this;
     activeObjects = {};
+
+    timeProvider = new TimeProvider();
 
     auto galaxydb = new SQLiteDatabase("galaxy.db");
     auto galaxy = new GalaxyContainer();
@@ -31,7 +35,7 @@ GameContainer::GameContainer()
 
     ui = new UIRenderer(vulkanToolkit, vulkanToolkit->windowWidth, vulkanToolkit->windowHeight);
 
-    cosmosRenderer = new CosmosRenderer(vulkanToolkit, this, galaxy, ui->outputImage, vulkanToolkit->windowWidth, vulkanToolkit->windowHeight);
+    cosmosRenderer = new CosmosRenderer(vulkanToolkit, timeProvider, this, galaxy, ui->outputImage, vulkanToolkit->windowWidth, vulkanToolkit->windowHeight);
 
     assetLoader = new AssetLoader(vulkanToolkit);
 
@@ -96,6 +100,7 @@ void GameContainer::updateObjects()
         activeObjects[i]->update(nowtime - lastTime);
     }
     viewCamera->update(nowtime - lastTime);
+    timeProvider->update(nowtime - lastTime);
     lastTime = nowtime;
 }
 
@@ -136,6 +141,11 @@ SQLiteDatabase * GameContainer::getDatabase()
 GameControls * GameContainer::getControls()
 {
     return gameControls;
+}
+
+TimeProvider * GameContainer::getTimeProvider()
+{
+    return nullptr;
 }
 
 glm::vec2 GameContainer::getResolution()

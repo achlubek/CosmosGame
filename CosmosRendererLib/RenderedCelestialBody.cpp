@@ -63,7 +63,7 @@ void RenderedCelestialBody::updateBuffer(glm::dvec3 observerPosition, double sca
     bb.emplaceFloat32((float)TEXTURES_HEIGHT);
     bb.emplaceFloat32(0.0f);
 
-    auto bodyPosition = body.getPosition(0) - observerPosition;
+    auto bodyPosition = body.getPosition(time) - observerPosition;
 
     bb.emplaceInt32((int)body.getRenderMethod());
     bb.emplaceInt32(0);

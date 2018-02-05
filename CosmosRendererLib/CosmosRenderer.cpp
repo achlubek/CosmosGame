@@ -2,12 +2,13 @@
 #include "CosmosRenderer.h"
 #include "SceneProvider.h"
 #include "GalaxyContainer.h"
+#include "TimeProvider.h"
 #include "stdafx.h"
 #include "vulkan.h"
  
 
-CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, SceneProvider* isceneProvider, GalaxyContainer* igalaxy, VulkanImage* ioverlayImage, int iwidth, int iheight) :
-    galaxy(igalaxy), overlayImage(ioverlayImage), width(iwidth), height(iheight), 
+CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, TimeProvider* itimeProvider, SceneProvider* isceneProvider, GalaxyContainer* igalaxy, VulkanImage* ioverlayImage, int iwidth, int iheight) :
+    galaxy(igalaxy), overlayImage(ioverlayImage), width(iwidth), height(iheight), timeProvider(itimeProvider),
     vulkan(ivulkan), sceneProvider(isceneProvider), assets(AssetLoader(ivulkan)), renderablePlanets({}), renderableMoons({}), updatingSafetyQueue(InvokeQueue())
 { 
     internalCamera = new Camera();
@@ -233,7 +234,7 @@ void CosmosRenderer::updateStarsBuffer()
     for (int s = 0; s < stars.size(); s++) {
         auto star = stars[s];
 
-        glm::dvec3 starpos = star.getPosition(glfwGetTime()) * scale;
+        glm::dvec3 starpos = star.getPosition(timeProvider->getTime()) * scale;
 
         starsBB.emplaceFloat32((float)starpos.x);
         starsBB.emplaceFloat32((float)starpos.y);
@@ -280,9 +281,9 @@ void CosmosRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosi
     internalCamera->cone->update(inverse(rpmatrix));
 
     auto star = galaxy->getClosestStar();
-    glm::dvec3 closesStarRelPos = (star.getPosition(glfwGetTime()) - observerPosition) * scale;
+    glm::dvec3 closesStarRelPos = (star.getPosition(timeProvider->getTime()) - observerPosition) * scale;
 
-    bb.emplaceFloat32((float)glfwGetTime());
+    bb.emplaceFloat32((float)timeProvider->getTime());
     bb.emplaceFloat32(0.0f);
     bb.emplaceFloat32((float)xpos / (float)width);
     bb.emplaceFloat32((float)ypos / (float)height);
@@ -341,19 +342,19 @@ void CosmosRenderer::draw()
 
     auto renderables = std::vector<RenderedCelestialBody*>();
     for (int i = 0; i < renderablePlanets.size(); i++) {
-        renderablePlanets[i]->updateBuffer(observerCameraPosition, scale, glfwGetTime());
+        renderablePlanets[i]->updateBuffer(observerCameraPosition, scale, timeProvider->getTime());
         renderables.push_back(renderablePlanets[i]);
     }
     for (int i = 0; i < renderableMoons.size(); i++) {
-        renderableMoons[i]->updateBuffer(observerCameraPosition, scale, glfwGetTime());
+        renderableMoons[i]->updateBuffer(observerCameraPosition, scale, timeProvider->getTime());
         renderables.push_back(renderableMoons[i]);
     }
 
 
     for (int a = 0; a < renderables.size(); a++) {
         for (int b = 0; b < renderables.size(); b++) {
-            double dist_a = renderables[a]->getDistance(observerCameraPosition, 0.0);
-            double dist_b = renderables[b]->getDistance(observerCameraPosition, 0.0);
+            double dist_a = renderables[a]->getDistance(observerCameraPosition, timeProvider->getTime());
+            double dist_b = renderables[b]->getDistance(observerCameraPosition, timeProvider->getTime());
             if (dist_a > dist_b) {
                 auto tmp = renderables[b];
                 renderables[b] = renderables[a];
@@ -363,7 +364,6 @@ void CosmosRenderer::draw()
     }
 
     for (int i = 0; i < renderables.size(); i++) {
-        double dist_a = renderables[i]->getDistance(observerCameraPosition, 0.0);
         renderables[i]->draw(celestialStage, rendererDataSet, cube3dInfo);
     }
 
@@ -404,7 +404,7 @@ void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
         }
         renderablePlanets.clear();
         auto renderable = new RenderedCelestialBody(vulkan, galaxy->getClosestPlanet(), celestialBodyDataSetLayout, celestialBodyRenderSetLayout);
-        renderable->updateBuffer(observerCameraPosition, scale, glfwGetTime());
+        renderable->updateBuffer(observerCameraPosition, scale, timeProvider->getTime());
         renderablePlanets.push_back(renderable);
         //renderable->updateData(celestialDataUpdateComputeStage);
 
@@ -418,7 +418,7 @@ void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
         auto moons = galaxy->getClosestPlanetMoons();
         for (int i = 0; i < moons.size(); i++) {
             auto renderable = new RenderedCelestialBody(vulkan, moons[i], celestialBodyDataSetLayout, celestialBodyRenderSetLayout);
-            renderable->updateBuffer(observerCameraPosition, scale, glfwGetTime());
+            renderable->updateBuffer(observerCameraPosition, scale, timeProvider->getTime());
             renderableMoons.push_back(renderable);
             //renderable->updateData(celestialDataUpdateComputeStage);
         }

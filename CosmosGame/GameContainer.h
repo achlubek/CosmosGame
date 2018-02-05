@@ -9,6 +9,7 @@ class SQLiteDatabase;
 class ShipFactory;
 class GameObject;
 class CameraController;
+class TimeProvider;
 #include "SceneProvider.h"
 
 class GameContainer : public SceneProvider
@@ -27,6 +28,7 @@ public:
     VulkanToolkit* getVulkanToolkit();
     SQLiteDatabase* getDatabase();
     GameControls* getControls();
+    TimeProvider* getTimeProvider();
     glm::vec2 getResolution();
     void startGameLoops();
 private:
@@ -40,6 +42,7 @@ private:
     ShipFactory* shipFactory;
     std::vector<GameObject*> activeObjects;
     CameraController* viewCamera;
+    TimeProvider* timeProvider;
     double lastTime;
     static GameContainer* instance;
 };
