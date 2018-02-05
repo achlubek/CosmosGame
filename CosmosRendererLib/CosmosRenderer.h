@@ -3,6 +3,7 @@
 class VulkanRenderer;
 class VulkanToolkit;
 class SceneProvider;
+#include "InvokeQueue.h" 
 #include "GalaxyContainer.h" 
 
 class CosmosRenderer
@@ -90,6 +91,8 @@ public:
 
     std::vector<RenderedCelestialBody*> renderablePlanets;
     std::vector<RenderedCelestialBody*> renderableMoons;
+
+    InvokeQueue updatingSafetyQueue;
 
     volatile bool readyForDrawing = false;
 };

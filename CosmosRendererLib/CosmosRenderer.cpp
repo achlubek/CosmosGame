@@ -8,7 +8,7 @@
 
 CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, SceneProvider* isceneProvider, GalaxyContainer* igalaxy, VulkanImage* ioverlayImage, int iwidth, int iheight) :
     galaxy(igalaxy), overlayImage(ioverlayImage), width(iwidth), height(iheight), 
-    vulkan(ivulkan), sceneProvider(isceneProvider), assets(AssetLoader(ivulkan)), renderablePlanets({}), renderableMoons({})
+    vulkan(ivulkan), sceneProvider(isceneProvider), assets(AssetLoader(ivulkan)), renderablePlanets({}), renderableMoons({}), updatingSafetyQueue(InvokeQueue())
 { 
     internalCamera = new Camera();
 
@@ -104,7 +104,7 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, SceneProvider* isceneProv
 
     galaxy->onClosestStarChange.add([&](GeneratedStarInfo star) { onClosestStarChange(star); });
     galaxy->onClosestPlanetChange.add([&](CelestialBody planet) { onClosestPlanetChange(planet); });
-
+    
     readyForDrawing = true;
 }
 
@@ -200,6 +200,10 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     renderer = new VulkanRenderer(vulkan);
     renderer->setOutputStage(combineStage);
     renderer->compile();
+
+    if (deleteOld) {
+        onClosestPlanetChange(galaxy->getClosestPlanet());
+    }
 
     readyForDrawing = true;
 }
@@ -324,6 +328,8 @@ void CosmosRenderer::draw()
 
     galaxy->update(observerCameraPosition);
 
+    updatingSafetyQueue.executeAll();
+
     starsStage->beginDrawing();
 
     starsStage->drawMesh(cube3dInfo, galaxy->getStarsCount());
@@ -370,7 +376,7 @@ void CosmosRenderer::draw()
     vkDeviceWaitIdle(vulkan->device);
     //for (int i = 0; i < ships.size(); i++)ships[i]->drawShipAndModules(modelsStage, celestialSet, observerCameraPosition);
     //GameContainer::getInstance()->drawDrawableObjects();
-  //  sceneProvider->drawDrawableObjects(modelsStage, rendererDataSet);
+    sceneProvider->drawDrawableObjects(modelsStage, rendererDataSet);
 
     vkDeviceWaitIdle(vulkan->device);
     modelsStage->endDrawing();
@@ -394,14 +400,11 @@ void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
         renderablePlanets[i] = nullptr;
     }
     renderablePlanets.clear();
-    celestialDataUpdateComputeStage->beginRecording();
     auto renderable = new RenderedCelestialBody(vulkan, planet, celestialBodyDataSetLayout, celestialBodyRenderSetLayout);
     renderable->updateBuffer(observerCameraPosition, scale, glfwGetTime());
     renderablePlanets.push_back(renderable);
-    renderable->updateData(celestialDataUpdateComputeStage);
-    
-    celestialDataUpdateComputeStage->endRecording();
-    celestialDataUpdateComputeStage->submitNoSemaphores({});
+    //renderable->updateData(celestialDataUpdateComputeStage);
+
     vkDeviceWaitIdle(vulkan->device);
 
     for (int i = 0; i < renderableMoons.size(); i++) {
@@ -410,14 +413,23 @@ void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
     }
     renderableMoons.clear();
     auto moons = galaxy->getClosestPlanetMoons();
-    celestialDataUpdateComputeStage->beginRecording();
     for (int i = 0; i < moons.size(); i++) {
         auto renderable = new RenderedCelestialBody(vulkan, moons[i], celestialBodyDataSetLayout, celestialBodyRenderSetLayout);
         renderable->updateBuffer(observerCameraPosition, scale, glfwGetTime());
         renderableMoons.push_back(renderable);
-        renderable->updateData(celestialDataUpdateComputeStage);
+        //renderable->updateData(celestialDataUpdateComputeStage);
     }
-    celestialDataUpdateComputeStage->endRecording();
-    celestialDataUpdateComputeStage->submitNoSemaphores({});
     vkDeviceWaitIdle(vulkan->device);
+
+    updatingSafetyQueue.enqueue([&]() {
+        celestialDataUpdateComputeStage->beginRecording();
+        for (int i = 0; i < renderablePlanets.size(); i++) {
+            renderablePlanets[i]->updateData(celestialDataUpdateComputeStage);
+        }
+        for (int i = 0; i < renderableMoons.size(); i++) {
+            renderableMoons[i]->updateData(celestialDataUpdateComputeStage);
+        }
+        celestialDataUpdateComputeStage->endRecording();
+        celestialDataUpdateComputeStage->submitNoSemaphores({});
+    });//yay javascript
 }

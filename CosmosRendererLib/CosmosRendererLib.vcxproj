@@ -153,6 +153,7 @@
     <ClInclude Include="CosmosRenderer.h" />
     <ClInclude Include="GalaxyContainer.h" />
     <ClInclude Include="GeneratedStarInfo.h" />
+    <ClInclude Include="InvokeQueue.h" />
     <ClInclude Include="RenderedCelestialBody.h" />
     <ClInclude Include="SceneProvider.h" />
     <ClInclude Include="stdafx.h" />
@@ -164,6 +165,7 @@
     <ClCompile Include="CosmosRenderer.cpp" />
     <ClCompile Include="GalaxyContainer.cpp" />
     <ClCompile Include="GeneratedStarInfo.cpp" />
+    <ClCompile Include="InvokeQueue.cpp" />
     <ClCompile Include="RenderedCelestialBody.cpp" />
     <ClCompile Include="SceneProvider.cpp" />
     <ClCompile Include="stdafx.cpp">

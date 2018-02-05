@@ -42,9 +42,7 @@ float celestialGetHeightRaycast(RenderedCelestialBody body, vec3 position){
 }
 
 vec4 celestialGetColorRoughnessForDirection(vec3 direction){
-    vec3 pixel = vec3(1.0 / textureSize(baseColorImage, 0), 0.0) * 2.0;
-    vec4 c1 = texture(baseColorImage, xyzToPolar(direction)).rgba;
-    return c1;
+    return texture(baseColorImage, xyzToPolar(direction)).rgba;
 }
 
 vec4 celestialGetColorRoughnessRaycast(RenderedCelestialBody body, vec3 position){

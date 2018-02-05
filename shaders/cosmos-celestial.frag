@@ -10,6 +10,7 @@ layout(location = 0) out vec4 outColor;
 #include celestialRenderSet.glsl
 #include polar.glsl
 #include rotmat3d.glsl
+#include textureBicubic.glsl
 #include celestialCommons.glsl
 #include camera.glsl
 
