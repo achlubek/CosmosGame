@@ -21,6 +21,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CelestialBodyEditor", "Cele
 		{1A8000FF-04F4-4D3A-B6FB-47E9342CE22B} = {1A8000FF-04F4-4D3A-B6FB-47E9342CE22B}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CosmosScripting", "CosmosScripting\CosmosScripting.vcxproj", "{EAD3A653-3989-43F3-A10F-31DE60F65374}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -77,6 +79,14 @@ Global
 		{4608E0BF-1903-44B6-A914-94034D6F29C4}.Release|x64.Build.0 = Release|x64
 		{4608E0BF-1903-44B6-A914-94034D6F29C4}.Release|x86.ActiveCfg = Release|Win32
 		{4608E0BF-1903-44B6-A914-94034D6F29C4}.Release|x86.Build.0 = Release|Win32
+		{EAD3A653-3989-43F3-A10F-31DE60F65374}.Debug|x64.ActiveCfg = Debug|x64
+		{EAD3A653-3989-43F3-A10F-31DE60F65374}.Debug|x64.Build.0 = Debug|x64
+		{EAD3A653-3989-43F3-A10F-31DE60F65374}.Debug|x86.ActiveCfg = Debug|Win32
+		{EAD3A653-3989-43F3-A10F-31DE60F65374}.Debug|x86.Build.0 = Debug|Win32
+		{EAD3A653-3989-43F3-A10F-31DE60F65374}.Release|x64.ActiveCfg = Release|x64
+		{EAD3A653-3989-43F3-A10F-31DE60F65374}.Release|x64.Build.0 = Release|x64
+		{EAD3A653-3989-43F3-A10F-31DE60F65374}.Release|x86.ActiveCfg = Release|Win32
+		{EAD3A653-3989-43F3-A10F-31DE60F65374}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

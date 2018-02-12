@@ -8,6 +8,8 @@ struct RenderedCelestialBody {
     int renderMethod;
     vec3 position;
     float radius;
+    float atmosphereRadius;
+    float atmosphereHeight;
     Sphere surfaceSphere;
     Sphere atmosphereSphere;
     float seed;
@@ -32,6 +34,8 @@ RenderedCelestialBody getRenderedBody(CelestialBodyAlignedData aligned){
         aligned.renderMethod_zero_zero_zero.x,
         aligned.position_radius.xyz,
         aligned.position_radius.a,
+        aligned.position_radius.a + aligned.sufraceMainColor_atmosphereHeight.a, 
+        aligned.sufraceMainColor_atmosphereHeight.a,
         Sphere(aligned.position_radius.xyz, aligned.position_radius.a),
         Sphere(aligned.position_radius.xyz, aligned.position_radius.a + aligned.sufraceMainColor_atmosphereHeight.a),
         aligned.seed_terrainMaxLevel_fluidMaxLevel_habitableChance.x, //seed

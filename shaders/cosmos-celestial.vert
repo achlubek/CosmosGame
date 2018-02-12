@@ -21,7 +21,7 @@ layout(location = 2) out vec3 outWorldPos;
 void main() {
     vec4 posradius = celestialBuffer.celestialBody.position_radius;
     float atmoradius = celestialBuffer.celestialBody.sufraceMainColor_atmosphereHeight.a;
-    outWorldPos = posradius.xyz + inPosition.xyz * (posradius.a + atmoradius);
+    outWorldPos = posradius.xyz + inPosition.xyz * (posradius.a + atmoradius * 2.0);
 
     vec4 opo = (hiFreq.VPMatrix) * vec4(outWorldPos, 1.0);
     opo.y *= -1.0;
