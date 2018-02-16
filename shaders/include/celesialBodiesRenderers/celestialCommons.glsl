@@ -86,14 +86,22 @@ void updatePassHits(inout RenderPass pass){
     }
 }
 
+struct CelestialRenderResult
+{
+    vec4 additionLight;
+    vec4 alphaBlendedLight;
+};
+
+CelestialRenderResult emptyAtmosphereResult = CelestialRenderResult(vec4(0.0), vec4(0.0));
+
 #include celestialNoAtmosphere.glsl
 #include celestialLightAtmosphere.glsl
 #include celestialThickAtmosphere.glsl
 
-vec4 renderCelestialBody(RenderedCelestialBody body, Ray ray){
+CelestialRenderResult renderCelestialBody(RenderedCelestialBody body, Ray ray){
     RenderPass pass = RenderPass(ray, body, 0.0, 0.0, 0.0, vec3(0.0), vec3(0.0), vec3(0.0), false, false);
     updatePassHits(pass);
-    vec4 result = vec4(0.0);
+    CelestialRenderResult result = emptyAtmosphereResult;
     if(body.renderMethod == CELESTIAL_RENDER_METHOD_NO_ATMOSPHERE){
         if(pass.isSurfaceHit){
             result = renderCelestialBodyNoAtmosphere(pass);

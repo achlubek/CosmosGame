@@ -20,7 +20,10 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, TimeProvider* itimeProvid
     planetsDataBuffer = new VulkanGenericBuffer(vulkan, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, sizeof(float) * 1024 * 1024);
     moonsDataBuffer = new VulkanGenericBuffer(vulkan, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, sizeof(float) * 1024 * 1024);
 
-    celestialImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
+    celestialAlphaImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
+        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
+
+    celestialAdditiveImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
         VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
 
     starsImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
@@ -77,6 +80,7 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, TimeProvider* itimeProvid
     combineLayout->addField(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
     combineLayout->addField(3, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
     combineLayout->addField(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
+    combineLayout->addField(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
     combineLayout->compile();
 
     celestialBodyDataSetLayout = new VulkanDescriptorSetLayout(vulkan);
@@ -94,11 +98,12 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, TimeProvider* itimeProvid
     celestialBodyRenderSetLayout->compile();
 
     combineSet = combineLayout->generateDescriptorSet();
-    combineSet->bindImageViewSampler(0, celestialImage);
+    combineSet->bindImageViewSampler(0, celestialAlphaImage);
     combineSet->bindImageViewSampler(1, starsImage);
     combineSet->bindImageViewSampler(2, overlayImage);
     combineSet->bindUniformBuffer(3, cameraDataBuffer);
     combineSet->bindImageViewSampler(4, modelsResultImage);
+    combineSet->bindImageViewSampler(5, celestialAdditiveImage);
     combineSet->update();
 
     recompileShaders(false);
@@ -146,8 +151,11 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     celestialStage->addShaderStage(celestialfrag->createShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT, "main"));
     celestialStage->addDescriptorSetLayout(rendererDataLayout->layout);
     celestialStage->addDescriptorSetLayout(celestialBodyRenderSetLayout->layout);
-    celestialStage->addOutputImage(celestialImage);
-    celestialStage->alphaBlending = true;
+    celestialAlphaImage->attachmentBlending = VulkanAttachmentBlending::Alpha;
+    celestialAdditiveImage->attachmentBlending = VulkanAttachmentBlending::Additive;
+    celestialStage->addOutputImage(celestialAlphaImage);
+    celestialStage->addOutputImage(celestialAdditiveImage);
+   // celestialStage->alphaBlending = true;
     celestialStage->cullFlags = VK_CULL_MODE_BACK_BIT;
     celestialStage->compile();
 

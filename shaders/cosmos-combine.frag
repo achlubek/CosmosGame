@@ -4,10 +4,11 @@
 layout(location = 0) in vec2 UV;
 layout(location = 0) out vec4 outColor;
 
-layout(set = 0, binding = 0) uniform sampler2D texCelestial;
+layout(set = 0, binding = 0) uniform sampler2D texCelestialAlpha;
 layout(set = 0, binding = 1) uniform sampler2D texStars;
 layout(set = 0, binding = 2) uniform sampler2D uiTexture;
 layout(set = 0, binding = 4) uniform sampler2D texShip;
+layout(set = 0, binding = 5) uniform sampler2D texCelestialAdditive;
 
 #include rendererDataSet.glsl
 
@@ -40,16 +41,18 @@ vec3 tonemapUncharted2(vec3 color) {
 vec3 gammacorrect(vec3 c){
     return pow(c, vec3(1.0 / 2.4));
 }
- 
+
 #include camera.glsl
 void main() {
-    vec4 celestial = texture(texCelestial, UV);
+    vec4 celestial = texture(texCelestialAlpha, UV);
     vec3 dir = reconstructCameraSpaceDistance(UV, 1.0);
     dir *= 2.0;
     vec3 stars = texture(texStars, UV).rgb ;//texture(texStars, UV);
     vec4 ui = texture(uiTexture, UV);
     //stars.rgb /= max(0.0001, stars.a);
     vec3 a = mix(stars, celestial.rgb, celestial.a);
+    vec4 adddata = texture(texCelestialAdditive, UV).rgba;
+    a += adddata.rgb;
     vec4 shipdata = texture(texShip, UV).rgba;
     a = mix(a, shipdata.rgb, shipdata.a);
     a = mix(a, ui.rgb, ui.a);

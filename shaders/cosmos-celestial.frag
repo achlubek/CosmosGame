@@ -2,7 +2,8 @@
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) in vec2 UV;
-layout(location = 0) out vec4 outColor;
+layout(location = 0) out vec4 outColorAlpha;
+layout(location = 1) out vec4 outColorAdditive;
 
 #include rendererDataSet.glsl
 #include sphereRaytracing.glsl
@@ -33,6 +34,7 @@ vec3 extra_cheap_atmosphere(float raylen, float sunraylen, float absorbstrength,
 void main() {
     RenderedCelestialBody body = getRenderedBody(celestialBuffer.celestialBody);
     vec3 dir = reconstructCameraSpaceDistance(gl_FragCoord.xy / Resolution, 1.0);
-    vec4 result = renderCelestialBody(body, Ray(vec3(0.0), dir));
-    outColor = result;
+    CelestialRenderResult result = renderCelestialBody(body, Ray(vec3(0.0), dir));
+    outColorAlpha = result.alphaBlendedLight;
+    outColorAdditive = result.additionLight;
 }

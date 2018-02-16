@@ -59,7 +59,8 @@ public:
     VulkanGenericBuffer* planetsDataBuffer;
     VulkanGenericBuffer* moonsDataBuffer;
 
-    VulkanImage* celestialImage;
+    VulkanImage* celestialAlphaImage;
+    VulkanImage* celestialAdditiveImage;
     VulkanImage* starsImage;
     //VulkanImage* cosmosImage;
     VulkanImage* modelsResultImage;
