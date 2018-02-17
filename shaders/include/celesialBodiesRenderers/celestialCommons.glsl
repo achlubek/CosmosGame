@@ -49,6 +49,14 @@ vec4 celestialGetColorRoughnessRaycast(RenderedCelestialBody body, vec3 position
     return celestialGetColorRoughnessForDirection(normalize(position - body.position));
 }
 
+vec2 celestialGetCloudsForDirection(vec3 direction){
+    return texture(cloudsImage, xyzToPolar(direction)).rg;
+}
+
+vec2 celestialGetCloudsRaycast(RenderedCelestialBody body, vec3 position){
+    return celestialGetCloudsForDirection(normalize(position - body.position));
+}
+
 vec3 celestialGetNormal(RenderedCelestialBody body, float dxrange, vec3 dir){
     vec3 tangdir = normalize(cross(dir, vec3(0.0, 1.0, 0.0)));
     vec3 bitangdir = normalize(cross(tangdir, dir));
