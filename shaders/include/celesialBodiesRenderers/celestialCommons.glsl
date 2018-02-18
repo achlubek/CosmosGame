@@ -6,11 +6,14 @@ struct RenderPass {
         float surfaceHit;
         float atmosphereNearHit;
         float atmosphereFarHit;
+        float waterHit;
         vec3 surfaceHitPos;
         vec3 atmosphereNearHitPos;
         vec3 atmosphereFarHitPos;
+        vec3 waterHitPos;
         bool isAtmosphereHit;
         bool isSurfaceHit;
+        bool isWaterHit;
 };
 
 #define DISTANCE_INFINITY 99999999.0
@@ -35,7 +38,7 @@ float raymarchCelestialTerrain(Ray ray, sampler2D s, RenderedCelestialBody body,
     float maxheight2 = body.radius + body.terrainMaxLevel;
     float lastdst = DISTANCE_INFINITY;
     vec3 center = body.position;
-    for(int i=0;i<700;i++){
+    for(int i=0;i<7000;i++){
         vec3 p = ray.o + ray.d * dist;
         vec3 dir = normalize(p - center);
         float dc = distance(p, center);
@@ -85,13 +88,19 @@ vec3 celestialGetNormalRaycast(RenderedCelestialBody body, float dxrange, vec3 p
 void updatePassHits(inout RenderPass pass){
     float hit_Surface = rsi2(pass.ray, pass.body.surfaceSphere).x;
     if(distance(pass.body.position, pass.ray.o) < pass.body.radius * 4.0){
-        hit_Surface = raymarchCelestialTerrain(pass.ray, heightMapImage, pass.body, 0.001);
+        hit_Surface = raymarchCelestialTerrain(pass.ray, heightMapImage, pass.body, 0.00001);
     }
+    float hit_Water = rsi2(pass.ray, pass.body.waterSphere).x;
     vec2 hits_Atmosphere = rsi2(pass.ray, pass.body.atmosphereSphere);
     if(hit_Surface > 0.0 && hit_Surface < DISTANCE_INFINITY) {
         pass.isSurfaceHit = true;
         pass.surfaceHit = hit_Surface;
         pass.surfaceHitPos = pass.ray.o + pass.ray.d * pass.surfaceHit;
+    }
+    if(hit_Water > 0.0 && hit_Water < DISTANCE_INFINITY) {
+        pass.isWaterHit = true;
+        pass.waterHit = hit_Water;
+        pass.waterHitPos = pass.ray.o + pass.ray.d * pass.waterHit;
     }
     if(hits_Atmosphere.y > 0.0 && hits_Atmosphere.y < DISTANCE_INFINITY) {
         pass.isAtmosphereHit = true;
@@ -115,7 +124,7 @@ CelestialRenderResult emptyAtmosphereResult = CelestialRenderResult(vec4(0.0), v
 #include celestialThickAtmosphere.glsl
 
 CelestialRenderResult renderCelestialBody(RenderedCelestialBody body, Ray ray){
-    RenderPass pass = RenderPass(ray, body, 0.0, 0.0, 0.0, vec3(0.0), vec3(0.0), vec3(0.0), false, false);
+    RenderPass pass = RenderPass(ray, body, 0.0, 0.0, 0.0, 0.0, vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), false, false, false);
     updatePassHits(pass);
     CelestialRenderResult result = emptyAtmosphereResult;
     if(body.renderMethod == CELESTIAL_RENDER_METHOD_NO_ATMOSPHERE){
