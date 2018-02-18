@@ -21,7 +21,7 @@ CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end
         vec3 normal = normalize(pos - pass.body.position);
         vec3 dirToStar = normalize(ClosestStarPosition - pos);
         float dt = 1.0 - (1.0 / (1.0 + 10.0 * max(0.0, dot(normal, dirToStar))));
-        color +=  (1.0 - coverage) * ClosestStarColor * 100.0 * heightmix * distance(start, end) * mix(noonColor, sunsetColor, dt) * dt;
+        color +=  (1.0 - coverage) * ClosestStarColor * 10.0 * heightmix * distance(start, end) * mix(noonColor, sunsetColor, dt) * dt;
         float lowClouds = celestialGetCloudsRaycast(pass.body, pos).r * heightmix_middle;
         alphacolor += (1.0 - coverage) * (1.0 - heightmix) * mix(noonColor, sunsetColor, dt) * dt;
         coverage += lowClouds * 0.25 * heightmix_middle;
@@ -88,7 +88,7 @@ CelestialRenderResult renderAtmosphere(RenderPass pass){
 CelestialRenderResult renderCelestialBodyLightAtmosphere(RenderPass pass){
     vec3 color = celestialGetColorRoughnessRaycast(pass.body, pass.surfaceHitPos).xyz;
     float height = celestialGetHeightRaycast(pass.body, pass.surfaceHitPos);
-    vec3 normal = celestialGetNormalRaycast(pass.body, sqrt(sqrt(pass.surfaceHit + 1.0)) * 0.04, pass.surfaceHitPos);
+    vec3 normal = celestialGetNormalRaycast(pass.body, sqrt(sqrt(pass.surfaceHit + 1.0)) * 0.004, pass.surfaceHitPos);
     vec3 flatnormal = normalize(pass.surfaceHitPos - pass.body.position);
     vec3 dirToStar = normalize(ClosestStarPosition - pass.surfaceHitPos);
     float dt = max(0.0, dot(normal, dirToStar));
@@ -96,7 +96,7 @@ CelestialRenderResult renderCelestialBodyLightAtmosphere(RenderPass pass){
     dt = max(dt * smoothstep(-0.1, 0.0, flatdt), flatdt * 0.5);
     CelestialRenderResult atmo = renderAtmosphere(pass);
     if(pass.isSurfaceHit){
-        vec3 surface = color * dt;
+        vec3 surface = 10.0 * color * dt;
         atmo.alphaBlendedLight = vec4(mix(surface, atmo.alphaBlendedLight.rgb, atmo.alphaBlendedLight.a), 1.0);
     }
     atmo.alphaBlendedLight.a = clamp(atmo.alphaBlendedLight.a, 0.0, 1.0);

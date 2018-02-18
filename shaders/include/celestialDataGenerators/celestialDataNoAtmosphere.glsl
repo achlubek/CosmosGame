@@ -7,13 +7,18 @@ float celestialNoAtmosphereGetHeightMap(RenderedCelestialBody body, vec3 dir){
 
 vec4 celestialNoAtmosphereGetColorRoughnessMap(RenderedCelestialBody body, float height, vec3 dir){
     vec3 baseColor = body.sufraceMainColor;
-    vec3 hsvColor = rgb2hsv(baseColor);
-    float variance = height;
-    vec3 newHsvColor = vec3(mix(hsvColor.x, 0.15, variance),
-         mix(hsvColor.x, 0.99, variance),
-         mix(hsvColor.x, 0.1, variance));
-    vec3 newRgbColor = hsv2rgb(newHsvColor);
-    return vec4(newRgbColor, 1.0);
+    float polardir = abs(dot(dir, vec3(0.0, 1.0, 0.0)));
+    vec3 dominativeHot = baseColor * vec3(1.0, 0.7, 0.7);
+    vec3 dominativeCold = mix(baseColor * vec3(0.5, 0.5, 1.0), vec3(1.0), 0.5);
+    vec3 polarawarecolor = mix(dominativeHot, dominativeCold, pow(polardir, 3.0));
+    vec3 colorrandomizer = vec3(
+        wavesOctaveNoise(dir * 10.0),
+        wavesOctaveNoise(-dir * 10.0),
+        wavesOctaveNoise(dir * 10.0+100.0)
+    );
+
+    vec3 groundColor = polarawarecolor - colorrandomizer * (1.0 - height);
+    return vec4(groundColor, 1.0);
 }
 
 vec2 celestialNoAtmosphereGetCloudsMap(RenderedCelestialBody body, float height, vec3 dir){

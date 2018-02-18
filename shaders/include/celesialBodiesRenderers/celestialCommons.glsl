@@ -15,6 +15,21 @@ struct RenderPass {
 
 #define DISTANCE_INFINITY 99999999.0
 
+
+float celestialGetHeight(vec3 direction){
+    float primary = textureBicubic(heightMapImage, xyzToPolar(direction)).r;
+    float secondary = FBM3(direction * 150.0, 5, 3.0, 0.55);
+    float refinement = pow(getwaves3d(direction.xyz, 1.0),1.0);
+    //return primary * 30.0 + secondary;
+    vec3 coord = normalize(direction) * 10.0;
+    seedWaves3d = 0.0;
+    return primary * 30.0;
+}
+
+float celestialGetHeightRaycast(RenderedCelestialBody body, vec3 position){
+    return celestialGetHeight(normalize(position - body.position));
+}
+
 float raymarchCelestialTerrain(Ray ray, sampler2D s, RenderedCelestialBody body, float limit){
     float dist = 0.0;
     float maxheight2 = body.radius + body.terrainMaxLevel;
@@ -24,21 +39,13 @@ float raymarchCelestialTerrain(Ray ray, sampler2D s, RenderedCelestialBody body,
         vec3 p = ray.o + ray.d * dist;
         vec3 dir = normalize(p - center);
         float dc = distance(p, center);
-        float ds = dc - (body.radius - texture(s, xyzToPolar(dir)).r * body.terrainMaxLevel);
+        float ds = dc - (body.radius - celestialGetHeight(dir) * body.terrainMaxLevel);
         if(ds < limit) return dist;
         if(dc > maxheight2 && lastdst < dc) return -0.01;
         lastdst = dc;
         dist += ds * 0.3;
     }
     return -0.01;
-}
-
-float celestialGetHeight(vec3 direction){
-    return texture(heightMapImage, xyzToPolar(direction)).r;
-}
-
-float celestialGetHeightRaycast(RenderedCelestialBody body, vec3 position){
-    return celestialGetHeight(normalize(position - body.position));
 }
 
 vec4 celestialGetColorRoughnessForDirection(vec3 direction){
@@ -65,9 +72,9 @@ vec3 celestialGetNormal(RenderedCelestialBody body, float dxrange, vec3 dir){
     mat3 normrotmat2 = rotationMatrix(bitangdir, dxrange);
     vec3 dir2 = normrotmat1 * dir;
     vec3 dir3 = normrotmat2 * dir;
-    vec3 p1 = dir * (body.radius + celestialGetHeight(dir));
-    vec3 p2 = dir2 * (body.radius + celestialGetHeight(dir2));
-    vec3 p3 = dir3 * (body.radius + celestialGetHeight(dir3));
+    vec3 p1 = dir * (body.radius + celestialGetHeight(dir) * body.terrainMaxLevel);
+    vec3 p2 = dir2 * (body.radius + celestialGetHeight(dir2) * body.terrainMaxLevel);
+    vec3 p3 = dir3 * (body.radius + celestialGetHeight(dir3) * body.terrainMaxLevel);
     return normalize(cross(normalize(p3 - p1), normalize(p2 - p1)));
 }
 

@@ -14,17 +14,22 @@ float crater(vec3 dir, float seed){
     return c1 + c2;
 }
 
-float generateTerrain(vec4 coord){
-    float low_freq_plates = FBM4(coord, 3, 1.5, 0.5);
-    float mid_freq_lands = FBM4(coord * 3.0 + 4.0 * FBM4(coord * 3.0, 7, 2.0, 0.5), 7, 2.0, 0.5);
-    float hi_freq_lands = FBM4(coord * 16.0 + 4.0 * FBM4(coord * 16.0, 7, 2.0, 0.5), 7, 2.0, 0.5);
+float generateTerrainX(vec4 coord){
+    float low_freq_plates = FBM4(coord * 5.0, 3, 1.5, 0.5);
+    float mid_freq_lands = FBM4(coord * 13.0 + 4.0 * FBM4(coord * 3.0, 7, 2.0, 0.5), 7, 2.0, 0.5);
+    float hi_freq_lands = FBM4(coord * 46.0 + 4.0 * FBM4(coord * 16.0, 7, 2.0, 0.5), 7, 2.0, 0.5);
     float craters2 = 0.0;
     float seed = coord.a;
     int craterscount = int(oct(coord.a)*100.0);
-    float cratersStrength = 0.02 * oct(coord.a + 10.0);
+    float cratersStrength = 0.2 * oct(coord.a + 10.0);
     for(int i=0;i<craterscount;i++){
         craters2 += crater(coord.xyz, seed);
         seed += 10.0;
     }
-    return low_freq_plates + (mid_freq_lands * 0.05) + (hi_freq_lands * 0.01) + craters2 * cratersStrength;
+    return pow(low_freq_plates + (mid_freq_lands * 0.25) + (hi_freq_lands * 0.1) + craters2 * cratersStrength, 3.0);
+}
+
+float generateTerrain(vec4 coord){
+    coord.xyz *= 10.0;
+    return pow(wavesOctaveNoise(coord.xyz + getwaves3d(coord.xyz, 7.0) * 5.0),2.0);
 }

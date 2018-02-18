@@ -216,3 +216,53 @@ float FBM4(vec4 p, int octaves, float dx, float ww){
     }
     return a;
 }
+
+
+#define EULER 2.7182818284590452353602874
+float wave3d(vec3 uv, vec3 emitter, float speed, float phase, float timeshift){
+    float dst = distance(uv, emitter);
+    return pow(EULER, sin(dst * phase - (0.0 + timeshift) * speed)) / EULER;
+}
+vec3 wavedrag3d(vec3 uv, vec3 emitter){
+    return normalize(uv - emitter);
+}
+float seedWaves3d = 0.0;
+vec3 rand3dWaves3d(){
+        float x = oct(seedWaves3d);
+    seedWaves3d += 1.0;
+        float y = oct(seedWaves3d);
+    seedWaves3d += 1.0;
+        float z = oct(seedWaves3d);
+    seedWaves3d += 1.0;
+    return vec3(x,y,z) * 2.0 - 1.0;
+}
+
+float getwaves3d(vec3 position, float dragmult){
+    position *= 0.1;
+    float iter = 0.0;
+    float phase = 6.0;
+    float speed = 2.0;
+    float weight = 1.0;
+    float w = 0.0;
+    float ws = 0.0;
+    for(int i=0;i<20;i++){
+        vec3 p = rand3dWaves3d() * 30.0;
+        float res = wave3d(position, p, speed, phase, 0.0);
+        float res2 = wave3d(position, p, speed, phase, 0.006);
+        position -= wavedrag3d(position, p) * (res - res2) * weight * dragmult;
+        w += res * weight;
+        iter += 12.0;
+        ws += weight;
+        weight = mix(weight, 0.0, 0.2);
+        phase *= 1.2;
+        speed *= 1.02;
+    }
+    return w / ws;
+}
+
+float wavesOctaveNoise(vec3 coord){
+    return getwaves3d(coord * 1.0, 20.0) * 0.5
+        + getwaves3d(coord * 2.0, 10.0) * 0.25
+        + getwaves3d(coord * 4.0, 5.0) * 0.125
+        + getwaves3d(coord * 8.0, 1.0) * 0.065;
+}
