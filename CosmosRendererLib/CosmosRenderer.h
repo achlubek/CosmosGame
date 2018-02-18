@@ -102,5 +102,6 @@ public:
     InvokeQueue updatingSafetyQueue;
 
     volatile bool readyForDrawing = false;
+    volatile bool firstRecordingDone = false;
 };
 

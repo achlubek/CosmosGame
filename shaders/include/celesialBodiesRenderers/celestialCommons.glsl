@@ -50,7 +50,8 @@ vec4 celestialGetColorRoughnessRaycast(RenderedCelestialBody body, vec3 position
 }
 
 vec2 celestialGetCloudsForDirection(vec3 direction){
-    return texture(cloudsImage, xyzToPolar(direction)).rg;
+    vec2 prerendered = textureBicubic(cloudsImage, xyzToPolar(direction)).rg;
+    return prerendered;
 }
 
 vec2 celestialGetCloudsRaycast(RenderedCelestialBody body, vec3 position){

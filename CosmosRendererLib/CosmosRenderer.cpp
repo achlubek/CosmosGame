@@ -238,6 +238,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     }
 
     readyForDrawing = true;
+    firstRecordingDone = false;
 }
 
 void CosmosRenderer::mapBuffers()
@@ -362,21 +363,27 @@ void CosmosRenderer::draw()
 
     updatingSafetyQueue.executeAll();
 
-    starsStage->beginDrawing();
+    if (!firstRecordingDone) {
+        starsStage->beginDrawing();
 
-    starsStage->drawMesh(cube3dInfo, galaxy->getStarsCount());
+        starsStage->drawMesh(cube3dInfo, galaxy->getStarsCount());
 
-    starsStage->endDrawing();
+        starsStage->endDrawing();
+    }
     starsStage->submit({});
 
-    vkDeviceWaitIdle(vulkan->device);
+    //vkDeviceWaitIdle(vulkan->device);
 
-    celestialStarsBlitComputeStage->beginRecording();
-    celestialStarsBlitComputeStage->dispatch({ celestiaStarsBlitSet }, width, height, 1);
-    celestialStarsBlitComputeStage->endRecording();
+    if (!firstRecordingDone) {
+        celestialStarsBlitComputeStage->beginRecording();
+        celestialStarsBlitComputeStage->dispatch({ celestiaStarsBlitSet }, width, height, 1);
+        celestialStarsBlitComputeStage->endRecording();
+    }
+    firstRecordingDone = true;
+
     celestialStarsBlitComputeStage->submit({ starsStage->signalSemaphore});
     
-    vkDeviceWaitIdle(vulkan->device);
+    //vkDeviceWaitIdle(vulkan->device);
 
     celestialStage->beginDrawing();
 

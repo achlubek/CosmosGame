@@ -7,6 +7,7 @@ layout(location = 1) out vec4 outColorAdditive;
 
 #include rendererDataSet.glsl
 #include sphereRaytracing.glsl
+#include proceduralValueNoise.glsl
 #include celestialDataStructs.glsl
 #include celestialRenderSet.glsl
 #include polar.glsl

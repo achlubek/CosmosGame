@@ -38,7 +38,7 @@ public:
     double getDistance(glm::dvec3 position, double at_time);
 private:
 
-    const int TEXTURES_WIDTH = 2048;
+    const int TEXTURES_WIDTH = 1024 * 2;
     const int TEXTURES_HEIGHT = 1024;
 
     VulkanToolkit * toolkit;

@@ -50,7 +50,7 @@ void main() {
     vec3 stars = texture(texStars, UV).rgb ;//texture(texStars, UV);
     vec4 ui = texture(uiTexture, UV);
     //stars.rgb /= max(0.0001, stars.a);
-    vec3 a = mix(stars, celestial.rgb, celestial.a);
+    vec3 a = celestial.rgb;//mix(stars, celestial.rgb, celestial.a);
     vec4 adddata = texture(texCelestialAdditive, UV).rgba;
     a += adddata.rgb;
     vec4 shipdata = texture(texShip, UV).rgba;
