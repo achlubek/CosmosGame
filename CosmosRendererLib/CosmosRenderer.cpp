@@ -21,13 +21,13 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, TimeProvider* itimeProvid
     moonsDataBuffer = new VulkanGenericBuffer(vulkan, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, sizeof(float) * 1024 * 1024);
 
     celestialAlphaImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
-        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
+        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
 
     celestialAdditiveImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
         VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
 
     starsImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
-        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
+        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
 
     modelsResultImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
         VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
@@ -90,6 +90,11 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, TimeProvider* itimeProvid
     celestialBodyDataSetLayout->addField(3, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_COMPUTE_BIT);
     celestialBodyDataSetLayout->compile();
 
+    celestiaStarsBlitSetLayout = new VulkanDescriptorSetLayout(vulkan);
+    celestiaStarsBlitSetLayout->addField(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_COMPUTE_BIT);
+    celestiaStarsBlitSetLayout->addField(1, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_COMPUTE_BIT);
+    celestiaStarsBlitSetLayout->compile();
+
     celestialBodyRenderSetLayout = new VulkanDescriptorSetLayout(vulkan);
     celestialBodyRenderSetLayout->addField(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
     celestialBodyRenderSetLayout->addField(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
@@ -105,6 +110,11 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, TimeProvider* itimeProvid
     combineSet->bindImageViewSampler(4, modelsResultImage);
     combineSet->bindImageViewSampler(5, celestialAdditiveImage);
     combineSet->update();
+
+    celestiaStarsBlitSet = celestiaStarsBlitSetLayout->generateDescriptorSet();
+    celestiaStarsBlitSet->bindImageViewSampler(0, starsImage);
+    celestiaStarsBlitSet->bindImageStorage(1, celestialAlphaImage);
+    celestiaStarsBlitSet->update();
 
     recompileShaders(false);
 
@@ -141,6 +151,14 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     celestialDataUpdateComputeStage->compile();
 
     //**********************//
+    auto celestialblitcompute = new VulkanShaderModule(vulkan, "../../shaders/compiled/celestial-blit-stars.comp.spv");
+
+    celestialStarsBlitComputeStage = new VulkanComputeStage(vulkan);
+    celestialStarsBlitComputeStage->setShaderStage(celestialblitcompute->createShaderStage(VK_SHADER_STAGE_COMPUTE_BIT, "main"));
+    celestialStarsBlitComputeStage->addDescriptorSetLayout(celestiaStarsBlitSetLayout->layout);
+    celestialStarsBlitComputeStage->compile();
+
+    //**********************//
 
     auto celestialvert = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-celestial.vert.spv");
     auto celestialfrag = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-celestial.frag.spv");
@@ -152,11 +170,14 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     celestialStage->addDescriptorSetLayout(rendererDataLayout->layout);
     celestialStage->addDescriptorSetLayout(celestialBodyRenderSetLayout->layout);
     celestialAlphaImage->attachmentBlending = VulkanAttachmentBlending::Alpha;
+    celestialAlphaImage->clear = false;
     celestialAdditiveImage->attachmentBlending = VulkanAttachmentBlending::Additive;
+    celestialAdditiveImage->clear = true;
     celestialStage->addOutputImage(celestialAlphaImage);
     celestialStage->addOutputImage(celestialAdditiveImage);
    // celestialStage->alphaBlending = true;
     celestialStage->cullFlags = VK_CULL_MODE_BACK_BIT;
+    celestialStage->clearBeforeDrawing = true;
     celestialStage->compile();
 
     //**********************//
@@ -169,6 +190,8 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     starsStage->addShaderStage(starsfrag->createShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT, "main"));
     starsStage->addDescriptorSetLayout(rendererDataLayout->layout);
     starsStage->addDescriptorSetLayout(starsDataLayout->layout);
+    //starsStage->addOutputImage(starsImage);
+    celestialAlphaImage->clearColor = {0.0f, 0.0f, 0.0f, 1.0f};
     starsStage->addOutputImage(starsImage);
     starsStage->setSets({ rendererDataSet, starsDataSet });
     starsStage->additiveBlending = true;
@@ -344,7 +367,16 @@ void CosmosRenderer::draw()
     starsStage->drawMesh(cube3dInfo, galaxy->getStarsCount());
 
     starsStage->endDrawing();
-    starsStage->submitNoSemaphores({});
+    starsStage->submit({});
+
+    vkDeviceWaitIdle(vulkan->device);
+
+    celestialStarsBlitComputeStage->beginRecording();
+    celestialStarsBlitComputeStage->dispatch({ celestiaStarsBlitSet }, width, height, 1);
+    celestialStarsBlitComputeStage->endRecording();
+    celestialStarsBlitComputeStage->submit({ starsStage->signalSemaphore});
+    
+    vkDeviceWaitIdle(vulkan->device);
 
     celestialStage->beginDrawing();
 
@@ -376,7 +408,7 @@ void CosmosRenderer::draw()
     }
 
     celestialStage->endDrawing();
-    celestialStage->submitNoSemaphores({});
+    celestialStage->submitNoSemaphores({ celestialStarsBlitComputeStage->signalSemaphore});
 
     vkDeviceWaitIdle(vulkan->device);
     modelsStage->beginDrawing();
@@ -385,6 +417,7 @@ void CosmosRenderer::draw()
     //for (int i = 0; i < ships.size(); i++)ships[i]->drawShipAndModules(modelsStage, celestialSet, observerCameraPosition);
     //GameContainer::getInstance()->drawDrawableObjects();
     sceneProvider->drawDrawableObjects(modelsStage, rendererDataSet);
+
 
     vkDeviceWaitIdle(vulkan->device);
     modelsStage->endDrawing();

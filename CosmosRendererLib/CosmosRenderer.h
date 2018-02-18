@@ -54,6 +54,10 @@ public:
     VulkanDescriptorSetLayout* celestialBodyRenderSetLayout{ nullptr };
     VulkanComputeStage* celestialDataUpdateComputeStage;
 
+    VulkanDescriptorSetLayout* celestiaStarsBlitSetLayout{ nullptr };
+    VulkanDescriptorSet* celestiaStarsBlitSet{ nullptr };
+    VulkanComputeStage* celestialStarsBlitComputeStage;
+
     VulkanGenericBuffer* cameraDataBuffer;
     VulkanGenericBuffer* starsDataBuffer;
     VulkanGenericBuffer* planetsDataBuffer;

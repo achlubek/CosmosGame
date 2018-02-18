@@ -97,7 +97,7 @@ CelestialRenderResult renderCelestialBodyLightAtmosphere(RenderPass pass){
     }
     atmo.alphaBlendedLight.a = clamp(atmo.alphaBlendedLight.a, 0.0, 1.0);
 
-    float threshold = pass.body.radius * 10.0;
+    float threshold = pass.body.radius * 3.0;
     vec4 summedAlpha = vec4(atmo.additionLight.rgb + atmo.alphaBlendedLight.rgb, 1.0);
     vec4 reducedAdditive = vec4(0.0);
     float mixvalue = clamp(distance(pass.ray.o, pass.body.position) / threshold, 0.0, 1.0);
