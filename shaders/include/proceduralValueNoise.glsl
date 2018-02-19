@@ -237,7 +237,7 @@ vec3 rand3dWaves3d(){
     return vec3(x,y,z) * 2.0 - 1.0;
 }
 
-float getwaves3d(vec3 position, float dragmult){
+float getwaves3d(vec3 position, float dragmult, float timeshift){
     position *= 0.1;
     float iter = 0.0;
     float phase = 6.0;
@@ -247,8 +247,8 @@ float getwaves3d(vec3 position, float dragmult){
     float ws = 0.0;
     for(int i=0;i<20;i++){
         vec3 p = rand3dWaves3d() * 30.0;
-        float res = wave3d(position, p, speed, phase, 0.0);
-        float res2 = wave3d(position, p, speed, phase, 0.006);
+        float res = wave3d(position, p, speed, phase, 0.0 + timeshift);
+        float res2 = wave3d(position, p, speed, phase, 0.006 + timeshift);
         position -= wavedrag3d(position, p) * (res - res2) * weight * dragmult;
         w += res * weight;
         iter += 12.0;
@@ -261,8 +261,8 @@ float getwaves3d(vec3 position, float dragmult){
 }
 
 float wavesOctaveNoise(vec3 coord){
-    return getwaves3d(coord * 1.0, 20.0) * 0.5
-        + getwaves3d(coord * 2.0, 10.0) * 0.25
-        + getwaves3d(coord * 4.0, 5.0) * 0.125
-        + getwaves3d(coord * 8.0, 1.0) * 0.065;
+    return getwaves3d(coord * 1.0, 20.0, 0.0) * 0.5
+        + getwaves3d(coord * 2.0, 10.0, 0.0) * 0.25
+        + getwaves3d(coord * 4.0, 5.0, 0.0) * 0.125
+        + getwaves3d(coord * 8.0, 1.0, 0.0) * 0.065;
 }

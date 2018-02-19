@@ -20,22 +20,22 @@ struct RenderPass {
 
 
 float celestialGetHeight(vec3 direction){
-    float primary = textureBicubic(heightMapImage, xyzToPolar(direction)).r;
+    float primary = texture(heightMapImage, xyzToPolar(direction)).r;
     float secondary = FBM3(direction * 150.0, 5, 3.0, 0.55);
-    float refinement = pow(getwaves3d(direction.xyz, 1.0),1.0);
+    float refinement = pow(getwaves3d(direction.xyz, 1.0, 0.0),1.0);
     //return primary * 30.0 + secondary;
     vec3 coord = normalize(direction) * 10.0;
     seedWaves3d = 0.0;
-    return primary * 30.0;
+    return primary ;
 }
 
 float celestialGetHeightRaycast(RenderedCelestialBody body, vec3 position){
     return celestialGetHeight(normalize(position - body.position));
 }
 
-float raymarchCelestialTerrain(Ray ray, sampler2D s, RenderedCelestialBody body, float limit){
-    float dist = 0.0;
-    float maxheight2 = body.radius + body.terrainMaxLevel;
+float raymarchCelestialTerrain(Ray ray, float startDistance, sampler2D s, RenderedCelestialBody body, float limit){
+    float dist = startDistance + limit;
+    float maxheight2 = body.radius;// + body.terrainMaxLevel;
     float lastdst = DISTANCE_INFINITY;
     vec3 center = body.position;
     for(int i=0;i<7000;i++){
@@ -44,9 +44,9 @@ float raymarchCelestialTerrain(Ray ray, sampler2D s, RenderedCelestialBody body,
         float dc = distance(p, center);
         float ds = dc - (body.radius - celestialGetHeight(dir) * body.terrainMaxLevel);
         if(ds < limit) return dist;
-        if(dc > maxheight2 && lastdst < dc) return -0.01;
+        if(dc > maxheight2 ) return -0.01;
         lastdst = dc;
-        dist += ds * 0.3;
+        dist += max(limit, ds * 0.77);
     }
     return -0.01;
 }
@@ -85,10 +85,29 @@ vec3 celestialGetNormalRaycast(RenderedCelestialBody body, float dxrange, vec3 p
     return celestialGetNormal(body, dxrange, normalize(position - body.position));
 }
 
+vec3 celestialGetWaterNormal(RenderedCelestialBody body, float dxrange, vec3 dir){
+    vec3 tangdir = normalize(cross(dir, vec3(0.0, 1.0, 0.0)));
+    vec3 bitangdir = normalize(cross(tangdir, dir));
+    mat3 normrotmat1 = rotationMatrix(tangdir, dxrange);
+    mat3 normrotmat2 = rotationMatrix(bitangdir, dxrange);
+    vec3 dir2 = normrotmat1 * dir;
+    vec3 dir3 = normrotmat2 * dir;
+    vec3 p1 = dir * ( getwaves3d(dir * 9910.0, 22.0, Time) * 0.001);
+    vec3 p2 = dir2 * ( getwaves3d(dir2 * 9910.0, 22.0, Time) * 0.001);
+    vec3 p3 = dir3 * ( getwaves3d(dir3 * 9910.0, 22.0, Time) * 0.001);
+    return normalize(mix(dir, normalize(cross(normalize(p3 - p1), normalize(p2 - p1))), 0.1));
+}
+
+vec3 celestialGetWaterNormalRaycast(RenderedCelestialBody body, float dxrange, vec3 position){
+    return celestialGetWaterNormal(body, dxrange, normalize(position - body.position));
+}
+
 void updatePassHits(inout RenderPass pass){
     float hit_Surface = rsi2(pass.ray, pass.body.surfaceSphere).x;
-    if(distance(pass.body.position, pass.ray.o) < pass.body.radius * 4.0){
-        hit_Surface = raymarchCelestialTerrain(pass.ray, heightMapImage, pass.body, 0.00001);
+    float hit_Surface2 = rsi2(pass.ray, pass.body.surfaceSphere).y;
+    float cameradst = distance(pass.body.position, pass.ray.o);
+    if(cameradst < pass.body.radius * 4.0 ){
+        hit_Surface = raymarchCelestialTerrain(pass.ray, hit_Surface > 0.0 && hit_Surface < DISTANCE_INFINITY ? hit_Surface : 0.0, heightMapImage, pass.body, 0.000001 * cameradst);
     }
     float hit_Water = rsi2(pass.ray, pass.body.waterSphere).x;
     vec2 hits_Atmosphere = rsi2(pass.ray, pass.body.atmosphereSphere);

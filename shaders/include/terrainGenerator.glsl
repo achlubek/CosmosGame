@@ -31,5 +31,5 @@ float generateTerrainX(vec4 coord){
 
 float generateTerrain(vec4 coord){
     coord.xyz *= 10.0;
-    return pow(wavesOctaveNoise(coord.xyz + getwaves3d(coord.xyz, 7.0) * 5.0),2.0);
+    return pow(wavesOctaveNoise(coord.xyz + getwaves3d(coord.xyz, 7.0, 0.0) * 5.0),2.0);
 }
