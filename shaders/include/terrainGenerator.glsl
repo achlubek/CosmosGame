@@ -30,6 +30,11 @@ float generateTerrainX(vec4 coord){
 }
 
 float generateTerrain(vec4 coord){
-    coord.xyz *= 10.0;
-    return pow(wavesOctaveNoise(coord.xyz + getwaves3d(coord.xyz, 7.0, 0.0) * 5.0),2.0);
+    coord.xyz *= 5.0 + oct(coord.a) * 1.0;
+    float scaler = pow(getwaves(coord.xyz * 0.1, 14.0, 0.0, coord.a), 3.0) * 0.2 + 0.4;
+    coord.xyz *= scaler;
+    float displacer = getwaves(coord.xyz, 7.0, 0.0, coord.a);
+    vec3 displacer2 = vec3(aBitBetterNoise(coord), aBitBetterNoise(-coord.yxzw), aBitBetterNoise(-coord));
+    float a = getwaves(coord.xyz + displacer * 0.4 + displacer2, 7.0, 0.0, coord.a);
+    return  (pow(a,2.0) + aBitBetterNoise(coord)) * 0.5;
 }

@@ -1,32 +1,29 @@
 #pragma once
-
-
-float hash( float n ){
-    return fract(sin(n)*758.5453);
-}
-
 /*
-Copyright afl_ext (achlubek)
-Released to PUBLIC DOMAIN
+MIT License
 
-contains 1d 2d 3d 4d noises with the same characteristics
-do whatever you want.
+Copyright (c) 2018 Adrian Chlubek
 
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 */
 
-
-float oct(float p){
-    return fract(4768.1232345456 * sin(p));
-}
-float oct(vec2 p){
-    return fract(4768.1232345456 * sin((p.x+p.y*43.0)));
-}
-float oct(vec3 p){
-    return fract(4768.1232345456 * sin((p.x+p.y*43.0+p.z*137.0)));
-}
-float oct(vec4 p){
-    return fract(4768.1232345456 * sin((p.x+p.y*43.0+p.z*137.0+p.w*2666.0)));
-}
+#include hashers.glsl
 
 float achnoise(float x){
     float p = floor(x);
@@ -215,54 +212,4 @@ float FBM4(vec4 p, int octaves, float dx, float ww){
         p.xyz *= resmatrot;
     }
     return a;
-}
-
-
-#define EULER 2.7182818284590452353602874
-float wave3d(vec3 uv, vec3 emitter, float speed, float phase, float timeshift){
-    float dst = distance(uv, emitter);
-    return pow(EULER, sin(dst * phase - (0.0 + timeshift) * speed)) / EULER;
-}
-vec3 wavedrag3d(vec3 uv, vec3 emitter){
-    return normalize(uv - emitter);
-}
-float seedWaves3d = 0.0;
-vec3 rand3dWaves3d(){
-        float x = oct(seedWaves3d);
-    seedWaves3d += 1.0;
-        float y = oct(seedWaves3d);
-    seedWaves3d += 1.0;
-        float z = oct(seedWaves3d);
-    seedWaves3d += 1.0;
-    return vec3(x,y,z) * 2.0 - 1.0;
-}
-
-float getwaves3d(vec3 position, float dragmult, float timeshift){
-    position *= 0.1;
-    float iter = 0.0;
-    float phase = 6.0;
-    float speed = 2.0;
-    float weight = 1.0;
-    float w = 0.0;
-    float ws = 0.0;
-    for(int i=0;i<20;i++){
-        vec3 p = rand3dWaves3d() * 30.0;
-        float res = wave3d(position, p, speed, phase, 0.0 + timeshift);
-        float res2 = wave3d(position, p, speed, phase, 0.006 + timeshift);
-        position -= wavedrag3d(position, p) * (res - res2) * weight * dragmult;
-        w += res * weight;
-        iter += 12.0;
-        ws += weight;
-        weight = mix(weight, 0.0, 0.2);
-        phase *= 1.2;
-        speed *= 1.02;
-    }
-    return w / ws;
-}
-
-float wavesOctaveNoise(vec3 coord){
-    return getwaves3d(coord * 1.0, 20.0, 0.0) * 0.5
-        + getwaves3d(coord * 2.0, 10.0, 0.0) * 0.25
-        + getwaves3d(coord * 4.0, 5.0, 0.0) * 0.125
-        + getwaves3d(coord * 8.0, 1.0, 0.0) * 0.065;
 }

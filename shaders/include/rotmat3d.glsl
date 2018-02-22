@@ -10,3 +10,15 @@ mat3 rotationMatrix(vec3 axis, float angle)
         oc * axis.x * axis.y + axis.z * s, oc * axis.y * axis.y + c, oc * axis.y * axis.z - axis.x * s,
         oc * axis.z * axis.x - axis.y * s, oc * axis.y * axis.z + axis.x * s, oc * axis.z * axis.z + c);
 }
+
+dmat3 drotationMatrix(dvec3 axis, float angle)
+{
+    axis = normalize(axis);
+    double s = sin(angle);
+    double c = cos(angle);
+    double oc = 1.0 - c;
+
+    return dmat3(oc * axis.x * axis.x + c, oc * axis.x * axis.y - axis.z * s, oc * axis.z * axis.x + axis.y * s,
+        oc * axis.x * axis.y + axis.z * s, oc * axis.y * axis.y + c, oc * axis.y * axis.z - axis.x * s,
+        oc * axis.z * axis.x - axis.y * s, oc * axis.y * axis.z + axis.x * s, oc * axis.z * axis.z + c);
+}

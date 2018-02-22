@@ -11,6 +11,7 @@ struct RenderedCelestialBody {
     float atmosphereRadius;
     float atmosphereHeight;
     Sphere surfaceSphere;
+    Sphere surfaceLowSphere;
     Sphere waterSphere;
     Sphere atmosphereSphere;
     float seed;
@@ -38,6 +39,7 @@ RenderedCelestialBody getRenderedBody(CelestialBodyAlignedData aligned){
         aligned.position_radius.a + aligned.sufraceMainColor_atmosphereHeight.a,
         aligned.sufraceMainColor_atmosphereHeight.a,
         Sphere(aligned.position_radius.xyz, aligned.position_radius.a),
+        Sphere(aligned.position_radius.xyz, aligned.position_radius.a - aligned.seed_terrainMaxLevel_fluidMaxLevel_habitableChance.y),
         Sphere(aligned.position_radius.xyz, aligned.position_radius.a - aligned.seed_terrainMaxLevel_fluidMaxLevel_habitableChance.z),
         Sphere(aligned.position_radius.xyz, aligned.position_radius.a + aligned.sufraceMainColor_atmosphereHeight.a),
         aligned.seed_terrainMaxLevel_fluidMaxLevel_habitableChance.x, //seed

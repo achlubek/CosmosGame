@@ -6,7 +6,7 @@
 RenderedCelestialBody::RenderedCelestialBody(VulkanToolkit* itoolkit, CelestialBody ibody, VulkanDescriptorSetLayout* dataSetLayout, VulkanDescriptorSetLayout* renderSetLayout)
     : toolkit(itoolkit), body(ibody)
 {
-    heightMapImage = new VulkanImage(toolkit, TEXTURES_WIDTH, TEXTURES_HEIGHT, VK_FORMAT_R16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
+    heightMapImage = new VulkanImage(toolkit, TEXTURES_WIDTH, TEXTURES_HEIGHT, VK_FORMAT_R32_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
         VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
     
     baseColorImage = new VulkanImage(toolkit, TEXTURES_WIDTH, TEXTURES_HEIGHT, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL,
