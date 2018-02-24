@@ -28,16 +28,21 @@ SOFTWARE.
 #define EULER 2.7182818284590452353602874
 // all variations from 1d to 4d
 float wave(float uv, float emitter, float speed, float phase, float timeshift){
-    return pow(EULER, sin(abs(uv - emitter) * phase - timeshift * speed)) / EULER;
+    return pow(EULER, sin(abs(uv - emitter) * phase - timeshift * speed) - 1.0);
 }
 float wave(vec2 uv, vec2 emitter, float speed, float phase, float timeshift){
-    return pow(EULER, sin(distance(uv, emitter) * phase - timeshift * speed)) / EULER;
+    return pow(EULER, sin(distance(uv, emitter) * phase - timeshift * speed) - 1.0);
 }
 float wave(vec3 uv, vec3 emitter, float speed, float phase, float timeshift){
-    return pow(EULER, sin(distance(uv, emitter) * phase - timeshift * speed)) / EULER;
+    return pow(EULER, sin(distance(uv, emitter) * phase - timeshift * speed) - 1.0);
 }
 float wave(vec4 uv, vec4 emitter, float speed, float phase, float timeshift){
-    return pow(EULER, sin(distance(uv, emitter) * phase - timeshift * speed)) / EULER;
+    return pow(EULER, sin(distance(uv, emitter) * phase - timeshift * speed) - 1.0);
+}
+
+float wavedx(vec3 uv, vec3 emitter, float speed, float phase, float timeshift){
+    float x = distance(uv, emitter) * phase - timeshift * speed;
+    return pow(EULER, sin(x) - 1.0) * cos(x);
 }
 
 float getwaves(float position, float dragmult, float timeshift, float seed){
@@ -142,15 +147,15 @@ float getwavesHighPhase(vec3 position, int iterations, float dragmult, float tim
     float w = 0.0;
     float ws = 0.0;
     for(int i=0;i<iterations;i++){
-        vec3 p = (vec3(oct(seedWaves += 1.0), oct(seedWaves += 1.0), oct(seedWaves += 1.0)) * 2.0 - 1.0) * 600.0;
-        float res = wave(position, p, speed, phase, 0.0 + timeshift);
-        float res2 = wave(position, p, speed, phase, 0.006 + timeshift);
-        position -= normalize(position - p) * (res - res2) * weight * dragmult;
+        vec3 p = (vec3(oct(seedWaves += 1.0), oct(seedWaves += 1.0), oct(seedWaves += 1.0)) * 2.0 - 1.0) * 800.0;
+        float res = wave(position, p, speed, phase, timeshift);
+        float dx = wavedx(position, p, speed, phase, timeshift) * 0.012;
+        position -= normalize(position - p) * dx * weight * dragmult;
         w += res * weight;
         iter += 12.0;
         ws += weight;
         weight = mix(weight, 0.0, 0.2);
-        phase *= 1.2;
+        phase *= 1.3;
         speed *= 1.02;
     }
     return w / ws;
