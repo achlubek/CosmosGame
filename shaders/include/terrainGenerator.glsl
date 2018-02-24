@@ -35,6 +35,6 @@ float generateTerrain(vec4 coord){
     coord.xyz *= scaler;
     float displacer = getwaves(coord.xyz, 7.0, 0.0, coord.a);
     vec3 displacer2 = vec3(aBitBetterNoise(coord), aBitBetterNoise(-coord.yxzw), aBitBetterNoise(-coord));
-    float a = getwaves(coord.xyz + displacer * 0.4 + displacer2, 7.0, 0.0, coord.a);
-    return  (pow(a,2.0) + aBitBetterNoise(coord)) * 0.5;
+    float a = 1.0 - getwaves(coord.xyz + displacer * 0.4 + displacer2, 7.0, 0.0, coord.a) * aBitBetterNoise(coord);
+    return  pow(a * 1.2, 3.0);//a * 3.6;//clamp((pow(a*0.0,2.0) + aBitBetterNoise(coord)) * 0.0, 0.0, 1.0);
 }

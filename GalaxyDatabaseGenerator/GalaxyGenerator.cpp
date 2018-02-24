@@ -127,7 +127,7 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
             planet->radius = randu64(339, 937.1); // ranges from mars to 1,5x earth
             moonsCount = randu64(1, 4);
             planet->atmosphereRadius = (planet->radius * 0.004709);
-            planet->terrainMaxLevel =  planet->radius * 0.04709;
+            planet->terrainMaxLevel =  planet->radius * 0.004709;
             float rand1 = drandnorm();
             planet->atmosphereAbsorbStrength = 0.12;
             planet->atmosphereAbsorbColor = glm::vec3(drandnorm(), drandnorm(), drandnorm());

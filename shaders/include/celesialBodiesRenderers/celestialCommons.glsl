@@ -45,11 +45,11 @@ float getwavesHighPhaseTerrainRefinement(vec3 position, float dragmult, float ti
 
 float celestialGetHeight(vec3 direction){
     float primary = texture(heightMapImage, xyzToPolar(direction)).r;
-    float secondary = FBM3(direction * 0.9, 12, 2.0, 0.66);
+    float secondary = abs(FBM3(direction * 220.9, 4, 2.0, 0.55) - 0.5);
     float refinement = pow(getwavesHighPhaseTerrainRefinement(direction.xyz * 0.1, 1.0, 0.0, 0.0),1.0);
     //return primary * 30.0 + secondary;
     vec3 coord = normalize(direction) * 10.0;
-    return 1.0 - pow(primary + secondary * 1.0, 3.0);
+    return primary * 0.95 + secondary * 0.05;//smoothstep(0.99, 0.999, primary);
 }
 
 float celestialGetHeightRaycast(RenderedCelestialBody body, vec3 position){
@@ -57,20 +57,17 @@ float celestialGetHeightRaycast(RenderedCelestialBody body, vec3 position){
 }
 
 float raymarchCelestialTerrain(Ray ray, float startDistance, sampler2D s, RenderedCelestialBody body, float limit){
-    float dist = startDistance + limit;
-    float maxheight2 = body.radius;// + body.terrainMaxLevel;
+    float maxheight2 = body.radius * 1.01;// + body.terrainMaxLevel;
     vec3 center = body.position;
-    vec3 lastPos = ray.o;
+    vec3 p = ray.o + ray.d * startDistance;
     for(int i=0;i<7000;i++){
-        vec3 p = ray.o + ray.d * dist;
         vec3 dir = normalize(p - center);
-        float dc = distance(p, center); // probe distance to planet center
-        float surfaceHeight = body.radius - celestialGetHeight(dir) * body.terrainMaxLevel; // surface height at probe position
-        float ds = dc - surfaceHeight; // probe altitude
-        if(ds < limit) return dist;
-        if(dc > maxheight2 ) return -0.01;
-        dist += ds ;
-        lastPos = p;
+        float centerDistanceProbe = distance(p, center); // probe distance to planet center
+        if(centerDistanceProbe > maxheight2 ) return -0.01;
+        float centerDistanceSufrace = body.radius - celestialGetHeight(dir) * body.terrainMaxLevel; // surface height at probe position
+        float altitude = centerDistanceProbe - centerDistanceSufrace; // probe altitude
+        if(altitude < limit) return distance(center + centerDistanceSufrace * dir, ray.o);
+        p += ray.d * max(limit, altitude);
     }
     return -0.01;
 }
@@ -110,22 +107,22 @@ vec3 celestialGetNormalRaycast(RenderedCelestialBody body, float dxrange, vec3 p
 }
 
 float getWaterHeightHiRes(RenderedCelestialBody body, vec3 dir){
-    return (body.radius - body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir * 391.0, 19, 2.0, Time, 0.0)) * 0.0005;
+    return (body.radius - body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir * 391.0, 9, 2.0, Time, 0.0)) * 0.0005;
 }
 float getWaterHeightLowRes(RenderedCelestialBody body, vec3 dir){
     return (body.radius - body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir * 391.0, 9, 2.0, Time, 0.0)) * 0.0005;
 }
 
-vec3 celestialGetWaterNormal(RenderedCelestialBody body, float dxrange, dvec3 dir){
-    dvec3 tangdir = normalize(cross(dir, dvec3(0.0, 1.0, 0.0)));
-    dvec3 bitangdir = normalize(cross(tangdir, dir));
-    dmat3 normrotmat1 = drotationMatrix(tangdir, dxrange);
-    dmat3 normrotmat2 = drotationMatrix(bitangdir, dxrange);
-    dvec3 dir2 = dmat3(normrotmat1) * dir;
-    dvec3 dir3 = dmat3(normrotmat2) * dir;
-    dvec3 p1 = dir * double(getWaterHeightHiRes(body, vec3(dir)));
-    dvec3 p2 = dir2 * double(getWaterHeightHiRes(body, vec3(dir2)));
-    dvec3 p3 = dir3 * double(getWaterHeightHiRes(body, vec3(dir3)));
+vec3 celestialGetWaterNormal(RenderedCelestialBody body, float dxrange, vec3 dir){
+    vec3 tangdir = normalize(cross(dir, vec3(0.0, 1.0, 0.0)));
+    vec3 bitangdir = normalize(cross(tangdir, dir));
+    mat3 normrotmat1 = rotationMatrix(tangdir, dxrange);
+    mat3 normrotmat2 = rotationMatrix(bitangdir, dxrange);
+    vec3 dir2 = normrotmat1 * dir;
+    vec3 dir3 = normrotmat2 * dir;
+    vec3 p1 = dir * getWaterHeightHiRes(body, vec3(dir));
+    vec3 p2 = dir2 * getWaterHeightHiRes(body, vec3(dir2));
+    vec3 p3 = dir3 * getWaterHeightHiRes(body, vec3(dir3));
     return vec3(normalize(cross(normalize(p3 - p1), normalize(p2 - p1))));
 }
 
@@ -134,30 +131,18 @@ vec3 celestialGetWaterNormalRaycast(RenderedCelestialBody body, float dxrange, v
 }
 
 float raymarchCelestialWater(Ray ray, float startDistance, RenderedCelestialBody body, float limit){
-    float dist = startDistance+limit;
     float maxheight1 = body.radius - body.fluidMaxLevel;
-    float maxheight2 = body.radius - body.fluidMaxLevel - 0.001;// + body.terrainMaxLevel;
+    float maxheight2 = body.radius - body.fluidMaxLevel + 0.005;// + body.terrainMaxLevel;
     vec3 center = body.position;
-    vec3 lastPos = ray.o;
-    bool firstiter = false;
+    vec3 p = ray.o + ray.d * startDistance;
     for(int i=0;i<700;i++){
-        vec3 p = ray.o + ray.d * dist;
         vec3 dir = normalize(p - center);
-        float dc = distance(p, center); // probe distance to planet center
-        if(dc > maxheight1 ) return -0.01;
-        //if(dc < maxheight2 ) return dist;
-        float surfaceHeight = getWaterHeightLowRes(body, dir);
-        float ds = dc - surfaceHeight; // probe altitude
-        if(ds < limit) {
-            if(firstiter){
-                dist -= limit * 10.0;
-                limit *= 0.001;
-            } else {
-                return dist;
-            }
-        }
-        dist += max(limit, ds) ;
-        lastPos = p;
+        float centerDistanceProbe = distance(p, center); // probe distance to planet center
+        //if(centerDistanceProbe > maxheight2 ) return -0.01;
+        float centerDistanceSufrace = getWaterHeightLowRes(body, dir);
+        float altitude = centerDistanceProbe - centerDistanceSufrace; // probe altitude
+        if(altitude < limit) return distance(p, ray.o);
+        p += ray.d * max(limit, altitude);
     }
     return -0.01;
 }
@@ -168,10 +153,10 @@ void updatePassHits(inout RenderPass pass){
     float hit_Surface2 = rsi2(pass.ray, pass.body.surfaceSphere).y;
     float cameradst = distance(pass.body.position, pass.ray.o);
     //if(cameradst < pass.body.radius * 4.0 ){
-        hit_Surface = raymarchCelestialTerrain(pass.ray, hit_Surface > 0.0 && hit_Surface < DISTANCE_INFINITY ? hit_Surface : 0.0, heightMapImage, pass.body, 0.00001 * cameradst);
+        hit_Surface = raymarchCelestialTerrain(pass.ray, hit_Surface > 0.0 && hit_Surface < DISTANCE_INFINITY ? hit_Surface : 0.0, heightMapImage, pass.body, 0.00001 );
     //}
     float hit_Water = rsi2(pass.ray, pass.body.waterSphere).x;
-    if(hit_Water < 0.2 ){
+    if(hit_Water < 0.2 && hit_Water > 0.0){
         hit_Water = raymarchCelestialWater(pass.ray, hit_Water, pass.body, 0.00001 * cameradst);
     }
     vec2 hits_Atmosphere = rsi2(pass.ray, pass.body.atmosphereSphere);
