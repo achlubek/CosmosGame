@@ -359,7 +359,7 @@ void CosmosRenderer::draw()
 {
     if (!readyForDrawing) return;
 
-    galaxy->update(observerCameraPosition);
+    //galaxy->update(observerCameraPosition);
 
     updatingSafetyQueue.executeAll();
 

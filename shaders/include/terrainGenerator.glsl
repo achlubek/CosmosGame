@@ -30,7 +30,7 @@ float generateTerrainX(vec4 coord){
 }
 
 float generateTerrain(vec4 coord){
-    coord.xyz *= 5.0 + oct(coord.a) * 1.0;
+    coord.xyz *= 9.0 + oct(coord.a) * 6.0;
     float scaler = pow(getwaves(coord.xyz * 0.1, 14.0, 0.0, coord.a), 3.0) * 0.2 + 0.4;
     coord.xyz *= scaler;
     float displacer = getwaves(coord.xyz, 7.0, 0.0, coord.a);

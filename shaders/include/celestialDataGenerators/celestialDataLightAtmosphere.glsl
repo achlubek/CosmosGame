@@ -26,5 +26,5 @@ vec4 celestialLightAtmosphereGetColorRoughnessMap(RenderedCelestialBody body, fl
 #include cloudsRendering.glsl
 
 vec2 celestialLightAtmosphereGetCloudsMap(RenderedCelestialBody body, float height, vec3 dir){
-    return getLowAndHighClouds(dir);
+    return getLowAndHighClouds(dir, body.seed);
 }
