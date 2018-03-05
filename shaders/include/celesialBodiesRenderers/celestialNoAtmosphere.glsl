@@ -10,7 +10,7 @@ CelestialRenderResult renderCelestialBodyNoAtmosphere(RenderPass pass){
     float flatdt = max(0.0, dot(flatnormal, dirToStar));
     dt = max(dt * flatdt, flatdt);
     if(pass.isSurfaceHit){
-        return CelestialRenderResult(vec4(0.0),vec4(color * dt, 1.0));
+        return CelestialRenderResult(vec4(0.0),vec4(color * dt * ClosestStarColor, 1.0));
     }
     return CelestialRenderResult(vec4(0.0), vec4(0.0));
 }

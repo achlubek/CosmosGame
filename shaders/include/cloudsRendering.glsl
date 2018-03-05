@@ -28,7 +28,7 @@ float cloud(vec4 p)
 #define Time 0.0 //Stub
 
 float clouds(vec3 p, float seed){
-    float howCloudy = oct(seed + 1.0);
+    float howCloudy = oct(seed + 1.0) * 0.6;
     float scaling = oct(seed + 3.0);
     float shift = oct(seed + 5.0);
     p *= 0.5 + scaling;

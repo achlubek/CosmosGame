@@ -9,7 +9,7 @@ vec3 getAtmosphereColorForRay(RenderPass pass, vec3 pos, vec3 dir){
     float dt2 = 1.0 - (1.0 / (1.0 + 10.0 * max(0.0, dot(normal, dirToStar))));
     vec3 noonColor = 1.0 - pass.body.atmosphereAbsorbColor;
     vec3 sunsetColor = pass.body.atmosphereAbsorbColor;
-    return sunsetColor * dt2;
+    return ClosestStarColor * sunsetColor * dt2;
 }
 
 float flatsmoothstep(float start, float end, float val){
@@ -23,12 +23,12 @@ vec3 getAtmosphereAmbienceColorForPosition(RenderPass pass, vec3 pos){
     vec3 noonColor = 1.0 - pass.body.atmosphereAbsorbColor;
     vec3 sunsetColor = pass.body.atmosphereAbsorbColor;
     float altitude = distance(pos, pass.body.position);
-    return ClosestStarColor * 100.0 * sunsetColor * dt2 * (1.0 - flatsmoothstep(pass.body.radius, pass.body.atmosphereRadius, altitude)) * pass.body.atmosphereHeight;
+    return ClosestStarColor * sunsetColor * dt2 * (1.0 - flatsmoothstep(pass.body.radius, pass.body.atmosphereRadius, altitude)) * pass.body.atmosphereHeight;
 }
 
 CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end){
-    vec3 noonColor = 1.0 - pass.body.atmosphereAbsorbColor;
-    vec3 sunsetColor = pass.body.atmosphereAbsorbColor;
+    vec3 noonColor = (1.0 - pass.body.atmosphereAbsorbColor) * ClosestStarColor;
+    vec3 sunsetColor = (pass.body.atmosphereAbsorbColor) * ClosestStarColor;
     float density = pass.body.atmosphereAbsorbStrength;
     float coverage = 0.0;
     vec3 alphacolor = vec3(0.0);
@@ -53,7 +53,7 @@ CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end
         vec3 dirToStar = normalize(ClosestStarPosition - pos);
         float dt = 1.0 - (1.0 / (1.0 + 10.0 * max(0.0, dot(normal, dirToStar))));
         float realshadow = getHighCloudsShadowAtPoint(pass.body, pos);
-        color += realshadow * rayleightCoeff * (1.0 - coverage) * ClosestStarColor * 520.0 * (distmultiplier) * heightmix * mix(noonColor, sunsetColor, dt) * dt;
+        color += realshadow * rayleightCoeff * (1.0 - coverage) * (distmultiplier) * heightmix * mix(noonColor, sunsetColor, dt) * dt * 100.0;
         float dt2 =  max(0.0, dot(pass.ray.d, dirToStar));
         color += realshadow * heightmix * dt2 * ( mieCoeff * 4000.0) * distmultiplier * mix(noonColor, sunsetColor, dt) * dt * (pass.isSurfaceHit || pass.isWaterHit ? 0.0 : 1.0) * (1.0 - coverage);
         float lowClouds = 0.0;//celestialGetCloudsRaycast(pass.body, pos).r * heightmix_middle;
@@ -143,15 +143,16 @@ vec3 renderWater(RenderPass pass){
     waternormal = normalize(waternormal);
     flatnormal = normalize(pass.waterHitPos - pass.body.position);
     float flatdt2 = max(0.0, dot(flatnormal, dirToStar));
-    float roughness = mix(0.0, 1.0, smoothstep(0.0, 1.0, sqrt(pass.waterHit * 4.0)));
-    float phongMult = mix(442.0, 64.0, roughness);
+    float roughness = mix(0.0, 1.0, clamp(1.0 - 1.0 / (1.0 + pass.waterHit * 50.0), 0.0, 1.0));
+    float colormultiplier = 1.0 - roughness * roughness * 0.94;
+    float phongMult = mix(442.0, 8.0, roughness);
     waternormal = mix(waternormal, flatnormal, roughness);
     float fresnel = fresnelCoefficent(waternormal, pass.ray.d, 0.04);
     vec3 reflectedAtmo = fresnel * getAtmosphereColorForRay(pass, pass.waterHitPos, normalize(reflect(pass.ray.d, waternormal)));
     vec3 reflected = normalize(reflect(pass.ray.d, waternormal));
     float refldt = max(0.0, dot(reflected, dirToStar));
-    vec3 result = 10.0 * vec3(0.0, 0.002, 0.006) * max(0.0, flatdt) + reflectedAtmo;
-    result += 10.0 * ClosestStarColor * pow(refldt, phongMult);
+    vec3 result = colormultiplier * 10.0 * vec3(0.0, 0.002, 0.006) * max(0.0, flatdt) + reflectedAtmo;
+    result += colormultiplier * ClosestStarColor * pow(refldt, phongMult) * 100.0;
     return result;
 }
 
@@ -197,7 +198,7 @@ CelestialRenderResult renderCelestialBodyLightAtmosphere(RenderPass pass){
     atmo.alphaBlendedLight.a = clamp(atmo.alphaBlendedLight.a, 0.0, 1.0);
 
     float threshold = pass.body.radius * 3.0;
-    vec4 summedAlpha = vec4(atmo.additionLight.rgb + atmo.alphaBlendedLight.rgb, atmo.alphaBlendedLight.a);
+    vec4 summedAlpha = vec4(atmo.additionLight.rgb + atmo.alphaBlendedLight.rgb, min(1.0, atmo.alphaBlendedLight.a + length(atmo.additionLight.rgb)));
     vec4 reducedAdditive = vec4(0.0);
     float mixvalue = clamp(distance(pass.ray.o, pass.body.position) / threshold, 0.0, 1.0);
     mixvalue = smoothstep(0.8, 1.0, mixvalue);

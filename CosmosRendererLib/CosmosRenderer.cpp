@@ -333,7 +333,7 @@ void CosmosRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosi
     bb.emplaceFloat32(0.0f);
     bb.emplaceFloat32((float)width);
     bb.emplaceFloat32((float)height);
-    bb.emplaceFloat32(0.0f);
+    bb.emplaceFloat32(exposure);
     bb.emplaceFloat32(0.0f);
 
     bb.emplaceFloat32(closesStarRelPos.x);
@@ -341,9 +341,24 @@ void CosmosRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosi
     bb.emplaceFloat32(closesStarRelPos.z);
     bb.emplaceFloat32(0.0f);
 
-    bb.emplaceFloat32(star.color.r);
-    bb.emplaceFloat32(star.color.g);
-    bb.emplaceFloat32(star.color.b);
+	// calculate lux of closest star
+	// assuming 1 AU = 1 490 000 
+	// and lux at 1 AU = 120 000
+	// the formula for AU coefficent = distance / AU1
+	// the formula for lux coefficent = 1.0 / (AUcoefficent * AUcoefficent)
+	// the formula for final lux is lux multiplier * 120 000
+	double au1 = 1490000.0;
+	double aucoeff = galaxy->getClosestPlanet().hostDistance / au1;
+	double luxcoeff = 1.0 / (aucoeff * aucoeff);
+	double lux = luxcoeff * 120000.0;
+
+	/*
+	lux = 120000 / (distance / 1 AU) ^ 2
+	*/
+
+    bb.emplaceFloat32(star.color.r * lux);
+    bb.emplaceFloat32(star.color.g * lux);
+    bb.emplaceFloat32(star.color.b * lux);
     bb.emplaceFloat32(0.0f);
 
     void* data;

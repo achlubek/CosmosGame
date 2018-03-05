@@ -9,7 +9,7 @@ layout(set = 0, binding = 0) uniform UniformBufferObject1 {
     vec4 inFrustumConeLeftBottom;
     vec4 inFrustumConeBottomLeftToBottomRight;
     vec4 inFrustumConeBottomLeftToTopLeft;
-    vec4 Resolution;
+    vec4 Resolution_Exposure_Zero;
     vec4 ClosestStarPosition;
     vec4 ClosestStarColor;
 } hiFreq;
@@ -22,4 +22,5 @@ vec3 FrustumConeBottomLeftToBottomRight = hiFreq.inFrustumConeBottomLeftToBottom
 vec3 FrustumConeBottomLeftToTopLeft = hiFreq.inFrustumConeBottomLeftToTopLeft.xyz;
 vec3 ClosestStarPosition = hiFreq.ClosestStarPosition.xyz;
 vec3 ClosestStarColor = hiFreq.ClosestStarColor.xyz;
-vec2 Resolution = hiFreq.Resolution.xy;
+vec2 Resolution = hiFreq.Resolution_Exposure_Zero.xy;
+float Exposure = hiFreq.Resolution_Exposure_Zero.z;

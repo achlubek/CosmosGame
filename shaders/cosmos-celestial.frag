@@ -37,6 +37,8 @@ void main() {
     RenderedCelestialBody body = getRenderedBody(celestialBuffer.celestialBody);
     vec3 dir = reconstructCameraSpaceDistance(gl_FragCoord.xy / Resolution, 1.0);
     CelestialRenderResult result = renderCelestialBody(body, Ray(vec3(0.0), dir));
+    result.alphaBlendedLight.rgb *= Exposure;
+    result.additionLight.rgb *= Exposure;
     outColorAlpha = result.alphaBlendedLight;
     outColorAdditive = result.additionLight;
 }

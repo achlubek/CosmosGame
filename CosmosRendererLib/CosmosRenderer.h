@@ -78,6 +78,8 @@ public:
 
     const double scale = 0.01;
 
+	float exposure = 0.001;
+
     glm::dvec3 observerCameraPosition;
     double closestSurfaceDistance;
 
