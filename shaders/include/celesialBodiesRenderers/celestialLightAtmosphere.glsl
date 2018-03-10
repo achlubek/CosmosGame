@@ -38,7 +38,7 @@ CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end
     float radius = pass.body.radius;
     float atmoheight = pass.body.atmosphereHeight;
     float rayStarDt = dot(normalize(ClosestStarPosition - pass.ray.o), pass.ray.d);
-    float mieCoeff = (1.0 / (0.1 + 990.0 * (1.0 - max(0.0, rayStarDt))));
+    float mieCoeff = (1.0 / (1.0 + 990.0 * (1.0 - max(0.0, rayStarDt))));
     float rayleightCoeff = (1.0 / (1.0 + 12.1 * (  1.0 - (rayStarDt * 0.5 + 0.5 ))));
     float distmultiplier = distance(start, end);
     float dimmer = 1.0 / (1.0 + 10.0*distmultiplier);
@@ -173,7 +173,7 @@ CelestialRenderResult renderCelestialBodyLightAtmosphere(RenderPass pass){
         vec3 surface = vec3(0.0);
         vec3 realSurfaceDir = normalize(pass.surfaceHitPos - pass.body.position);
         vec3 realWaterDir = normalize(pass.waterHitPos - pass.body.position);
-        float heightAtDir = pass.body.radius - celestialGetHeight(realSurfaceDir) * pass.body.terrainMaxLevel;
+        float heightAtDir = pass.body.radius - celestialGetHeight(pass.body, realSurfaceDir) * pass.body.terrainMaxLevel;
         float waterAtDir = getWaterHeightHiRes(pass.body, realWaterDir);
         vec3 posSurface = pass.body.position + realSurfaceDir * heightAtDir;
         vec3 posWater = pass.body.position + realWaterDir * waterAtDir;

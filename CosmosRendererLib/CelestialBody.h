@@ -31,6 +31,11 @@ public:
             + glm::dvec3(glm::angleAxis(orbitSpeed * at_time * 0.001, glm::dvec3(orbitPlane)) * glm::dvec3(orbitplaneTangent)) * hostDistance;
     }
 
+	glm::mat4 getRotationMatrix(double at_time) {
+		glm::quat rotationQuat = glm::angleAxis(rotationSpeed * at_time * 0.001, rotationPlane);
+		return glm::mat4_cast(rotationQuat);
+	}
+
     virtual glm::dvec3 getLinearVelocity(double at_time) {
         return getPosition(at_time + 1.0) - getPosition(at_time);
     }

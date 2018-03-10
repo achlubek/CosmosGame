@@ -19,8 +19,8 @@ void InvokeQueue::enqueue(std::function<void(void)> func)
 
 void InvokeQueue::executeAll()
 {
-    int c = invokeQueue.size();
-    for (int i = 0; i < c; i++) {
+    size_t c = invokeQueue.size();
+    for (size_t i = 0; i < c; i++) {
         auto func = invokeQueue.front();
         func();
         invokeQueue.pop();

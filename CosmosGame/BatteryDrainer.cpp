@@ -4,12 +4,12 @@
 #include "GameObject.h"
 
 
-BatteryDrainer::BatteryDrainer(GameObject* iowner, float imaximumWattage)
+BatteryDrainer::BatteryDrainer(GameObject* iowner, double imaximumWattage)
     : owner(iowner), maximumWattage(imaximumWattage)
 {
 }
 
-BatteryDrainer::BatteryDrainer(float imaximumWattage)
+BatteryDrainer::BatteryDrainer(double imaximumWattage)
     : maximumWattage(imaximumWattage)
 {
 }

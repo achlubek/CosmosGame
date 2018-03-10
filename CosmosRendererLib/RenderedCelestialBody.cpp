@@ -80,7 +80,7 @@ void RenderedCelestialBody::draw(VulkanRenderStage * stage, VulkanDescriptorSet*
 void RenderedCelestialBody::updateBuffer(glm::dvec3 observerPosition, double scale, double time)
 {
     VulkanBinaryBufferBuilder bb = VulkanBinaryBufferBuilder();
-    bb.emplaceFloat32(time);
+    bb.emplaceFloat32((float)time);
     bb.emplaceFloat32((float)TEXTURES_WIDTH);
     bb.emplaceFloat32((float)TEXTURES_HEIGHT);
     bb.emplaceFloat32(0.0f);
@@ -92,25 +92,28 @@ void RenderedCelestialBody::updateBuffer(glm::dvec3 observerPosition, double sca
     bb.emplaceInt32(0);
     bb.emplaceInt32(0);
 
-    bb.emplaceFloat32(bodyPosition.x * scale);
-    bb.emplaceFloat32(bodyPosition.y * scale);
-    bb.emplaceFloat32(bodyPosition.z * scale);
-    bb.emplaceFloat32(body.radius * scale);
+    bb.emplaceFloat32((float)(bodyPosition.x * scale));
+    bb.emplaceFloat32((float)(bodyPosition.y * scale));
+    bb.emplaceFloat32((float)(bodyPosition.z * scale));
+    bb.emplaceFloat32((float)(body.radius * scale));
 
     bb.emplaceFloat32(body.preferredColor.r);
     bb.emplaceFloat32(body.preferredColor.g);
     bb.emplaceFloat32(body.preferredColor.b);
-    bb.emplaceFloat32(body.atmosphereRadius * scale);
+    bb.emplaceFloat32((float)(body.atmosphereRadius * scale));
 
     bb.emplaceFloat32((float)body.bodyId);
-    bb.emplaceFloat32(body.terrainMaxLevel * scale);
-    bb.emplaceFloat32(body.fluidMaxLevel * scale);
-    bb.emplaceFloat32(body.habitableChance);
+    bb.emplaceFloat32((float)(body.terrainMaxLevel * scale));
+    bb.emplaceFloat32((float)(body.fluidMaxLevel * scale));
+    bb.emplaceFloat32((float)body.habitableChance);
 
     bb.emplaceFloat32(body.atmosphereAbsorbColor.r);
     bb.emplaceFloat32(body.atmosphereAbsorbColor.g);
     bb.emplaceFloat32(body.atmosphereAbsorbColor.b);
-    bb.emplaceFloat32(body.atmosphereAbsorbStrength);
+    bb.emplaceFloat32((float)body.atmosphereAbsorbStrength);
+
+	auto rotmat = body.getRotationMatrix(time);
+	bb.emplaceGeneric((unsigned char*)&rotmat, sizeof(rotmat));
 
     void* data;
     dataBuffer->map(0, bb.buffer.size(), &data);

@@ -15,13 +15,14 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GameSpecificsLib", "GameSpecificsLib\GameSpecificsLib.vcxproj", "{20406D44-5955-4CEA-ACE9-9432A3010A6A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GalaxyDatabaseGenerator", "GalaxyDatabaseGenerator\GalaxyDatabaseGenerator.vcxproj", "{3CEC7E5C-96EA-4EC7-90E1-824B1F8AC82A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1A8000FF-04F4-4D3A-B6FB-47E9342CE22B} = {1A8000FF-04F4-4D3A-B6FB-47E9342CE22B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CelestialBodyEditor", "CelestialBodyEditor\CelestialBodyEditor.vcxproj", "{4608E0BF-1903-44B6-A914-94034D6F29C4}"
 	ProjectSection(ProjectDependencies) = postProject
 		{1A8000FF-04F4-4D3A-B6FB-47E9342CE22B} = {1A8000FF-04F4-4D3A-B6FB-47E9342CE22B}
 	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CosmosScripting", "CosmosScripting\CosmosScripting.vcxproj", "{EAD3A653-3989-43F3-A10F-31DE60F65374}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -79,14 +80,6 @@ Global
 		{4608E0BF-1903-44B6-A914-94034D6F29C4}.Release|x64.Build.0 = Release|x64
 		{4608E0BF-1903-44B6-A914-94034D6F29C4}.Release|x86.ActiveCfg = Release|Win32
 		{4608E0BF-1903-44B6-A914-94034D6F29C4}.Release|x86.Build.0 = Release|Win32
-		{EAD3A653-3989-43F3-A10F-31DE60F65374}.Debug|x64.ActiveCfg = Debug|x64
-		{EAD3A653-3989-43F3-A10F-31DE60F65374}.Debug|x64.Build.0 = Debug|x64
-		{EAD3A653-3989-43F3-A10F-31DE60F65374}.Debug|x86.ActiveCfg = Debug|Win32
-		{EAD3A653-3989-43F3-A10F-31DE60F65374}.Debug|x86.Build.0 = Debug|Win32
-		{EAD3A653-3989-43F3-A10F-31DE60F65374}.Release|x64.ActiveCfg = Release|x64
-		{EAD3A653-3989-43F3-A10F-31DE60F65374}.Release|x64.Build.0 = Release|x64
-		{EAD3A653-3989-43F3-A10F-31DE60F65374}.Release|x86.ActiveCfg = Release|Win32
-		{EAD3A653-3989-43F3-A10F-31DE60F65374}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
