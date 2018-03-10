@@ -8,4 +8,4 @@ layout(set = 1, binding = 0) uniform CelestialStorageBuffer {
 layout(set = 1, binding = 1) uniform sampler2D heightMapImage;
 layout(set = 1, binding = 2) uniform sampler2D baseColorImage;
 layout(set = 1, binding = 3) uniform sampler2D cloudsImage;
-layout(set = 1, binding = 4) uniform sampler2D shadowMapImage;
+layout(set = 0, binding = 4, rgba32f) uniform writeonly image2D shadowMapImage;

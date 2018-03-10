@@ -30,16 +30,21 @@ The
 class RenderedCelestialBody
 {
 public:
-    RenderedCelestialBody(VulkanToolkit* toolkit, CelestialBody body, VulkanDescriptorSetLayout* dataSetLayout, VulkanDescriptorSetLayout* renderSetLayout);
+    RenderedCelestialBody(VulkanToolkit* toolkit, CelestialBody body, 
+		VulkanDescriptorSetLayout* dataSetLayout, VulkanDescriptorSetLayout* shadowMapSetLayout, VulkanDescriptorSetLayout* renderSetLayout);
     ~RenderedCelestialBody();
-    void updateData(VulkanComputeStage* stage);
+	void updateData(VulkanComputeStage* stage);
+	void updateShadows(VulkanComputeStage* stage);
     void draw(VulkanRenderStage* stage, VulkanDescriptorSet* rendererDataSet, Object3dInfo* info3d);
     void updateBuffer(glm::dvec3 observerPosition, double scale, double time);
     double getDistance(glm::dvec3 position, double at_time);
 private:
 
-    const int TEXTURES_WIDTH = 1024 * 2;
-    const int TEXTURES_HEIGHT = 1024;
+	const int TEXTURES_WIDTH = 1024 * 2;
+	const int TEXTURES_HEIGHT = 1024;
+
+	const int SHADOW_MAP_TEXTURES_WIDTH = 1024;
+	const int SHADOW_MAP_TEXTURES_HEIGHT = 1024;
 
     VulkanToolkit * toolkit;
 
@@ -49,9 +54,15 @@ private:
     VulkanImage* baseColorImage;
     VulkanImage* cloudsImage;
 
+	// shadowmap values will be stored in distance, in orthographic projection, from perspective of sun, with up being Y+
+	// distance encoded will be in range 0 -> RADIUS
+	VulkanImage* shadowMapImage; // R for terrain distance, G for clouds distance, B for clouds coverage at that distance, A for ???
+
     VulkanGenericBuffer* dataBuffer;
 
-    VulkanDescriptorSet* dataSet;
+	VulkanDescriptorSet* dataSet;
+
+	VulkanDescriptorSet* shadowMapSet;
 
     VulkanDescriptorSet* renderSet;
 

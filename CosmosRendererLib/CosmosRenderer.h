@@ -50,9 +50,12 @@ public:
 
     VulkanDescriptorSetLayout* modelMRTLayout{ nullptr };
 
-    VulkanDescriptorSetLayout* celestialBodyDataSetLayout{ nullptr };
-    VulkanDescriptorSetLayout* celestialBodyRenderSetLayout{ nullptr };
-    VulkanComputeStage* celestialDataUpdateComputeStage;
+	VulkanDescriptorSetLayout* celestialBodyDataSetLayout{ nullptr };
+	VulkanDescriptorSetLayout* celestialBodyRenderSetLayout{ nullptr };
+	VulkanComputeStage* celestialDataUpdateComputeStage;
+
+	VulkanDescriptorSetLayout* celestialShadowMapSetLayout{ nullptr };
+	VulkanComputeStage* celestialShadowMapComputeStage;
 
     VulkanDescriptorSetLayout* celestiaStarsBlitSetLayout{ nullptr };
     VulkanDescriptorSet* celestiaStarsBlitSet{ nullptr };

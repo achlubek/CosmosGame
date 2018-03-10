@@ -14,12 +14,14 @@ public:
     double fluidMaxLevel; //0->1
     double hostDistance; // real units like sun to earth 149 600 000
     double habitableChance; //0->1
-    double orbitSpeed; //0->1
+    double orbitSpeed; //this should be calculated with star mass and distance from star
     glm::vec3 preferredColor;//0->1
     double atmosphereRadius;
     double atmosphereAbsorbStrength;//0->1
     glm::vec3 atmosphereAbsorbColor;//0->1
-    glm::dvec3 orbitPlane;
+	glm::dvec3 orbitPlane;
+	glm::dvec3 rotationPlane;
+	double rotationSpeed;
     AbsCelestialObject* host{ nullptr };
     uint64_t bodyId;
 

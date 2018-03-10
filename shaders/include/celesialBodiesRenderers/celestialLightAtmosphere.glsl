@@ -138,7 +138,7 @@ vec3 renderWater(RenderPass pass){
     vec3 dirToStar = normalize(ClosestStarPosition - pass.waterHitPos);
     vec3 flatnormal = normalize(pass.waterHitPos - pass.body.position);
     float flatdt = max(-0.1, dot(flatnormal, dirToStar));
-    vec3 waternormal = celestialGetWaterNormalRaycast(pass.body,  0.000018, pass.waterHitPos);
+    vec3 waternormal = celestialGetWaterNormalRaycast(pass.body,  0.000028, pass.waterHitPos);
 
     waternormal = normalize(waternormal);
     flatnormal = normalize(pass.waterHitPos - pass.body.position);
@@ -151,8 +151,9 @@ vec3 renderWater(RenderPass pass){
     vec3 reflectedAtmo = fresnel * getAtmosphereColorForRay(pass, pass.waterHitPos, normalize(reflect(pass.ray.d, waternormal)));
     vec3 reflected = normalize(reflect(pass.ray.d, waternormal));
     float refldt = max(0.0, dot(reflected, dirToStar));
-    vec3 result = colormultiplier * 10.0 * vec3(0.0, 0.002, 0.006) * max(0.0, flatdt) + reflectedAtmo;
-    result += colormultiplier * ClosestStarColor * pow(refldt, phongMult) * 100.0;
+    //vec3 result = fresnel * colormultiplier * 10.0 * vec3(0.0, 0.002, 0.006) * max(0.0, flatdt) + reflectedAtmo;
+    vec3 result = reflectedAtmo;
+    result += fresnel * colormultiplier * ClosestStarColor * pow(refldt, phongMult) * 100.0;
     return result;
 }
 
@@ -161,7 +162,7 @@ CelestialRenderResult renderCelestialBodyLightAtmosphere(RenderPass pass){
     float height = celestialGetHeightRaycast(pass.body, pass.surfaceHitPos);
     vec3 normal = celestialGetNormalRaycast(pass.body, sqrt(sqrt(pass.surfaceHit + 1.0)) * 0.004, pass.surfaceHitPos);
     vec3 flatnormal = normalize(pass.surfaceHitPos - pass.body.position);
-    float ambienceMultiplier = pow(max(0.0, dot(flatnormal, normal)) * 0.9 + 0.1, 12.0) ;
+    vec3 ambienceMultiplier = pow(max(0.0, dot(flatnormal, normal)) * 0.9 + 0.1, 12.0) *  ClosestStarColor * 0.0004;
     vec3 dirToStar = normalize(ClosestStarPosition - pass.surfaceHitPos);
     float dt = max(0.0, dot(normal, dirToStar));
     float flatdt = max(-0.1, dot(flatnormal, dirToStar));
@@ -183,7 +184,7 @@ CelestialRenderResult renderCelestialBodyLightAtmosphere(RenderPass pass){
             surface = renderWater(pass) * getStarTerrainShadowAtPoint(pass.body, pass.waterHitPos) * getHighCloudsShadowAtPoint(pass.body, pass.waterHitPos);
             shadowpos = pass.waterHitPos;
         } else {
-            surface = 100.0 * pow(dt, 4.0) * color * getStarTerrainShadowAtPoint(pass.body, pass.surfaceHitPos) * getHighCloudsShadowAtPoint(pass.body, pass.surfaceHitPos)
+            surface = ClosestStarColor * pow(dt, 4.0) * color * getStarTerrainShadowAtPoint(pass.body, pass.surfaceHitPos) * getHighCloudsShadowAtPoint(pass.body, pass.surfaceHitPos)
                         + color * getAtmosphereAmbienceColorForPosition(pass, pass.surfaceHitPos) * ambienceMultiplier;
         }
         atmo.alphaBlendedLight = vec4(mix(surface, atmo.alphaBlendedLight.rgb, atmo.alphaBlendedLight.a), 1.0);
@@ -191,7 +192,7 @@ CelestialRenderResult renderCelestialBodyLightAtmosphere(RenderPass pass){
         vec3 surface = renderWater(pass) * getStarTerrainShadowAtPoint(pass.body, pass.waterHitPos) * getHighCloudsShadowAtPoint(pass.body, pass.waterHitPos);
         atmo.alphaBlendedLight = vec4(mix(surface, atmo.alphaBlendedLight.rgb, atmo.alphaBlendedLight.a), 1.0);
     } else if(pass.isSurfaceHit) {
-        vec3 surface = 100.0 * pow(dt, 4.0) * color * getStarTerrainShadowAtPoint(pass.body, pass.surfaceHitPos) * getHighCloudsShadowAtPoint(pass.body, pass.surfaceHitPos)
+        vec3 surface = ClosestStarColor * pow(dt, 4.0) * color * getStarTerrainShadowAtPoint(pass.body, pass.surfaceHitPos) * getHighCloudsShadowAtPoint(pass.body, pass.surfaceHitPos)
                     + color * getAtmosphereAmbienceColorForPosition(pass, pass.surfaceHitPos) * ambienceMultiplier;
         atmo.alphaBlendedLight = vec4(mix(surface, atmo.alphaBlendedLight.rgb, atmo.alphaBlendedLight.a), 1.0);
     }

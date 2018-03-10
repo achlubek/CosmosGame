@@ -40,9 +40,11 @@ float wave(vec4 uv, vec4 emitter, float speed, float phase, float timeshift){
     return pow(EULER, sin(distance(uv, emitter) * phase - timeshift * speed) - 1.0);
 }
 
-float wavedx(vec3 uv, vec3 emitter, float speed, float phase, float timeshift){
+vec2 wavedx(vec3 uv, vec3 emitter, float speed, float phase, float timeshift){
     float x = distance(uv, emitter) * phase - timeshift * speed;
-    return pow(EULER, sin(x) - 1.0) * cos(x);
+    float wave = exp(sin(x) - 1.0);
+    float dx = wave * cos(x);
+    return vec2(wave, dx);
 }
 
 float getwaves(float position, float dragmult, float timeshift, float seed){
@@ -138,24 +140,56 @@ float getwaves(vec4 position, float dragmult, float timeshift, float seed){
 }
 
 
+vec3 optimizedWaveSources[32] = vec3[](
+    vec3(-726.0, 789.0, -672.0),
+    vec3(-564.0, -673.0, -351.0),
+    vec3(-83.0, -3.0, 631.0),
+    vec3(-775.0, -361.0, 755.0),
+    vec3(-446.0, -134.0, -390.0),
+    vec3(-219.0, -365.0, -135.0),
+    vec3(-390.0, -316.0, -62.0),
+    vec3(-78.0, -344.0, -678.0),
+    vec3(515.0, 745.0, -173.0),
+    vec3(-202.0, 752.0, -36.0),
+    vec3(238.0, -775.0, -48.0),
+    vec3(366.0, -538.0, 80.0),
+    vec3(-786.0, 180.0, -724.0),
+    vec3(645.0, 205.0, -284.0),
+    vec3(599.0, 559.0, 383.0),
+    vec3(-592.0, -460.0, -783.0),
+    vec3(74.0, -50.0, -298.0),
+    vec3(-788.0, 673.0, 159.0),
+    vec3(-666.0, 387.0, 103.0),
+    vec3(-39.0, -616.0, 55.0),
+    vec3(726.0, 422.0, 81.0),
+    vec3(-123.0, -12.0, 343.0),
+    vec3(757.0, 2.0, -278.0),
+    vec3(-767.0, -153.0, 728.0),
+    vec3(-250.0, -355.0, 486.0),
+    vec3(-668.0, -146.0, -774.0),
+    vec3(-650.0, 729.0, -23.0),
+    vec3(-148.0, 742.0, -151.0),
+    vec3(-789.0, -725.0, -565.0),
+    vec3(115.0, 37.0, -380.0),
+    vec3(-631.0, -38.0, -758.0),
+    vec3(250.0, 640.0, 30.0)
+    );
+
 float getwavesHighPhase(vec3 position, int iterations, float dragmult, float timeshift, float seed){
-    float iter = 0.0;
     float seedWaves = seed;
-    float phase = 60.0;
+    float phase = 6.0;
     float speed = 2.0;
     float weight = 1.0;
     float w = 0.0;
     float ws = 0.0;
     for(int i=0;i<iterations;i++){
-        vec3 p = (vec3(oct(seedWaves += 1.0), oct(seedWaves += 1.0), oct(seedWaves += 1.0)) * 2.0 - 1.0) * 800.0;
-        float res = wave(position, p, speed, phase, timeshift);
-        float dx = wavedx(position, p, speed, phase, timeshift) * 0.012;
-        position -= normalize(position - p) * dx * weight * dragmult;
-        w += res * weight;
-        iter += 12.0;
+        vec3 p = normalize(optimizedWaveSources[i])*20000.0;//(vec3(oct(seedWaves += 1.0), oct(seedWaves += 1.0), oct(seedWaves += 1.0)) * 2.0 - 1.0) * 800.0;
+        vec2 res = wavedx(position, p, speed, phase, timeshift);
+        //position -= normalize(position - p) * sqrt(weight) * 0.8888;
+        w += res.x * weight;
         ws += weight;
         weight = mix(weight, 0.0, 0.2);
-        phase *= 1.3;
+        phase *= 1.2;
         speed *= 1.02;
     }
     return w / ws;
