@@ -56,7 +56,8 @@ RenderedCelestialBody::~RenderedCelestialBody()
     safedelete(renderSet);
     safedelete(dataSet);
     safedelete(dataBuffer);
-    safedelete(cloudsImage);
+	safedelete(cloudsImage);
+	safedelete(shadowMapImage);
     safedelete(baseColorImage);
     safedelete(heightMapImage);
 }
@@ -66,9 +67,9 @@ void RenderedCelestialBody::updateData(VulkanComputeStage * stage)
     stage->dispatch({ dataSet }, TEXTURES_WIDTH / 256, TEXTURES_HEIGHT / 2, 1);
 }
 
-void RenderedCelestialBody::updateShadows(VulkanComputeStage * stage)
+void RenderedCelestialBody::updateShadows(VulkanComputeStage * stage, VulkanDescriptorSet* rendererDataSet)
 {
-	stage->dispatch({ shadowMapSet }, TEXTURES_WIDTH / 256, TEXTURES_HEIGHT / 2, 1);
+	stage->dispatch({ rendererDataSet, shadowMapSet }, SHADOW_MAP_TEXTURES_WIDTH / 256, SHADOW_MAP_TEXTURES_HEIGHT / 2, 1);
 }
 
 void RenderedCelestialBody::draw(VulkanRenderStage * stage, VulkanDescriptorSet* rendererDataSet, Object3dInfo * info3d)
@@ -80,10 +81,14 @@ void RenderedCelestialBody::draw(VulkanRenderStage * stage, VulkanDescriptorSet*
 void RenderedCelestialBody::updateBuffer(glm::dvec3 observerPosition, double scale, double time)
 {
     VulkanBinaryBufferBuilder bb = VulkanBinaryBufferBuilder();
-    bb.emplaceFloat32((float)time);
-    bb.emplaceFloat32((float)TEXTURES_WIDTH);
-    bb.emplaceFloat32((float)TEXTURES_HEIGHT);
-    bb.emplaceFloat32(0.0f);
+	bb.emplaceFloat32((float)time);
+	bb.emplaceFloat32((float)TEXTURES_WIDTH);
+	bb.emplaceFloat32((float)TEXTURES_HEIGHT);
+	bb.emplaceFloat32(0.0f);
+	bb.emplaceFloat32((float)SHADOW_MAP_TEXTURES_WIDTH);
+	bb.emplaceFloat32((float)SHADOW_MAP_TEXTURES_HEIGHT);
+	bb.emplaceFloat32(0.0f);
+	bb.emplaceFloat32(0.0f);
 
     auto bodyPosition = body.getPosition(time) - observerPosition;
 
@@ -114,6 +119,9 @@ void RenderedCelestialBody::updateBuffer(glm::dvec3 observerPosition, double sca
 
 	auto rotmat = body.getRotationMatrix(time);
 	bb.emplaceGeneric((unsigned char*)&rotmat, sizeof(rotmat));
+
+	auto hostrotmat = body.getFromParentLookAtThisMatrix(time);
+	bb.emplaceGeneric((unsigned char*)&hostrotmat, sizeof(hostrotmat));
 
     void* data;
     dataBuffer->map(0, bb.buffer.size(), &data);

@@ -3,16 +3,60 @@
 
 layout(local_size_x = 256, local_size_y = 2, local_size_z = 1) in;
 
+#define SHADOW_MAP_COMPUTE_STAGE
+
+#include rendererDataSet.glsl
 #include sphereRaytracing.glsl
 #include celestialDataStructs.glsl
+#include proceduralValueNoise.glsl
+#include wavesNoise.glsl
 #include celestialShadowMapSet.glsl
+#include polar.glsl
+#include rotmat3d.glsl
+#include textureBicubic.glsl
+#include celestialCommons.glsl
+#include camera.glsl
 
 void main()
 {
     ivec2 pixel = ivec2(gl_GlobalInvocationID.xy);
-    vec2 resolution = celestialBuffer.time_dataresolution.yz;
+    vec2 resolution = celestialBuffer.shadowmapresolution_zero_zero.xy;
     vec2 UV = vec2(pixel) / vec2(resolution);
-
     RenderedCelestialBody body = getRenderedBody(celestialBuffer.celestialBody);
+
+    float radius = body.atmosphereRadius;
+    vec3 planeCenter = vec3(0.0, 0.0, radius);
+    vec3 leftBottom = vec3(-radius, -radius, 0.0) + planeCenter;
+    vec3 rightTop = vec3(radius, radius, 0.0) + planeCenter;
+    vec3 planePoint = leftBottom + (rightTop - leftBottom) * vec3(UV, 0.0);
+    vec3 direction = vec3(0.0, 0.0, -1.0);
+
+    planePoint = body.fromHostToThisMatrix * planePoint;
+    direction = body.fromHostToThisMatrix * direction;
+
+    Ray ray = Ray(planePoint + body.position, direction);
+
+    RenderPass pass = RenderPass(ray, body, 0.0, 0.0, 0.0, 0.0, vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0), false, false, false);
+    updatePassHits(pass);
+    // we are all set now
+
+    //imageStore(shadowMapImage, pixel, vec4(pass.surfaceHit, 0.0, 0.0, 0.0));
+
+    float planetHit = pass.surfaceHit;
+
+    if(pass.isSurfaceHit && pass.isWaterHit && pass.waterHit < pass.surfaceHit){
+        planetHit = pass.waterHit;
+    }
+    if(pass.isSurfaceHit && pass.isWaterHit && pass.waterHit > pass.surfaceHit){
+        planetHit = pass.surfaceHit;
+    }
+    if(pass.isSurfaceHit && !pass.isWaterHit){
+        planetHit = pass.surfaceHit;
+    }
+    if(!pass.isSurfaceHit && pass.isWaterHit){
+        planetHit = pass.waterHit;
+    }
+
+            imageStore(shadowMapImage, pixel, vec4(planetHit / (radius * 2.0), 0.0, 0.0, 0.0));
 
 }

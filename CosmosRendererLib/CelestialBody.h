@@ -21,6 +21,8 @@ public:
     glm::vec3 atmosphereAbsorbColor;//0->1
 	glm::dvec3 orbitPlane;
 	glm::dvec3 rotationPlane;
+	//TODO define the rotation speed in unit "rotations per full orbit" and make orbit speed dependand on distance from star and mass of star
+	// 
 	double rotationSpeed;
     AbsCelestialObject* host{ nullptr };
     uint64_t bodyId;
@@ -34,6 +36,13 @@ public:
 	glm::mat4 getRotationMatrix(double at_time) {
 		glm::quat rotationQuat = glm::angleAxis(rotationSpeed * at_time * 0.001, rotationPlane);
 		return glm::mat4_cast(rotationQuat);
+	}
+
+	glm::mat4 getFromParentLookAtThisMatrix(double at_time) {
+		auto parentPos = host->getPosition(at_time);
+		auto thisPos = getPosition(at_time);
+		auto direction = glm::normalize(thisPos - parentPos);
+		return glm::lookAt(glm::dvec3(0.0), direction, glm::dvec3(0.0, 1.0, 0.0));
 	}
 
     virtual glm::dvec3 getLinearVelocity(double at_time) {

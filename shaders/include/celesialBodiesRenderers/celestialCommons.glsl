@@ -19,6 +19,36 @@ struct RenderPass {
 #define DISTANCE_INFINITY 99999999.0
 
 
+#ifndef SHADOW_MAP_COMPUTE_STAGE
+
+vec3 getShadowMapCoord(RenderedCelestialBody body, vec3 point){
+    /*
+    float radius = body.atmosphereRadius;
+    vec3 planeCenter = vec3(0.0, 0.0, radius);
+    vec3 leftBottom = vec3(-radius, -radius, 0.0) + planeCenter;
+    vec3 rightTop = vec3(radius, radius, 0.0) + planeCenter;
+    vec3 planePoint = leftBottom + (rightTop - leftBottom) * vec3(UV, 0.0);
+    vec3 direction = vec3(0.0, 0.0, -1.0);
+
+    planePoint = body.fromHostToThisMatrix * planePoint;
+    direction = body.fromHostToThisMatrix * direction;
+    */
+    mat3 inverseMatrix = (body.fromHostToThisMatrix);
+    vec3 orientedPoint = inverseMatrix * (point - body.position);
+    vec3 screenspace = clamp((orientedPoint / body.atmosphereRadius) * 0.5 + 0.5, 0.0, 1.0);
+    screenspace.x = 1.0 - screenspace.x;
+    screenspace.y = 1.0 - screenspace.y;
+    return screenspace;
+}
+
+float getStarTerrainShadowAtPointShadow(RenderedCelestialBody body, vec3 point){
+    vec3 coord = getShadowMapCoord(body, point);
+    float shadowMapData = texture(shadowMapImage, coord.xy).r;
+    return step(0.0, (coord.z) - shadowMapData);
+}
+
+#endif
+
 float getwavesHighPhaseTerrainRefinement(vec3 position, float dragmult, float timeshift, float seed){
     float iter = 0.0;
     float seedWaves = seed;
@@ -77,10 +107,11 @@ float raymarchCelestialTerrain(Ray ray, float startDistance, sampler2D s, Render
     return -0.01;
 }
 
+
 float raymarchCelestialTerrainShadow(Ray ray, float startDistance, sampler2D s, RenderedCelestialBody body, float stepsize){
     float maxheight2 = body.radius * 1.01;// + body.terrainMaxLevel;
     vec3 center = body.position;
-    vec3 p = ray.o + ray.d * startDistance + ray.d * stepsize * oct(vec2(UV * Time));
+    vec3 p = ray.o + ray.d * startDistance;
     float visibility = 1.0;
     for(int i=0;i<7000;i++){
         vec3 dir = normalize(p - center);
@@ -144,9 +175,11 @@ vec3 celestialGetNormalRaycast(RenderedCelestialBody body, float dxrange, vec3 p
 }
 
 float getWaterHeightHiRes(RenderedCelestialBody body, vec3 dir){
+    dir = body.rotationMatrix * dir;
     return (body.radius - body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir * body.radius * 500.0, 24, 1.8, Time, 0.0)) * 0.0002;
 }
 float getWaterHeightLowRes(RenderedCelestialBody body, vec3 dir){
+    dir = body.rotationMatrix * dir;
     return (body.radius - body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir * body.radius * 500.0, 8, 1.8, Time, 0.0)) * 0.0002;
 }
 
@@ -175,13 +208,13 @@ float raymarchCelestialWater(Ray ray, float startDistance, RenderedCelestialBody
     for(int i=0;i<700;i++){
         vec3 dir = normalize(p - center);
         float centerDistanceProbe = distance(p, center); // probe distance to planet center
-        //if(centerDistanceProbe > maxheight2 ) return -0.01;
+        if(centerDistanceProbe > maxheight2 ) return -0.01;
         float centerDistanceSufrace = getWaterHeightLowRes(body, dir);
         float altitude = centerDistanceProbe - centerDistanceSufrace; // probe altitude
         if(altitude < limit) return distance(p, ray.o);
         p += ray.d * max(limit, altitude*0.4);
     }
-    return -0.01;
+    return distance(p, ray.o);
 }
 
 
@@ -250,6 +283,8 @@ struct CelestialRenderResult
 
 CelestialRenderResult emptyAtmosphereResult = CelestialRenderResult(vec4(0.0), vec4(0.0));
 
+#ifndef SHADOW_MAP_COMPUTE_STAGE
+
 #include celestialNoAtmosphere.glsl
 #include celestialLightAtmosphere.glsl
 #include celestialThickAtmosphere.glsl
@@ -275,3 +310,5 @@ CelestialRenderResult renderCelestialBody(RenderedCelestialBody body, Ray ray){
     }
     return result;
 }
+
+#endif

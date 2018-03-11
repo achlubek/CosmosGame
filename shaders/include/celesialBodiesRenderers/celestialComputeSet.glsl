@@ -2,6 +2,7 @@
 
 layout(set = 0, binding = 0) uniform CelestialStorageBuffer {
     vec4 time_dataresolution;
+    vec4 shadowmapresolution_zero_zero;
     CelestialBodyAlignedData celestialBody;
 } celestialBuffer;
 

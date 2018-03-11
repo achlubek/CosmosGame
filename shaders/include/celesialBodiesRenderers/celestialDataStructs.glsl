@@ -22,6 +22,7 @@ struct RenderedCelestialBody {
     float atmosphereAbsorbStrength;
     vec3 atmosphereAbsorbColor;
     mat3 rotationMatrix;
+    mat3 fromHostToThisMatrix;
 };
 
 struct CelestialBodyAlignedData {
@@ -31,6 +32,7 @@ struct CelestialBodyAlignedData {
     vec4 seed_terrainMaxLevel_fluidMaxLevel_habitableChance;
     vec4 atmosphereAbsorbColor_atmosphereAbsorbStrength;
     mat4 rotationMatrix;
+    mat4 fromHostToThisMatrix;
 };
 
 RenderedCelestialBody getRenderedBody(CelestialBodyAlignedData aligned){
@@ -51,6 +53,7 @@ RenderedCelestialBody getRenderedBody(CelestialBodyAlignedData aligned){
         aligned.seed_terrainMaxLevel_fluidMaxLevel_habitableChance.w, //habitableChance
         aligned.atmosphereAbsorbColor_atmosphereAbsorbStrength.w,
         aligned.atmosphereAbsorbColor_atmosphereAbsorbStrength.rgb,
-        mat3(aligned.rotationMatrix)
+        mat3(aligned.rotationMatrix),
+        mat3(aligned.fromHostToThisMatrix)
     );
 }

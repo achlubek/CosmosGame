@@ -52,10 +52,10 @@ CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end
         vec3 normal = normalize(pos - pass.body.position);
         vec3 dirToStar = normalize(ClosestStarPosition - pos);
         float dt = 1.0 - (1.0 / (1.0 + 10.0 * max(0.0, dot(normal, dirToStar))));
-        float realshadow = getHighCloudsShadowAtPoint(pass.body, pos);
-        color += realshadow * rayleightCoeff * (1.0 - coverage) * (distmultiplier) * heightmix * mix(noonColor, sunsetColor, dt) * dt * 100.0;
+        float realshadow = getStarTerrainShadowAtPointShadow(pass.body, pos);
+        color += realshadow * rayleightCoeff * (1.0 - coverage) * (distmultiplier) * heightmix * mix(noonColor, sunsetColor, dt) * 100.0;
         float dt2 =  max(0.0, dot(pass.ray.d, dirToStar));
-        color += realshadow * heightmix * dt2 * ( mieCoeff * 4000.0) * distmultiplier * mix(noonColor, sunsetColor, dt) * dt * (pass.isSurfaceHit || pass.isWaterHit ? 0.0 : 1.0) * (1.0 - coverage);
+        color += realshadow * heightmix * dt2 * ( mieCoeff * 4000.0) * distmultiplier * mix(noonColor, sunsetColor, dt) * (pass.isSurfaceHit || pass.isWaterHit ? 0.0 : 1.0) * (1.0 - coverage);
         float lowClouds = 0.0;//celestialGetCloudsRaycast(pass.body, pos).r * heightmix_middle;
         alphacolor += lowClouds * (1.0 - coverage) * (1.0 - heightmix) * mix(noonColor, sunsetColor, dt) * dt;
         coverage += lowClouds * 0.25 * heightmix_middle;

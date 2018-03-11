@@ -34,7 +34,7 @@ public:
 		VulkanDescriptorSetLayout* dataSetLayout, VulkanDescriptorSetLayout* shadowMapSetLayout, VulkanDescriptorSetLayout* renderSetLayout);
     ~RenderedCelestialBody();
 	void updateData(VulkanComputeStage* stage);
-	void updateShadows(VulkanComputeStage* stage);
+	void updateShadows(VulkanComputeStage* stage, VulkanDescriptorSet* rendererDataSet);
     void draw(VulkanRenderStage* stage, VulkanDescriptorSet* rendererDataSet, Object3dInfo* info3d);
     void updateBuffer(glm::dvec3 observerPosition, double scale, double time);
     double getDistance(glm::dvec3 position, double at_time);

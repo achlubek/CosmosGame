@@ -41,4 +41,7 @@ void main() {
     result.additionLight.rgb *= Exposure;
     outColorAlpha = result.alphaBlendedLight;
     outColorAdditive = result.additionLight;
+    /*
+    outColorAlpha = vec4(texture(shadowMapImage, gl_FragCoord.xy / Resolution).rrr, 1.0);//result.alphaBlendedLight;
+    outColorAdditive = 0.0*result.additionLight;*/
 }

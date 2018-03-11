@@ -48,7 +48,7 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, TimeProvider* itimeProvid
         VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
 
     rendererDataLayout = new VulkanDescriptorSetLayout(vulkan);
-    rendererDataLayout->addField(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
+    rendererDataLayout->addField(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS | VK_SHADER_STAGE_COMPUTE_BIT);
     rendererDataLayout->compile();
 
     starsDataLayout = new VulkanDescriptorSetLayout(vulkan);
@@ -96,10 +96,10 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, TimeProvider* itimeProvid
     celestiaStarsBlitSetLayout->compile();
 
 	celestialShadowMapSetLayout = new VulkanDescriptorSetLayout(vulkan);
-	celestialShadowMapSetLayout->addField(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
-	celestialShadowMapSetLayout->addField(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-	celestialShadowMapSetLayout->addField(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-	celestialShadowMapSetLayout->addField(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
+	celestialShadowMapSetLayout->addField(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT);
+	celestialShadowMapSetLayout->addField(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_COMPUTE_BIT);
+	celestialShadowMapSetLayout->addField(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_COMPUTE_BIT);
+	celestialShadowMapSetLayout->addField(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_COMPUTE_BIT);
 	celestialShadowMapSetLayout->addField(4, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_COMPUTE_BIT);
 	celestialShadowMapSetLayout->compile();
 
@@ -163,7 +163,8 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
 	auto celestialshadowmapcompute = new VulkanShaderModule(vulkan, "../../shaders/compiled/celestial-updateshadows.comp.spv");
 
 	celestialShadowMapComputeStage = new VulkanComputeStage(vulkan);
-	celestialShadowMapComputeStage->setShaderStage(celestialdatacompute->createShaderStage(VK_SHADER_STAGE_COMPUTE_BIT, "main"));
+	celestialShadowMapComputeStage->setShaderStage(celestialshadowmapcompute->createShaderStage(VK_SHADER_STAGE_COMPUTE_BIT, "main"));
+	celestialShadowMapComputeStage->addDescriptorSetLayout(rendererDataLayout->layout);
 	celestialShadowMapComputeStage->addDescriptorSetLayout(celestialShadowMapSetLayout->layout);
 	celestialShadowMapComputeStage->compile();
 
@@ -417,7 +418,6 @@ void CosmosRenderer::draw()
     
     //vkDeviceWaitIdle(vulkan->device);
 
-    celestialStage->beginDrawing();
 
     auto renderables = std::vector<RenderedCelestialBody*>();
     for (int i = 0; i < renderablePlanets.size(); i++) {
@@ -429,6 +429,16 @@ void CosmosRenderer::draw()
         renderables.push_back(renderableMoons[i]);
     }
 
+	celestialShadowMapComputeStage->beginRecording();
+	//for (int a = 0; a < renderables.size(); a++) {
+	if (shadowMapRoundRobinCounter >= renderables.size()) shadowMapRoundRobinCounter = 0;
+		renderables[shadowMapRoundRobinCounter]->updateShadows(celestialShadowMapComputeStage, rendererDataSet);
+		shadowMapRoundRobinCounter++;
+	//}
+	celestialShadowMapComputeStage->endRecording();
+	celestialShadowMapComputeStage->submit({ celestialStarsBlitComputeStage->signalSemaphore });
+
+	celestialStage->beginDrawing();
 
     for (int a = 0; a < renderables.size(); a++) {
         for (int b = 0; b < renderables.size(); b++) {
@@ -447,7 +457,7 @@ void CosmosRenderer::draw()
     }
 
     celestialStage->endDrawing();
-    celestialStage->submitNoSemaphores({ celestialStarsBlitComputeStage->signalSemaphore});
+    celestialStage->submitNoSemaphores({ celestialShadowMapComputeStage->signalSemaphore});
 
     vkDeviceWaitIdle(vulkan->device);
     modelsStage->beginDrawing();
