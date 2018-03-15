@@ -36,15 +36,15 @@ vec3 getShadowMapCoord(RenderedCelestialBody body, vec3 point){
     mat3 inverseMatrix = (body.fromHostToThisMatrix);
     vec3 orientedPoint = inverseMatrix * (point - body.position);
     vec3 screenspace = clamp((orientedPoint / body.atmosphereRadius) * 0.5 + 0.5, 0.0, 1.0);
-    screenspace.x = 1.0 - screenspace.x;
-    screenspace.y = 1.0 - screenspace.y;
+    //screenspace.x = 1.0 - screenspace.x;
+    //screenspace.y = 1.0 - screenspace.y;
     return screenspace;
 }
 
 float getStarTerrainShadowAtPointShadow(RenderedCelestialBody body, vec3 point){
     vec3 coord = getShadowMapCoord(body, point);
     float shadowMapData = texture(shadowMapImage, coord.xy).r;
-    return step(0.0, (coord.z) - shadowMapData);
+    return step(0.0, shadowMapData - (1.0 - coord.z));
 }
 
 #endif
@@ -248,9 +248,9 @@ void updatePassHits(inout RenderPass pass){
     float hit_Surface = rsi2(pass.ray, pass.body.surfaceSphere).x;
     float hit_Surface2 = rsi2(pass.ray, pass.body.surfaceSphere).y;
     float cameradst = distance(pass.body.position, pass.ray.o);
-    if(cameradst < pass.body.radius * 4.0 ){
+//    if(cameradst < pass.body.radius * 4.0 ){
         hit_Surface = raymarchCelestialTerrain(pass.ray, hit_Surface > 0.0 && hit_Surface < DISTANCE_INFINITY ? hit_Surface : 0.0, heightMapImage, pass.body, 0.00001 );
-    }
+//    }
     float hit_Water = rsi2(pass.ray, pass.body.waterSphere).x;
     if(hit_Water < 0.08 && hit_Water > 0.0){
         hit_Water = raymarchCelestialWater(pass.ray, hit_Water, pass.body, 0.000001 * cameradst);
@@ -308,6 +308,7 @@ CelestialRenderResult renderCelestialBody(RenderedCelestialBody body, Ray ray){
             result = renderCelestialBodyThickAtmosphere(pass);
         }
     }
+
     return result;
 }
 
