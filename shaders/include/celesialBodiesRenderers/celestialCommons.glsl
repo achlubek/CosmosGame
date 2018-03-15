@@ -41,11 +41,18 @@ vec3 getShadowMapCoord(RenderedCelestialBody body, vec3 point){
     return screenspace;
 }
 
-float getStarTerrainShadowAtPointShadow(RenderedCelestialBody body, vec3 point){
+float getStarTerrainShadowAtPoint(RenderedCelestialBody body, vec3 point){
     vec3 coord = getShadowMapCoord(body, point);
-    float shadowMapData = texture(shadowMapImage, coord.xy).r;
-    return step(0.0, shadowMapData - (1.0 - coord.z));
+    vec2 shadowMapData = textureBicubic(shadowMapImage, coord.xy).rg;
+    return step(0.0, shadowMapData.r - (1.0 - coord.z)) * shadowMapData.g;
 }
+
+#else
+
+float getStarTerrainShadowAtPoint(RenderedCelestialBody body, vec3 point){
+    return 1.0;
+}
+
 
 #endif
 
@@ -105,39 +112,6 @@ float raymarchCelestialTerrain(Ray ray, float startDistance, sampler2D s, Render
         p += ray.d * max(limit, altitude * 0.3);
     }
     return -0.01;
-}
-
-
-float raymarchCelestialTerrainShadow(Ray ray, float startDistance, sampler2D s, RenderedCelestialBody body, float stepsize){
-    float maxheight2 = body.radius * 1.01;// + body.terrainMaxLevel;
-    vec3 center = body.position;
-    vec3 p = ray.o + ray.d * startDistance;
-    float visibility = 1.0;
-    for(int i=0;i<7000;i++){
-        vec3 dir = normalize(p - center);
-        float centerDistanceProbe = distance(p, center); // probe distance to planet center
-        if(centerDistanceProbe > maxheight2 ) return visibility;
-        float centerDistanceSufrace = body.radius - celestialGetHeightLowRes(body, dir) * body.terrainMaxLevel; // surface height at probe position
-        float altitude = centerDistanceProbe - centerDistanceSufrace; // probe altitude
-        visibility -= max(0.0, (-altitude + 0.002) * 100.0);
-        if(visibility < 0.0) return 0.0;
-        p += ray.d * stepsize;
-    }
-    return visibility;
-}
-
-float getStarTerrainShadowAtPoint(RenderedCelestialBody body, vec3 point){
-    vec3 dir = normalize(ClosestStarPosition - point);
-    Ray ray = Ray(point, dir);
-    vec2 surfaceHit = rsi2(ray, body.surfaceSphere);
-    float startDistance = 0.0;
-    if(distance(point, body.position) > body.radius){
-        if(surfaceHit.x < 0.0 || surfaceHit.x >= DISTANCE_INFINITY) return 1.0;
-        startDistance = surfaceHit.x;
-    }
-    float dst = raymarchCelestialTerrainShadow(ray, startDistance + 0.0001, heightMapImage, body, 0.001);
-    //if(dst < 0.0) return 1.0;
-    return dst;
 }
 
 vec4 celestialGetColorRoughnessForDirection(RenderedCelestialBody body, vec3 direction){
@@ -219,15 +193,16 @@ float raymarchCelestialWater(Ray ray, float startDistance, RenderedCelestialBody
 
 
 vec4 getHighClouds(RenderedCelestialBody body, vec3 position){
+    float shadow = getStarTerrainShadowAtPoint(body, position);
     float highClouds = clamp(celestialGetCloudsRaycast(body, position).r * 1.0, 0.0, 1.0);
     vec3 dirToStar = normalize(ClosestStarPosition - position);
     vec3 normal = normalize(position - body.position);
     float dtv = max(0.0, dot(normal, dirToStar));
     float dt = 1.0 - (1.0 / (1.0 + 10.0 * dtv));
-    vec3 sunsetColor = 1.0 - body.atmosphereAbsorbColor;
-    vec3 color = mix(ClosestStarColor * 15.0, sunsetColor * 10.0, pow(1.0 - dtv, 12.0)) * dt;
-    if(distance(vec3(0.0), body.position) < body.atmosphereRadius) color *= 0.5;
-    return vec4(color, highClouds);
+    vec3 sunsetColor = ClosestStarColor * (1.0 - body.atmosphereAbsorbColor);
+    vec3 color = mix(ClosestStarColor, sunsetColor, pow(1.0 - dtv, 12.0));
+    //if(distance(vec3(0.0), body.position) < body.atmosphereRadius) color *= 0.5;
+    return vec4(shadow * color, highClouds);
 }
 
 float getHighCloudsShadowAtPoint(RenderedCelestialBody body, vec3 point){

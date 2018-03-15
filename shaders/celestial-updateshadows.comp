@@ -45,7 +45,7 @@ void main()
     float planetHit = pass.surfaceHit;
 
     if(pass.isSurfaceHit && pass.isWaterHit && pass.waterHit < pass.surfaceHit){
-        planetHit = pass.waterHit;
+        planetHit = pass.waterHit + 0.09;
     }
     if(pass.isSurfaceHit && pass.isWaterHit && pass.waterHit > pass.surfaceHit){
         planetHit = pass.surfaceHit;
@@ -54,10 +54,11 @@ void main()
         planetHit = pass.surfaceHit;
     }
     if(!pass.isSurfaceHit && pass.isWaterHit){
-        planetHit = pass.waterHit;
+        planetHit = pass.waterHit + 0.09;
     }
 
-    imageStore(shadowMapImage, pixel, vec4(planetHit / (radius * 2.0), 0.0, 0.0, 0.0));
+    float highClouds = celestialGetCloudsRaycast(pass.body, pass.atmosphereNearHitPos).r;
+    imageStore(shadowMapImage, pixel, vec4(planetHit / (radius * 2.0), 1.0 - highClouds, 0.0, 0.0));
 //    pass.atmosphereNearHitPos -= pass.body.position;
 //    float dt = max(0.0, dot(normalize(pass.atmosphereNearHitPos), normalize(ClosestStarPosition - pass.body.position)));
 //    imageStore(shadowMapImage, pixel, vec4(dt, dt, dt, 0.0));
