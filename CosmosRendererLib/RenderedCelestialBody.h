@@ -46,6 +46,8 @@ private:
 	const int SHADOW_MAP_TEXTURES_WIDTH = 1024;
 	const int SHADOW_MAP_TEXTURES_HEIGHT = 1024;
 
+	int shadowMapWidthOffset = 0;
+
     VulkanToolkit * toolkit;
 
     CelestialBody body;

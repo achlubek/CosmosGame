@@ -2,7 +2,7 @@
 
 float celestialLightAtmosphereGetHeightMap(RenderedCelestialBody body, vec3 dir){
     vec4 coord = vec4(dir, body.seed);
-    return pow(generateTerrain(coord), 3.0);
+    return pow(generateTerrain(coord), 9.0);
 }
 
 vec4 celestialLightAtmosphereGetColorRoughnessMap(RenderedCelestialBody body, float height, vec3 dir){

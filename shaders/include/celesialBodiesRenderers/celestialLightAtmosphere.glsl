@@ -37,7 +37,7 @@ CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end
     #ifdef SHADOW_MAP_COMPUTE_STAGE
     vec2 UV = vec2(0.0);
     #endif
-    float iter = 0.0 + stepsize * oct(UV + Time);
+    float iter = 0.0 + stepsize * fract(oct(UV) + Time);
     float radius = pass.body.radius;
     float atmoheight = pass.body.atmosphereHeight;
     float rayStarDt = dot(normalize(ClosestStarPosition - pass.ray.o), pass.ray.d);

@@ -157,6 +157,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
 	celestialDataUpdateComputeStage = new VulkanComputeStage(vulkan);
 	celestialDataUpdateComputeStage->setShaderStage(celestialdatacompute->createShaderStage(VK_SHADER_STAGE_COMPUTE_BIT, "main"));
 	celestialDataUpdateComputeStage->addDescriptorSetLayout(celestialBodyDataSetLayout->layout);
+	celestialDataUpdateComputeStage->queue = vulkan->secondaryQueue;
 	celestialDataUpdateComputeStage->compile();
 
 	//**********************//
@@ -166,6 +167,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
 	celestialShadowMapComputeStage->setShaderStage(celestialshadowmapcompute->createShaderStage(VK_SHADER_STAGE_COMPUTE_BIT, "main"));
 	celestialShadowMapComputeStage->addDescriptorSetLayout(rendererDataLayout->layout);
 	celestialShadowMapComputeStage->addDescriptorSetLayout(celestialShadowMapSetLayout->layout);
+	celestialShadowMapComputeStage->queue = vulkan->secondaryQueue;
 	celestialShadowMapComputeStage->compile();
 
     //**********************//
@@ -436,7 +438,7 @@ void CosmosRenderer::draw()
 		shadowMapRoundRobinCounter++;
 	//}
 	celestialShadowMapComputeStage->endRecording();
-	celestialShadowMapComputeStage->submit({ celestialStarsBlitComputeStage->signalSemaphore });
+	celestialShadowMapComputeStage->submitNoSemaphores({  });
 
 	celestialStage->beginDrawing();
 
@@ -457,7 +459,7 @@ void CosmosRenderer::draw()
     }
 
     celestialStage->endDrawing();
-    celestialStage->submitNoSemaphores({ celestialShadowMapComputeStage->signalSemaphore});
+    celestialStage->submitNoSemaphores({ celestialStarsBlitComputeStage->signalSemaphore});
 
     vkDeviceWaitIdle(vulkan->device);
     modelsStage->beginDrawing();

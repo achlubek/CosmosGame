@@ -69,7 +69,10 @@ void RenderedCelestialBody::updateData(VulkanComputeStage * stage)
 
 void RenderedCelestialBody::updateShadows(VulkanComputeStage * stage, VulkanDescriptorSet* rendererDataSet)
 {
-	stage->dispatch({ rendererDataSet, shadowMapSet }, SHADOW_MAP_TEXTURES_WIDTH / 256, SHADOW_MAP_TEXTURES_HEIGHT / 2, 1);
+	int offsetAdvance = 128;
+	stage->dispatch({ rendererDataSet, shadowMapSet }, 1, SHADOW_MAP_TEXTURES_HEIGHT / 2, 1);
+	shadowMapWidthOffset += offsetAdvance;
+	if (shadowMapWidthOffset == SHADOW_MAP_TEXTURES_HEIGHT) shadowMapWidthOffset = 0;
 }
 
 void RenderedCelestialBody::draw(VulkanRenderStage * stage, VulkanDescriptorSet* rendererDataSet, Object3dInfo * info3d)
@@ -87,7 +90,7 @@ void RenderedCelestialBody::updateBuffer(glm::dvec3 observerPosition, double sca
 	bb.emplaceFloat32(0.0f);
 	bb.emplaceFloat32((float)SHADOW_MAP_TEXTURES_WIDTH);
 	bb.emplaceFloat32((float)SHADOW_MAP_TEXTURES_HEIGHT);
-	bb.emplaceFloat32(0.0f);
+	bb.emplaceFloat32((float)shadowMapWidthOffset);
 	bb.emplaceFloat32(0.0f);
 
     auto bodyPosition = body.getPosition(time) - observerPosition;
