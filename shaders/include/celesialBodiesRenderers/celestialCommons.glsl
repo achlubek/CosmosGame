@@ -41,15 +41,13 @@ vec3 getShadowMapCoord(RenderedCelestialBody body, vec3 point){
     return screenspace;
 }
 
-float textureShadowBlurBox(sampler2D tex, vec2 uv, int pixels, float comparison){
+float textureShadowBlurBox(sampler2D tex, vec2 uv, int pixels){
     vec2 pixel = 1.0 / vec2(textureSize(tex, 0));
-    uv += pixel * oct(uv) * vec2(pixels + 1) * 2.0 - 1.0;
     float dw = 0.0;
     float dr = 0.0;
     for(int x = -pixels; x < pixels; x++){
         for(int y = -pixels; y < pixels; y++){
-            vec2 shadowMapData = texture(tex, uv + vec2(x,y) * pixel).rg;
-            dr += step(0.0, shadowMapData.r - comparison);// * shadowMapData.g;
+            dr += texture(tex, uv + vec2(x,y) * pixel).g;
             dw += 1.0;
         }
     }
@@ -59,18 +57,17 @@ float textureShadowBlurBox(sampler2D tex, vec2 uv, int pixels, float comparison)
 float getStarTerrainShadowAtPoint(RenderedCelestialBody body, vec3 point){
     vec3 dir = normalize(point - body.position);
     float probeheight = distance(point, body.position);
-    float data = texture(shadowMapImage, xyzToPolar( dir)).r;
-    return probeheight > data ? 0.0 : 1.0;// step(0.0, data - probeheight);
+    vec2 data = texture(shadowMapImage, xyzToPolar( dir)).rg;
     vec3 coord = getShadowMapCoord(body, point);
-    vec2 shadowMapData = textureBicubic(shadowMapImage, coord.xy).rg;
-    return smoothstep(-0.01, 0.0, shadowMapData.r - (1.0 - coord.z));// * shadowMapData.g;
-    //return textureShadowBlurBox(shadowMapImage, coord.xy, 1, 1.0 - coord.z);
+    return smoothstep(0.0, 0.01, probeheight -  data.r) * texture(shadowMapImage, coord.xy).g;
 }
 
 float getStarTerrainShadowAtPointNoClouds(RenderedCelestialBody body, vec3 point){
+    vec3 dir = normalize(point - body.position);
+    float probeheight = distance(point, body.position);
+    vec2 data = texture(shadowMapImage, xyzToPolar( dir)).rg;
     vec3 coord = getShadowMapCoord(body, point);
-    float shadowMapData = texture(shadowMapImage, coord.xy).r;
-    return step(0.0, shadowMapData - (1.0 - coord.z)) ;
+    return smoothstep(0.0, 0.01, probeheight -  data.r);
 }
 
 #else
@@ -156,7 +153,7 @@ float raymarchCelestialTerrainInternal(Ray ray, float startDistance, sampler2D s
         if(centerDistanceProbe > maxheight2 ) return -0.01;
         float centerDistanceSufrace = body.radius - celestialGetHeight(body, dir) * body.terrainMaxLevel; // surface height at probe position
         float altitude = centerDistanceProbe - centerDistanceSufrace; // probe altitude
-        if(centerDistanceProbe < waterLevel) return distance(center + centerDistanceProbe * dir, ray.o);
+        if(centerDistanceProbe < waterLevel) return distance(center + waterLevel * dir, ray.o);
         if(altitude < limit) return distance(center + centerDistanceSufrace * dir, ray.o);
         p += ray.d * max(limit, altitude * 0.3);
     }
@@ -199,11 +196,11 @@ vec3 celestialGetNormalRaycast(RenderedCelestialBody body, float dxrange, vec3 p
 
 float getWaterHeightHiRes(RenderedCelestialBody body, vec3 dir){
     dir = body.rotationMatrix * dir;
-    return (body.radius - body.fluidMaxLevel);// - (1.0 - getwavesHighPhase(dir * body.radius * 500.0, 1, 1.8, Time, 0.0)) * 0.0002;
+    return (body.radius - body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir * body.radius * 500.0, 24, 1.8, Time, 0.0)) * 0.0002;
 }
 float getWaterHeightLowRes(RenderedCelestialBody body, vec3 dir){
     dir = body.rotationMatrix * dir;
-    return (body.radius - body.fluidMaxLevel);// - (1.0 - getwavesHighPhase(dir * body.radius * 500.0, 1, 1.8, Time, 0.0)) * 0.0002;
+    return (body.radius - body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir * body.radius * 500.0, 8, 1.8, Time, 0.0)) * 0.0002;
 }
 
 vec3 celestialGetWaterNormal(RenderedCelestialBody body, float dxrange, vec3 dir){
@@ -227,9 +224,8 @@ float raymarchCelestialWater(Ray ray, float startDistance, RenderedCelestialBody
     float maxheight1 = body.radius - body.fluidMaxLevel;
     float maxheight2 = body.radius - body.fluidMaxLevel + 0.005;// + body.terrainMaxLevel;
     vec3 center = body.position;
-    return startDistance;
     vec3 p = ray.o + ray.d * startDistance;
-    for(int i=0;i<10;i++){
+    for(int i=0;i<50;i++){
         vec3 dir = normalize(p - center);
         float centerDistanceProbe = distance(p, center); // probe distance to planet center
         if(centerDistanceProbe > maxheight2 ) return -0.01;
@@ -319,7 +315,7 @@ CelestialRenderResult renderCelestialBody(RenderedCelestialBody body, Ray ray){
         }
     }
     //result.additionLight = vec4(0.0);
-    //result.alphaBlendedLight = vec4(1000.0 * texture(shadowMapImage, xyzToPolar( normalize(pass.surfaceHitPos - body.position))).rrr, result.alphaBlendedLight.a);
+//    result.alphaBlendedLight = vec4(1000.0 * texture(shadowMapImage, xyzToPolar( normalize(pass.surfaceHitPos - body.position))).rrr, result.alphaBlendedLight.a);
     return result;
 }
 
