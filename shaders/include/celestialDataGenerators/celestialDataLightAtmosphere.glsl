@@ -19,7 +19,7 @@ vec4 celestialLightAtmosphereGetColorRoughnessMap(RenderedCelestialBody body, fl
     );
     float dimmer = 0.2 + (1.0 - getwaves(dir * 1.0, 10.0, 0.0, body.seed + 422.0) * 0.8);
 
-    vec3 groundColor = polarawarecolor * dimmer - colorrandomizer * (1.0 - height);
+    vec3 groundColor = polarawarecolor * dimmer - colorrandomizer * 0.1 * (1.0 - height);
     return vec4(groundColor, 1.0);
 }
 

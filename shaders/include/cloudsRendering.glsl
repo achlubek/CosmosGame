@@ -51,6 +51,11 @@ vec2 getLowAndHighClouds(vec3 dir, float seed){
     high *= mix(1.0, aBitBetterNoise(vec4(dir * 1517.2 * 1200.0 * (aBitBetterNoise(vec4(dir * 11.2 , 1.0)) + 0.0), 1.0)), abs(high - 0.5));
     high *= smoothstep(0.2, 0.6, aBitBetterNoise(vec4(dir * 3.0, 1.0)));
     high *= FBM4(vec4(dir, seed * 123.0), 6, 3.0, 0.66);
-    high *= 0.5 + seed * 1.0;
-    return vec2(low, smoothstep(0.0025, 0.146, high));
+    high *= 0.5 + seed * 0.5;
+    float scale = 0.3 + 1.0 * aBitBetterNoise(vec4(dir * 3.2 - 10.0, 1.0));
+    float experimental = getwaves(scale * (dir * 10.0 + wind * 5.0), 13.0, 13.0, 3.0) * getwaves(scale * (dir * 3.0 + wind * 5.0), 13.0, 13.0, 3.0)
+     + getwaves(scale * (dir * 40.0 + wind * 5.0), 13.0, 13.0, 3.0) * 0.1;
+    float threshold = 0.05 + 0.4 * aBitBetterNoise(vec4(dir * 3.2 , 1.0));
+    float range = 0.7* aBitBetterNoise(vec4(dir * 3.2 + 10.0 , 1.0));
+    return vec2(smoothstep(threshold, threshold + range, experimental));
 }

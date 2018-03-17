@@ -14,6 +14,9 @@ struct RenderedCelestialBody {
     Sphere surfaceLowSphere;
     Sphere waterSphere;
     Sphere atmosphereSphere;
+    Sphere highCloudsSphere;
+    Sphere lowCloudsTopSphere;
+    Sphere lowCloudsBottomSphere;
     float seed;
     vec3 sufraceMainColor;
     float terrainMaxLevel;
@@ -46,6 +49,9 @@ RenderedCelestialBody getRenderedBody(CelestialBodyAlignedData aligned){
         Sphere(aligned.position_radius.xyz, aligned.position_radius.a - aligned.seed_terrainMaxLevel_fluidMaxLevel_habitableChance.y),
         Sphere(aligned.position_radius.xyz, aligned.position_radius.a - aligned.seed_terrainMaxLevel_fluidMaxLevel_habitableChance.z),
         Sphere(aligned.position_radius.xyz, aligned.position_radius.a + aligned.sufraceMainColor_atmosphereHeight.a),
+        Sphere(aligned.position_radius.xyz, aligned.position_radius.a + aligned.sufraceMainColor_atmosphereHeight.a * 0.75),
+        Sphere(aligned.position_radius.xyz, aligned.position_radius.a + aligned.sufraceMainColor_atmosphereHeight.a * 0.25),
+        Sphere(aligned.position_radius.xyz, aligned.position_radius.a + aligned.sufraceMainColor_atmosphereHeight.a * 0.20),
         aligned.seed_terrainMaxLevel_fluidMaxLevel_habitableChance.x, //seed
         aligned.sufraceMainColor_atmosphereHeight.xyz, // color
         aligned.seed_terrainMaxLevel_fluidMaxLevel_habitableChance.y, //terrainMaxLevel
