@@ -116,18 +116,17 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
             planet->atmosphereRadius = 0.0;
             planet->atmosphereAbsorbStrength = 0.0;
             planet->atmosphereAbsorbColor = glm::vec3(0.0);
-            planet->terrainMaxLevel = drandnorm() * planet->radius * 0.0064;
+            planet->terrainMaxLevel = drandnorm() * planet->radius * 0.02;
             planet->fluidMaxLevel = 0.0;
             planet->habitableChance = 0.0;
             planet->preferredColor = glm::vec3(drandnorm(), drandnorm(), drandnorm());
-
         }
         else if (planet->hostDistance >= habitableStart && planet->hostDistance <= habitableEnd) {
             // earth like or venus/mars like
             planet->radius = static_cast<double>(randu64(339, 937)); // ranges from mars to 1,5x earth
             moonsCount = randu64(1, 4);
             planet->atmosphereRadius = (planet->radius * 0.02);
-            planet->terrainMaxLevel =  planet->radius * 0.0064;
+            planet->terrainMaxLevel =  planet->radius * 0.02;
             float rand1 = drandnorm();
             planet->atmosphereAbsorbStrength = 0.12;
             planet->atmosphereAbsorbColor = glm::vec3(drandnorm(), drandnorm(), drandnorm());
@@ -192,7 +191,7 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
             bool isAtmospheric = drandnorm() > 0.8;
             moon->host = planet;
             moon->radius = randu64(planet->radius / 30, planet->radius / 15);
-            moon->terrainMaxLevel = moon->radius * 0.0064;
+            moon->terrainMaxLevel = moon->radius * 0.02;
             if (isAtmospheric) {
                 moon->habitableChance = drandnorm();
                 moon->fluidMaxLevel = moon->terrainMaxLevel - moon->terrainMaxLevel * sqrt(drandnorm());

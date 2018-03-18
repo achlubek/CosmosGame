@@ -38,13 +38,18 @@ public:
     void draw(VulkanRenderStage* stage, VulkanDescriptorSet* rendererDataSet, Object3dInfo* info3d);
     void updateBuffer(glm::dvec3 observerPosition, double scale, double time);
     double getDistance(glm::dvec3 position, double at_time);
+	void resizeDataImages(int lowFreqWidth, int lowFreqHeight, int hiFreqWidth, int hiFreqHeight);
+	bool needsDataUpdate();
 private:
 
-	const int TEXTURES_WIDTH = 1024 * 2;
-	const int TEXTURES_HEIGHT = 1024;
+	int lowFreqWidth = 0;
+	int lowFreqHeight = 0;
 
-	const int SHADOW_MAP_TEXTURES_WIDTH = 1024;
-	const int SHADOW_MAP_TEXTURES_HEIGHT = 1024;
+	int hiFreqWidth = 0;
+	int hiFreqHeight = 0;
+
+	bool initialized = false;
+	bool needsUpdate = true;
 
 	int shadowMapWidthOffset = 0;
 
@@ -52,13 +57,11 @@ private:
 
     CelestialBody body;
 
-    VulkanImage* heightMapImage;
-    VulkanImage* baseColorImage;
-    VulkanImage* cloudsImage;
+    VulkanImage* heightMapImage = nullptr;
+    VulkanImage* baseColorImage = nullptr;
+    VulkanImage* cloudsImage = nullptr;
 
-	// shadowmap values will be stored in distance, in orthographic projection, from perspective of sun, with up being Y+
-	// distance encoded will be in range 0 -> RADIUS
-	VulkanImage* shadowMapImage; // R for terrain distance, G for clouds distance, B for clouds coverage at that distance, A for ???
+	VulkanImage* shadowMapImage = nullptr;
 
     VulkanGenericBuffer* dataBuffer;
 

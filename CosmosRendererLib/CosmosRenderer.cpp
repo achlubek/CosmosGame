@@ -423,36 +423,56 @@ void CosmosRenderer::draw()
 
     auto renderables = std::vector<RenderedCelestialBody*>();
     for (int i = 0; i < renderablePlanets.size(); i++) {
-        renderablePlanets[i]->updateBuffer(observerCameraPosition, scale, timeProvider->getTime());
         renderables.push_back(renderablePlanets[i]);
     }
     for (int i = 0; i < renderableMoons.size(); i++) {
-        renderableMoons[i]->updateBuffer(observerCameraPosition, scale, timeProvider->getTime());
         renderables.push_back(renderableMoons[i]);
     }
 
-	celestialShadowMapComputeStage->beginRecording();
-	//for (int a = 0; a < renderables.size(); a++) {
-	if (shadowMapRoundRobinCounter >= renderables.size()) shadowMapRoundRobinCounter = 0;
+	for (int a = 0; a < renderables.size(); a++) {
+		for (int b = 0; b < renderables.size(); b++) {
+			double dist_a = renderables[a]->getDistance(observerCameraPosition, timeProvider->getTime());
+			double dist_b = renderables[b]->getDistance(observerCameraPosition, timeProvider->getTime());
+			if (dist_a > dist_b) {
+				auto tmp = renderables[b];
+				renderables[b] = renderables[a];
+				renderables[a] = tmp;
+			}
+		}
+	}
+
+	for (int a = 0; a < renderables.size() - 1; a++) {
+		renderables[a]->resizeDataImages(256, 256, 256, 256);
+	}
+	renderables[renderables.size() - 1]->resizeDataImages(2048, 2048, 1024, 1024);
+
+	celestialDataUpdateComputeStage->beginRecording();
+	for (int a = 0; a < renderables.size(); a++) {
+		if (renderables[a]->needsDataUpdate()) {
+			renderables[a]->updateData(celestialDataUpdateComputeStage);
+		}
+	}
+	celestialDataUpdateComputeStage->endRecording();
+	celestialDataUpdateComputeStage->submitNoSemaphores({});
+
+	for (int a = 0; a < renderables.size(); a++) {
+		renderables[a]->updateBuffer(observerCameraPosition, scale, timeProvider->getTime());
+	}
+
+	if (renderables.size() > 0) {
+		celestialShadowMapComputeStage->beginRecording();
+		//for (int a = 0; a < renderables.size(); a++) {
+		if (shadowMapRoundRobinCounter >= renderables.size() - 1) shadowMapRoundRobinCounter = 0;
 		renderables[shadowMapRoundRobinCounter]->updateShadows(celestialShadowMapComputeStage, rendererDataSet);
 		shadowMapRoundRobinCounter++;
-	//}
-	celestialShadowMapComputeStage->endRecording();
-	celestialShadowMapComputeStage->submitNoSemaphores({  });
+		//}
+
+		renderables[renderables.size() - 1]->updateShadows(celestialShadowMapComputeStage, rendererDataSet);
+		celestialShadowMapComputeStage->endRecording();
+		celestialShadowMapComputeStage->submitNoSemaphores({  });
+	}
 
 	celestialStage->beginDrawing();
-
-    for (int a = 0; a < renderables.size(); a++) {
-        for (int b = 0; b < renderables.size(); b++) {
-            double dist_a = renderables[a]->getDistance(observerCameraPosition, timeProvider->getTime());
-            double dist_b = renderables[b]->getDistance(observerCameraPosition, timeProvider->getTime());
-            if (dist_a > dist_b) {
-                auto tmp = renderables[b];
-                renderables[b] = renderables[a];
-                renderables[a] = tmp;
-            }
-        }
-    }
 
     for (int i = 0; i < renderables.size(); i++) {
         renderables[i]->draw(celestialStage, rendererDataSet, cube3dInfo);
@@ -514,16 +534,7 @@ void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
             renderableMoons.push_back(renderable);
             //renderable->updateData(celestialDataUpdateComputeStage);
         }
-        vkDeviceWaitIdle(vulkan->device);
-        celestialDataUpdateComputeStage->beginRecording();
-        for (int i = 0; i < renderablePlanets.size(); i++) {
-            renderablePlanets[i]->updateData(celestialDataUpdateComputeStage);
-        }
-        for (int i = 0; i < renderableMoons.size(); i++) {
-            renderableMoons[i]->updateData(celestialDataUpdateComputeStage);
-        }
-        celestialDataUpdateComputeStage->endRecording();
-        celestialDataUpdateComputeStage->submitNoSemaphores({});
-        vkDeviceWaitIdle(vulkan->device);
+      //  vkDeviceWaitIdle(vulkan->device);
+     //   vkDeviceWaitIdle(vulkan->device);
     });//yay javascript
 }

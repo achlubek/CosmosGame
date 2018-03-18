@@ -176,6 +176,7 @@ vec3 optimizedWaveSources[32] = vec3[](
     );
 
 float getwavesHighPhase(vec3 position, int iterations, float dragmult, float timeshift, float seed){
+    timeshift *= 1000.0;
     float seedWaves = seed;
     float phase = 6.0;
     float speed = 2.0;
@@ -183,9 +184,10 @@ float getwavesHighPhase(vec3 position, int iterations, float dragmult, float tim
     float w = 0.0;
     float ws = 0.0;
     for(int i=0;i<iterations;i++){
-        vec3 p = normalize(optimizedWaveSources[i])*20000.0;//(vec3(oct(seedWaves += 1.0), oct(seedWaves += 1.0), oct(seedWaves += 1.0)) * 2.0 - 1.0) * 800.0;
+        int ii = int(mod(i, 32));
+        vec3 p = normalize(optimizedWaveSources[ii]) * 2000.0;//(vec3(oct(seedWaves += 1.0), oct(seedWaves += 1.0), oct(seedWaves += 1.0)) * 2.0 - 1.0) * 800.0;
         vec2 res = wavedx(position, p, speed, phase, timeshift);
-        //position -= normalize(position - p) * sqrt(weight) * 0.8888;
+        position -= normalize(position - p) * weight * (res.y) * 0.048;
         w += res.x * weight;
         ws += weight;
         weight = mix(weight, 0.0, 0.2);
