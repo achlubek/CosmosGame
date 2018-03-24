@@ -63,6 +63,13 @@ public:
     VulkanDescriptorSet* celestiaStarsBlitSet{ nullptr };
     VulkanComputeStage* celestialStarsBlitComputeStage;
 
+
+	VulkanDescriptorSetLayout* celestialBodySurfaceSetLayout{ nullptr };
+	VulkanRenderStage* celestialBodySurfaceRenderStage;
+
+	VulkanDescriptorSetLayout* celestialBodyWaterSetLayout{ nullptr };
+	VulkanRenderStage* celestialBodyWaterRenderStage;
+
     VulkanGenericBuffer* cameraDataBuffer;
     VulkanGenericBuffer* starsDataBuffer;
     VulkanGenericBuffer* planetsDataBuffer;
@@ -75,11 +82,17 @@ public:
     VulkanImage* modelsResultImage;
     VulkanImage* modelsDepthImage; 
 
-    VulkanImage* planetTerrainHeightImage;
-    VulkanImage* planetTerrainColorImage;
-    VulkanImage* planetAtmosphereFlunctuationsImage;
+	VulkanImage* surfaceRenderedAlbedoRoughnessImage;
+	VulkanImage* surfaceRenderedNormalMetalnessImage;
+	VulkanImage* surfaceRenderedDistanceImage;
+	VulkanImage* surfaceRenderedDepthImage;
+	VulkanImage* waterRenderedNormalMetalnessImage;
+	VulkanImage* waterRenderedDistanceImage;
+	VulkanImage* waterRenderedDepthImage;
+	
+	Object3dInfo* cube3dInfo;
 
-    Object3dInfo* cube3dInfo; 
+	Object3dInfo* icosphereMedium;
 
     const double scale = 0.01;
 

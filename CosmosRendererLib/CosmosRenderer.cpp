@@ -13,10 +13,12 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, TimeProvider* itimeProvid
 { 
     internalCamera = new Camera();
 
-    cube3dInfo = assets.loadObject3dInfoFile("cube1unitradius.raw");
+	cube3dInfo = assets.loadObject3dInfoFile("cube1unitradius.raw");
+
+	icosphereMedium = assets.loadObject3dInfoFile("icosphere_mediumpoly_1unit.raw");
 
     cameraDataBuffer = new VulkanGenericBuffer(vulkan, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, sizeof(float) * 1024);
-    starsDataBuffer = new VulkanGenericBuffer(vulkan, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, 1024 * 1024 * 128); // i want 256 mb 1024 * 1024 * 256
+    starsDataBuffer = new VulkanGenericBuffer(vulkan, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, 1024 * 1024 * 128); 
     planetsDataBuffer = new VulkanGenericBuffer(vulkan, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, sizeof(float) * 1024 * 1024);
     moonsDataBuffer = new VulkanGenericBuffer(vulkan, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, sizeof(float) * 1024 * 1024);
 
@@ -35,17 +37,38 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, TimeProvider* itimeProvid
     modelsDepthImage = new VulkanImage(vulkan, width, height, VK_FORMAT_D32_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
         VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, true);
 
+	//####################//
+
+	surfaceRenderedAlbedoRoughnessImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL,
+		VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
+
+	surfaceRenderedNormalMetalnessImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
+		VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
+
+	surfaceRenderedDistanceImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R32_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
+		VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
+
+	surfaceRenderedDepthImage = new VulkanImage(vulkan, width, height, VK_FORMAT_D32_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
+		VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, true);
+
+
+	//#######//
+
+	waterRenderedNormalMetalnessImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
+		VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
+
+	waterRenderedDistanceImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R32_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
+		VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
+
+	waterRenderedDepthImage = new VulkanImage(vulkan, width, height, VK_FORMAT_D32_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
+		VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, true);
+
+	
+	//####################//
+
+
     // cosmosImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
    //      VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
-
-    planetTerrainHeightImage = new VulkanImage(vulkan, 1024 * 2, 1024 * 2, VK_FORMAT_R16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
-        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
-
-    planetTerrainColorImage = new VulkanImage(vulkan, 1024 * 2, 1024 * 2, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL,
-        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
-
-    planetAtmosphereFlunctuationsImage = new VulkanImage(vulkan, 1024 * 2, 1024 * 2, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL,
-        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
 
     rendererDataLayout = new VulkanDescriptorSetLayout(vulkan);
     rendererDataLayout->addField(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS | VK_SHADER_STAGE_COMPUTE_BIT);
@@ -111,6 +134,16 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, TimeProvider* itimeProvid
 	celestialBodyRenderSetLayout->addField(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
 	celestialBodyRenderSetLayout->compile();
 
+	celestialBodySurfaceSetLayout = new VulkanDescriptorSetLayout(vulkan);
+	celestialBodySurfaceSetLayout->addField(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
+	celestialBodySurfaceSetLayout->addField(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
+	celestialBodySurfaceSetLayout->addField(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
+	celestialBodySurfaceSetLayout->compile();
+
+	celestialBodyWaterSetLayout = new VulkanDescriptorSetLayout(vulkan);
+	celestialBodyWaterSetLayout->addField(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
+	celestialBodyWaterSetLayout->compile();
+
     combineSet = combineLayout->generateDescriptorSet();
     combineSet->bindImageViewSampler(0, celestialAlphaImage);
     combineSet->bindImageViewSampler(1, starsImage);
@@ -150,6 +183,42 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
         safedelete(renderer);
     }
     vkDeviceWaitIdle(vulkan->device);
+
+
+	//**********************//
+
+	auto celestialsurfacevert = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-celestial-surface.vert.spv");
+	auto celestialsurfacefrag = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-celestial-surface.frag.spv");
+
+	celestialBodySurfaceRenderStage = new VulkanRenderStage(vulkan);
+	celestialBodySurfaceRenderStage->setViewport(width, height);
+	celestialBodySurfaceRenderStage->addShaderStage(celestialsurfacevert->createShaderStage(VK_SHADER_STAGE_VERTEX_BIT, "main"));
+	celestialBodySurfaceRenderStage->addShaderStage(celestialsurfacefrag->createShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT, "main"));
+	celestialBodySurfaceRenderStage->addDescriptorSetLayout(rendererDataLayout->layout);
+	celestialBodySurfaceRenderStage->addDescriptorSetLayout(celestialBodySurfaceSetLayout->layout);
+	celestialBodySurfaceRenderStage->addOutputImage(surfaceRenderedAlbedoRoughnessImage);
+	celestialBodySurfaceRenderStage->addOutputImage(surfaceRenderedNormalMetalnessImage);
+	celestialBodySurfaceRenderStage->addOutputImage(surfaceRenderedDistanceImage);
+	celestialBodySurfaceRenderStage->addOutputImage(surfaceRenderedDepthImage);
+	celestialBodySurfaceRenderStage->cullFlags = VK_CULL_MODE_BACK_BIT;
+	celestialBodySurfaceRenderStage->compile();
+
+	//**********************//
+
+	auto celestialwatervert = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-celestial-water.vert.spv");
+	auto celestialwaterfrag = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-celestial-water.frag.spv");
+
+	celestialBodyWaterRenderStage = new VulkanRenderStage(vulkan);
+	celestialBodyWaterRenderStage->setViewport(width, height);
+	celestialBodyWaterRenderStage->addShaderStage(celestialwatervert->createShaderStage(VK_SHADER_STAGE_VERTEX_BIT, "main"));
+	celestialBodyWaterRenderStage->addShaderStage(celestialwaterfrag->createShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT, "main"));
+	celestialBodyWaterRenderStage->addDescriptorSetLayout(rendererDataLayout->layout);
+	celestialBodyWaterRenderStage->addDescriptorSetLayout(celestialBodyWaterSetLayout->layout);
+	celestialBodyWaterRenderStage->addOutputImage(waterRenderedNormalMetalnessImage);
+	celestialBodyWaterRenderStage->addOutputImage(waterRenderedDistanceImage);
+	celestialBodyWaterRenderStage->addOutputImage(waterRenderedDepthImage);
+	celestialBodyWaterRenderStage->cullFlags = VK_CULL_MODE_BACK_BIT;
+	celestialBodyWaterRenderStage->compile();
 
 	//**********************//
 	auto celestialdatacompute = new VulkanShaderModule(vulkan, "../../shaders/compiled/celestial-updatedata.comp.spv");

@@ -8,17 +8,23 @@ RenderedCelestialBody::RenderedCelestialBody(
 	CelestialBody ibody,
 	VulkanDescriptorSetLayout* dataSetLayout,
 	VulkanDescriptorSetLayout* shadowMapSetLayout,
-	VulkanDescriptorSetLayout* renderSetLayout)
+	VulkanDescriptorSetLayout* renderSetLayout,
+	VulkanDescriptorSetLayout* celestialBodySurfaceSetLayout,
+	VulkanDescriptorSetLayout* celestialBodyWaterSetLayout)
 	: toolkit(itoolkit), body(ibody)
 {
 
 	dataBuffer = new VulkanGenericBuffer(toolkit, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, 65535);
 
 	dataSet = dataSetLayout->generateDescriptorSet();
-
+	
 	shadowMapSet = shadowMapSetLayout->generateDescriptorSet();
 
 	renderSet = renderSetLayout->generateDescriptorSet();
+
+	renderSurfaceSet = celestialBodySurfaceSetLayout->generateDescriptorSet();
+
+	renderWaterSet = celestialBodyWaterSetLayout->generateDescriptorSet();
 }
 
 #define safedelete(a) if(a!=nullptr){delete a;a=nullptr;}
@@ -76,6 +82,14 @@ void RenderedCelestialBody::resizeDataImages(int ilowFreqWidth, int ilowFreqHeig
 	renderSet->bindImageViewSampler(3, cloudsImage);
 	renderSet->bindImageViewSampler(4, shadowMapImage);
 	renderSet->update();
+
+	renderSurfaceSet->bindUniformBuffer(0, dataBuffer);
+	renderSurfaceSet->bindImageViewSampler(1, heightMapImage);
+	renderSurfaceSet->bindImageViewSampler(2, baseColorImage);
+	renderSurfaceSet->update();
+
+	renderWaterSet->bindUniformBuffer(0, dataBuffer);
+	renderWaterSet->update();
 	
 	initialized = true;
 }

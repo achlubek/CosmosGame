@@ -31,7 +31,9 @@ class RenderedCelestialBody
 {
 public:
     RenderedCelestialBody(VulkanToolkit* toolkit, CelestialBody body, 
-		VulkanDescriptorSetLayout* dataSetLayout, VulkanDescriptorSetLayout* shadowMapSetLayout, VulkanDescriptorSetLayout* renderSetLayout);
+		VulkanDescriptorSetLayout* dataSetLayout, VulkanDescriptorSetLayout* shadowMapSetLayout, VulkanDescriptorSetLayout* renderSetLayout,
+		VulkanDescriptorSetLayout* celestialBodySurfaceSetLayout,
+		VulkanDescriptorSetLayout* celestialBodyWaterSetLayout);
     ~RenderedCelestialBody();
 	void updateData(VulkanComputeStage* stage);
 	void updateShadows(VulkanComputeStage* stage, VulkanDescriptorSet* rendererDataSet);
@@ -69,7 +71,11 @@ private:
 
 	VulkanDescriptorSet* shadowMapSet;
 
-    VulkanDescriptorSet* renderSet;
+	VulkanDescriptorSet* renderSet;
+
+	VulkanDescriptorSet* renderSurfaceSet;
+
+	VulkanDescriptorSet* renderWaterSet;
 
 };
 
