@@ -33,11 +33,18 @@ public:
     RenderedCelestialBody(VulkanToolkit* toolkit, CelestialBody body, 
 		VulkanDescriptorSetLayout* dataSetLayout, VulkanDescriptorSetLayout* shadowMapSetLayout, VulkanDescriptorSetLayout* renderSetLayout,
 		VulkanDescriptorSetLayout* celestialBodySurfaceSetLayout,
-		VulkanDescriptorSetLayout* celestialBodyWaterSetLayout);
+		VulkanDescriptorSetLayout* celestialBodyWaterSetLayout,
+		VulkanImage* surfaceRenderedAlbedoRoughnessImage,
+		VulkanImage* surfaceRenderedNormalMetalnessImage,
+		VulkanImage* surfaceRenderedDistanceImage,
+		VulkanImage* waterRenderedNormalMetalnessImage,
+		VulkanImage* waterRenderedDistanceImage);
     ~RenderedCelestialBody();
 	void updateData(VulkanComputeStage* stage);
 	void updateShadows(VulkanComputeStage* stage, VulkanDescriptorSet* rendererDataSet);
-    void draw(VulkanRenderStage* stage, VulkanDescriptorSet* rendererDataSet, Object3dInfo* info3d);
+	void draw(VulkanRenderStage* stage, VulkanDescriptorSet* rendererDataSet, Object3dInfo* info3d);
+	void drawSurface(VulkanRenderStage* stage, VulkanDescriptorSet* rendererDataSet, Object3dInfo* info3d);
+	void drawWater(VulkanRenderStage* stage, VulkanDescriptorSet* rendererDataSet, Object3dInfo* info3d);
     void updateBuffer(glm::dvec3 observerPosition, double scale, double time);
     double getDistance(glm::dvec3 position, double at_time);
 	void resizeDataImages(int lowFreqWidth, int lowFreqHeight, int hiFreqWidth, int hiFreqHeight);
@@ -63,7 +70,13 @@ private:
     VulkanImage* baseColorImage = nullptr;
     VulkanImage* cloudsImage = nullptr;
 
-	VulkanImage* shadowMapImage = nullptr;
+	VulkanImage* shadowMapImage = nullptr;	
+	
+	VulkanImage* surfaceRenderedAlbedoRoughnessImage;
+	VulkanImage* surfaceRenderedNormalMetalnessImage;
+	VulkanImage* surfaceRenderedDistanceImage;
+	VulkanImage* waterRenderedNormalMetalnessImage;
+	VulkanImage* waterRenderedDistanceImage;
 
     VulkanGenericBuffer* dataBuffer;
 

@@ -10,8 +10,18 @@ RenderedCelestialBody::RenderedCelestialBody(
 	VulkanDescriptorSetLayout* shadowMapSetLayout,
 	VulkanDescriptorSetLayout* renderSetLayout,
 	VulkanDescriptorSetLayout* celestialBodySurfaceSetLayout,
-	VulkanDescriptorSetLayout* celestialBodyWaterSetLayout)
-	: toolkit(itoolkit), body(ibody)
+	VulkanDescriptorSetLayout* celestialBodyWaterSetLayout,
+	VulkanImage* isurfaceRenderedAlbedoRoughnessImage,
+	VulkanImage* isurfaceRenderedNormalMetalnessImage,
+	VulkanImage* isurfaceRenderedDistanceImage,
+	VulkanImage* iwaterRenderedNormalMetalnessImage,
+	VulkanImage* iwaterRenderedDistanceImage)
+	: toolkit(itoolkit), body(ibody),
+	surfaceRenderedAlbedoRoughnessImage(isurfaceRenderedAlbedoRoughnessImage),
+	surfaceRenderedNormalMetalnessImage(isurfaceRenderedNormalMetalnessImage),
+	surfaceRenderedDistanceImage(isurfaceRenderedDistanceImage),
+	waterRenderedNormalMetalnessImage(iwaterRenderedNormalMetalnessImage),
+	waterRenderedDistanceImage(iwaterRenderedDistanceImage)
 {
 
 	dataBuffer = new VulkanGenericBuffer(toolkit, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, 65535);
@@ -81,6 +91,11 @@ void RenderedCelestialBody::resizeDataImages(int ilowFreqWidth, int ilowFreqHeig
 	renderSet->bindImageViewSampler(2, baseColorImage);
 	renderSet->bindImageViewSampler(3, cloudsImage);
 	renderSet->bindImageViewSampler(4, shadowMapImage);
+	renderSet->bindImageViewSampler(5, surfaceRenderedAlbedoRoughnessImage);
+	renderSet->bindImageViewSampler(6, surfaceRenderedNormalMetalnessImage);
+	renderSet->bindImageViewSampler(7, surfaceRenderedDistanceImage);
+	renderSet->bindImageViewSampler(8, waterRenderedNormalMetalnessImage);
+	renderSet->bindImageViewSampler(9, waterRenderedDistanceImage);
 	renderSet->update();
 
 	renderSurfaceSet->bindUniformBuffer(0, dataBuffer);
@@ -133,10 +148,28 @@ void RenderedCelestialBody::updateShadows(VulkanComputeStage * stage, VulkanDesc
 
 void RenderedCelestialBody::draw(VulkanRenderStage * stage, VulkanDescriptorSet* rendererDataSet, Object3dInfo * info3d)
 {
-	if (!initialized) { 
+	if (!initialized) {
 		return;
 	}
 	stage->setSets({ rendererDataSet, renderSet });
+	stage->drawMesh(info3d, 1);
+}
+
+void RenderedCelestialBody::drawSurface(VulkanRenderStage * stage, VulkanDescriptorSet* rendererDataSet, Object3dInfo * info3d)
+{
+	if (!initialized) {
+		return;
+	}
+	stage->setSets({ rendererDataSet, renderSurfaceSet });
+	stage->drawMesh(info3d, 1);
+}
+
+void RenderedCelestialBody::drawWater(VulkanRenderStage * stage, VulkanDescriptorSet* rendererDataSet, Object3dInfo * info3d)
+{
+	if (!initialized) {
+		return;
+	}
+	stage->setSets({ rendererDataSet, renderWaterSet });
 	stage->drawMesh(info3d, 1);
 }
 

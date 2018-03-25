@@ -246,11 +246,13 @@ void updatePassHits(inout RenderPass pass){
     float hit_Surface2 = rsi2(pass.ray, pass.body.surfaceSphere).y;
     float cameradst = distance(pass.body.position, pass.ray.o);
 //    if(cameradst < pass.body.radius * 4.0 ){
-        hit_Surface = raymarchCelestialTerrain(pass.ray, hit_Surface > 0.0 && hit_Surface < DISTANCE_INFINITY ? hit_Surface : 0.0, heightMapImage, pass.body, 0.00001 );
+#ifndef SHADOW_MAP_COMPUTE_STAGE
+        hit_Surface = texture(surfaceRenderedDistanceImage, UV).r;//raymarchCelestialTerrain(pass.ray, hit_Surface > 0.0 && hit_Surface < DISTANCE_INFINITY ? hit_Surface : 0.0, heightMapImage, pass.body, 0.00001 );
+#endif
 //    }
     float hit_Water = rsi2(pass.ray, pass.body.waterSphere).x;
     if(hit_Water < 0.08 && hit_Water > 0.0){
-        hit_Water = raymarchCelestialWater(pass.ray, hit_Water, pass.body, 0.000001);
+    //    hit_Water = raymarchCelestialWater(pass.ray, hit_Water, pass.body, 0.000001);
     }
     vec2 hits_Atmosphere = rsi2(pass.ray, pass.body.atmosphereSphere);
     if(hit_Surface > 0.0 && hit_Surface < DISTANCE_INFINITY) {

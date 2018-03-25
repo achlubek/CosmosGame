@@ -132,12 +132,17 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, TimeProvider* itimeProvid
 	celestialBodyRenderSetLayout->addField(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
 	celestialBodyRenderSetLayout->addField(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
 	celestialBodyRenderSetLayout->addField(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
+	celestialBodyRenderSetLayout->addField(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
+	celestialBodyRenderSetLayout->addField(6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
+	celestialBodyRenderSetLayout->addField(7, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
+	celestialBodyRenderSetLayout->addField(8, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
+	celestialBodyRenderSetLayout->addField(9, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
 	celestialBodyRenderSetLayout->compile();
 
 	celestialBodySurfaceSetLayout = new VulkanDescriptorSetLayout(vulkan);
 	celestialBodySurfaceSetLayout->addField(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
-	celestialBodySurfaceSetLayout->addField(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-	celestialBodySurfaceSetLayout->addField(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
+	celestialBodySurfaceSetLayout->addField(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS);
+	celestialBodySurfaceSetLayout->addField(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS);
 	celestialBodySurfaceSetLayout->compile();
 
 	celestialBodyWaterSetLayout = new VulkanDescriptorSetLayout(vulkan);
@@ -200,7 +205,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
 	celestialBodySurfaceRenderStage->addOutputImage(surfaceRenderedNormalMetalnessImage);
 	celestialBodySurfaceRenderStage->addOutputImage(surfaceRenderedDistanceImage);
 	celestialBodySurfaceRenderStage->addOutputImage(surfaceRenderedDepthImage);
-	celestialBodySurfaceRenderStage->cullFlags = VK_CULL_MODE_BACK_BIT;
+	celestialBodySurfaceRenderStage->cullFlags = 0;
 	celestialBodySurfaceRenderStage->compile();
 
 	//**********************//
@@ -485,7 +490,7 @@ void CosmosRenderer::draw()
     }
     firstRecordingDone = true;
 
-    celestialStarsBlitComputeStage->submit({ starsStage->signalSemaphore});
+    celestialStarsBlitComputeStage->submitNoSemaphores({ starsStage->signalSemaphore});
     
     //vkDeviceWaitIdle(vulkan->device);
 
@@ -527,7 +532,7 @@ void CosmosRenderer::draw()
 	for (int a = 0; a < renderables.size(); a++) {
 		renderables[a]->updateBuffer(observerCameraPosition, scale, timeProvider->getTime());
 	}
-
+	/*
 	if (renderables.size() > 0) {
 		celestialShadowMapComputeStage->beginRecording();
 		//for (int a = 0; a < renderables.size(); a++) {
@@ -539,16 +544,33 @@ void CosmosRenderer::draw()
 		renderables[renderables.size() - 1]->updateShadows(celestialShadowMapComputeStage, rendererDataSet);
 		celestialShadowMapComputeStage->endRecording();
 		celestialShadowMapComputeStage->submitNoSemaphores({  });
-	}
+	}*/
 
-	celestialStage->beginDrawing();
+	for (int i = 0; i < renderables.size(); i++) {
+		vkDeviceWaitIdle(vulkan->device);
+		celestialBodySurfaceRenderStage->beginDrawing();
 
-    for (int i = 0; i < renderables.size(); i++) {
+		renderables[i]->drawSurface(celestialBodySurfaceRenderStage, rendererDataSet, icosphereMedium);
+
+		celestialBodySurfaceRenderStage->endDrawing();
+		celestialBodySurfaceRenderStage->submitNoSemaphores({  });
+
+		celestialBodyWaterRenderStage->beginDrawing();
+
+		renderables[i]->drawWater(celestialBodyWaterRenderStage, rendererDataSet, icosphereMedium);
+
+		celestialBodyWaterRenderStage->endDrawing();
+		celestialBodyWaterRenderStage->submitNoSemaphores({  });
+
+		celestialStage->beginDrawing();
+
         renderables[i]->draw(celestialStage, rendererDataSet, cube3dInfo);
+
+		celestialStage->endDrawing();
+		celestialStage->submitNoSemaphores({ });
+		vkDeviceWaitIdle(vulkan->device);
     }
 
-    celestialStage->endDrawing();
-    celestialStage->submitNoSemaphores({ celestialStarsBlitComputeStage->signalSemaphore});
 
     vkDeviceWaitIdle(vulkan->device);
     modelsStage->beginDrawing();
@@ -584,7 +606,18 @@ void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
             renderablePlanets[i] = nullptr;
         }
         renderablePlanets.clear();
-        auto renderable = new RenderedCelestialBody(vulkan, galaxy->getClosestPlanet(), celestialBodyDataSetLayout, celestialShadowMapSetLayout, celestialBodyRenderSetLayout);
+        auto renderable = new RenderedCelestialBody(vulkan,
+			galaxy->getClosestPlanet(), 
+			celestialBodyDataSetLayout, 
+			celestialShadowMapSetLayout, 
+			celestialBodyRenderSetLayout,
+			celestialBodySurfaceSetLayout, 
+			celestialBodyWaterSetLayout,
+			surfaceRenderedAlbedoRoughnessImage,
+			surfaceRenderedNormalMetalnessImage,
+			surfaceRenderedDistanceImage,
+			waterRenderedNormalMetalnessImage,
+			waterRenderedDistanceImage);
         renderable->updateBuffer(observerCameraPosition, scale, timeProvider->getTime());
         renderablePlanets.push_back(renderable);
         //renderable->updateData(celestialDataUpdateComputeStage);
@@ -598,7 +631,18 @@ void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
         renderableMoons.clear();
         auto moons = galaxy->getClosestPlanetMoons();
         for (int i = 0; i < moons.size(); i++) {
-            auto renderable = new RenderedCelestialBody(vulkan, moons[i], celestialBodyDataSetLayout, celestialShadowMapSetLayout, celestialBodyRenderSetLayout);
+            auto renderable = new RenderedCelestialBody(vulkan, 
+				moons[i], 
+				celestialBodyDataSetLayout, 
+				celestialShadowMapSetLayout, 
+				celestialBodyRenderSetLayout,
+				celestialBodySurfaceSetLayout, 
+				celestialBodyWaterSetLayout,
+				surfaceRenderedAlbedoRoughnessImage,
+				surfaceRenderedNormalMetalnessImage,
+				surfaceRenderedDistanceImage,
+				waterRenderedNormalMetalnessImage,
+				waterRenderedDistanceImage);
             renderable->updateBuffer(observerCameraPosition, scale, timeProvider->getTime());
             renderableMoons.push_back(renderable);
             //renderable->updateData(celestialDataUpdateComputeStage);
