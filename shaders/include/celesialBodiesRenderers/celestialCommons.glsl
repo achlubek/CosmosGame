@@ -62,7 +62,7 @@ float getStarTerrainShadowAtPoint(RenderedCelestialBody body, vec3 point, float 
     float probeheight = distance(point, body.position);
     vec2 data = texture(shadowMapImage, xyzToPolar( dir)).rg;
     vec3 coord = getShadowMapCoord(body, point);
-    return smoothstep(-tolerance, 0.0, probeheight - (data.r + body.radius)) * texture(shadowMapImage, coord.xy).g;
+    return 1.0;//smoothstep(-tolerance, 0.0, probeheight - (data.r + body.radius)) * texture(shadowMapImage, coord.xy).g;
 }
 
 float getStarTerrainShadowAtPointNoClouds(RenderedCelestialBody body, vec3 point){
@@ -70,7 +70,7 @@ float getStarTerrainShadowAtPointNoClouds(RenderedCelestialBody body, vec3 point
     float probeheight = distance(point, body.position);
     vec2 data = texture(shadowMapImage, xyzToPolar( dir)).rg;
     vec3 coord = getShadowMapCoord(body, point);
-    return smoothstep(-0.001, 0.0, probeheight - (data.r + body.radius));
+    return 1.0;//smoothstep(-0.001, 0.0, probeheight - (data.r + body.radius));
 }
 
 #else
@@ -246,14 +246,19 @@ void updatePassHits(inout RenderPass pass){
     float hit_Surface2 = rsi2(pass.ray, pass.body.surfaceSphere).y;
     float cameradst = distance(pass.body.position, pass.ray.o);
 //    if(cameradst < pass.body.radius * 4.0 ){
+    vec2 uv = vec2(0.0);
 #ifndef SHADOW_MAP_COMPUTE_STAGE
-        hit_Surface = texture(surfaceRenderedDistanceImage, UV).r;//raymarchCelestialTerrain(pass.ray, hit_Surface > 0.0 && hit_Surface < DISTANCE_INFINITY ? hit_Surface : 0.0, heightMapImage, pass.body, 0.00001 );
+    uv = gl_FragCoord.xy / Resolution;
+        hit_Surface = texture(surfaceRenderedDistanceImage, uv).r;//raymarchCelestialTerrain(pass.ray, hit_Surface > 0.0 && hit_Surface < DISTANCE_INFINITY ? hit_Surface : 0.0, heightMapImage, pass.body, 0.00001 );
 #endif
 //    }
     float hit_Water = rsi2(pass.ray, pass.body.waterSphere).x;
     if(hit_Water < 0.08 && hit_Water > 0.0){
     //    hit_Water = raymarchCelestialWater(pass.ray, hit_Water, pass.body, 0.000001);
     }
+    #ifndef SHADOW_MAP_COMPUTE_STAGE
+            hit_Surface = texture(waterRenderedDistanceImage, uv).r;//raymarchCelestialTerrain(pass.ray, hit_Surface > 0.0 && hit_Surface < DISTANCE_INFINITY ? hit_Surface : 0.0, heightMapImage, pass.body, 0.00001 );
+    #endif
     vec2 hits_Atmosphere = rsi2(pass.ray, pass.body.atmosphereSphere);
     if(hit_Surface > 0.0 && hit_Surface < DISTANCE_INFINITY) {
         pass.isSurfaceHit = true;
@@ -315,7 +320,9 @@ CelestialRenderResult renderCelestialBody(RenderedCelestialBody body, Ray ray){
         }
     }
     //result.additionLight = vec4(0.0);
-//    result.alphaBlendedLight = vec4(1000.0 * texture(shadowMapImage, xyzToPolar( normalize(pass.surfaceHitPos - body.position))).rrr, result.alphaBlendedLight.a);
+    //vec3 nrm = texture(surfaceRenderedAlbedoRoughnessImage, gl_FragCoord.xy / Resolution).rgb;
+    //float ddd = texture(surfaceRenderedDistanceImage, gl_FragCoord.xy / Resolution).r;
+    //result.alphaBlendedLight = vec4(nrm * 10000.0, step(0.01, ddd));
     return result;
 }
 

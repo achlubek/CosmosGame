@@ -42,6 +42,6 @@ void main() {
     outColorAlpha = result.alphaBlendedLight;
     outColorAdditive = result.additionLight;
 
-    outColorAlpha = vec4(texture(surfaceRenderedDistanceImage, gl_FragCoord.xy / Resolution).rrr, 1.0);//result.alphaBlendedLight;
-    outColorAdditive = 0.0*result.additionLight;
+//    outColorAlpha = vec4(texture(surfaceRenderedDistanceImage, gl_FragCoord.xy / Resolution).rrr, 1.0);//result.alphaBlendedLight;
+//    outColorAdditive = 0.0*result.additionLight;
 }

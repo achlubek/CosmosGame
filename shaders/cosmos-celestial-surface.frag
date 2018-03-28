@@ -1,7 +1,7 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout(location = 0) in vec2 UV;
+layout(location = 0) in vec3 Dir;
 layout(location = 1) in flat uint inInstanceId;
 layout(location = 2) in vec3 inWorldPos;
 layout(location = 3) in vec3 inNormal;
@@ -24,7 +24,7 @@ void main() {
 
     RenderedCelestialBody body = getRenderedBody(celestialBuffer.celestialBody);
 
-    outAlbedoRoughness = texture(baseColorImage, UV).rgba;
+    outAlbedoRoughness = texture(baseColorImage, xyzToPolar(Dir)).rgba;
     outNormalMetalness = vec4(inNormal, 0.0);
     outDistance = length(inWorldPos);
 }

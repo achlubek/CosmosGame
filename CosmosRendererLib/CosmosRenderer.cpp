@@ -15,7 +15,11 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, TimeProvider* itimeProvid
 
 	cube3dInfo = assets.loadObject3dInfoFile("cube1unitradius.raw");
 
+	icosphereLow = assets.loadObject3dInfoFile("icosphere_lowpoly_1unit.raw");
+
 	icosphereMedium = assets.loadObject3dInfoFile("icosphere_mediumpoly_1unit.raw");
+
+	icosphereHigh = assets.loadObject3dInfoFile("icosphere_highpoly_1unit.raw");
 
     cameraDataBuffer = new VulkanGenericBuffer(vulkan, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, sizeof(float) * 1024);
     starsDataBuffer = new VulkanGenericBuffer(vulkan, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, 1024 * 1024 * 128); 
@@ -182,6 +186,8 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     readyForDrawing = false;
     if (deleteOld) {
         vkDeviceWaitIdle(vulkan->device);
+		safedelete(celestialBodySurfaceRenderStage);
+		safedelete(celestialBodyWaterRenderStage);
         safedelete(celestialStage);
         safedelete(starsStage);
         safedelete(combineStage);
@@ -222,7 +228,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
 	celestialBodyWaterRenderStage->addOutputImage(waterRenderedNormalMetalnessImage);
 	celestialBodyWaterRenderStage->addOutputImage(waterRenderedDistanceImage);
 	celestialBodyWaterRenderStage->addOutputImage(waterRenderedDepthImage);
-	celestialBodyWaterRenderStage->cullFlags = VK_CULL_MODE_BACK_BIT;
+	celestialBodyWaterRenderStage->cullFlags = 0;
 	celestialBodyWaterRenderStage->compile();
 
 	//**********************//
@@ -547,17 +553,16 @@ void CosmosRenderer::draw()
 	}*/
 
 	for (int i = 0; i < renderables.size(); i++) {
-		vkDeviceWaitIdle(vulkan->device);
 		celestialBodySurfaceRenderStage->beginDrawing();
 
-		renderables[i]->drawSurface(celestialBodySurfaceRenderStage, rendererDataSet, icosphereMedium);
+		renderables[i]->drawSurface(celestialBodySurfaceRenderStage, rendererDataSet, i == (renderables.size() - 1) ? icosphereHigh : icosphereLow);
 
 		celestialBodySurfaceRenderStage->endDrawing();
 		celestialBodySurfaceRenderStage->submitNoSemaphores({  });
 
 		celestialBodyWaterRenderStage->beginDrawing();
 
-		renderables[i]->drawWater(celestialBodyWaterRenderStage, rendererDataSet, icosphereMedium);
+		renderables[i]->drawWater(celestialBodyWaterRenderStage, rendererDataSet, i == (renderables.size() - 1) ? icosphereHigh : icosphereLow);
 
 		celestialBodyWaterRenderStage->endDrawing();
 		celestialBodyWaterRenderStage->submitNoSemaphores({  });

@@ -92,7 +92,9 @@ public:
 	
 	Object3dInfo* cube3dInfo;
 
+	Object3dInfo* icosphereLow;
 	Object3dInfo* icosphereMedium;
+	Object3dInfo* icosphereHigh;
 
     const double scale = 0.01;
 

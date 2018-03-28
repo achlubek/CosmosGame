@@ -28,7 +28,7 @@ layout(location = 3) out vec3 outNormal;
 void main() {
     RenderedCelestialBody body = getRenderedBody(celestialBuffer.celestialBody);
     vec3 dir = inPosition.xyz;
-    vec3 WorldPos = body.radius + body.fluidMaxLevel * dir;
+    vec3 WorldPos = (inverse(body.rotationMatrix) * dir) * (body.radius + body.fluidMaxLevel) + body.position;
     vec4 opo = (hiFreq.VPMatrix) * vec4(WorldPos, 1.0);
     vec3 Normal = dir;
     outNormal = normalize(Normal);
