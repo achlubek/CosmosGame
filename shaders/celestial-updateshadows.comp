@@ -20,7 +20,7 @@ layout(local_size_x = 4, local_size_y = 32, local_size_z = 1) in;
 #include camera.glsl
 
 void main()
-{
+{/*
     ivec2 pixel = ivec2(gl_GlobalInvocationID.xy);
     vec2 resolution = celestialBuffer.shadowmapresolution_offset_zero.xy;
     float widthOffset = celestialBuffer.shadowmapresolution_offset_zero.z;
@@ -129,5 +129,5 @@ void main()
 //    pass.atmosphereNearHitPos -= pass.body.position;
 //    float dt = max(0.0, dot(normalize(pass.atmosphereNearHitPos), normalize(ClosestStarPosition - pass.body.position)));
 //    imageStore(shadowMapImage, pixel, vec4(dt, dt, dt, 0.0));
-
+*/
 }

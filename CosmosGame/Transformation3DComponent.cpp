@@ -3,6 +3,7 @@
  
 void Transformation3DComponent::update(double elapsed)
 {
+	linearVelocity += gravityAcceleration * elapsed;
     position = predictPosition(elapsed);
     orientation = predictOrientation(elapsed);
 }
@@ -122,7 +123,7 @@ void Transformation3DComponent::applyAbsoluteImpulse(glm::dvec3 relativePos, glm
 
 void Transformation3DComponent::applyGravity(glm::dvec3 force)
 {
-    linearVelocity += force;
+	gravityAcceleration = force;
 }
 
 glm::dvec3 Transformation3DComponent::modelSpaceToWorld(glm::dvec3 v)

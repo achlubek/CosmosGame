@@ -49,6 +49,7 @@ public:
     double getDistance(glm::dvec3 position, double at_time);
 	void resizeDataImages(int lowFreqWidth, int lowFreqHeight, int hiFreqWidth, int hiFreqHeight);
 	bool needsDataUpdate();
+	CelestialRenderMethod getRenderMethod();
 private:
 
 	int lowFreqWidth = 0;

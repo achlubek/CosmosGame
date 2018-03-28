@@ -125,5 +125,11 @@ public:
 
     volatile bool readyForDrawing = false;
     volatile bool firstRecordingDone = false;
+
+private:
+//#define PERFORMANCE_DEBUG
+	double measurementStopwatch = 0.0;
+	void measureTimeStart();
+	void measureTimeEnd(std::string name);
 };
 

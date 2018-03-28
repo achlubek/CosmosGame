@@ -211,7 +211,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
 	celestialBodySurfaceRenderStage->addOutputImage(surfaceRenderedNormalMetalnessImage);
 	celestialBodySurfaceRenderStage->addOutputImage(surfaceRenderedDistanceImage);
 	celestialBodySurfaceRenderStage->addOutputImage(surfaceRenderedDepthImage);
-	celestialBodySurfaceRenderStage->cullFlags = 0;
+	celestialBodySurfaceRenderStage->cullFlags = VK_CULL_MODE_FRONT_BIT;
 	celestialBodySurfaceRenderStage->compile();
 
 	//**********************//
@@ -228,7 +228,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
 	celestialBodyWaterRenderStage->addOutputImage(waterRenderedNormalMetalnessImage);
 	celestialBodyWaterRenderStage->addOutputImage(waterRenderedDistanceImage);
 	celestialBodyWaterRenderStage->addOutputImage(waterRenderedDepthImage);
-	celestialBodyWaterRenderStage->cullFlags = 0;
+	celestialBodyWaterRenderStage->cullFlags = VK_CULL_MODE_FRONT_BIT;
 	celestialBodyWaterRenderStage->compile();
 
 	//**********************//
@@ -476,8 +476,11 @@ void CosmosRenderer::draw()
 
     //galaxy->update(observerCameraPosition);
 
+	measureTimeStart();
     updatingSafetyQueue.executeAll();
+	measureTimeEnd("Executing safety queue");
 
+	measureTimeStart();
     if (!firstRecordingDone) {
         starsStage->beginDrawing();
 
@@ -487,19 +490,25 @@ void CosmosRenderer::draw()
     }
     starsStage->submit({});
 
+	measureTimeEnd("Stars galaxy draw");
+
     //vkDeviceWaitIdle(vulkan->device);
 
+	measureTimeStart();
     if (!firstRecordingDone) {
         celestialStarsBlitComputeStage->beginRecording();
-        celestialStarsBlitComputeStage->dispatch({ celestiaStarsBlitSet }, width, height, 1);
+        celestialStarsBlitComputeStage->dispatch({ celestiaStarsBlitSet }, width / 256 + 1, height / 2, 1);
         celestialStarsBlitComputeStage->endRecording();
     }
     firstRecordingDone = true;
 
     celestialStarsBlitComputeStage->submitNoSemaphores({ starsStage->signalSemaphore});
-    
+
+	measureTimeEnd("Stars blit");
+
     //vkDeviceWaitIdle(vulkan->device);
 
+	measureTimeStart();
 
     auto renderables = std::vector<RenderedCelestialBody*>();
     for (int i = 0; i < renderablePlanets.size(); i++) {
@@ -508,24 +517,30 @@ void CosmosRenderer::draw()
     for (int i = 0; i < renderableMoons.size(); i++) {
         renderables.push_back(renderableMoons[i]);
     }
+	if (renderables.size() > 0) {
 
-	for (int a = 0; a < renderables.size(); a++) {
-		for (int b = 0; b < renderables.size(); b++) {
-			double dist_a = renderables[a]->getDistance(observerCameraPosition, timeProvider->getTime());
-			double dist_b = renderables[b]->getDistance(observerCameraPosition, timeProvider->getTime());
-			if (dist_a > dist_b) {
-				auto tmp = renderables[b];
-				renderables[b] = renderables[a];
-				renderables[a] = tmp;
+		for (int a = 0; a < renderables.size(); a++) {
+			for (int b = 0; b < renderables.size(); b++) {
+				double dist_a = renderables[a]->getDistance(observerCameraPosition, timeProvider->getTime());
+				double dist_b = renderables[b]->getDistance(observerCameraPosition, timeProvider->getTime());
+				if (dist_a > dist_b) {
+					auto tmp = renderables[b];
+					renderables[b] = renderables[a];
+					renderables[a] = tmp;
+				}
 			}
 		}
+
+		for (int a = 0; a < renderables.size() - 1; a++) {
+			renderables[a]->resizeDataImages(256, 256, 256, 256);
+		}
+		renderables[renderables.size() - 1]->resizeDataImages(2048, 2048, 1024, 1024);
+
 	}
 
-	for (int a = 0; a < renderables.size() - 1; a++) {
-		renderables[a]->resizeDataImages(256, 256, 256, 256);
-	}
-	renderables[renderables.size() - 1]->resizeDataImages(2048, 2048, 1024, 1024);
+	measureTimeEnd("Preparing for celestial");
 
+	measureTimeStart();
 	celestialDataUpdateComputeStage->beginRecording();
 	for (int a = 0; a < renderables.size(); a++) {
 		if (renderables[a]->needsDataUpdate()) {
@@ -538,6 +553,7 @@ void CosmosRenderer::draw()
 	for (int a = 0; a < renderables.size(); a++) {
 		renderables[a]->updateBuffer(observerCameraPosition, scale, timeProvider->getTime());
 	}
+	measureTimeEnd("Celestial hi freq update");
 	/*
 	if (renderables.size() > 0) {
 		celestialShadowMapComputeStage->beginRecording();
@@ -551,21 +567,30 @@ void CosmosRenderer::draw()
 		celestialShadowMapComputeStage->endRecording();
 		celestialShadowMapComputeStage->submitNoSemaphores({  });
 	}*/
-
 	for (int i = 0; i < renderables.size(); i++) {
+		measureTimeStart();
 		celestialBodySurfaceRenderStage->beginDrawing();
 
-		renderables[i]->drawSurface(celestialBodySurfaceRenderStage, rendererDataSet, i == (renderables.size() - 1) ? icosphereHigh : icosphereLow);
+		renderables[i]->drawSurface(celestialBodySurfaceRenderStage, rendererDataSet, i == (renderables.size() - 1) ? icosphereMedium : icosphereLow);
 
 		celestialBodySurfaceRenderStage->endDrawing();
 		celestialBodySurfaceRenderStage->submitNoSemaphores({  });
 
-		celestialBodyWaterRenderStage->beginDrawing();
+		measureTimeEnd("Celestial surface data for " + std::to_string(i));
 
-		renderables[i]->drawWater(celestialBodyWaterRenderStage, rendererDataSet, i == (renderables.size() - 1) ? icosphereHigh : icosphereLow);
+		if (renderables[i]->getRenderMethod() == CelestialRenderMethod::lightAtmosphere) {
+			measureTimeStart();
+			celestialBodyWaterRenderStage->beginDrawing();
 
-		celestialBodyWaterRenderStage->endDrawing();
-		celestialBodyWaterRenderStage->submitNoSemaphores({  });
+			renderables[i]->drawWater(celestialBodyWaterRenderStage, rendererDataSet, i == (renderables.size() - 1) ? icosphereMedium : icosphereLow);
+
+			celestialBodyWaterRenderStage->endDrawing();
+			celestialBodyWaterRenderStage->submitNoSemaphores({  });
+
+			measureTimeEnd("Celestial water data for " + std::to_string(i));
+		}
+
+		measureTimeStart();
 
 		celestialStage->beginDrawing();
 
@@ -573,28 +598,34 @@ void CosmosRenderer::draw()
 
 		celestialStage->endDrawing();
 		celestialStage->submitNoSemaphores({ });
+		measureTimeEnd("Celestial atmosphere and composite for " + std::to_string(i));
 		vkDeviceWaitIdle(vulkan->device);
     }
 
 
+	measureTimeStart();
     vkDeviceWaitIdle(vulkan->device);
     modelsStage->beginDrawing();
 
-    vkDeviceWaitIdle(vulkan->device);
     //for (int i = 0; i < ships.size(); i++)ships[i]->drawShipAndModules(modelsStage, celestialSet, observerCameraPosition);
     //GameContainer::getInstance()->drawDrawableObjects();
     sceneProvider->drawDrawableObjects(modelsStage, rendererDataSet);
 
 
-    vkDeviceWaitIdle(vulkan->device);
     modelsStage->endDrawing();
-    vkDeviceWaitIdle(vulkan->device);
     modelsStage->submitNoSemaphores({});
     vkDeviceWaitIdle(vulkan->device);
+	measureTimeEnd("Models drawing");
 
+	measureTimeStart();
     renderer->beginDrawing();
 
     renderer->endDrawing();
+	measureTimeEnd("Composite output");
+
+#ifdef PERFORMANCE_DEBUG
+	printf("\n");
+#endif
 }
 
 void CosmosRenderer::onClosestStarChange(GeneratedStarInfo star)
@@ -655,4 +686,21 @@ void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
       //  vkDeviceWaitIdle(vulkan->device);
      //   vkDeviceWaitIdle(vulkan->device);
     });//yay javascript
+}
+
+void CosmosRenderer::measureTimeStart()
+{
+#ifdef PERFORMANCE_DEBUG
+	vkDeviceWaitIdle(vulkan->device);
+	measurementStopwatch = glfwGetTime();
+#endif
+}
+
+void CosmosRenderer::measureTimeEnd(std::string name)
+{
+#ifdef PERFORMANCE_DEBUG
+	vkDeviceWaitIdle(vulkan->device);
+	double end = glfwGetTime();
+	printf("Time on [%s]: %f miliseconds\n", name.c_str(), 1000.0 * (end - measurementStopwatch));
+#endif
 }

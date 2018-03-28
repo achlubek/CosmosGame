@@ -126,6 +126,11 @@ bool RenderedCelestialBody::needsDataUpdate()
 	return needsUpdate;
 }
 
+CelestialRenderMethod RenderedCelestialBody::getRenderMethod()
+{
+	return body.getRenderMethod();
+}
+
 void RenderedCelestialBody::updateData(VulkanComputeStage * stage)
 {
 	if (!initialized) {

@@ -25,7 +25,6 @@ public:
     glm::dvec3 getAngularVelocity();
     void setLinearVelocity(glm::dvec3 v);
     void setAngularVelocity(glm::dvec3 v);
-    void stepEmulation(double time_delta); 
     void applyImpulse(glm::dvec3 relativePos, glm::dvec3 force);
     void applyAbsoluteImpulse(glm::dvec3 relativePos, glm::dvec3 force);
     void applyGravity(glm::dvec3 force);
@@ -36,7 +35,8 @@ public:
 private:
     glm::dvec3 position = glm::dvec3(0.0);
     glm::dquat orientation = glm::dquat(1.0, 0.0, 0.0, 0.0);
-    glm::dvec3 linearVelocity = glm::dvec3(0.0);
+	glm::dvec3 linearVelocity = glm::dvec3(0.0);
+	glm::dvec3 gravityAcceleration = glm::dvec3(0.0);
     glm::dvec3 angularVelocity = glm::dvec3(0.0);
     //Object3dInfo * collision3dInfo;
 };

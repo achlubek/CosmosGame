@@ -38,9 +38,16 @@ std::vector<CelestialBody>& GalaxyContainer::getClosestPlanetMoons()
     return closestPlanetMoons;
 }
 
-glm::dvec3 GalaxyContainer::getGravity(glm::dvec3 observerPosition)
+glm::dvec3 GalaxyContainer::getGravity(glm::dvec3 observerPosition, double atTime)
 {
-    return glm::dvec3();
+	auto flux = glm::dvec3(0.0);
+	flux += closestStar.getGravity(observerPosition, atTime);
+	flux += closestPlanet.getGravity(observerPosition, atTime);
+	auto moons = getClosestPlanetMoons();
+	for (int i = 0; i < moons.size(); i++) {
+		flux += moons[i].getGravity(observerPosition, atTime);
+	}
+    return flux;
 }
 
 size_t GalaxyContainer::getStarsCount()
