@@ -131,5 +131,8 @@ private:
 	double measurementStopwatch = 0.0;
 	void measureTimeStart();
 	void measureTimeEnd(std::string name);
+
+	Object3dInfo* subdivide(Object3dInfo* info);
+	std::vector<Object3dInfo*> axisSplit(Object3dInfo* info);
 };
 

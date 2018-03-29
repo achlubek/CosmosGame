@@ -184,11 +184,11 @@ float fresnelCoefficent(vec3 surfaceDir, vec3 incomingDir, float baseReflectivit
     return (baseReflectivity + (1.0 - baseReflectivity) * (pow(1.0 - max(0.0, dot(surfaceDir, -incomingDir)), 5.0)));
 }
 
-vec3 renderWater(RenderPass pass){
+vec3 renderWater(RenderPass pass, vec3 background, float depth){
     vec3 dirToStar = normalize(ClosestStarPosition - pass.waterHitPos);
     vec3 flatnormal = normalize(pass.waterHitPos - pass.body.position);
     float flatdt = max(-0.1, dot(flatnormal, dirToStar));
-    vec3 waternormal = celestialGetWaterNormalRaycast(pass.body,  0.000028, pass.waterHitPos);
+    vec3 waternormal = celestialGetWaterNormalRaycast(pass.body,  0.0000028, pass.waterHitPos);
 
     waternormal = normalize(waternormal);
     float flatdt2 = max(0.0, dot(flatnormal, dirToStar));
@@ -203,6 +203,7 @@ vec3 renderWater(RenderPass pass){
     //vec3 result = fresnel * colormultiplier * 10.0 * vec3(0.0, 0.002, 0.006) * max(0.0, flatdt) + reflectedAtmo;
     vec3 result = reflectedAtmo;// * (getStarTerrainShadowAtPoint(pass.body, pass.waterHitPos) * 0.7 + 0.3);
     result += fresnel * colormultiplier * getSunColorForRay(pass.body, Ray(pass.waterHitPos, reflected)) * pow(refldt, phongMult) * 10.0 * getStarTerrainShadowAtPoint(pass.body, pass.waterHitPos, 0.001);
+    result += ((1.0 - fresnel) * background) / ((depth*depth * 10000.0 + 1.0));
     return scatterLight(pass.body, pass.ray.o, pass.waterHitPos, result);
 }
 
@@ -234,11 +235,11 @@ CelestialRenderResult renderCelestialBodyLightAtmosphere(RenderPass pass){
         float waterAtDir = getWaterHeightHiRes(pass.body, realWaterDir);
         vec3 posSurface = pass.body.position + realSurfaceDir * heightAtDir;
         vec3 posWater = pass.body.position + realWaterDir * waterAtDir;
-        float realDistanceSurface = texture(surfaceRenderedDistanceImage, tempuv).r;//distance(pass.ray.o, posSurface);
-        float realDistanceWater = texture(waterRenderedDistanceImage, tempuv).r;
+        float realDistanceSurface = pass.surfaceHit;//texture(surfaceRenderedDistanceImage, tempuv).r;//distance(pass.ray.o, posSurface);
+        float realDistanceWater = pass.waterHit;//texture(waterRenderedDistanceImage, tempuv).r;
         vec3 shadowpos = vec3(0.0);
         if(realDistanceSurface > realDistanceWater){
-            surface = renderWater(pass);// * getHighCloudsShadowAtPoint(pass.body, pass.waterHitPos);
+            surface = renderWater(pass, color, abs(realDistanceSurface - realDistanceWater));// * getHighCloudsShadowAtPoint(pass.body, pass.waterHitPos);
             shadowpos = pass.waterHitPos;
         } else {
             surface = color;
@@ -247,7 +248,7 @@ CelestialRenderResult renderCelestialBodyLightAtmosphere(RenderPass pass){
         //surface = normal * 10000.0;
         atmo.alphaBlendedLight = vec4(mix(surface, atmo.alphaBlendedLight.rgb, atmo.alphaBlendedLight.a), 1.0);
     } else if(pass.isWaterHit) {
-        vec3 surface = renderWater(pass);// * getHighCloudsShadowAtPoint(pass.body, pass.waterHitPos);
+        vec3 surface = renderWater(pass, vec3(0.0), 100.0);// * getHighCloudsShadowAtPoint(pass.body, pass.waterHitPos);
         atmo.alphaBlendedLight = vec4(mix(surface, atmo.alphaBlendedLight.rgb, atmo.alphaBlendedLight.a), 1.0);
     } else if(pass.isSurfaceHit) {
         vec3 surface = color;

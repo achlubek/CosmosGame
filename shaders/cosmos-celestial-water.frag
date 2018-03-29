@@ -24,5 +24,5 @@ void main() {
     RenderedCelestialBody body = getRenderedBody(celestialBuffer.celestialBody);
 
     outNormalMetalness = vec4(inNormal, 0.0);
-    outDistance = length(inWorldPos);
+    outDistance = length(inWorldPos) ;
 }

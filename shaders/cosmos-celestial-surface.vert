@@ -49,7 +49,7 @@ void main() {
     vec3 WorldPos = (inverse(body.rotationMatrix) * dir) * (body.radius + body.terrainMaxLevel * surfaceHeight) + body.position;
     vec4 opo = (hiFreq.VPMatrix) * vec4(WorldPos, 1.0);
     vec3 Normal = dir;
-    outNormal = celestialGetNormal(body, 0.001, dir);
+    outNormal = dir;//celestialGetNormal(body, 0.001, dir);
     outDir = dir;
     outWorldPos = WorldPos;
     opo.y *= -1.0;

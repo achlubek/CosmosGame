@@ -209,7 +209,7 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
                 moon->preferredColor = glm::vec3(drandnorm(), drandnorm(), drandnorm());
             }
             moon->orbitPlane = glm::normalize(glm::vec3(drandnorm(), drandnorm(), drandnorm()) * 2.0f - 1.0f);
-            moon->hostDistance = planet->radius * 3.0 + planet->radius * drandnorm() * 3.0;
+			moon->hostDistance = planet->radius * 50.0 * (((float)g) * 0.2 + 1);
             moon->orbitSpeed = 1000000.0 * drandnorm() / moon->hostDistance;
 			moon->rotationSpeed = drandnorm() * 100.0;
 			moon->rotationPlane = glm::normalize(glm::dvec3((drandnorm() * 0.3f) * 2.0f - 1.0f, 1.0f, (drandnorm() * 0.3f) * 2.0f - 1.0f));

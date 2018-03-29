@@ -15,11 +15,11 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, TimeProvider* itimeProvid
 
 	cube3dInfo = assets.loadObject3dInfoFile("cube1unitradius.raw");
 
-	icosphereLow = assets.loadObject3dInfoFile("icosphere_lowpoly_1unit.raw");
+	icosphereLow = assets.loadObject3dInfoFile("icosphere_mediumpoly_1unit.raw");
 
-	icosphereMedium = assets.loadObject3dInfoFile("icosphere_mediumpoly_1unit.raw");
+	icosphereMedium = subdivide(icosphereLow);// assets.loadObject3dInfoFile("icosphere_mediumpoly_1unit.raw");
 
-	icosphereHigh = assets.loadObject3dInfoFile("icosphere_highpoly_1unit.raw");
+	icosphereHigh = subdivide(subdivide(subdivide(icosphereMedium)));// assets.loadObject3dInfoFile("icosphere_highpoly_1unit.raw");
 
     cameraDataBuffer = new VulkanGenericBuffer(vulkan, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, sizeof(float) * 1024);
     starsDataBuffer = new VulkanGenericBuffer(vulkan, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, 1024 * 1024 * 128); 
@@ -211,7 +211,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
 	celestialBodySurfaceRenderStage->addOutputImage(surfaceRenderedNormalMetalnessImage);
 	celestialBodySurfaceRenderStage->addOutputImage(surfaceRenderedDistanceImage);
 	celestialBodySurfaceRenderStage->addOutputImage(surfaceRenderedDepthImage);
-	celestialBodySurfaceRenderStage->cullFlags = VK_CULL_MODE_FRONT_BIT;
+	celestialBodySurfaceRenderStage->cullFlags = 0;// VK_CULL_MODE_FRONT_BIT;
 	celestialBodySurfaceRenderStage->compile();
 
 	//**********************//
@@ -228,7 +228,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
 	celestialBodyWaterRenderStage->addOutputImage(waterRenderedNormalMetalnessImage);
 	celestialBodyWaterRenderStage->addOutputImage(waterRenderedDistanceImage);
 	celestialBodyWaterRenderStage->addOutputImage(waterRenderedDepthImage);
-	celestialBodyWaterRenderStage->cullFlags = VK_CULL_MODE_FRONT_BIT;
+	celestialBodyWaterRenderStage->cullFlags = 0;// VK_CULL_MODE_FRONT_BIT;
 	celestialBodyWaterRenderStage->compile();
 
 	//**********************//
@@ -703,4 +703,89 @@ void CosmosRenderer::measureTimeEnd(std::string name)
 	double end = glfwGetTime();
 	printf("Time on [%s]: %f miliseconds\n", name.c_str(), 1000.0 * (end - measurementStopwatch));
 #endif
+}
+
+Object3dInfo * CosmosRenderer::subdivide(Object3dInfo * info)
+{
+	std::vector<float> floats = {};
+	for (int i = 0; i < info->vbo.size();) {
+		glm::vec3 v1 = glm::normalize(glm::vec3(info->vbo[i], info->vbo[i+1], info->vbo[i+2]));
+		i += 12;
+		glm::vec3 v2 = glm::normalize(glm::vec3(info->vbo[i], info->vbo[i+1], info->vbo[i+2]));
+		i += 12;
+		glm::vec3 v3 = glm::normalize(glm::vec3(info->vbo[i], info->vbo[i+1], info->vbo[i+2]));
+		i += 12;
+		glm::vec3 tricenter = glm::normalize((v1 + v2 + v3) / glm::vec3(3.0));
+
+		std::vector<glm::vec3> positions = {};
+		positions.push_back(v1);
+		positions.push_back(v2);
+		positions.push_back(tricenter);
+		positions.push_back(v2);
+		positions.push_back(v3);
+		positions.push_back(tricenter);
+		positions.push_back(v3);
+		positions.push_back(v1);
+		positions.push_back(tricenter);
+		
+		for (int g = 0; g < positions.size(); g++) {
+			glm::vec3 v = positions[g];
+			// px py pz ux uy nx ny nz tx ty tz tw | px
+			// 0  1  2  3  4  5  6  7  8  9  10 11 | 12
+			floats.push_back(v.x);
+			floats.push_back(v.y);
+			floats.push_back(v.z);
+
+			floats.push_back(v.x);
+			floats.push_back(v.y);
+
+			floats.push_back(v.x);
+			floats.push_back(v.y);
+			floats.push_back(v.z);
+
+			floats.push_back(v.x);
+			floats.push_back(v.y);
+			floats.push_back(v.z);
+			floats.push_back(v.x);
+		}
+	}
+	return new Object3dInfo(info->vulkan, floats);
+}
+
+std::vector<Object3dInfo*> CosmosRenderer::axisSplit(Object3dInfo * info)
+{
+	std::vector<std::vector<float>> buffers = {};
+
+	for (int i = 0; i < info->vbo.size();) {
+		glm::vec3 v1 = glm::normalize(glm::vec3(info->vbo[i], info->vbo[i + 1], info->vbo[i + 2]));
+		i += 12;
+
+		int axisIndex = 0;
+		if (v1.x >= 0.0 && v1.y >= 0.0 && v1.z >= 0.0) axisIndex = 0;
+		if (v1.x < 0.0 && v1.y >= 0.0 && v1.z >= 0.0) axisIndex = 1;
+		if (v1.x >= 0.0 && v1.y < 0.0 && v1.z >= 0.0) axisIndex = 2;
+		if (v1.x >= 0.0 && v1.y >= 0.0 && v1.z < 0.0) axisIndex = 3;
+		if (v1.x < 0.0 && v1.y >= 0.0 && v1.z < 0.0) axisIndex = 4;
+		if (v1.x >= 0.0 && v1.y < 0.0 && v1.z >= 0.0) axisIndex = 5;
+		if (v1.x < 0.0 && v1.y < 0.0 && v1.z >= 0.0) axisIndex = 6;
+		if (v1.x >= 0.0 && v1.y < 0.0 && v1.z < 0.0) axisIndex = 7;
+
+		buffers[axisIndex].push_back(v1.x);
+		buffers[axisIndex].push_back(v1.y);
+		buffers[axisIndex].push_back(v1.z);
+		buffers[axisIndex].push_back(v1.x);
+		buffers[axisIndex].push_back(v1.y);
+		buffers[axisIndex].push_back(v1.x);
+		buffers[axisIndex].push_back(v1.y);
+		buffers[axisIndex].push_back(v1.z);
+		buffers[axisIndex].push_back(v1.x);
+		buffers[axisIndex].push_back(v1.y);
+		buffers[axisIndex].push_back(v1.z);
+		buffers[axisIndex].push_back(v1.x);
+	}
+	std::vector<Object3dInfo*> objs = {};
+	for (int i = 0; i < buffers.size(); i++) {
+		objs.push_back(new Object3dInfo(info->vulkan, buffers[i]));
+	}
+	return objs;
 }
