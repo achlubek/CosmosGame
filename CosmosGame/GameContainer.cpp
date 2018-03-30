@@ -60,32 +60,32 @@ GameContainer::GameContainer()
     //auto testspawnpos = cosmosRenderer->galaxy->getAllStars()[666].getPosition(0);
     //auto testspawnradius = cosmosRenderer->galaxy->getAllStars()[666].radius;
    //cosmosRenderer->galaxy->update(testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->getPosition());
-	int targetStar = 666;
-	int targetPlanet = 3;
-	int targetMoon = -1;
-	GeneratedStarInfo star = galaxy->getAllStars()[targetStar - 1];
-	auto center = star.getPosition(0);
-	auto dist = star.radius;
-	auto velocity = glm::vec3(0.0);
-	CelestialBody targetBody = CelestialBody();
-	if (targetPlanet > 0) {
-		galaxy->update(star.getPosition(0));
-		auto planet = galaxy->getClosestStarPlanets()[targetPlanet - 1];
-		center = planet.getPosition(0);
-		dist = planet.radius - planet.fluidMaxLevel;
-		velocity = planet.getLinearVelocity(timeProvider->getTime());
-		targetBody = planet;
-		if (targetMoon > 0) {
-			galaxy->update(planet.getPosition(0));
-			auto moon = galaxy->getClosestPlanetMoons()[targetMoon - 1];
-			center = moon.getPosition(0);
-			dist = moon.radius - moon.fluidMaxLevel;
-			velocity = moon.getLinearVelocity(timeProvider->getTime());
-			targetBody = moon;
-		}
-	}
-	testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(center + glm::dvec3(0.0, dist * 3.0, -dist * 3.0));
-	testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(velocity);
+    int targetStar = 666;
+    int targetPlanet = 3;
+    int targetMoon = -1;
+    GeneratedStarInfo star = galaxy->getAllStars()[targetStar - 1];
+    auto center = star.getPosition(0);
+    auto dist = star.radius;
+    auto velocity = glm::vec3(0.0);
+    CelestialBody targetBody = CelestialBody();
+    if (targetPlanet > 0) {
+        galaxy->update(star.getPosition(0));
+        auto planet = galaxy->getClosestStarPlanets()[targetPlanet - 1];
+        center = planet.getPosition(0);
+        dist = planet.radius - planet.fluidMaxLevel;
+        velocity = planet.getLinearVelocity(timeProvider->getTime());
+        targetBody = planet;
+        if (targetMoon > 0) {
+            galaxy->update(planet.getPosition(0));
+            auto moon = galaxy->getClosestPlanetMoons()[targetMoon - 1];
+            center = moon.getPosition(0);
+            dist = moon.radius - moon.fluidMaxLevel;
+            velocity = moon.getLinearVelocity(timeProvider->getTime());
+            targetBody = moon;
+        }
+    }
+    testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(center + glm::dvec3(0.0, dist * 3.0, -dist * 3.0));
+    testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(velocity);
 
     activeObjects.push_back(testship);
     viewCamera->setTarget(activeObjects[0]);
@@ -124,10 +124,10 @@ void GameContainer::updateObjects()
 {
     double nowtime = glfwGetTime();
     for (int i = 0; i < activeObjects.size(); i++) {
-		auto physicsComponent = activeObjects[i]->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D);
-		if (nullptr != physicsComponent) {
-			physicsComponent->applyGravity(cosmosRenderer->galaxy->getGravity(physicsComponent->getPosition(), timeProvider->getTime()));
-		}
+        auto physicsComponent = activeObjects[i]->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D);
+        if (nullptr != physicsComponent) {
+            physicsComponent->applyGravity(cosmosRenderer->galaxy->getGravity(physicsComponent->getPosition(), timeProvider->getTime()));
+        }
         activeObjects[i]->update(nowtime - lastTime);
     }
     viewCamera->update(nowtime - lastTime);

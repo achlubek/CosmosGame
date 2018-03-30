@@ -16,14 +16,14 @@ GalaxyGenerator::~GalaxyGenerator()
 
 uint64_t GalaxyGenerator::randu64(uint64_t min, uint64_t max) {
 
-	std::uniform_int_distribution<uint64_t> distr = std::uniform_int_distribution<uint64_t>(min, max);
-	return distr(eng);
+    std::uniform_int_distribution<uint64_t> distr = std::uniform_int_distribution<uint64_t>(min, max);
+    return distr(eng);
 }
 
 int64_t GalaxyGenerator::randi64(int64_t min, int64_t max) {
 
-	std::uniform_int_distribution<int64_t> distr = std::uniform_int_distribution<int64_t>(min, max);
-	return distr(eng);
+    std::uniform_int_distribution<int64_t> distr = std::uniform_int_distribution<int64_t>(min, max);
+    return distr(eng);
 }
  
 
@@ -86,7 +86,7 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
     star->spotsIntensity = drandnorm();
     star->rotationSpeed = drandnorm();
     star->orbitPlane = glm::normalize(glm::vec3(drandnorm(), drandnorm(), drandnorm()) * 2.0f - 1.0f);
-	star->planetsCount = 8;// randu64(8, 8);
+    star->planetsCount = 8;// randu64(8, 8);
     system->star = star;
     system->bodies = {};
     //double stardisthelper = 5800000;
@@ -180,10 +180,10 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
             }
         }
 
-		planet->orbitSpeed = 1000000.0 * drandnorm() / planet->hostDistance;
-		planet->orbitPlane = glm::normalize(glm::vec3(drandnorm(), drandnorm(), drandnorm()) * 2.0f - 1.0f);
-		planet->rotationSpeed = drandnorm() * 100.0;
-		planet->rotationPlane = glm::normalize(glm::dvec3((drandnorm() * 0.3f) * 2.0f - 1.0f, 1.0f, (drandnorm() * 0.3f) * 2.0f - 1.0f));
+        planet->orbitSpeed = 1000000.0 * drandnorm() / planet->hostDistance;
+        planet->orbitPlane = glm::normalize(glm::vec3(drandnorm(), drandnorm(), drandnorm()) * 2.0f - 1.0f);
+        planet->rotationSpeed = drandnorm() * 100.0;
+        planet->rotationPlane = glm::normalize(glm::dvec3((drandnorm() * 0.3f) * 2.0f - 1.0f, 1.0f, (drandnorm() * 0.3f) * 2.0f - 1.0f));
         system->bodies.push_back(planet);
         for (int g = 0; g < moonsCount; g++) {
             CelestialBody* moon = new CelestialBody();
@@ -209,10 +209,10 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
                 moon->preferredColor = glm::vec3(drandnorm(), drandnorm(), drandnorm());
             }
             moon->orbitPlane = glm::normalize(glm::vec3(drandnorm(), drandnorm(), drandnorm()) * 2.0f - 1.0f);
-			moon->hostDistance = planet->radius * 5.0 * (((float)g) * 0.2 + 1.0);
+            moon->hostDistance = planet->radius * 5.0 * (((float)g) * 0.2 + 1.0);
             moon->orbitSpeed = 1000000.0 * drandnorm() / moon->hostDistance;
-			moon->rotationSpeed = drandnorm() * 100.0;
-			moon->rotationPlane = glm::normalize(glm::dvec3((drandnorm() * 0.3f) * 2.0f - 1.0f, 1.0f, (drandnorm() * 0.3f) * 2.0f - 1.0f));
+            moon->rotationSpeed = drandnorm() * 100.0;
+            moon->rotationPlane = glm::normalize(glm::dvec3((drandnorm() * 0.3f) * 2.0f - 1.0f, 1.0f, (drandnorm() * 0.3f) * 2.0f - 1.0f));
             system->bodies.push_back(moon);
         }
     }

@@ -40,13 +40,13 @@ std::vector<CelestialBody>& GalaxyContainer::getClosestPlanetMoons()
 
 glm::dvec3 GalaxyContainer::getGravity(glm::dvec3 observerPosition, double atTime)
 {
-	auto flux = glm::dvec3(0.0);
-	flux += closestStar.getGravity(observerPosition, atTime);
-	flux += closestPlanet.getGravity(observerPosition, atTime);
-	auto moons = getClosestPlanetMoons();
-	for (int i = 0; i < moons.size(); i++) {
-		flux += moons[i].getGravity(observerPosition, atTime);
-	}
+    auto flux = glm::dvec3(0.0);
+    flux += closestStar.getGravity(observerPosition, atTime);
+    flux += closestPlanet.getGravity(observerPosition, atTime);
+    auto moons = getClosestPlanetMoons();
+    for (int i = 0; i < moons.size(); i++) {
+        flux += moons[i].getGravity(observerPosition, atTime);
+    }
     return flux;
 }
 
@@ -119,7 +119,7 @@ std::vector<CelestialBody> GalaxyContainer::loadPlanetsByStar(GeneratedStarInfo&
         planet.hostDistance = asdouble(planetrow["host_distance"]);
         planet.habitableChance = asdouble(planetrow["habitable_chance"]);
         planet.orbitSpeed = asdouble(planetrow["orbit_speed"]);
-		planet.preferredColor.x = asfloat(planetrow["base_color_r"]);
+        planet.preferredColor.x = asfloat(planetrow["base_color_r"]);
         planet.preferredColor.y = asfloat(planetrow["base_color_g"]);
         planet.preferredColor.z = asfloat(planetrow["base_color_b"]);
         planet.atmosphereRadius = asdouble(planetrow["atmosphere_height"]);
@@ -130,10 +130,10 @@ std::vector<CelestialBody> GalaxyContainer::loadPlanetsByStar(GeneratedStarInfo&
         planet.orbitPlane.x = asfloat(planetrow["orbit_plane_x"]);
         planet.orbitPlane.y = asfloat(planetrow["orbit_plane_y"]);
         planet.orbitPlane.z = asfloat(planetrow["orbit_plane_z"]);
-		planet.rotationSpeed = asdouble(planetrow["rotation_speed"]);
-		planet.rotationPlane.x = asfloat(planetrow["rotation_plane_x"]);
-		planet.rotationPlane.y = asfloat(planetrow["rotation_plane_y"]);
-		planet.rotationPlane.z = asfloat(planetrow["rotation_plane_z"]);
+        planet.rotationSpeed = asdouble(planetrow["rotation_speed"]);
+        planet.rotationPlane.x = asfloat(planetrow["rotation_plane_x"]);
+        planet.rotationPlane.y = asfloat(planetrow["rotation_plane_y"]);
+        planet.rotationPlane.z = asfloat(planetrow["rotation_plane_z"]);
         planets.push_back(planet);
     }
     return planets;
@@ -162,13 +162,13 @@ std::vector<CelestialBody> GalaxyContainer::loadMoonsByPlanet(CelestialBody& pla
         moon.atmosphereAbsorbColor.r = asfloat(moonrow["atmosphere_absorption_r"]);
         moon.atmosphereAbsorbColor.g = asfloat(moonrow["atmosphere_absorption_g"]);
         moon.atmosphereAbsorbColor.b = asfloat(moonrow["atmosphere_absorption_b"]);
-		moon.orbitPlane.x = asfloat(moonrow["orbit_plane_x"]);
-		moon.orbitPlane.y = asfloat(moonrow["orbit_plane_y"]);
-		moon.orbitPlane.z = asfloat(moonrow["orbit_plane_z"]);
-		moon.rotationSpeed = asdouble(moonrow["rotation_speed"]);
-		moon.rotationPlane.x = asfloat(moonrow["rotation_plane_x"]);
-		moon.rotationPlane.y = asfloat(moonrow["rotation_plane_y"]);
-		moon.rotationPlane.z = asfloat(moonrow["rotation_plane_z"]);
+        moon.orbitPlane.x = asfloat(moonrow["orbit_plane_x"]);
+        moon.orbitPlane.y = asfloat(moonrow["orbit_plane_y"]);
+        moon.orbitPlane.z = asfloat(moonrow["orbit_plane_z"]);
+        moon.rotationSpeed = asdouble(moonrow["rotation_speed"]);
+        moon.rotationPlane.x = asfloat(moonrow["rotation_plane_x"]);
+        moon.rotationPlane.y = asfloat(moonrow["rotation_plane_y"]);
+        moon.rotationPlane.z = asfloat(moonrow["rotation_plane_z"]);
         moons.push_back(moon);
     }
     return moons;

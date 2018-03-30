@@ -15,7 +15,7 @@ public:
     std::vector<CelestialBody>& getClosestStarPlanets();
     std::vector<CelestialBody>& getClosestPlanetMoons();
     glm::dvec3 getGravity(glm::dvec3 observerPosition, double atTime);
-	size_t getStarsCount();
+    size_t getStarsCount();
     void loadFromDatabase(SQLiteDatabase* db);
     void update(glm::dvec3 observerPosition);
 

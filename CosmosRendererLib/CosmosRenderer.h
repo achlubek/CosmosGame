@@ -25,7 +25,7 @@ public:
 
     int lastPlanetId;
 
-	int shadowMapRoundRobinCounter = 0;
+    int shadowMapRoundRobinCounter = 0;
 
     int width{ 0 };
     int height{ 0 };
@@ -52,23 +52,23 @@ public:
 
     VulkanDescriptorSetLayout* modelMRTLayout{ nullptr };
 
-	VulkanDescriptorSetLayout* celestialBodyDataSetLayout{ nullptr };
-	VulkanDescriptorSetLayout* celestialBodyRenderSetLayout{ nullptr };
-	VulkanComputeStage* celestialDataUpdateComputeStage;
+    VulkanDescriptorSetLayout* celestialBodyDataSetLayout{ nullptr };
+    VulkanDescriptorSetLayout* celestialBodyRenderSetLayout{ nullptr };
+    VulkanComputeStage* celestialDataUpdateComputeStage;
 
-	VulkanDescriptorSetLayout* celestialShadowMapSetLayout{ nullptr };
-	VulkanComputeStage* celestialShadowMapComputeStage;
+    VulkanDescriptorSetLayout* celestialShadowMapSetLayout{ nullptr };
+    VulkanComputeStage* celestialShadowMapComputeStage;
 
     VulkanDescriptorSetLayout* celestiaStarsBlitSetLayout{ nullptr };
     VulkanDescriptorSet* celestiaStarsBlitSet{ nullptr };
     VulkanComputeStage* celestialStarsBlitComputeStage;
 
 
-	VulkanDescriptorSetLayout* celestialBodySurfaceSetLayout{ nullptr };
-	VulkanRenderStage* celestialBodySurfaceRenderStage;
+    VulkanDescriptorSetLayout* celestialBodySurfaceSetLayout{ nullptr };
+    VulkanRenderStage* celestialBodySurfaceRenderStage;
 
-	VulkanDescriptorSetLayout* celestialBodyWaterSetLayout{ nullptr };
-	VulkanRenderStage* celestialBodyWaterRenderStage;
+    VulkanDescriptorSetLayout* celestialBodyWaterSetLayout{ nullptr };
+    VulkanRenderStage* celestialBodyWaterRenderStage;
 
     VulkanGenericBuffer* cameraDataBuffer;
     VulkanGenericBuffer* starsDataBuffer;
@@ -82,23 +82,23 @@ public:
     VulkanImage* modelsResultImage;
     VulkanImage* modelsDepthImage; 
 
-	VulkanImage* surfaceRenderedAlbedoRoughnessImage;
-	VulkanImage* surfaceRenderedNormalMetalnessImage;
-	VulkanImage* surfaceRenderedDistanceImage;
-	VulkanImage* surfaceRenderedDepthImage;
-	VulkanImage* waterRenderedNormalMetalnessImage;
-	VulkanImage* waterRenderedDistanceImage;
-	VulkanImage* waterRenderedDepthImage;
-	
-	Object3dInfo* cube3dInfo;
+    VulkanImage* surfaceRenderedAlbedoRoughnessImage;
+    VulkanImage* surfaceRenderedNormalMetalnessImage;
+    VulkanImage* surfaceRenderedDistanceImage;
+    VulkanImage* surfaceRenderedDepthImage;
+    VulkanImage* waterRenderedNormalMetalnessImage;
+    VulkanImage* waterRenderedDistanceImage;
+    VulkanImage* waterRenderedDepthImage;
+    
+    Object3dInfo* cube3dInfo;
 
-	Object3dInfo* icosphereLow;
-	Object3dInfo* icosphereMedium;
-	Object3dInfo* icosphereHigh;
+    Object3dInfo* icosphereLow;
+    Object3dInfo* icosphereMedium;
+    Object3dInfo* icosphereHigh;
 
     const double scale = 0.01;
 
-	float exposure = 0.001;
+    float exposure = 0.001;
 
     glm::dvec3 observerCameraPosition;
     double closestSurfaceDistance;
@@ -128,15 +128,15 @@ public:
 
 private:
 //#define PERFORMANCE_DEBUG
-	double measurementStopwatch = 0.0;
-	void measureTimeStart();
-	void measureTimeEnd(std::string name);
+    double measurementStopwatch = 0.0;
+    void measureTimeStart();
+    void measureTimeEnd(std::string name);
 
-	std::vector<std::tuple<glm::vec3, Object3dInfo*>> patchesLowPoly = {};
-	std::vector<std::tuple<glm::vec3, Object3dInfo*>> patchesMediumPoly = {};
-	std::vector<std::tuple<glm::vec3, Object3dInfo*>> patchesHighPoly = {};
+    std::vector<std::tuple<glm::vec3, Object3dInfo*>> patchesLowPoly = {};
+    std::vector<std::tuple<glm::vec3, Object3dInfo*>> patchesMediumPoly = {};
+    std::vector<std::tuple<glm::vec3, Object3dInfo*>> patchesHighPoly = {};
 
-	Object3dInfo* subdivide(Object3dInfo* info);
-	std::vector<Object3dInfo*> splitTriangles(Object3dInfo* info);
+    Object3dInfo* subdivide(Object3dInfo* info);
+    std::vector<Object3dInfo*> splitTriangles(Object3dInfo* info);
 };
 

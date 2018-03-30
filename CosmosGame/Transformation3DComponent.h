@@ -35,8 +35,8 @@ public:
 private:
     glm::dvec3 position = glm::dvec3(0.0);
     glm::dquat orientation = glm::dquat(1.0, 0.0, 0.0, 0.0);
-	glm::dvec3 linearVelocity = glm::dvec3(0.0);
-	glm::dvec3 gravityAcceleration = glm::dvec3(0.0);
+    glm::dvec3 linearVelocity = glm::dvec3(0.0);
+    glm::dvec3 gravityAcceleration = glm::dvec3(0.0);
     glm::dvec3 angularVelocity = glm::dvec3(0.0);
     //Object3dInfo * collision3dInfo;
 };

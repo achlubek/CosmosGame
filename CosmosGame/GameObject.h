@@ -37,7 +37,7 @@ inline T * GameObject::getComponent(ComponentTypes type)
             return static_cast<T*>(components[i]);
         }
     }
-	return nullptr;
+    return nullptr;
 }
 
 template<class T>

@@ -19,11 +19,11 @@ public:
     double atmosphereRadius;
     double atmosphereAbsorbStrength;//0->1
     glm::vec3 atmosphereAbsorbColor;//0->1
-	glm::dvec3 orbitPlane;
-	glm::dvec3 rotationPlane;
-	//TODO define the rotation speed in unit "rotations per full orbit" and make orbit speed dependand on distance from star and mass of star
-	// 
-	double rotationSpeed;
+    glm::dvec3 orbitPlane;
+    glm::dvec3 rotationPlane;
+    //TODO define the rotation speed in unit "rotations per full orbit" and make orbit speed dependand on distance from star and mass of star
+    // 
+    double rotationSpeed;
     AbsCelestialObject* host{ nullptr };
     uint64_t bodyId;
 
@@ -33,17 +33,17 @@ public:
             + glm::dvec3(glm::angleAxis(orbitSpeed * at_time * 0.001, glm::dvec3(orbitPlane)) * glm::dvec3(orbitplaneTangent)) * hostDistance;
     }
 
-	glm::mat4 getRotationMatrix(double at_time) {
-		glm::quat rotationQuat = glm::angleAxis(rotationSpeed * at_time * 0.001, rotationPlane);
-		return glm::mat4_cast(rotationQuat);
-	}
+    glm::mat4 getRotationMatrix(double at_time) {
+        glm::quat rotationQuat = glm::angleAxis(rotationSpeed * at_time * 0.001, rotationPlane);
+        return glm::mat4_cast(rotationQuat);
+    }
 
-	glm::mat4 getFromParentLookAtThisMatrix(double at_time) {
-		auto parentPos = host->getPosition(at_time);
-		auto thisPos = getPosition(at_time);
-		auto direction = glm::normalize(thisPos - parentPos);
-		return glm::lookAt(glm::dvec3(0.0), direction, glm::dvec3(0.0, 1.0, 0.0));
-	}
+    glm::mat4 getFromParentLookAtThisMatrix(double at_time) {
+        auto parentPos = host->getPosition(at_time);
+        auto thisPos = getPosition(at_time);
+        auto direction = glm::normalize(thisPos - parentPos);
+        return glm::lookAt(glm::dvec3(0.0), direction, glm::dvec3(0.0, 1.0, 0.0));
+    }
 
     virtual glm::dvec3 getLinearVelocity(double at_time) {
         return getPosition(at_time + 1.0) - getPosition(at_time);
