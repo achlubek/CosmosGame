@@ -39,6 +39,7 @@ void main() {
     CelestialRenderResult result = renderCelestialBody(body, Ray(vec3(0.0), dir));
     result.alphaBlendedLight.rgb *= Exposure;
     result.additionLight.rgb *= Exposure;
+    result.additionLight.a = result.alphaBlendedLight.a;
     outColorAlpha = result.alphaBlendedLight;
     outColorAdditive = result.additionLight;
 

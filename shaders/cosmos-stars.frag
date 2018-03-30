@@ -76,7 +76,7 @@ vec3 traceStarGlow(Ray ray){
     dim = pow(dim,1.2);
     float additionalCloseMultiplier = 1.0 + (1.0 - smoothstep(100.0, 100000.0, realdist)) * 10000.0;
 
-    return additionalCloseMultiplier * dim * (smoothstep(0.00, 0.3, prcnt) * 14.9 ) * currentStar.color_age.xyz;
+    return dim * (smoothstep(0.00, 0.3, prcnt) * 14.9 ) * currentStar.color_age.xyz;
 
 }
 

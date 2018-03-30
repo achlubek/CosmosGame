@@ -52,7 +52,7 @@ void RenderedCelestialBody::resizeDataImages(int ilowFreqWidth, int ilowFreqHeig
 		heightMapImage = new VulkanImage(toolkit, lowFreqWidth, lowFreqHeight, VK_FORMAT_R32_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
 			VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
 
-		baseColorImage = new VulkanImage(toolkit, lowFreqWidth, lowFreqHeight, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL,
+		baseColorImage = new VulkanImage(toolkit, lowFreqWidth, lowFreqHeight, VK_FORMAT_R16G16B16A16_UNORM, VK_IMAGE_TILING_OPTIMAL,
 			VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
 
 		cloudsImage = new VulkanImage(toolkit, lowFreqWidth, lowFreqHeight, VK_FORMAT_R8G8_UNORM, VK_IMAGE_TILING_OPTIMAL,
@@ -129,6 +129,11 @@ bool RenderedCelestialBody::needsDataUpdate()
 CelestialRenderMethod RenderedCelestialBody::getRenderMethod()
 {
 	return body.getRenderMethod();
+}
+
+double RenderedCelestialBody::getRadius()
+{
+	return body.radius;
 }
 
 void RenderedCelestialBody::updateData(VulkanComputeStage * stage)

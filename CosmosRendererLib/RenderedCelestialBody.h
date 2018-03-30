@@ -50,6 +50,12 @@ public:
 	void resizeDataImages(int lowFreqWidth, int lowFreqHeight, int hiFreqWidth, int hiFreqHeight);
 	bool needsDataUpdate();
 	CelestialRenderMethod getRenderMethod();
+	double getRadius();
+
+	VulkanDescriptorSet* renderSurfaceSet;
+
+	VulkanDescriptorSet* renderWaterSet;
+	CelestialBody body;
 private:
 
 	int lowFreqWidth = 0;
@@ -65,7 +71,6 @@ private:
 
     VulkanToolkit * toolkit;
 
-    CelestialBody body;
 
     VulkanImage* heightMapImage = nullptr;
     VulkanImage* baseColorImage = nullptr;
@@ -86,10 +91,6 @@ private:
 	VulkanDescriptorSet* shadowMapSet;
 
 	VulkanDescriptorSet* renderSet;
-
-	VulkanDescriptorSet* renderSurfaceSet;
-
-	VulkanDescriptorSet* renderWaterSet;
 
 };
 

@@ -4,9 +4,9 @@
 layout(location = 0) in vec2 UV;
 layout(location = 0) out vec4 outColor;
 
-layout(set = 0, binding = 0) uniform sampler2D texCelestialAlpha;
-layout(set = 0, binding = 1) uniform sampler2D texStars;
-layout(set = 0, binding = 2) uniform sampler2D uiTexture;
+layout(set = 0, binding = 1) uniform sampler2D texCelestialAlpha;
+layout(set = 0, binding = 2) uniform sampler2D texStars;
+layout(set = 0, binding = 3) uniform sampler2D uiTexture;
 layout(set = 0, binding = 4) uniform sampler2D texShip;
 layout(set = 0, binding = 5) uniform sampler2D texCelestialAdditive;
 
@@ -45,16 +45,24 @@ vec3 gammacorrect(vec3 c){
 #include camera.glsl
 void main() {
     vec4 celestial = texture(texCelestialAlpha, UV);
-    vec3 dir = reconstructCameraSpaceDistance(UV, 1.0);
-    dir *= 2.0;
+    vec3 dir = reconstructCameraSpaceDistance(gl_FragCoord.xy / Resolution, 1.0);
+
     vec3 stars = texture(texStars, UV).rgb ;//texture(texStars, UV);
     vec4 ui = texture(uiTexture, UV);
     //stars.rgb /= max(0.0001, stars.a);
     vec3 a = celestial.rgb;//mix(stars, celestial.rgb, celestial.a);
     vec4 adddata = texture(texCelestialAdditive, UV).rgba;
-    a += adddata.rgb;
+
+    vec3 starDir = normalize(-ClosestStarPosition + vec3(0.000001));
+    vec3 sunflare = exp(-2000.0 * (dot(dir, starDir) * 0.5 + 0.5)) * ClosestStarColor * 0.1;
+    sunflare += exp(-200.0 * (dot(dir, starDir) * 0.5 + 0.5)) * ClosestStarColor * 0.01;
+    sunflare += exp(-20.0 * (dot(dir, starDir) * 0.5 + 0.5)) * ClosestStarColor * 0.001;
+    sunflare = pow(1.0 - (dot(dir, starDir) * 0.5 + 0.5), 62.0) * ClosestStarColor * 0.1 * max(0.0, 1.0 - adddata.a);
+    //sunflare += pow(1.0 - (dot(dir, starDir) * 0.5 + 0.5), 62.0) * ClosestStarColor * 0.01;
+
+    a += adddata.rgb + sunflare * 0.0001;
     vec4 shipdata = texture(texShip, UV).rgba;
     a = mix(a, shipdata.rgb, shipdata.a);
     a = mix(a, ui.rgb, ui.a);
-    outColor = vec4(gammacorrect(clamp(a * 0.1, 0.0, 10000.0)), 1.0);
+    outColor = vec4(gammacorrect(clamp(a, 0.0, 10000.0)), 1.0);
 }

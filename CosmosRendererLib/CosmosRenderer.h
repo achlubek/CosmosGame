@@ -132,7 +132,11 @@ private:
 	void measureTimeStart();
 	void measureTimeEnd(std::string name);
 
+	std::vector<std::tuple<glm::vec3, Object3dInfo*>> patchesLowPoly = {};
+	std::vector<std::tuple<glm::vec3, Object3dInfo*>> patchesMediumPoly = {};
+	std::vector<std::tuple<glm::vec3, Object3dInfo*>> patchesHighPoly = {};
+
 	Object3dInfo* subdivide(Object3dInfo* info);
-	std::vector<Object3dInfo*> axisSplit(Object3dInfo* info);
+	std::vector<Object3dInfo*> splitTriangles(Object3dInfo* info);
 };
 

@@ -164,7 +164,7 @@ vec3 celestialGetNormalRaycast(RenderedCelestialBody body, float dxrange, vec3 p
 
 float getWaterHeightHiRes(RenderedCelestialBody body, vec3 dir){
     dir = body.rotationMatrix * dir;
-    return (body.radius + body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir * 200.0, 32, 1.8, Time, 0.0)) * 0.0014;
+    return (body.radius + body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir * 200.0, 16, 1.8, Time, 0.0)) * 0.0014;
 }
 float getWaterHeightLowRes(RenderedCelestialBody body, vec3 dir){
     dir = body.rotationMatrix * dir;
