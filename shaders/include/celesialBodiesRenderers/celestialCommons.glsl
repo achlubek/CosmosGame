@@ -57,20 +57,56 @@ float textureShadowBlurBox(sampler2D tex, vec2 uv, int pixels){
     return dr / dw;
 }
 
+
+vec2 celestialGetCloudsForDirection(RenderedCelestialBody body,vec3 direction){
+    vec2 prerendered = textureBicubic(cloudsImage, xyzToPolar(body.rotationMatrix * direction)).rg;
+    return prerendered;
+}
+
+vec2 celestialGetCloudsRaycast(RenderedCelestialBody body, vec3 position){
+    return celestialGetCloudsForDirection(body, normalize(position - body.position));
+}
+
 float getStarTerrainShadowAtPoint(RenderedCelestialBody body, vec3 point, float tolerance){
-    vec3 dir = normalize(point - body.position);
-    float probeheight = distance(point, body.position);
-    vec2 data = texture(shadowMapImage, xyzToPolar( dir)).rg;
-    vec3 coord = getShadowMapCoord(body, point);
-    return 1.0;//smoothstep(-tolerance, 0.0, probeheight - (data.r + body.radius)) * texture(shadowMapImage, coord.xy).g;
+    Ray ray = Ray(point, normalize(ClosestStarPosition - point));
+    float waterSphereShadow = rsi2(ray, body.surfaceSphere).y;
+    float highCloudsHit = rsi2(ray, body.highCloudsSphere).y;
+    waterSphereShadow = 1.0 - smoothstep(0.0, 1.0, waterSphereShadow);
+
+    vec3 opo = (body.fromHostToThisMatrix) * (point / ShadowMapDivisors1);
+    opo.y *= -1.0;
+    // dirty hacks
+    float surfaceShadow = waterSphereShadow;
+    if(tolerance > 0.0){
+        if(length(opo) < 1.0){
+            float depthTexture = 1.0 - textureBicubic(shadowMap1, opo.xy * 0.5 + 0.5).r;
+            surfaceShadow = 1.0 - smoothstep(-0.001, 0.03, ((opo.z * 0.5 + 0.5) - depthTexture));
+        } else {
+            opo = (body.fromHostToThisMatrix) * (point / ShadowMapDivisors2);
+            opo.y *= -1.0;
+            if(length(opo) < 1.0){
+                float depthTexture = 1.0 - textureBicubic(shadowMap2, opo.xy * 0.5 + 0.5).r;
+                surfaceShadow = 1.0 - smoothstep(-0.001, 0.03, ((opo.z * 0.5 + 0.5) - depthTexture));
+            } else {
+                opo = (body.fromHostToThisMatrix) * (point / ShadowMapDivisors3);
+                opo.y *= -1.0;
+                if(length(opo) < 1.0){
+                    float depthTexture = 1.0 - textureBicubic(shadowMap3, opo.xy * 0.5 + 0.5).r;
+                    surfaceShadow = 1.0 - smoothstep(-0.001, 0.03, ((opo.z * 0.5 + 0.5) - depthTexture));
+                }
+            }
+        }
+    }
+    float cloudsShadow = 1.0;
+    if(highCloudsHit > 0.001 && highCloudsHit < DISTANCE_INFINITY && tolerance > 0.0){
+        vec3 cloudsPos = ray.o + ray.d * highCloudsHit;
+        cloudsShadow = 1.0 - tolerance * celestialGetCloudsRaycast(body, cloudsPos).y;
+    }
+    return surfaceShadow * cloudsShadow;//temouv.x < 0.5 ? depthTexture : (opo.z * 0.5 + 0.5);
 }
 
 float getStarTerrainShadowAtPointNoClouds(RenderedCelestialBody body, vec3 point){
-    vec3 dir = normalize(point - body.position);
-    float probeheight = distance(point, body.position);
-    vec2 data = texture(shadowMapImage, xyzToPolar( dir)).rg;
-    vec3 coord = getShadowMapCoord(body, point);
-    return 1.0;//smoothstep(-0.001, 0.0, probeheight - (data.r + body.radius));
+    return getStarTerrainShadowAtPoint(body, point, 0.0);//smoothstep(-0.001, 0.0, probeheight - (data.r + body.radius));
 }
 
 #else
@@ -134,15 +170,6 @@ vec4 celestialGetColorRoughnessForDirection(RenderedCelestialBody body, vec3 dir
 
 vec4 celestialGetColorRoughnessRaycast(RenderedCelestialBody body, vec3 position){
     return celestialGetColorRoughnessForDirection(body, normalize(position - body.position));
-}
-
-vec2 celestialGetCloudsForDirection(RenderedCelestialBody body,vec3 direction){
-    vec2 prerendered = textureBicubic(cloudsImage, xyzToPolar(body.rotationMatrix * direction)).rg;
-    return prerendered;
-}
-
-vec2 celestialGetCloudsRaycast(RenderedCelestialBody body, vec3 position){
-    return celestialGetCloudsForDirection(body, normalize(position - body.position));
 }
 
 vec3 celestialGetNormal(RenderedCelestialBody body, float dxrange, vec3 dir){

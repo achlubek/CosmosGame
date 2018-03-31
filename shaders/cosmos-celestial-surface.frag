@@ -21,8 +21,34 @@ layout(location = 2) out float outDistance;
 #include camera.glsl
 
 
-float celestialGetHeight(vec3 dir){
-    return texture(heightMapImage, xyzToPolar(dir)).r;
+float getwavesHighPhaseTerrainRefinement(vec3 position, float dragmult, float timeshift, float seed){
+    float iter = 0.0;
+    float seedWaves = seed;
+    float phase = 2.0;
+    float speed = 2.0;
+    float weight = 1.0;
+    float w = 0.0;
+    float ws = 0.0;
+    for(int i=0;i<15;i++){
+        vec3 p = (vec3(oct(seedWaves += 1.0), oct(seedWaves += 1.0), oct(seedWaves += 1.0)) * 2.0 - 1.0) * 300.0;
+        float res = wave(position, p, speed, phase * 20.0, 0.0 + timeshift);
+        w += res * weight;
+        iter += 12.0;
+        ws += weight;
+        weight = mix(weight, 0.0, 0.2);
+        phase *= 1.1;
+        speed *= 1.02;
+    }
+    return w / ws;
+}
+float celestialGetHeight(vec3 direction){
+    float primary = textureBicubic(heightMapImage, xyzToPolar(direction)).r;
+    float secondary = abs(FBM3(direction * 220.9, 5, 3.0, 0.55) - 0.5);
+    float refinement = pow(getwavesHighPhaseTerrainRefinement(direction.xyz * 10.1, 1.0, 0.0, 0.0),1.0);
+    //return primary * 30.0 + secondary;
+    vec3 coord = normalize(direction) * 10.0;
+    return primary * 0.98 + secondary * 0.02;//smoothstep(0.99, 0.999, primary);
+    //return texture(heightMapImage, xyzToPolar(dir)).r;
 }
 
 vec3 celestialGetNormal(RenderedCelestialBody body, float dxrange, vec3 dir){

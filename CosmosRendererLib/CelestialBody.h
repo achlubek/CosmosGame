@@ -42,7 +42,7 @@ public:
         auto parentPos = host->getPosition(at_time);
         auto thisPos = getPosition(at_time);
         auto direction = glm::normalize(thisPos - parentPos);
-        return glm::lookAt(glm::dvec3(0.0), direction, glm::dvec3(0.0, 1.0, 0.0));
+        return glm::lookAt(glm::dvec3(0.0), -direction, glm::dvec3(0.0, 1.0, 0.0));
     }
 
     virtual glm::dvec3 getLinearVelocity(double at_time) {

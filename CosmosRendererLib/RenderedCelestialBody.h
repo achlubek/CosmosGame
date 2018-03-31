@@ -41,8 +41,7 @@ public:
         VulkanImage* waterRenderedDistanceImage);
     ~RenderedCelestialBody();
     void updateData(VulkanComputeStage* stage);
-    void updateShadows(VulkanComputeStage* stage, VulkanDescriptorSet* rendererDataSet);
-    void draw(VulkanRenderStage* stage, VulkanDescriptorSet* rendererDataSet, Object3dInfo* info3d);
+    void draw(VulkanRenderStage* stage, VulkanDescriptorSet* rendererDataSet, VulkanDescriptorSet* shadowMapsCollectionSet, Object3dInfo* info3d);
     void drawSurface(VulkanRenderStage* stage, VulkanDescriptorSet* rendererDataSet, Object3dInfo* info3d);
     void drawWater(VulkanRenderStage* stage, VulkanDescriptorSet* rendererDataSet, Object3dInfo* info3d);
     void updateBuffer(glm::dvec3 observerPosition, double scale, double time);
@@ -53,7 +52,7 @@ public:
     double getRadius();
 
     VulkanDescriptorSet* renderSurfaceSet;
-
+    VulkanDescriptorSet* shadowMapSet;
     VulkanDescriptorSet* renderWaterSet;
     CelestialBody body;
 private:
@@ -87,8 +86,6 @@ private:
     VulkanGenericBuffer* dataBuffer;
 
     VulkanDescriptorSet* dataSet;
-
-    VulkanDescriptorSet* shadowMapSet;
 
     VulkanDescriptorSet* renderSet;
 

@@ -57,5 +57,5 @@ vec2 getLowAndHighClouds(vec3 dir, float seed){
      + getwaves(scale * (dir * 40.0 + wind * 5.0), 13.0, 13.0, 3.0) * 0.1;
     float threshold = 0.05 + 0.4 * aBitBetterNoise(vec4(dir * 3.2 , 1.0));
     float range = 0.7* aBitBetterNoise(vec4(dir * 3.2 + 10.0 , 1.0));
-    return vec2(smoothstep(threshold, threshold + range, experimental));
+    return vec2(smoothstep(threshold, threshold + range, experimental), low);
 }

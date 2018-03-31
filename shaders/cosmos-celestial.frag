@@ -5,6 +5,11 @@ layout(location = 0) in vec2 UV;
 layout(location = 0) out vec4 outColorAlpha;
 layout(location = 1) out vec4 outColorAdditive;
 
+
+layout(set = 2, binding = 0) uniform sampler2D shadowMap1;
+layout(set = 2, binding = 1) uniform sampler2D shadowMap2;
+layout(set = 2, binding = 2) uniform sampler2D shadowMap3;
+
 #include rendererDataSet.glsl
 #include sphereRaytracing.glsl
 #include proceduralValueNoise.glsl
@@ -43,6 +48,6 @@ void main() {
     outColorAlpha = result.alphaBlendedLight;
     outColorAdditive = result.additionLight;
 
-//    outColorAlpha = vec4(texture(surfaceRenderedDistanceImage, gl_FragCoord.xy / Resolution).rrr, 1.0);//result.alphaBlendedLight;
-//    outColorAdditive = 0.0*result.additionLight;
+//    outColorAlpha = vec4(getShadowAtPoint(body, dir * texture(surfaceRenderedDistanceImage, gl_FragCoord.xy / Resolution).r) * vec3(1.0), result.alphaBlendedLight.a);//result.alphaBlendedLight;
+    //outColorAdditive = 0.0*result.additionLight;
 }

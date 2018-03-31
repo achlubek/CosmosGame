@@ -12,6 +12,11 @@ layout(set = 0, binding = 0) uniform UniformBufferObject1 {
     vec4 Resolution_Exposure_Zero;
     vec4 ClosestStarPosition;
     vec4 ClosestStarColor;
+    ivec4 ShadowMapCount;
+    float ShadowMapDivisors1;
+    float ShadowMapDivisors2;
+    float ShadowMapDivisors3;
+    float ShadowMapDivisors4;
 } hiFreq;
 
 float Time = hiFreq.Time;
@@ -24,3 +29,8 @@ vec3 ClosestStarPosition = hiFreq.ClosestStarPosition.xyz;
 vec3 ClosestStarColor = hiFreq.ClosestStarColor.xyz;
 vec2 Resolution = hiFreq.Resolution_Exposure_Zero.xy;
 float Exposure = hiFreq.Resolution_Exposure_Zero.z;
+float ShadowMapCount = hiFreq.ShadowMapCount.z;
+float ShadowMapDivisors1 = hiFreq.ShadowMapDivisors1;
+float ShadowMapDivisors2 = hiFreq.ShadowMapDivisors2;
+float ShadowMapDivisors3 = hiFreq.ShadowMapDivisors3;
+float ShadowMapDivisors4 = hiFreq.ShadowMapDivisors4;

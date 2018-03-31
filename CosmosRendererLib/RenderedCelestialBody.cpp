@@ -81,9 +81,6 @@ void RenderedCelestialBody::resizeDataImages(int ilowFreqWidth, int ilowFreqHeig
 
     shadowMapSet->bindUniformBuffer(0, dataBuffer);
     shadowMapSet->bindImageViewSampler(1, heightMapImage);
-    shadowMapSet->bindImageViewSampler(2, baseColorImage);
-    shadowMapSet->bindImageViewSampler(3, cloudsImage);
-    shadowMapSet->bindImageStorage(4, shadowMapImage);
     shadowMapSet->update();
 
     renderSet->bindUniformBuffer(0, dataBuffer);
@@ -145,23 +142,12 @@ void RenderedCelestialBody::updateData(VulkanComputeStage * stage)
     needsUpdate = false;
 }
 
-void RenderedCelestialBody::updateShadows(VulkanComputeStage * stage, VulkanDescriptorSet* rendererDataSet)
+void RenderedCelestialBody::draw(VulkanRenderStage * stage, VulkanDescriptorSet* rendererDataSet, VulkanDescriptorSet* shadowMapsCollectionSet, Object3dInfo * info3d)
 {
     if (!initialized) {
         return;
     }
-    int offsetAdvance = 4;
-    stage->dispatch({ rendererDataSet, shadowMapSet }, 1, hiFreqHeight / 32, 1);
-    shadowMapWidthOffset += offsetAdvance;
-    if (shadowMapWidthOffset == hiFreqWidth) shadowMapWidthOffset = 0;
-}
-
-void RenderedCelestialBody::draw(VulkanRenderStage * stage, VulkanDescriptorSet* rendererDataSet, Object3dInfo * info3d)
-{
-    if (!initialized) {
-        return;
-    }
-    stage->setSets({ rendererDataSet, renderSet });
+    stage->setSets({ rendererDataSet, renderSet, shadowMapsCollectionSet });
     stage->drawMesh(info3d, 1);
 }
 

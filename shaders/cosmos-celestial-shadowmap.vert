@@ -11,7 +11,7 @@ layout(location = 2) in vec3 inNormal;
 
 layout(location = 0) out vec3 outDir;
 layout(location = 1) out flat uint inInstanceId;
-layout(location = 2) out vec3 outWorldPos;
+layout(location = 2) out float Depth;
 layout(location = 3) out vec3 outNormal;
 
 #include rendererDataSet.glsl
@@ -24,9 +24,10 @@ layout(location = 3) out vec3 outNormal;
 #include rotmat3d.glsl
 #include textureBicubic.glsl
 #include camera.glsl
+#include shadowMapDataSet.glsl
 
 float celestialGetHeight(vec3 dir){
-    return textureBicubic(heightMapImage, xyzToPolar(dir)).r;
+    return texture(heightMapImage, xyzToPolar(dir)).r;
 }
 
 vec3 celestialGetNormal(RenderedCelestialBody body, float dxrange, vec3 dir){
@@ -46,12 +47,15 @@ void main() {
     RenderedCelestialBody body = getRenderedBody(celestialBuffer.celestialBody);
     vec3 dir = inPosition.xyz;
     float surfaceHeight = texture(heightMapImage, xyzToPolar(dir)).r;
-    vec3 WorldPos = (inverse(body.rotationMatrix) * dir) * (body.radius + body.terrainMaxLevel * surfaceHeight) + body.position;
-    vec4 opo = (hiFreq.VPMatrix) * vec4(WorldPos, 1.0);
+    vec3 WorldPos = (inverse(body.rotationMatrix) * dir) * (body.radius + max(body.fluidMaxLevel, body.terrainMaxLevel * surfaceHeight)) + body.position;
+    vec4 opo = vec4((body.fromHostToThisMatrix) * (WorldPos * Divisor), 1.0);
+    opo.x = clamp(opo.x, -1.0, 1.0);
+    opo.y = clamp(opo.y, -1.0, 1.0);
+    opo.z = clamp(opo.z, -0.9999, 0.9999);
     vec3 Normal = dir;
     outNormal = dir;//celestialGetNormal(body, 0.001, dir);
     outDir = dir;
-    outWorldPos = WorldPos;
     opo.y *= -1.0;
+    Depth = opo.z * 0.5 + 0.5;
     gl_Position = opo;
 }

@@ -35,7 +35,7 @@ CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end
     //vec3 sunsetColor = (pass.body.atmosphereAbsorbColor) * ClosestStarColor;
     float density = pass.body.atmosphereAbsorbStrength;
     float coverage = 0.0;
-    //vec3 alphacolor = vec3(0.0);
+    vec3 alphacolor = vec3(0.0);
     vec3 color = vec3(0.0);
     float stepsize = 1.0 / 10.0;
     #ifdef SHADOW_MAP_COMPUTE_STAGE
@@ -57,18 +57,18 @@ CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end
     //float endShadow = getStarTerrainShadowAtPoint(pass.body, end);
     float shadowAccumulator = 0.0;
     if(highQuality){
-        /*float stepsizeShadows = 1.0 / 7.0;
+        float stepsizeShadows = 1.0 / 7.0;
         float iterShadows = stepsizeShadows * fract(oct(UV * 100.0) + Time * 0.01) * 0.999;
         for(int i=0;i<7;i++){
             Ray secondaryRay = Ray( mix(start, end, iterShadows), starDir);
-            shadowAccumulator += 1.0 - step(0.0, rsi2(secondaryRay, pass.body.waterSphere).x);
-            //shadowAccumulator += getStarTerrainShadowAtPoint(pass.body, mix(start, end, iterShadows), 0.0);
+            //shadowAccumulator += 1.0 - step(0.0, rsi2(secondaryRay, pass.body.waterSphere).x);
+            shadowAccumulator += getStarTerrainShadowAtPoint(pass.body, mix(start, end, iterShadows), 1.0);
             iterShadows += stepsizeShadows;
-        }*/
-    //    shadowAccumulator *= stepsizeShadows;
-            vec3 normal = normalize(start - pass.body.position);
-            float dt = 1.0 - (1.0 / (1.0 + 3.0 * max(0.0, dot(normal, starDir) * 0.8 + 0.2)));
-            shadowAccumulator = dt;
+        }
+        shadowAccumulator *= stepsizeShadows;
+        //    vec3 normal = normalize(start - pass.body.position);
+        //    float dt = 1.0 - (1.0 / (1.0 + 3.0 * max(0.0, dot(normal, starDir) * 0.8 + 0.2)));
+        //    shadowAccumulator = dt;
     } else {
         vec3 normal = normalize(start - pass.body.position);
         float dt = 1.0 - (1.0 / (1.0 + 3.0 * max(0.0, dot(normal, starDir))));
@@ -95,19 +95,19 @@ CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end
 
         vec3 incomingLight = clamp(ClosestStarColor - atmoHitLength * absorbMultiplier * pass.body.atmosphereAbsorbColor, vec3(0.0), ClosestStarColor);
         vec3 scatteredLight = incomingLight * pass.body.atmosphereAbsorbColor;
-        vec3 visibleLight = clamp(scatteredLight * distance(pos, start) * 50.0 - distance(pos, start) * heightmix * pass.body.atmosphereAbsorbColor, vec3(0.0), ClosestStarColor);
+        vec3 visibleLight = clamp(scatteredLight * distance(pos, start) - distance(pos, start) * heightmix * pass.body.atmosphereAbsorbColor, vec3(0.0), ClosestStarColor);
         float heightmix_middle = 1.0 - abs(heightmix * 2.0 - 1.0);
 
         //color += rayleightScatteredLight * (1.0 - coverage) * shadowAccumulator;//shadowAccumulator * rayleightCoeff * (1.0 - coverage) * (distmultiplier) * heightmix * visibleLight * 10.0;
         color += (mieScatteredLight + rayleightScatteredLight) * (1.0 - coverage) * shadowAccumulator;// * (pass.isSurfaceHit || pass.isWaterHit ? 0.0 : 1.0) * (1.0 - coverage);
-        //float lowClouds = 0.0;//celestialGetCloudsRaycast(pass.body, pos).r * heightmix_middle;
-        //alphacolor += lowClouds * (1.0 - coverage) * (1.0 - heightmix) * mix(noonColor, sunsetColor, dt);
-        //coverage += lowClouds * 0.25 * heightmix_middle;
-        //coverage = clamp(coverage, 0.0, 1.0);
+        float lowClouds = celestialGetCloudsRaycast(pass.body, pos).g * heightmix_middle;
+        alphacolor += lowClouds * (1.0 - coverage) * (1.0 - heightmix) * rayEnergy;
+        coverage += lowClouds * 0.25 * heightmix_middle;
+        coverage = clamp(coverage, 0.0, 1.0);
         iter += stepsize;
     }
     color *= stepsize * dimmer;
-    return CelestialRenderResult(vec4(color, 0.0), vec4( 0.0));
+    return CelestialRenderResult(vec4(color, 0.0), vec4(alphacolor, coverage));
 }
 
 CelestialRenderResult getAtmosphereLightForRay(RenderPass pass, Ray ray, float mieMultiplier){

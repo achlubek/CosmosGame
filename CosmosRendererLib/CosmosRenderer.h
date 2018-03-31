@@ -56,9 +56,6 @@ public:
     VulkanDescriptorSetLayout* celestialBodyRenderSetLayout{ nullptr };
     VulkanComputeStage* celestialDataUpdateComputeStage;
 
-    VulkanDescriptorSetLayout* celestialShadowMapSetLayout{ nullptr };
-    VulkanComputeStage* celestialShadowMapComputeStage;
-
     VulkanDescriptorSetLayout* celestiaStarsBlitSetLayout{ nullptr };
     VulkanDescriptorSet* celestiaStarsBlitSet{ nullptr };
     VulkanComputeStage* celestialStarsBlitComputeStage;
@@ -69,6 +66,10 @@ public:
 
     VulkanDescriptorSetLayout* celestialBodyWaterSetLayout{ nullptr };
     VulkanRenderStage* celestialBodyWaterRenderStage;
+
+    VulkanDescriptorSetLayout* celestialShadowMapSetLayout{ nullptr };
+    VulkanDescriptorSetLayout* shadowMapDataSetLayout{ nullptr };
+    std::vector<VulkanRenderStage*> celestialShadowMapRenderStages = {};
 
     VulkanGenericBuffer* cameraDataBuffer;
     VulkanGenericBuffer* starsDataBuffer;
@@ -89,6 +90,16 @@ public:
     VulkanImage* waterRenderedNormalMetalnessImage;
     VulkanImage* waterRenderedDistanceImage;
     VulkanImage* waterRenderedDepthImage;
+
+    std::vector<VulkanImage*> shadowmaps = {};
+    std::vector<VulkanGenericBuffer*> shadowmapsBuffers = {};
+    std::vector<VulkanDescriptorSet*> shadowmapsDataSets = {};
+    VulkanImage* shadowmapsDepthMap;
+    VulkanDescriptorSetLayout* shadowMapsCollectionLayout{ nullptr };
+    VulkanDescriptorSet* shadowMapsCollectionSet{ nullptr };
+    std::vector<double> shadowmapsDivisors = {1.0, 5.0, 25.0};
+    const int shadowMapWidth = 4096;
+    const int shadowMapHeight = 4096;
     
     Object3dInfo* cube3dInfo;
 
