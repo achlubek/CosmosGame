@@ -14,6 +14,8 @@
 #include "CameraController.h"
 #include "GalaxyContainer.h"
 #include "TimeProvider.h"
+#include "UIRenderer.h"
+#include <ctype.h>
 
 GameContainer* GameContainer::instance = nullptr;
 
@@ -31,16 +33,32 @@ GameContainer::GameContainer()
 
     INIReader* configreader = new INIReader("settings.ini");
     vulkanToolkit = new VulkanToolkit();
-    vulkanToolkit->initialize(configreader->geti("window_width"), configreader->geti("window_height"));
-
-    ui = new UIRenderer(vulkanToolkit, vulkanToolkit->windowWidth, vulkanToolkit->windowHeight);
-
-    cosmosRenderer = new CosmosRenderer(vulkanToolkit, timeProvider, this, galaxy, ui->outputImage, vulkanToolkit->windowWidth, vulkanToolkit->windowHeight);
-
-    assetLoader = new AssetLoader(vulkanToolkit);
+    vulkanToolkit->initialize(configreader->geti("window_width"), configreader->geti("window_height"), true, "Galaxy Game");
 
     Mouse* mouse = new Mouse(vulkanToolkit->window);
     Keyboard* keyboard = new Keyboard(vulkanToolkit->window);
+
+    ui = new UIRenderer(vulkanToolkit, mouse, vulkanToolkit->windowWidth, vulkanToolkit->windowHeight);
+
+    cosmosRenderer = new CosmosRenderer(vulkanToolkit, timeProvider, this, galaxy, ui->outputImage, vulkanToolkit->windowWidth, vulkanToolkit->windowHeight);
+    cosmosRenderer->exposure = 0.0001;
+
+    fpsText = new UIText(ui, 0.01, 0.01, UIColor(1.0, 1.0, 1.0, 1.0), Media::getPath("chintzy.ttf"), 16, "Hmm");
+    ui->addDrawable(fpsText);
+
+    gravityFluxText = new UIText(ui, 0.01, 0.11, UIColor(1.0, 1.0, 1.0, 1.0), Media::getPath("chintzy.ttf"), 16, "Hmm");
+    ui->addDrawable(gravityFluxText);
+
+    starNameText = new UIText(ui, 0.01, 0.21, UIColor(1.0, 1.0, 1.0, 1.0), Media::getPath("chintzy.ttf"), 16, "Hmm");
+    ui->addDrawable(starNameText);
+
+    planetNameText = new UIText(ui, 0.01, 0.31, UIColor(1.0, 1.0, 1.0, 1.0), Media::getPath("chintzy.ttf"), 16, "Hmm");
+    ui->addDrawable(planetNameText);
+
+    moonNameText = new UIText(ui, 0.01, 0.41, UIColor(1.0, 1.0, 1.0, 1.0), Media::getPath("chintzy.ttf"), 16, "Hmm");
+    ui->addDrawable(moonNameText);
+
+    assetLoader = new AssetLoader(vulkanToolkit);
 
     gameControls = new GameControls(keyboard, mouse, "controls.ini");
      
@@ -61,7 +79,7 @@ GameContainer::GameContainer()
     //auto testspawnradius = cosmosRenderer->galaxy->getAllStars()[666].radius;
    //cosmosRenderer->galaxy->update(testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->getPosition());
     int targetStar = 666;
-    int targetPlanet = 3;
+    int targetPlanet = 1;
     int targetMoon = -1;
     GeneratedStarInfo star = galaxy->getAllStars()[targetStar - 1];
     auto center = star.getPosition(0);
@@ -84,6 +102,26 @@ GameContainer::GameContainer()
             targetBody = moon;
         }
     }
+
+    galaxy->onClosestStarChange.add([&](GeneratedStarInfo star) {
+        auto name = galaxy->getStarName(star.starId);
+        // if(name.length() > 0) name.at(0) = toupper(name.at(0));
+        starNameText->updateText("Star: " + std::to_string(star.starId) + " " + name);
+    });
+
+    galaxy->onClosestPlanetChange.add([&](CelestialBody body) {
+        auto name = galaxy->getCelestialBodyName(body.bodyId);
+        printf(("\n\n" + std::to_string(body.bodyId) + "CHANGE!!" + name + "!!\n\n").c_str());
+        // if (name.length() > 0) name.at(0) = toupper(name.at(0));
+        planetNameText->updateText("Planet: " + name);
+    });
+
+    galaxy->onClosestMoonChange.add([&](CelestialBody body) {
+        auto name = galaxy->getCelestialBodyName(body.bodyId);
+        // if (name.length() > 0) name.at(0) = toupper(name.at(0));
+        moonNameText->updateText("Moon: " + name);
+    });
+
     testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(center + glm::dvec3(0.0, dist * 3.0, -dist * 3.0));
     testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(velocity);
 
@@ -126,7 +164,9 @@ void GameContainer::updateObjects()
     for (int i = 0; i < activeObjects.size(); i++) {
         auto physicsComponent = activeObjects[i]->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D);
         if (nullptr != physicsComponent) {
-            physicsComponent->applyGravity(cosmosRenderer->galaxy->getGravity(physicsComponent->getPosition(), timeProvider->getTime()));
+            auto g = cosmosRenderer->galaxy->getGravity(physicsComponent->getPosition(), timeProvider->getTime());
+            physicsComponent->applyGravity(g);
+            gravityFluxText->updateText(std::to_string(glm::length(g)));
         }
         activeObjects[i]->update(nowtime - lastTime);
     }
@@ -204,6 +244,7 @@ void GameContainer::startGameLoops()
         double nowtime = floor(time);
         if (nowtime != lastTime) {
             printf("FPS %d\n", frames);
+            fpsText->updateText("FPS: " + std::to_string(frames));
             frames = 0;
         }
         double elapsed_x100 = (float)(100.0 * (time - lastRawTime));
@@ -212,7 +253,7 @@ void GameContainer::startGameLoops()
         lastTime = nowtime;
 
         //
-
+        ui->draw();
         cosmosRenderer->updateCameraBuffer(viewCamera->getInternalCamera(), viewCamera->getPosition());
         cosmosRenderer->draw();
 

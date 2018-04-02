@@ -11,6 +11,7 @@ layout(set = 0, binding = 4) uniform sampler2D texShip;
 layout(set = 0, binding = 5) uniform sampler2D texCelestialAdditive;
 
 #include rendererDataSet.glsl
+#include proceduralValueNoise.glsl
 
 float rand2s(vec2 co){
     return fract(sin(dot(co.xy * hiFreq.Time,vec2(12.9898,78.233))) * 43758.5453);
@@ -42,6 +43,11 @@ vec3 gammacorrect(vec3 c){
     return pow(c, vec3(1.0 / 2.4));
 }
 
+vec2 project(vec3 pos){
+    vec4 tmp = (hiFreq.VPMatrix * vec4(pos, 1.0));
+    return (tmp.xy / tmp.w) * 0.5 + 0.5;
+}
+
 #include camera.glsl
 void main() {
     vec4 celestial = texture(texCelestialAlpha, UV);
@@ -54,13 +60,17 @@ void main() {
     vec4 adddata = texture(texCelestialAdditive, UV).rgba;
 
     vec3 starDir = normalize(-ClosestStarPosition + vec3(0.000001));
-    vec3 sunflare = exp(-2000.0 * (dot(dir, starDir) * 0.5 + 0.5)) * ClosestStarColor * 0.1;
-    sunflare += exp(-200.0 * (dot(dir, starDir) * 0.5 + 0.5)) * ClosestStarColor * 0.01;
-    sunflare += exp(-20.0 * (dot(dir, starDir) * 0.5 + 0.5)) * ClosestStarColor * 0.001;
-    sunflare = pow(1.0 - (dot(dir, starDir) * 0.5 + 0.5), 62.0) * ClosestStarColor * 0.1 * max(0.0, 1.0 - adddata.a);
+    float starDist = length(ClosestStarPosition);
+    vec3 sunflare = exp(starDist * -2000.0 * (dot(dir, starDir) * 0.5 + 0.5)) * ClosestStarColor * 0.1;
+    sunflare += exp(starDist * -200.0 * (dot(dir, starDir) * 0.5 + 0.5)) * ClosestStarColor * 0.01;
+    sunflare += exp(starDist * -20.0 * (dot(dir, starDir) * 0.5 + 0.5)) * ClosestStarColor * 0.001;
+    vec2 displaceVector = normalize(project(dir) - project(starDir)) * 10.0;
+    float flunctuations = 0.3 + 0.7 * smoothstep(0.2, 0.7, noise3d(vec3(displaceVector, Time)));
+    sunflare = flunctuations * pow(1.0 - (dot(dir, starDir) * 0.5 + 0.5), starDist * 0.008) * ClosestStarColor * 0.2 * max(0.0, 1.0 - adddata.a);
+    sunflare += exp(starDist * -0.025 * (dot(dir, starDir) * 0.5 + 0.5)) * ClosestStarColor *3.3 * max(0.0, 1.0 - adddata.a);
     //sunflare += pow(1.0 - (dot(dir, starDir) * 0.5 + 0.5), 62.0) * ClosestStarColor * 0.01;
-
-    a += adddata.rgb + sunflare * 0.0001;
+    vec3 sunFlareColorizer = mix(vec3(1.0), normalize(adddata.rgb + 0.001), min(1.0, 10.0 *length(adddata.rgb)));
+    a += adddata.rgb + sunflare * sunFlareColorizer * Exposure * 0.8;
     vec4 shipdata = texture(texShip, UV).rgba;
     a = mix(a, shipdata.rgb, shipdata.a);
     a = mix(a, ui.rgb, ui.a);

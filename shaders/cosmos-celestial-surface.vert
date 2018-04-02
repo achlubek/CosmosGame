@@ -48,6 +48,7 @@ void main() {
     float surfaceHeight = texture(heightMapImage, xyzToPolar(dir)).r;
     vec3 WorldPos = (inverse(body.rotationMatrix) * dir) * (body.radius + body.terrainMaxLevel * surfaceHeight) + body.position;
     vec4 opo = (hiFreq.VPMatrix) * vec4(WorldPos, 1.0);
+    //opo.z = clamp(opo.z, -0.999, 0.999);
     vec3 Normal = dir;
     outNormal = dir;//celestialGetNormal(body, 0.001, dir);
     outDir = dir;

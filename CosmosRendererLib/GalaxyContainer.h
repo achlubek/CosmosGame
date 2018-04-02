@@ -21,11 +21,15 @@ public:
 
     EventHandler<GeneratedStarInfo> onClosestStarChange;
     EventHandler<CelestialBody> onClosestPlanetChange;
+    EventHandler<CelestialBody> onClosestMoonChange;
+    std::string getStarName(int id);
+    std::string getCelestialBodyName(int id);
 private:
     SQLiteDatabase* database;
     std::vector<GeneratedStarInfo> allStars;
     GeneratedStarInfo closestStar;
     CelestialBody closestPlanet;
+    CelestialBody closestMoon;
     std::vector<CelestialBody> closestStarPlanets;
     std::vector<CelestialBody> closestPlanetMoons;
 
@@ -33,7 +37,10 @@ private:
     std::vector<CelestialBody> loadMoonsByPlanet(CelestialBody& planet);
     void updateClosestStar(glm::dvec3 observerPosition);
     void updateClosestPlanet(glm::dvec3 observerPosition);
+    void updateClosestMoon(glm::dvec3 observerPosition);
     uint64_t lastStarId = 0;
     uint64_t lastPlanetId = 0;
+    uint64_t lastMoonId = 0;
+    std::vector<std::string> bodiesNames;
 };
 

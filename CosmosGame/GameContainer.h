@@ -10,6 +10,7 @@ class ShipFactory;
 class GameObject;
 class CameraController;
 class TimeProvider;
+class UIText;
 #include "SceneProvider.h"
 
 class GameContainer : public SceneProvider
@@ -45,5 +46,10 @@ private:
     TimeProvider* timeProvider;
     double lastTime;
     static GameContainer* instance;
+    UIText* fpsText;
+    UIText* gravityFluxText;
+    UIText* starNameText;
+    UIText* planetNameText;
+    UIText* moonNameText;
 };
 

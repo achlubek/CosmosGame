@@ -71,7 +71,7 @@ float getStarTerrainShadowAtPoint(RenderedCelestialBody body, vec3 point, float 
     Ray ray = Ray(point, normalize(ClosestStarPosition - point));
     float waterSphereShadow = rsi2(ray, body.surfaceSphere).y;
     float highCloudsHit = rsi2(ray, body.highCloudsSphere).y;
-    waterSphereShadow = 1.0 - smoothstep(0.0, 1.0, waterSphereShadow);
+    waterSphereShadow = pow(max(0.0, dot(normalize(point - body.position), normalize(ClosestStarPosition - point)) * 0.85 + 0.15), 0.1);
 
     vec3 opo = (body.fromHostToThisMatrix) * (point / ShadowMapDivisors1);
     opo.y *= -1.0;
@@ -100,7 +100,7 @@ float getStarTerrainShadowAtPoint(RenderedCelestialBody body, vec3 point, float 
     float cloudsShadow = 1.0;
     if(highCloudsHit > 0.001 && highCloudsHit < DISTANCE_INFINITY && tolerance > 0.0){
         vec3 cloudsPos = ray.o + ray.d * highCloudsHit;
-        cloudsShadow = 1.0 - tolerance * celestialGetCloudsRaycast(body, cloudsPos).y;
+        cloudsShadow = 1.0 - celestialGetCloudsRaycast(body, cloudsPos).x;
     }
     return surfaceShadow * cloudsShadow;//temouv.x < 0.5 ? depthTexture : (opo.z * 0.5 + 0.5);
 }
@@ -191,11 +191,11 @@ vec3 celestialGetNormalRaycast(RenderedCelestialBody body, float dxrange, vec3 p
 
 float getWaterHeightHiRes(RenderedCelestialBody body, vec3 dir){
     dir = body.rotationMatrix * dir;
-    return (body.radius + body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir * 200.0, 16, 1.8, Time, 0.0)) * 0.0014;
+    return (body.radius + body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir *body.radius * 10.01, 24, 1.8, Time, 0.0)) * 0.0014;
 }
 float getWaterHeightLowRes(RenderedCelestialBody body, vec3 dir){
     dir = body.rotationMatrix * dir;
-    return (body.radius + body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir * 200.0, 5, 1.8, Time, 0.0)) * 0.0014;
+    return (body.radius + body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir * body.radius * 10.01, 5, 1.8, Time, 0.0)) * 0.0014;
 }
 
 vec3 celestialGetWaterNormal(RenderedCelestialBody body, float dxrange, vec3 dir){

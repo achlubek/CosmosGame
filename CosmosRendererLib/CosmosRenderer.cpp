@@ -307,7 +307,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     celestialBodySurfaceRenderStage->addOutputImage(surfaceRenderedNormalMetalnessImage);
     celestialBodySurfaceRenderStage->addOutputImage(surfaceRenderedDistanceImage);
     celestialBodySurfaceRenderStage->addOutputImage(surfaceRenderedDepthImage);
-    celestialBodySurfaceRenderStage->cullFlags = 0;// VK_CULL_MODE_FRONT_BIT;
+    celestialBodySurfaceRenderStage->cullFlags = VK_CULL_MODE_FRONT_BIT;
     celestialBodySurfaceRenderStage->compile();
 
     //**********************//
@@ -458,7 +458,7 @@ void CosmosRenderer::updateStarsBuffer()
         starsBB.emplaceFloat32((float)starpos.x);
         starsBB.emplaceFloat32((float)starpos.y);
         starsBB.emplaceFloat32((float)starpos.z);
-        starsBB.emplaceFloat32((float)star.radius * scale);
+        starsBB.emplaceFloat32((float)star.radius * scale * 0.1);
 
         starsBB.emplaceFloat32((float)star.color.x);
         starsBB.emplaceFloat32((float)star.color.y);
@@ -534,7 +534,7 @@ void CosmosRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosi
     // the formula for AU coefficent = distance / AU1
     // the formula for lux coefficent = 1.0 / (AUcoefficent * AUcoefficent)
     // the formula for final lux is lux multiplier * 120 000
-    double au1 = 1490000.0;
+    double au1 = 149600000.0;
     double aucoeff = galaxy->getClosestPlanet().hostDistance / au1;
     double luxcoeff = 1.0 / (aucoeff * aucoeff);
     double lux = luxcoeff * 120000.0;
@@ -679,7 +679,7 @@ void CosmosRenderer::draw()
         glm::dquat rotmat = glm::inverse(glm::quat_cast(renderables[i]->body.getRotationMatrix(timeProvider->getTime())));
         double centerdist = glm::distance(position, observerCameraPosition);
 
-        if (centerdist > radius * 4) {
+        if (centerdist > radius * 4 || renderables[i]->getRenderMethod() == CelestialRenderMethod::thickAtmosphere) {
             meshSequence.push_back(icosphereLow);
             //celestialBodySurfaceRenderStage->drawMesh(icosphereLow, 1);
         } 
@@ -710,9 +710,13 @@ void CosmosRenderer::draw()
 
         celestialBodySurfaceRenderStage->endDrawing();
         celestialBodySurfaceRenderStage->submitNoSemaphores({  });
-        
+
+        measureTimeEnd("Celestial surface data for " + std::to_string(i));
+
+
         if (i == renderables.size() - 1) {
             for (int z = 0; z < shadowmapsDivisors.size(); z++) {
+                measureTimeStart();
                 celestialShadowMapRenderStages[z]->beginDrawing();
                 celestialShadowMapRenderStages[z]->setSets({ rendererDataSet, renderables[i]->shadowMapSet, shadowmapsDataSets[z] });
                 for (int g = 0; g < meshSequence.size(); g++) {
@@ -720,10 +724,10 @@ void CosmosRenderer::draw()
                 }
                 celestialShadowMapRenderStages[z]->endDrawing();
                 celestialShadowMapRenderStages[z]->submitNoSemaphores({});
+                measureTimeEnd("Celestial shadow cascade "+std::to_string(z) +" data for " + std::to_string(i));
             }
         }
 
-        measureTimeEnd("Celestial surface data for " + std::to_string(i));
 
         if (renderables[i]->getRenderMethod() == CelestialRenderMethod::lightAtmosphere) {
             measureTimeStart();
