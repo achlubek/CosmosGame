@@ -4,7 +4,7 @@
 void Transformation3DComponent::update(double elapsed)
 {
     linearVelocity += gravityAcceleration * elapsed;
-    position = predictPosition(elapsed);
+    position = predictPosition(elapsed * timeScale);
     orientation = predictOrientation(elapsed);
 }
 
@@ -130,4 +130,9 @@ glm::dvec3 Transformation3DComponent::modelSpaceToWorld(glm::dvec3 v)
 {
     glm::dmat3 shipmat = glm::mat3_cast(orientation);
     return shipmat * v + position;
+}
+
+void Transformation3DComponent::setTimeScale(double scale)
+{
+    timeScale = scale;
 }

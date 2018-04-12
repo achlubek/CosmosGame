@@ -51,5 +51,7 @@ private:
     UIText* starNameText;
     UIText* planetNameText;
     UIText* moonNameText;
+    UIText* altitudeText;
+    UIText* velocityText;
 };
 

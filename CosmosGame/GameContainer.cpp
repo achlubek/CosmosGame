@@ -43,20 +43,26 @@ GameContainer::GameContainer()
     cosmosRenderer = new CosmosRenderer(vulkanToolkit, timeProvider, this, galaxy, ui->outputImage, vulkanToolkit->windowWidth, vulkanToolkit->windowHeight);
     cosmosRenderer->exposure = 0.0001;
 
-    fpsText = new UIText(ui, 0.01, 0.01, UIColor(1.0, 1.0, 1.0, 1.0), Media::getPath("chintzy.ttf"), 16, "Hmm");
+    fpsText = new UIText(ui, 0.01, 0.0, UIColor(1.0, 1.0, 1.0, 1.0), Media::getPath("chintzy.ttf"), 13, "Hmm");
     ui->addDrawable(fpsText);
 
-    gravityFluxText = new UIText(ui, 0.01, 0.11, UIColor(1.0, 1.0, 1.0, 1.0), Media::getPath("chintzy.ttf"), 16, "Hmm");
+    gravityFluxText = new UIText(ui, 0.01, 0.028, UIColor(1.0, 1.0, 1.0, 1.0), Media::getPath("Sansation_Regular.ttf"), 23, "Hmm");
     ui->addDrawable(gravityFluxText);
 
-    starNameText = new UIText(ui, 0.01, 0.21, UIColor(1.0, 1.0, 1.0, 1.0), Media::getPath("chintzy.ttf"), 16, "Hmm");
+    starNameText = new UIText(ui, 0.01, 0.028 * 2.0 , UIColor(1.0, 1.0, 1.0, 1.0), Media::getPath("Sansation_Regular.ttf"), 23, "Hmm");
     ui->addDrawable(starNameText);
 
-    planetNameText = new UIText(ui, 0.01, 0.31, UIColor(1.0, 1.0, 1.0, 1.0), Media::getPath("chintzy.ttf"), 16, "Hmm");
+    planetNameText = new UIText(ui, 0.01, 0.028 * 3.0, UIColor(1.0, 1.0, 1.0, 1.0), Media::getPath("Sansation_Regular.ttf"), 23, "Hmm");
     ui->addDrawable(planetNameText);
 
-    moonNameText = new UIText(ui, 0.01, 0.41, UIColor(1.0, 1.0, 1.0, 1.0), Media::getPath("chintzy.ttf"), 16, "Hmm");
+    moonNameText = new UIText(ui, 0.01, 0.028 * 4.0, UIColor(1.0, 1.0, 1.0, 1.0), Media::getPath("Sansation_Regular.ttf"), 23, "Hmm");
     ui->addDrawable(moonNameText);
+
+    altitudeText = new UIText(ui, 0.01, 0.028 * 5.0, UIColor(1.0, 1.0, 1.0, 1.0), Media::getPath("Sansation_Regular.ttf"), 23, "Hmm");
+    ui->addDrawable(altitudeText);
+
+    velocityText = new UIText(ui, 0.01, 0.028 * 6.0, UIColor(1.0, 1.0, 1.0, 1.0), Media::getPath("Sansation_Regular.ttf"), 23, "Hmm");
+    ui->addDrawable(velocityText);
 
     assetLoader = new AssetLoader(vulkanToolkit);
 
@@ -79,7 +85,7 @@ GameContainer::GameContainer()
     //auto testspawnradius = cosmosRenderer->galaxy->getAllStars()[666].radius;
    //cosmosRenderer->galaxy->update(testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->getPosition());
     int targetStar = 666;
-    int targetPlanet = 1;
+    int targetPlanet = 3;
     int targetMoon = -1;
     GeneratedStarInfo star = galaxy->getAllStars()[targetStar - 1];
     auto center = star.getPosition(0);
@@ -103,23 +109,29 @@ GameContainer::GameContainer()
         }
     }
 
-    galaxy->onClosestStarChange.add([&](GeneratedStarInfo star) {
-        auto name = galaxy->getStarName(star.starId);
+    cosmosRenderer->galaxy->onClosestStarChange.add([&](GeneratedStarInfo star) {
+        auto name = cosmosRenderer->galaxy->getStarName(star.starId);
         // if(name.length() > 0) name.at(0) = toupper(name.at(0));
-        starNameText->updateText("Star: " + std::to_string(star.starId) + " " + name);
+        getCosmosRenderer()->updatingSafetyQueue.enqueue([=]() {
+            starNameText->updateText("Star: " + std::to_string(star.starId) + " " + name);
+        });
     });
 
-    galaxy->onClosestPlanetChange.add([&](CelestialBody body) {
-        auto name = galaxy->getCelestialBodyName(body.bodyId);
+    cosmosRenderer->galaxy->onClosestPlanetChange.add([&](CelestialBody body) {
+        auto name = cosmosRenderer->galaxy->getCelestialBodyName(body.bodyId);
         printf(("\n\n" + std::to_string(body.bodyId) + "CHANGE!!" + name + "!!\n\n").c_str());
         // if (name.length() > 0) name.at(0) = toupper(name.at(0));
-        planetNameText->updateText("Planet: " + name);
+        getCosmosRenderer()->updatingSafetyQueue.enqueue([=]() {
+            planetNameText->updateText("Planet: " + name);
+        });
     });
 
-    galaxy->onClosestMoonChange.add([&](CelestialBody body) {
-        auto name = galaxy->getCelestialBodyName(body.bodyId);
+    cosmosRenderer->galaxy->onClosestMoonChange.add([&](CelestialBody body) {
+        auto name = cosmosRenderer->galaxy->getCelestialBodyName(body.bodyId);
         // if (name.length() > 0) name.at(0) = toupper(name.at(0));
-        moonNameText->updateText("Moon: " + name);
+        getCosmosRenderer()->updatingSafetyQueue.enqueue([=]() {
+            moonNameText->updateText("Moon: " + name);
+        });
     });
 
     testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(center + glm::dvec3(0.0, dist * 3.0, -dist * 3.0));
@@ -164,9 +176,13 @@ void GameContainer::updateObjects()
     for (int i = 0; i < activeObjects.size(); i++) {
         auto physicsComponent = activeObjects[i]->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D);
         if (nullptr != physicsComponent) {
+            physicsComponent->setTimeScale(0.1 * 0.001);
             auto g = cosmosRenderer->galaxy->getGravity(physicsComponent->getPosition(), timeProvider->getTime());
-            physicsComponent->applyGravity(g);
+            //physicsComponent->applyGravity(g);
             gravityFluxText->updateText(std::to_string(glm::length(g)));
+            altitudeText->updateText("Altitude: " + std::to_string(getCosmosRenderer()->galaxy->getClosestPlanet().getAltitude(physicsComponent->getPosition(), timeProvider->getTime())));
+            auto relativeVel = getCosmosRenderer()->galaxy->getClosestPlanet().getRelativeLinearVelocity(physicsComponent->getLinearVelocity(), timeProvider->getTime());
+            velocityText->updateText("Relative velocity: " + std::to_string(glm::length(relativeVel)));
         }
         activeObjects[i]->update(nowtime - lastTime);
     }

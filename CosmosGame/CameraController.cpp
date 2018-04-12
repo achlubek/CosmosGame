@@ -7,7 +7,7 @@
 
 
 CameraController::CameraController()
-    : internalCamera(new Camera()), position(glm::dvec3(0.0)), activeViewStrategy(new CameraChaseStrategy())
+    : internalCamera(new Camera()), position(glm::dvec3(0.0)), activeViewStrategy(new CameraChaseStrategy(false))
 {
     auto resolution = GameContainer::getInstance()->getResolution();
     internalCamera->createProjectionPerspective(90.0f, resolution.x / resolution.y, 0.00001f, 600000.0f);

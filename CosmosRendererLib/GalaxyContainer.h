@@ -41,6 +41,6 @@ private:
     uint64_t lastStarId = 0;
     uint64_t lastPlanetId = 0;
     uint64_t lastMoonId = 0;
-    std::vector<std::string> bodiesNames;
+    std::vector<std::string> bodiesNames = {};
 };
 

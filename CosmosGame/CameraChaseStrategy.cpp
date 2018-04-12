@@ -7,7 +7,8 @@
 #include "Transformation3DComponent.h"
 
 
-CameraChaseStrategy::CameraChaseStrategy()
+CameraChaseStrategy::CameraChaseStrategy(bool iautomaticAlignEnabled)
+    : automaticAlignEnabled(iautomaticAlignEnabled)
 {
 }
 
@@ -44,7 +45,7 @@ void CameraChaseStrategy::update(double elapsed, CameraController * controller)
     if (roty < -PI * 2.0) roty = PI * 2.0;
     if (roty > PI * 2.0) roty = -PI * 2.0;
 
-    if (shouldKillRot) {
+    if (shouldKillRot && automaticAlignEnabled) {
         if (roty > 0.0) roty -= elapsed;
         else if (roty < 0.0) roty += elapsed;
         if (abs(roty) <= elapsed) roty = 0.0;

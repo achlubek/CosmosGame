@@ -28,11 +28,11 @@ public:
     uint64_t bodyId;
 
     glm::dvec3 getPosition(double at_time) {
-        double orbitLength = 2.0 * glm::pi<double>() * radius * 1000.0;
+        double orbitLength = 2.0 * glm::pi<double>() * hostDistance * 1000.0;
         double percentagePerSecond = orbitSpeed / orbitLength;
         glm::dvec3 orbitplaneTangent = glm::normalize(glm::cross(orbitPlane, glm::dvec3(0.0, 1.0, 0.0)));
         return host->getPosition(at_time)
-            + glm::dvec3(glm::angleAxis(percentagePerSecond * at_time * 2.0 * 3.14159265359, glm::dvec3(orbitPlane)) * glm::dvec3(orbitplaneTangent)) * hostDistance;
+            + glm::dvec3(glm::angleAxis(percentagePerSecond * at_time * 2.0 * 3.14159265359 * 0.0, glm::dvec3(orbitPlane)) * glm::dvec3(orbitplaneTangent)) * hostDistance;
     }
 
     glm::mat4 getRotationMatrix(double at_time) {

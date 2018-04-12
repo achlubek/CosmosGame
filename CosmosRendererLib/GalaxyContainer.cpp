@@ -123,12 +123,14 @@ void GalaxyContainer::update(glm::dvec3 observerPosition)
 
 std::string GalaxyContainer::getStarName(int id)
 {
+    printf("\nSize %d\n", bodiesNames.size());
     if (bodiesNames.size() < id) return "";
     return bodiesNames[id];
 }
 
 std::string GalaxyContainer::getCelestialBodyName(int id)
 {
+    printf("\nSize %d\n", bodiesNames.size());
     if (bodiesNames.size() < allStars.size() + id) return "";
     return bodiesNames[allStars.size() + id];
 }

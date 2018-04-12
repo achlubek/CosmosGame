@@ -80,7 +80,7 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
     star->x = static_cast<int64_t>(static_cast<double>(galaxyradius) * c.x);
     star->z = static_cast<int64_t>(static_cast<double>(galaxyradius) * c.y);
     star->y = static_cast<int64_t>((centerThickness) * (gauss1 * (drand2rn() * drand2rn() * drand2rn())));
-    star->radius = static_cast<double>(randu64(695700, 695700));
+    star->radius = static_cast<double>(randu64(69570, 69570));
     star->color = glm::vec3(0.5 + drandnorm() * drandnorm(), 0.5 + drandnorm() * drandnorm(), 0.5 + drandnorm() * drandnorm());
     star->age = drandnorm();
     star->spotsIntensity = drandnorm();
@@ -91,14 +91,14 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
     system->bodies = {};
     //double stardisthelper = 5800000;
     double arra[8] = { 
-        57910000,
-        108000000,
-        149600000,
-        228000000,
-        778000000,
-        1427000000,
-        2871000000,
-        4497000000 };
+        5791000,
+        10800000,
+        14960000,
+        22800000,
+        77800000,
+        142700000,
+        287100000,
+        449700000 };
 
     for (int i = 0; i < star->planetsCount; i++) {
         CelestialBody* planet = new CelestialBody();
@@ -107,12 +107,12 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
         planet->hostDistance = arra[i];
         // stardisthelper += randu64(4000000, 162600000);
 
-        uint64_t habitableStart = 100000000;// 1082000;
-        uint64_t habitableEnd = 258000000;// 3279000;
+        uint64_t habitableStart = 10000000;// 1082000;
+        uint64_t habitableEnd = 25800000;// 3279000;
         int moonsCount = 0;
         if (planet->hostDistance < habitableStart) {
             // Rocky and small ONLY
-            planet->radius = static_cast<double>(randu64(2440, 2440)); // ranges from mercury to roughly 2x mercury
+            planet->radius = static_cast<double>(randu64(244, 244)); // ranges from mercury to roughly 2x mercury
             moonsCount = static_cast<int>(randu64(1, 2));
             planet->atmosphereRadius = 0.0;
             planet->atmosphereAbsorbStrength = 0.0;
@@ -124,7 +124,7 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
         }
         else if (planet->hostDistance >= habitableStart && planet->hostDistance <= habitableEnd) {
             // earth like or venus/mars like
-            planet->radius = static_cast<double>(randu64(6371, 6371)); // ranges from mars to 1,5x earth
+            planet->radius = static_cast<double>(randu64(637.1, 637.1)); // ranges from mars to 1,5x earth
             moonsCount = randu64(1, 4);
             planet->atmosphereRadius = (planet->radius * 0.02);
             planet->terrainMaxLevel =  planet->radius * 0.02;

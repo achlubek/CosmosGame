@@ -65,6 +65,7 @@ vec3 thrustengine(vec3 rayorigin, vec3 raydir, vec3 position, vec3 direction, fl
 }
 Ray cameraRay;
 void main() {
-    outColor = vec4(texture(texAlbedo, vec2(UV.x, 1.0 - UV.y)).rgb, 1.0);
+    float dt = max(0.0, dot(normalize(inNormal), normalize(ClosestStarPosition - inWorldPos)));
+    outColor = vec4(dt * texture(texAlbedo, vec2(UV.x, 1.0 - UV.y)).rgb, 1.0);
 
 }
