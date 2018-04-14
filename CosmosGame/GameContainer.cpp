@@ -33,7 +33,7 @@ GameContainer::GameContainer()
 
     INIReader* configreader = new INIReader("settings.ini");
     vulkanToolkit = new VulkanToolkit();
-    vulkanToolkit->initialize(configreader->geti("window_width"), configreader->geti("window_height"), true, "Galaxy Game");
+    vulkanToolkit->initialize(configreader->geti("window_width"), configreader->geti("window_height"), false, "Galaxy Game");
 
     Mouse* mouse = new Mouse(vulkanToolkit->window);
     Keyboard* keyboard = new Keyboard(vulkanToolkit->window);
@@ -90,7 +90,7 @@ GameContainer::GameContainer()
     GeneratedStarInfo star = galaxy->getAllStars()[targetStar - 1];
     auto center = star.getPosition(0);
     auto dist = star.radius;
-    auto velocity = glm::vec3(0.0);
+    auto velocity = glm::dvec3(0.0);
     CelestialBody targetBody = CelestialBody();
     if (targetPlanet > 0) {
         galaxy->update(star.getPosition(0));
@@ -134,8 +134,8 @@ GameContainer::GameContainer()
         });
     });
 
-    testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(center + glm::dvec3(0.0, dist * 3.0, -dist * 3.0));
-    testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(velocity);
+    testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(center + glm::dvec3(0.0, dist * 1.03, 0.0));
+    testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(velocity + 1000.0 * targetBody.calculateOrbitVelocity(dist * 0.03) * glm::dvec3(1.0, 0.0, 0.0));
 
     activeObjects.push_back(testship);
     viewCamera->setTarget(activeObjects[0]);
@@ -172,22 +172,23 @@ void GameContainer::removeAllObjects()
 
 void GameContainer::updateObjects()
 {
+    double timescale = 1.0;
     double nowtime = glfwGetTime();
     for (int i = 0; i < activeObjects.size(); i++) {
         auto physicsComponent = activeObjects[i]->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D);
         if (nullptr != physicsComponent) {
-            physicsComponent->setTimeScale(0.1 * 0.001);
+            physicsComponent->setTimeScale(0.001);
             auto g = cosmosRenderer->galaxy->getGravity(physicsComponent->getPosition(), timeProvider->getTime());
-            //physicsComponent->applyGravity(g);
+            physicsComponent->applyGravity(g);
             gravityFluxText->updateText(std::to_string(glm::length(g)));
-            altitudeText->updateText("Altitude: " + std::to_string(getCosmosRenderer()->galaxy->getClosestPlanet().getAltitude(physicsComponent->getPosition(), timeProvider->getTime())));
+            altitudeText->updateText("Altitude KM: " + std::to_string(getCosmosRenderer()->galaxy->getClosestPlanet().getAltitude(physicsComponent->getPosition(), timeProvider->getTime())));
             auto relativeVel = getCosmosRenderer()->galaxy->getClosestPlanet().getRelativeLinearVelocity(physicsComponent->getLinearVelocity(), timeProvider->getTime());
-            velocityText->updateText("Relative velocity: " + std::to_string(glm::length(relativeVel)));
+            velocityText->updateText("Relative velocity M/S: " + std::to_string(1000.0 * glm::length(relativeVel)));
         }
-        activeObjects[i]->update(nowtime - lastTime);
+        activeObjects[i]->update((nowtime - lastTime) * timescale);
     }
     viewCamera->update(nowtime - lastTime);
-    timeProvider->update(nowtime - lastTime);
+    timeProvider->update((nowtime - lastTime) * timescale);
     lastTime = nowtime;
 }
 

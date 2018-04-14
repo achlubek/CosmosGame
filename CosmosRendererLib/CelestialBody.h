@@ -36,7 +36,7 @@ public:
     }
 
     glm::mat4 getRotationMatrix(double at_time) {
-        glm::quat rotationQuat = glm::angleAxis(rotationSpeed * at_time * 0.001, rotationPlane);
+        glm::quat rotationQuat = glm::angleAxis(rotationSpeed * at_time * 0.001 * 0.0, rotationPlane);
         return glm::mat4_cast(rotationQuat);
     }
 

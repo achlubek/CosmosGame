@@ -50,7 +50,7 @@ CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end
     float rayStarDt = dot(starDir, direction);
     float mieCoeff = exp(-3.1415 * 5.0 * (-rayStarDt * 0.5 + 0.5)) * mieMultiplier;
     float rayleightCoeff =  exp(-0.1415 * (-rayStarDt * 0.5 + 0.5));//(1.0 / (1.0 + 12.1 * (  1.0 - (rayStarDt ))));
-    float distmultiplier = distance(start, end);
+    float distmultiplier = distance(start, end) * 0.1;
     float dimmer = 1.0 / (1.0 + 10.0*distmultiplier);
     float absorbMultiplier = getAtmosphereAbsorptionMultiplier(pass.body);
     //float startShadow = getStarTerrainShadowAtPoint(pass.body, start);

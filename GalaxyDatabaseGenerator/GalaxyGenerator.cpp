@@ -112,7 +112,7 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
         int moonsCount = 0;
         if (planet->hostDistance < habitableStart) {
             // Rocky and small ONLY
-            planet->radius = static_cast<double>(randu64(244, 244)); // ranges from mercury to roughly 2x mercury
+            planet->radius = static_cast<double>(randu64(2440, 2440)); // ranges from mercury to roughly 2x mercury
             moonsCount = static_cast<int>(randu64(1, 2));
             planet->atmosphereRadius = 0.0;
             planet->atmosphereAbsorbStrength = 0.0;
@@ -124,7 +124,7 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
         }
         else if (planet->hostDistance >= habitableStart && planet->hostDistance <= habitableEnd) {
             // earth like or venus/mars like
-            planet->radius = static_cast<double>(randu64(637.1, 637.1)); // ranges from mars to 1,5x earth
+            planet->radius = static_cast<double>(randu64(6371.0, 6371.0)); // ranges from mars to 1,5x earth
             moonsCount = randu64(1, 4);
             planet->atmosphereRadius = (planet->radius * 0.02);
             planet->terrainMaxLevel =  planet->radius * 0.02;
@@ -157,7 +157,7 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
             float rand1 = drandnorm();
             if (rand1 < 0.8) {
                 // gaseous giant
-                planet->radius = randu64(2536.2, 6991.1); // ranges from uranus to jupiter
+                planet->radius = randu64(25360.2, 69910.1); // ranges from uranus to jupiter
                 moonsCount = randu64(5, 16);
                 planet->atmosphereRadius = (drandnorm() + 2.0) * (planet->radius * 0.1);
                 planet->atmosphereAbsorbStrength = 0.7 + 0.3 * drandnorm();
@@ -169,7 +169,7 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
             }
             else {
                 // rocky
-                planet->radius = randu64(244.0, 544.0); // ranges from mercury to roughly 2x mercury
+                planet->radius = randu64(2440.0, 5440.0); // ranges from mercury to roughly 2x mercury
                 moonsCount = randu64(1, 2);
                 planet->atmosphereRadius = 0.0;
                 planet->atmosphereAbsorbStrength = 0.0;

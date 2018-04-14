@@ -14,10 +14,10 @@ public:
         return glm::normalize(objectPos - at_point) * strength;*/
         auto objectPos = getPosition(at_time);
         double distance = glm::distance(at_point, objectPos);
-        double distanceGM = 0.001 * maxval(radius * 10.0, distance);
+        double distanceGM = 0.001 * maxval(radius, distance);
         double density = 5.513;
         double densityMultiplier = density / 5.513;
-        double radiusGM = radius * 0.001 * 10.0;
+        double radiusGM = radius * 0.001;
         double invradiusGM2 = 1.0 / (distanceGM * distanceGM);
         double volumeGM3 = radiusGM * radiusGM * radiusGM;
         double magicMultiplier = 1.53979;
@@ -27,19 +27,18 @@ public:
     double calculateOrbitVelocity(double distance) {
         distance += radius;
         auto acceleration = glm::length(getGravity(getPosition(0.0) + glm::dvec3(distance, 0.0, 0.0), 0.0));
-        double distanceGM = 0.001 * maxval(radius, distance) * 10.0;
-        printf("%f\n", distanceGM * acceleration);
-        return distanceGM * acceleration;
+        double distanceGM = 0.001 * maxval(radius, distance);
+        return glm::sqrt(distanceGM * acceleration);
     }
 
     double getAltitude(glm::dvec3 at_point, double at_time) {
         auto objectPos = getPosition(at_time);
-        return glm::distance(at_point, objectPos) - radius;
+        return (glm::distance(at_point, objectPos) - radius);
     }
 
 
     glm::dvec3 getRelativeLinearVelocity(glm::dvec3 velocity, double at_time) {
-        return velocity - getLinearVelocity(at_time);
+        return getLinearVelocity(at_time) - velocity;
     }
 
     virtual glm::dvec3 getLinearVelocity(double at_time) = 0;

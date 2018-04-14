@@ -65,16 +65,6 @@ size_t GalaxyContainer::getStarsCount()
 void GalaxyContainer::loadFromDatabase(SQLiteDatabase * db)
 {
 
-    ifstream file(Media::getPath("randomized_names.txt"));
-    if (file.is_open())
-    {
-        std::string line;
-        while (std::getline(file, line))
-        {
-            bodiesNames.push_back(line);
-        }
-    }
-
     database = db;
     allStars = {};
     auto starsdata = database->query("SELECT * FROM stars ORDER BY id ASC");
@@ -97,6 +87,21 @@ void GalaxyContainer::loadFromDatabase(SQLiteDatabase * db)
         star.orbitPlane.y = asdouble(starrow["orbit_plane_y"]);
         star.orbitPlane.z = asdouble(starrow["orbit_plane_z"]);
         allStars.push_back(star);
+    }
+
+    auto countbodydata = asint(database->query("SELECT count(*) FROM bodies")[0]["count(*)"]);
+    countbodydata += allStars.size();
+
+    ifstream file(Media::getPath("randomized_names.txt"));
+    int i = 0;
+    if (file.is_open())
+    {
+        std::string line;
+        while (std::getline(file, line) && i < countbodydata)
+        {
+            bodiesNames.push_back(line);
+            i++;
+        }
     }
 }
 
