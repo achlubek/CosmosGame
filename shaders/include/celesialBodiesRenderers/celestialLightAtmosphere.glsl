@@ -27,7 +27,7 @@ vec3 getAtmosphereAmbienceColorForPosition(RenderPass pass, vec3 pos){
 }
 
 float getAtmosphereAbsorptionMultiplier(RenderedCelestialBody body){
-    return body.radius * 11000.0;
+    return body.radius * 1100.0 * 0.05;
 }
 
 CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end, float mieMultiplier, bool highQuality){
@@ -50,7 +50,7 @@ CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end
     float rayStarDt = dot(starDir, direction);
     float mieCoeff = exp(-3.1415 * 5.0 * (-rayStarDt * 0.5 + 0.5)) * mieMultiplier;
     float rayleightCoeff =  exp(-0.1415 * (-rayStarDt * 0.5 + 0.5));//(1.0 / (1.0 + 12.1 * (  1.0 - (rayStarDt ))));
-    float distmultiplier = distance(start, end) * 0.1;
+    float distmultiplier = distance(start, end) * 0.01;
     float dimmer = 1.0 / (1.0 + 10.0*distmultiplier);
     float absorbMultiplier = getAtmosphereAbsorptionMultiplier(pass.body);
     //float startShadow = getStarTerrainShadowAtPoint(pass.body, start);
@@ -105,13 +105,13 @@ CelestialRenderResult getAtmosphereLightForRay(RenderPass pass, Ray ray, float m
 }
 
 vec3 getSunColorForRay(RenderedCelestialBody body, Ray ray){
-    float primaryLength = max(0.0, rsi2(ray, body.atmosphereSphere).y) * 0.1;
-    return clamp(ClosestStarColor - primaryLength * getAtmosphereAbsorptionMultiplier(body) * body.atmosphereAbsorbColor, vec3(0.0), ClosestStarColor);
+    float primaryLength = max(0.0, rsi2(ray, body.atmosphereSphere).y);
+    return clamp(ClosestStarColor - primaryLength * getAtmosphereAbsorptionMultiplier(body) * body.atmosphereAbsorbColor, vec3(0.0), ClosestStarColor) / (1.0 + primaryLength);
 }
 vec3 scatterLight(RenderedCelestialBody body, vec3 observer, vec3 point, vec3 light){
     float primaryLength = max(0.0, rsi2(Ray(point, normalize(observer - point)), body.atmosphereSphere).y);
-    primaryLength = min(primaryLength, distance(observer, point)) * 0.1;
-    return clamp(light - primaryLength * getAtmosphereAbsorptionMultiplier(body) * body.atmosphereAbsorbColor, vec3(0.0), light);
+    primaryLength = min(primaryLength, distance(observer, point));
+    return clamp(light - primaryLength * getAtmosphereAbsorptionMultiplier(body) * body.atmosphereAbsorbColor * 0.01, vec3(0.0), light) / (1.0 + primaryLength);
 }
 
 vec4 alphaMix(vec4 a, vec4 b){
@@ -120,7 +120,7 @@ vec4 alphaMix(vec4 a, vec4 b){
 }
 
 vec4 getHighClouds(RenderedCelestialBody body, vec3 position){
-    float shadow = getStarTerrainShadowAtPointNoClouds(body, position);
+    float shadow = 1.0;//getStarTerrainShadowAtPointNoClouds(body, position);
     float highClouds = clamp(celestialGetCloudsRaycast(body, position).r * 1.0, 0.0, 1.0);
     vec3 dirToStar = normalize(ClosestStarPosition - position);
     vec3 color = max(vec3(0.0), getSunColorForRay(body, Ray(position, dirToStar)));
@@ -191,7 +191,7 @@ vec3 renderWater(RenderPass pass, vec3 background, float depth){
     vec3 dirToStar = normalize(ClosestStarPosition - pass.waterHitPos);
     vec3 flatnormal = normalize(pass.waterHitPos - pass.body.position);
     float flatdt = max(-0.1, dot(flatnormal, dirToStar));
-    vec3 waternormal = celestialGetWaterNormalRaycast(pass.body,  0.000088 * sqrt(pass.waterHit), pass.waterHitPos);
+    vec3 waternormal = celestialGetWaterNormalRaycast(pass.body,  0.0000188 * sqrt(pass.waterHit), pass.waterHitPos);
 
     waternormal = normalize(waternormal);
     float flatdt2 = max(0.0, dot(flatnormal, dirToStar));

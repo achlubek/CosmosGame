@@ -250,7 +250,7 @@ void updatePassHits(inout RenderPass pass){
     if(hit_Water < 0.22 && hit_Water > 0.0){
         float hit_Water_Spherical = rsi2(pass.ray, pass.body.waterSphere).x;
         hit_Water = raymarchCelestialWater(pass.ray, hit_Water_Spherical, pass.body, 0.000001);
-        hit_Water = mix(hit_Water, hit_Water_Spherical, clamp(hit_Water_Spherical / 0.22, 0.0, 1.0)); //magic
+        hit_Water = mix(hit_Water, hit_Water_Spherical, clamp(hit_Water_Spherical / 2.22, 0.0, 1.0)); //magic
     }
     vec2 hits_Atmosphere = rsi2(pass.ray, pass.body.atmosphereSphere);
     if(hit_Surface > 0.0 && hit_Surface < DISTANCE_INFINITY) {

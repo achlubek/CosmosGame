@@ -36,7 +36,9 @@ public:
     }
 
     glm::mat4 getRotationMatrix(double at_time) {
-        glm::quat rotationQuat = glm::angleAxis(rotationSpeed * at_time * 0.001 * 0.0, rotationPlane);
+        //earth rotates 360/24 degree per hour which is = 15 degree
+        // seconds in hour 3600, rotation per hour in degree is 15 / 3600
+        glm::quat rotationQuat = glm::angleAxis(rotationSpeed * at_time * glm::radians(15.0f / 3600.0f) * 2.0, rotationPlane);
         return glm::mat4_cast(rotationQuat);
     }
 

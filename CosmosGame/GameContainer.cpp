@@ -84,9 +84,9 @@ GameContainer::GameContainer()
     //auto testspawnpos = cosmosRenderer->galaxy->getAllStars()[666].getPosition(0);
     //auto testspawnradius = cosmosRenderer->galaxy->getAllStars()[666].radius;
    //cosmosRenderer->galaxy->update(testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->getPosition());
-    int targetStar = 666;
-    int targetPlanet = 3;
-    int targetMoon = -1;
+    int targetStar = 1234;
+    int targetPlanet = 2;
+    int targetMoon = 1;
     GeneratedStarInfo star = galaxy->getAllStars()[targetStar - 1];
     auto center = star.getPosition(0);
     auto dist = star.radius;

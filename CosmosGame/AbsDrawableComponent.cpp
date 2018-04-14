@@ -29,7 +29,7 @@ void AbsDrawableComponent::draw(glm::dvec3 observerPosition, VulkanRenderStage* 
     auto pos = parentTransform->getPosition() - observerPosition;
     auto m3_rot = glm::mat3_cast(parentTransform->getOrientation());
 
-    auto modulepos = pos + m3_rot * relativePosition;
+    auto modulepos = pos + m3_rot * relativePosition * 0.001;
     auto moduleort = parentTransform->getOrientation() * relativeOrientation * glm::angleAxis((double)3.1415 * 0.5, glm::dvec3(1.0, 0.0, 0.0));
     model->draw(stage, set, modulepos, moduleort);
 }

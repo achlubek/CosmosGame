@@ -183,7 +183,7 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
 
         planet->orbitSpeed = 1000000.0 * drandnorm() / planet->hostDistance;
         planet->orbitPlane = glm::normalize(glm::vec3(drandnorm(), drandnorm(), drandnorm()) * 2.0f - 1.0f);
-        planet->rotationSpeed = drandnorm() * 100.0;
+        planet->rotationSpeed = drandnorm();
         planet->rotationPlane = glm::normalize(glm::dvec3((drandnorm() * 0.3f) * 2.0f - 1.0f, 1.0f, (drandnorm() * 0.3f) * 2.0f - 1.0f));
         system->bodies.push_back(planet);
         for (int g = 0; g < moonsCount; g++) {
@@ -212,7 +212,7 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
             moon->orbitPlane = glm::normalize(glm::vec3(drandnorm(), drandnorm(), drandnorm()) * 2.0f - 1.0f);
             moon->hostDistance = planet->radius * 5.0 * (((float)g) * 0.2 + 1.0);
             moon->orbitSpeed = 1000000.0 * drandnorm() / moon->hostDistance;
-            moon->rotationSpeed = drandnorm() * 100.0;
+            moon->rotationSpeed = drandnorm();
             moon->rotationPlane = glm::normalize(glm::dvec3((drandnorm() * 0.3f) * 2.0f - 1.0f, 1.0f, (drandnorm() * 0.3f) * 2.0f - 1.0f));
             system->bodies.push_back(moon);
         }
