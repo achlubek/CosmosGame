@@ -69,9 +69,9 @@ vec2 celestialGetCloudsRaycast(RenderedCelestialBody body, vec3 position){
 
 float getStarTerrainShadowAtPoint(RenderedCelestialBody body, vec3 point, float tolerance){
     Ray ray = Ray(point, normalize(ClosestStarPosition - point));
-    float waterSphereShadow = rsi2(ray, body.surfaceSphere).y;
+    float waterSphereShadow = rsi2(ray, body.waterSphere).x;
     float highCloudsHit = rsi2(ray, body.highCloudsSphere).y;
-    waterSphereShadow = pow(max(0.0, dot(normalize(point - body.position), normalize(ClosestStarPosition - point)) * 0.85 + 0.15), 0.1);
+    waterSphereShadow = hits(waterSphereShadow) ? 0.0 : 1.0;// smoothstep(-0.25, 0.0, dot(normalize(point - body.position), normalize(ClosestStarPosition - point)));
 
     vec3 opo = (body.fromHostToThisMatrix) * (point / ShadowMapDivisors1);
     opo.y *= -1.0;
@@ -102,7 +102,7 @@ float getStarTerrainShadowAtPoint(RenderedCelestialBody body, vec3 point, float 
         vec3 cloudsPos = ray.o + ray.d * highCloudsHit;
         cloudsShadow = 1.0 - celestialGetCloudsRaycast(body, cloudsPos).x;
     }
-    return surfaceShadow * cloudsShadow;//temouv.x < 0.5 ? depthTexture : (opo.z * 0.5 + 0.5);
+    return surfaceShadow;// * cloudsShadow;//temouv.x < 0.5 ? depthTexture : (opo.z * 0.5 + 0.5);
 }
 
 float getStarTerrainShadowAtPointNoClouds(RenderedCelestialBody body, vec3 point){
@@ -191,11 +191,11 @@ vec3 celestialGetNormalRaycast(RenderedCelestialBody body, float dxrange, vec3 p
 
 float getWaterHeightHiRes(RenderedCelestialBody body, vec3 dir){
     dir = body.rotationMatrix * dir;
-    return (body.radius + body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir *body.radius * 10.01, 24, 1.8, Time, 0.0)) * 0.0014;
+    return (body.radius + body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir *body.radius * 100.01, 15, 1.8, Time, 0.0)) * 0.0014;
 }
 float getWaterHeightLowRes(RenderedCelestialBody body, vec3 dir){
     dir = body.rotationMatrix * dir;
-    return (body.radius + body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir * body.radius * 10.01, 5, 1.8, Time, 0.0)) * 0.0014;
+    return (body.radius + body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir * body.radius * 100.01, 15, 1.8, Time, 0.0)) * 0.0014;
 }
 
 vec3 celestialGetWaterNormal(RenderedCelestialBody body, float dxrange, vec3 dir){
@@ -288,6 +288,11 @@ struct CelestialRenderResult
 CelestialRenderResult emptyAtmosphereResult = CelestialRenderResult(vec4(0.0), vec4(0.0));
 
 #ifndef SHADOW_MAP_COMPUTE_STAGE
+
+float fresnelCoefficent(vec3 surfaceDir, vec3 incomingDir, float baseReflectivity){
+    return (baseReflectivity + (1.0 - baseReflectivity) * (pow(1.0 - max(0.0, dot(surfaceDir, -incomingDir)), 5.0)));
+}
+
 
 #include celestialNoAtmosphere.glsl
 #include celestialLightAtmosphere.glsl

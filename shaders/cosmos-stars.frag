@@ -86,6 +86,6 @@ void main() {
     posradius.xyz -= CameraPosition;
     Ray cameraRay = Ray(CameraPosition, reconstructCameraSpaceDistance(gl_FragCoord.xy / Resolution, 1.0));
 
-    outColor = vec4(traceStarGlow(cameraRay) * (Exposure * 1000.0), 1.0);
+    outColor = vec4(traceStarGlow(cameraRay) * (Exposure * 100.0), 1.0);
 
 }

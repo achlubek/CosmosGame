@@ -29,6 +29,11 @@ CelestialBody GalaxyContainer::getClosestPlanet()
     return closestPlanet;
 }
 
+CelestialBody GalaxyContainer::getClosestMoon()
+{
+    return closestMoon;
+}
+
 std::vector<CelestialBody>& GalaxyContainer::getClosestStarPlanets()
 {
     return closestStarPlanets;

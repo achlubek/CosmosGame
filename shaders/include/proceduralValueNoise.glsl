@@ -190,10 +190,13 @@ float FBM3(vec3 p, int octaves, float dx, float ww){
     return a;
 }
 float aBitBetterNoise(vec4 x){
-    // this trick here works for all IQ noises, it makes cost 2x but makes it look a lot lot better
-    // it is not required of course
     float a = noise4d(x);
     float b = noise4d(x + .5);
+    return (a+b)*.5;
+}
+float aBitBetterNoise(vec3 x){
+    float a = noise3d(x);
+    float b = noise3d(x + .5);
     return (a+b)*.5;
 }
 #include rotmat3d.glsl

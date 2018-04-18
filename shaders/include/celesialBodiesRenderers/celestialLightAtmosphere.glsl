@@ -27,9 +27,14 @@ vec3 getAtmosphereAmbienceColorForPosition(RenderPass pass, vec3 pos){
 }
 
 float getAtmosphereAbsorptionMultiplier(RenderedCelestialBody body){
-    return body.radius * 1100.0 * 0.05;
+    return  body.radius * 0.0027;
 }
 
+vec3 scatterLight(RenderedCelestialBody body, vec3 observer, vec3 point, vec3 light){
+    float primaryLength = max(0.0, rsi2(Ray(point, normalize(observer - point)), body.atmosphereSphere).y);
+    primaryLength = min(primaryLength, distance(observer, point));
+    return max(light - (primaryLength * body.atmosphereAbsorbColor * 400.0) / getAtmosphereAbsorptionMultiplier(body), vec3(0.0));// / (1.0 + primaryLength);
+}
 CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end, float mieMultiplier, bool highQuality){
     //vec3 noonColor = (1.0 - pass.body.atmosphereAbsorbColor) * ClosestStarColor * 0.02;
     //vec3 sunsetColor = (pass.body.atmosphereAbsorbColor) * ClosestStarColor;
@@ -37,7 +42,8 @@ CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end
     float coverage = 0.0;
     vec3 alphacolor = vec3(0.0);
     vec3 color = vec3(0.0);
-    float stepsize = 1.0 / 10.0;
+    const int steps = 10;//int(oct(UV * 100 * Time) * 20.0) + 1;
+    float stepsize = 1.0 / steps;
     #ifdef SHADOW_MAP_COMPUTE_STAGE
     vec2 UV = vec2(0.0);
     #endif
@@ -46,15 +52,10 @@ CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end
     float atmoheight = pass.body.atmosphereHeight;
     vec3 starDir = normalize(ClosestStarPosition - start);
     vec3 direction = normalize(end - start);
-    float dt2 = dot(direction, starDir);
     float rayStarDt = dot(starDir, direction);
     float mieCoeff = exp(-3.1415 * 5.0 * (-rayStarDt * 0.5 + 0.5)) * mieMultiplier;
     float rayleightCoeff =  exp(-0.1415 * (-rayStarDt * 0.5 + 0.5));//(1.0 / (1.0 + 12.1 * (  1.0 - (rayStarDt ))));
-    float distmultiplier = distance(start, end) * 0.01;
-    float dimmer = 1.0 / (1.0 + 10.0*distmultiplier);
-    float absorbMultiplier = getAtmosphereAbsorptionMultiplier(pass.body);
-    //float startShadow = getStarTerrainShadowAtPoint(pass.body, start);
-    //float endShadow = getStarTerrainShadowAtPoint(pass.body, end);
+    float distmultiplier = distance(start, end);
     float shadowAccumulator = 0.0;
     if(highQuality){
         float stepsizeShadows = 1.0 / 17.0;
@@ -70,32 +71,31 @@ CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end
         //    float dt = 1.0 - (1.0 / (1.0 + 3.0 * max(0.0, dot(normal, starDir) * 0.8 + 0.2)));
         //    shadowAccumulator = dt;
     } else {
-        vec3 normal = normalize(start - pass.body.position);
-        float dt = 1.0 - (1.0 / (1.0 + 3.0 * max(0.0, dot(normal, starDir))));
-        shadowAccumulator = dt;
+        float stepsizeShadows = 1.0 / 17.0;
+        float iterShadows = stepsizeShadows * oct(start) ;
+        for(int i=0;i<17;i++){
+            Ray ray = Ray(mix(start, end, iterShadows), normalize(ClosestStarPosition - mix(start, end, iterShadows)));
+            float waterSphereShadow = rsi2(ray, pass.body.waterSphere).x;
+            float highCloudsHit = rsi2(ray, pass.body.highCloudsSphere).y;
+            shadowAccumulator += hits(waterSphereShadow) ? 0.0 : 1.0;
+            iterShadows += stepsizeShadows;
+        }
+        shadowAccumulator *= stepsizeShadows;
     }
-    vec3 rayEnergy = ClosestStarColor;
-    for(int i=0;i<10;i++){
+    vec3 rayEnergy = vec3(ClosestStarColor);
+    for(int i=0;i<steps;i++){
         vec3 pos = mix(start, end, iter);
         float cdst = distance(pos, pass.body.position) - radius;
         float heightmix = 1.0 - cdst / atmoheight;
-        vec3 rayleightScatteredLight = heightmix * pass.body.atmosphereAbsorbColor * rayEnergy * rayleightCoeff * distmultiplier * 1225.1 * stepsize;
-        vec3 mieScatteredLight       = heightmix * pass.body.atmosphereAbsorbColor * rayEnergy * mieCoeff       * distmultiplier * 525.1 * stepsize;
 
-        rayEnergy -= rayleightScatteredLight;
-        rayEnergy -= mieScatteredLight;
-
-        rayEnergy = max(vec3(0.0), rayEnergy);
-
-        //color += rayleightScatteredLight * (1.0 - coverage) * shadowAccumulator;//shadowAccumulator * rayleightCoeff * (1.0 - coverage) * (distmultiplier) * heightmix * visibleLight * 10.0;
-        color += (mieScatteredLight + rayleightScatteredLight) * (1.0 - coverage) * shadowAccumulator * distmultiplier;// * (pass.isSurfaceHit || pass.isWaterHit ? 0.0 : 1.0) * (1.0 - coverage);
-        /*float lowClouds = celestialGetCloudsRaycast(pass.body, pos).g * heightmix_middle;
-        alphacolor += lowClouds * (1.0 - coverage) * (1.0 - heightmix) * rayEnergy;
-        coverage += lowClouds * 0.25 * heightmix_middle;
-        coverage = clamp(coverage, 0.0, 1.0);*/
+        vec3 endSecondary = pos + starDir * rsi2(Ray(pos, starDir), pass.body.atmosphereSphere).y;
+        vec3 primaryColor = scatterLight(pass.body, pos, endSecondary, rayEnergy);
+        vec3 scattered = mieCoeff * pass.body.atmosphereAbsorbColor * primaryColor * 0.5;
+        scattered += rayleightCoeff * pass.body.atmosphereAbsorbColor * primaryColor * 0.5;
+        vec3 secondaryColor = scatterLight(pass.body, start, pos, scattered);
+        color += secondaryColor * shadowAccumulator * stepsize * distmultiplier * heightmix;
         iter += stepsize;
     }
-    color *= stepsize * dimmer;
     return CelestialRenderResult(vec4(color, 0.0), vec4(alphacolor, coverage));
 }
 
@@ -106,17 +106,11 @@ CelestialRenderResult getAtmosphereLightForRay(RenderPass pass, Ray ray, float m
 
 vec3 getSunColorForRay(RenderedCelestialBody body, Ray ray){
     float primaryLength = max(0.0, rsi2(ray, body.atmosphereSphere).y);
-    return clamp(ClosestStarColor - primaryLength * getAtmosphereAbsorptionMultiplier(body) * body.atmosphereAbsorbColor, vec3(0.0), ClosestStarColor) / (1.0 + primaryLength);
-}
-vec3 scatterLight(RenderedCelestialBody body, vec3 observer, vec3 point, vec3 light){
-    float primaryLength = max(0.0, rsi2(Ray(point, normalize(observer - point)), body.atmosphereSphere).y);
-    primaryLength = min(primaryLength, distance(observer, point));
-    return clamp(light - primaryLength * getAtmosphereAbsorptionMultiplier(body) * body.atmosphereAbsorbColor * 0.01, vec3(0.0), light) / (1.0 + primaryLength);
+    return scatterLight(body, ray.o, ray.o + ray.d * primaryLength, ClosestStarColor);// / (1.0 + primaryLength);
 }
 
 vec4 alphaMix(vec4 a, vec4 b){
-    a.rgb = mix(a.rgb, b.rgb, b.a);
-    return vec4(a.rgb, min(1.0, a.a + b.a));
+    return vec4(mix(a.rgb, b.rgb, b.a), min(1.0, a.a + b.a));
 }
 
 vec4 getHighClouds(RenderedCelestialBody body, vec3 position){
@@ -125,7 +119,7 @@ vec4 getHighClouds(RenderedCelestialBody body, vec3 position){
     vec3 dirToStar = normalize(ClosestStarPosition - position);
     vec3 color = max(vec3(0.0), getSunColorForRay(body, Ray(position, dirToStar)));
     //if(distance(vec3(0.0), body.position) < body.atmosphereRadius) color *= 0.5;
-    return vec4(shadow * color * 0.5, highClouds);
+    return vec4(shadow * color * 0.1, highClouds * 0.0);
 }
 CelestialRenderResult renderAtmosphere(RenderPass pass){
     float centerDistance = distance(pass.ray.o, pass.body.position);
@@ -166,6 +160,8 @@ CelestialRenderResult renderAtmosphere(RenderPass pass){
         }
         else if(hitcount == 2){
             result = renderAtmospherePath(pass, pass.ray.o, planetHit, 1.0, true);
+            vec4 hclouds = pass.isHighCloudsHit ? getHighClouds(pass.body, pass.highCloudsHitPos) : vec4(0.0);
+            result.alphaBlendedLight.rgba = alphaMix(result.alphaBlendedLight.rgba, hclouds);
         }
     } else {
         if(hitcount == 1){
@@ -183,21 +179,18 @@ CelestialRenderResult renderAtmosphere(RenderPass pass){
     return result;
 }
 
-float fresnelCoefficent(vec3 surfaceDir, vec3 incomingDir, float baseReflectivity){
-    return (baseReflectivity + (1.0 - baseReflectivity) * (pow(1.0 - max(0.0, dot(surfaceDir, -incomingDir)), 5.0)));
-}
-
 vec3 renderWater(RenderPass pass, vec3 background, float depth){
     vec3 dirToStar = normalize(ClosestStarPosition - pass.waterHitPos);
     vec3 flatnormal = normalize(pass.waterHitPos - pass.body.position);
     float flatdt = max(-0.1, dot(flatnormal, dirToStar));
-    vec3 waternormal = celestialGetWaterNormalRaycast(pass.body,  0.0000188 * sqrt(pass.waterHit), pass.waterHitPos);
+    vec3 waternormal = celestialGetWaterNormalRaycast(pass.body,  0.0000088 * sqrt(pass.waterHit), pass.waterHitPos);
+    float dtup = max(-0.1, dot(waternormal, flatnormal));
 
     waternormal = normalize(waternormal);
     float flatdt2 = max(0.0, dot(flatnormal, dirToStar));
     float roughness = mix(0.0, 1.0, clamp(1.0 - 1.0 / (1.0 + pass.waterHit * 50.0), 0.0, 1.0));
     float colormultiplier = 1.0 - roughness * roughness * 0.94;
-    float phongMult = mix(442.0, 8.0, roughness);
+    float phongMult = mix(442.0, 1.0, roughness);
     waternormal = mix(waternormal, flatnormal, roughness);
     float fresnel = fresnelCoefficent(waternormal, pass.ray.d, 0.04);
     vec3 reflected = normalize(reflect(pass.ray.d, waternormal));
@@ -205,8 +198,10 @@ vec3 renderWater(RenderPass pass, vec3 background, float depth){
     float refldt = max(0.0, dot(reflected, dirToStar));
     //vec3 result = fresnel * colormultiplier * 10.0 * vec3(0.0, 0.002, 0.006) * max(0.0, flatdt) + reflectedAtmo;
     vec3 result = fresnel * reflectedAtmo;// * (getStarTerrainShadowAtPoint(pass.body, pass.waterHitPos) * 0.7 + 0.3);
-    result += fresnel * colormultiplier * reflectedAtmo * pow(refldt, phongMult) * 10.0 * getStarTerrainShadowAtPoint(pass.body, pass.waterHitPos, 0.001);
+    result += fresnel * colormultiplier * getSunColorForRay(pass.body, Ray(pass.waterHitPos, reflected)) * pow(refldt, phongMult);
     result += (1.0 - fresnel) * (background / (depth*depth * 100000.0 + 1.0)) / (depth*depth * 100000.0 + 1.0);
+    result *= getStarTerrainShadowAtPoint(pass.body, pass.waterHitPos, 0.001);
+    result += getAtmosphereLightForRay(pass, Ray(pass.surfaceHitPos, waternormal), 0.0).additionLight.xyz * dtup * 0.1;
     return scatterLight(pass.body, pass.ray.o, pass.waterHitPos, result);
 }
 
@@ -238,8 +233,10 @@ CelestialRenderResult renderCelestialBodyLightAtmosphere(RenderPass pass){
         float waterAtDir = getWaterHeightHiRes(pass.body, realWaterDir);
         vec3 posSurface = pass.body.position + realSurfaceDir * heightAtDir;
         vec3 posWater = pass.body.position + realWaterDir * waterAtDir;
-        float realDistanceSurface = distance(pass.ray.o, posSurface);//pass.surfaceHit;//texture(surfaceRenderedDistanceImage, tempuv).r;//distance(pass.ray.o, posSurface);
-        float realDistanceWater = distance(pass.ray.o, posWater);//pass.waterHit;//texture(waterRenderedDistanceImage, tempuv).r;
+        //float realDistanceSurface = distance(pass.ray.o, posSurface);//pass.surfaceHit;//texture(surfaceRenderedDistanceImage, tempuv).r;//distance(pass.ray.o, posSurface);
+        //float realDistanceWater = distance(pass.ray.o, posWater);//pass.waterHit;//texture(waterRenderedDistanceImage, tempuv).r;
+        float realDistanceSurface = texture(surfaceRenderedDistanceImage, tempuv).r;//distance(pass.ray.o, posSurface);
+        float realDistanceWater = texture(waterRenderedDistanceImage, tempuv).r;
         vec3 shadowpos = vec3(0.0);
         if(realDistanceSurface > realDistanceWater){
             surface = renderWater(pass, color, abs(realDistanceSurface - realDistanceWater));// * getHighCloudsShadowAtPoint(pass.body, pass.waterHitPos);

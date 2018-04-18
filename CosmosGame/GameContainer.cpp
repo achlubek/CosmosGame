@@ -27,16 +27,16 @@ GameContainer::GameContainer()
 
     timeProvider = new TimeProvider();
 
-    auto galaxydb = new SQLiteDatabase("galaxy.db");
-    auto galaxy = new GalaxyContainer();
-    galaxy->loadFromDatabase(galaxydb);
-
     INIReader* configreader = new INIReader("settings.ini");
     vulkanToolkit = new VulkanToolkit();
     vulkanToolkit->initialize(configreader->geti("window_width"), configreader->geti("window_height"), false, "Galaxy Game");
 
     Mouse* mouse = new Mouse(vulkanToolkit->window);
     Keyboard* keyboard = new Keyboard(vulkanToolkit->window);
+
+    auto galaxydb = new SQLiteDatabase("galaxy.db");
+    auto galaxy = new GalaxyContainer();
+    galaxy->loadFromDatabase(galaxydb);
 
     ui = new UIRenderer(vulkanToolkit, mouse, vulkanToolkit->windowWidth, vulkanToolkit->windowHeight);
 
@@ -85,8 +85,8 @@ GameContainer::GameContainer()
     //auto testspawnradius = cosmosRenderer->galaxy->getAllStars()[666].radius;
    //cosmosRenderer->galaxy->update(testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->getPosition());
     int targetStar = 1234;
-    int targetPlanet = 2;
-    int targetMoon = 1;
+    int targetPlanet = 4;
+    int targetMoon = -1;
     GeneratedStarInfo star = galaxy->getAllStars()[targetStar - 1];
     auto center = star.getPosition(0);
     auto dist = star.radius;

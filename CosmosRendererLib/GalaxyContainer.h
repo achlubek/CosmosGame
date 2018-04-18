@@ -12,6 +12,7 @@ public:
     std::vector<GeneratedStarInfo>& getAllStars();
     GeneratedStarInfo getClosestStar();
     CelestialBody getClosestPlanet();
+    CelestialBody getClosestMoon();
     std::vector<CelestialBody>& getClosestStarPlanets();
     std::vector<CelestialBody>& getClosestPlanetMoons();
     glm::dvec3 getGravity(glm::dvec3 observerPosition, double atTime);
