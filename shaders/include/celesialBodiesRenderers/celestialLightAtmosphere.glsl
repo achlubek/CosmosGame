@@ -47,7 +47,7 @@ CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end
     #ifdef SHADOW_MAP_COMPUTE_STAGE
     vec2 UV = vec2(0.0);
     #endif
-    float iter = 0.0 + stepsize * fract(oct(UV * 100.0) + Time * 0.01);
+    float iter = 0.0;// + stepsize * fract(oct(UV * 100.0) + Time * 0.01);
     float radius = pass.body.radius;
     float atmoheight = pass.body.atmosphereHeight;
     vec3 starDir = normalize(ClosestStarPosition - start);
@@ -59,9 +59,9 @@ CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end
     float shadowAccumulator = 0.0;
     if(highQuality){
         float stepsizeShadows = 1.0 / 17.0;
-        float iterShadows = stepsizeShadows * fract(oct(UV * 100.0) + Time * 0.01) * 0.999 / (1.0 + max(0.0, distmultiplier * 0.1)) ;
+        float iterShadows = stepsizeShadows * oct(UV * Time);
         for(int i=0;i<17;i++){
-            Ray secondaryRay = Ray( mix(start, end, iterShadows), starDir);
+            //Ray secondaryRay = Ray( mix(start, end, iterShadows), starDir);
             //shadowAccumulator += 1.0 - step(0.0, rsi2(secondaryRay, pass.body.waterSphere).x);
             shadowAccumulator += getStarTerrainShadowAtPoint(pass.body, mix(start, end, iterShadows), 1.0);
             iterShadows += stepsizeShadows;
@@ -72,7 +72,7 @@ CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end
         //    shadowAccumulator = dt;
     } else {
         float stepsizeShadows = 1.0 / 17.0;
-        float iterShadows = stepsizeShadows * oct(start) ;
+        float iterShadows = stepsizeShadows * oct(start);
         for(int i=0;i<17;i++){
             Ray ray = Ray(mix(start, end, iterShadows), normalize(ClosestStarPosition - mix(start, end, iterShadows)));
             float waterSphereShadow = rsi2(ray, pass.body.waterSphere).x;
@@ -90,12 +90,13 @@ CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end
 
         vec3 endSecondary = pos + starDir * rsi2(Ray(pos, starDir), pass.body.atmosphereSphere).y;
         vec3 primaryColor = scatterLight(pass.body, pos, endSecondary, rayEnergy);
-        vec3 scattered = mieCoeff * pass.body.atmosphereAbsorbColor * primaryColor * 0.5;
-        scattered += rayleightCoeff * pass.body.atmosphereAbsorbColor * primaryColor * 0.5;
+        vec3 scattered = primaryColor * mieCoeff * 0.6 + primaryColor * pass.body.atmosphereAbsorbColor * rayleightCoeff * 0.4;
         vec3 secondaryColor = scatterLight(pass.body, start, pos, scattered);
-        color += secondaryColor * shadowAccumulator * stepsize * distmultiplier * heightmix;
+    //    rayEnergy -= max(vec3(0.0), rayEnergy - primaryColor);
+        color += secondaryColor * heightmix;
         iter += stepsize;
     }
+    color *= distmultiplier * stepsize * shadowAccumulator;
     return CelestialRenderResult(vec4(color, 0.0), vec4(alphacolor, coverage));
 }
 
@@ -201,7 +202,7 @@ vec3 renderWater(RenderPass pass, vec3 background, float depth){
     result += fresnel * colormultiplier * getSunColorForRay(pass.body, Ray(pass.waterHitPos, reflected)) * pow(refldt, phongMult);
     result += (1.0 - fresnel) * (background / (depth*depth * 100000.0 + 1.0)) / (depth*depth * 100000.0 + 1.0);
     result *= getStarTerrainShadowAtPoint(pass.body, pass.waterHitPos, 0.001);
-    result += getAtmosphereLightForRay(pass, Ray(pass.surfaceHitPos, waternormal), 0.0).additionLight.xyz * dtup * 0.1;
+    result += getAtmosphereLightForRay(pass, Ray(pass.surfaceHitPos, waternormal), 0.0).additionLight.xyz * dtup * 1.0;
     return scatterLight(pass.body, pass.ray.o, pass.waterHitPos, result);
 }
 
@@ -216,7 +217,6 @@ CelestialRenderResult renderCelestialBodyLightAtmosphere(RenderPass pass){
     color *= getSunColorForRay(pass.body, Ray(pass.surfaceHitPos, dirToStar));
     color *= dt;
     float roughness = 1.0;
-    //color *= 2.1;
     color *= getStarTerrainShadowAtPoint(pass.body, pass.surfaceHitPos, 1.0);
     color += getAtmosphereLightForRay(pass, Ray(pass.surfaceHitPos, normal), 0.0).additionLight.xyz * 1.0;
     color = scatterLight(pass.body, pass.ray.o, pass.surfaceHitPos, color);

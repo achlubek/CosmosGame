@@ -5,33 +5,7 @@
 #include "AssetLoader.h"
 #include "GameContainer.h"
 #include "CosmosRenderer.h"
-
-
-Model3d::Model3d(VulkanToolkit* ivulkan, VulkanDescriptorSetLayout* descriptorSetLayout, std::string mediakey)
-    : vulkan(ivulkan)
-{
-    INIReader reader = INIReader(mediakey);
-    AssetLoader assets = AssetLoader(vulkan);
-    info3d = assets.loadObject3dInfoFile(reader.gets("model"));
-    albedoImage = assets.loadTextureFile(reader.gets("albedo"));
-    normalImage = assets.loadTextureFile(reader.gets("normal"));
-    roughnessImage = assets.loadTextureFile(reader.gets("roughness"));
-    metalnessImage = assets.loadTextureFile(reader.gets("metalness"));
-    emissionIdleImage = assets.loadTextureFile(reader.gets("emission_idle"));
-    emissionPoweredImage = assets.loadTextureFile(reader.gets("emission_powered"));
-     
-    descriptorSet = descriptorSetLayout->generateDescriptorSet();
-    dataBuffer = new VulkanGenericBuffer(vulkan, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, sizeof(float) * 1024);
-    descriptorSet->bindStorageBuffer(0, dataBuffer);
-    descriptorSet->bindImageViewSampler(1, albedoImage);
-    descriptorSet->bindImageViewSampler(2, normalImage);
-    descriptorSet->bindImageViewSampler(3, roughnessImage);
-    descriptorSet->bindImageViewSampler(4, metalnessImage);
-    descriptorSet->bindImageViewSampler(5, emissionIdleImage);
-    descriptorSet->bindImageViewSampler(6, emissionPoweredImage);
-    descriptorSet->update();
-    orientationCorrection = glm::dquat(1.0, 0.0, 0.0, 0.0);
-}
+ 
 
 Model3d::Model3d(VulkanToolkit * vulkan, VulkanDescriptorSetLayout * descriptorSetLayout, std::string info3d_file, std::string albedo_image, 
     std::string normal_image, std::string roughness_image, std::string metalness_image, std::string emission_idle_image, std::string emission_powered_image,

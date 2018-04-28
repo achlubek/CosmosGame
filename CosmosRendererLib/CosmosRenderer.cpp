@@ -26,9 +26,9 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, TimeProvider* itimeProvid
         glm::vec3 v3 = glm::normalize(glm::vec3(splitMesh[i]->vbo[g], splitMesh[i]->vbo[g + 1], splitMesh[i]->vbo[g + 2]));
 
         glm::vec3 dir = glm::normalize((v1 + v2 + v3) / glm::vec3(3.0));
-        auto low = subdivide(subdivide(splitMesh[i]));
+        auto low = subdivide(splitMesh[i]);
         auto medium = subdivide(low);
-        auto high = subdivide(subdivide(medium));
+        auto high = subdivide(subdivide(subdivide(medium)));
         patchesLowPoly.push_back({ dir, low });
         patchesMediumPoly.push_back({ dir, medium });
         patchesHighPoly.push_back({ dir, high });
@@ -696,7 +696,7 @@ void CosmosRenderer::draw()
                   //  celestialBodySurfaceRenderStage->drawMesh(std::get<1>(patchesMediumPoly[g]), 1);
                 }
                 else {
-                    meshSequence.push_back(std::get<1>(patchesMediumPoly[g]));
+                    meshSequence.push_back(std::get<1>(patchesLowPoly[g]));
                   //  celestialBodySurfaceRenderStage->drawMesh(std::get<1>(patchesLowPoly[g]), 1);
                 }
             }
@@ -735,21 +735,12 @@ void CosmosRenderer::draw()
 
             celestialBodyWaterRenderStage->setSets({ rendererDataSet, renderables[i]->renderWaterSet });
 
-        //    if (centerdist > radius * 4.0) {
+            if (centerdist < radius * 3.0) {
                 celestialBodyWaterRenderStage->drawMesh(icosphereMedium, 1);
-            /*}
+            }
             else {
-                for (int g = 0; g < patchesLowPoly.size(); g++) {
-                    glm::dvec3 position1 = (rotmat * glm::dvec3(std::get<0>(patchesLowPoly[g]))) * radius + position;
-                    double dist = glm::distance(observerCameraPosition, position1);
-                    if (dist < radius * 0.5) {
-                        celestialBodyWaterRenderStage->drawMesh(std::get<1>(patchesMediumPoly[g]), 1);
-                    } 
-                    else {
-                        celestialBodyWaterRenderStage->drawMesh(std::get<1>(patchesLowPoly[g]), 1);
-                    }
-                }
-            }*/
+                celestialBodyWaterRenderStage->drawMesh(icosphereLow, 1);
+            }
 
             //renderables[i]->drawWater(celestialBodyWaterRenderStage, rendererDataSet, i == (renderables.size() - 1) ? icosphereMedium : icosphereLow);
 

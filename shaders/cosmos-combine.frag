@@ -43,6 +43,10 @@ vec3 gammacorrect(vec3 c){
     return pow(c, vec3(1.0 / 2.4));
 }
 
+vec3 afl_tonemap(vec3 c){
+    return gammacorrect(normalize(c) * 0.1 * pow(length(c), 0.7));
+}
+
 vec2 project(vec3 pos){
     vec4 tmp = (hiFreq.VPMatrix * vec4(pos, 1.0));
     return (tmp.xy / tmp.w) * 0.5 + 0.5;
@@ -74,5 +78,5 @@ void main() {
     vec4 shipdata = texture(texShip, UV).rgba;
     a = mix(a, shipdata.rgb, shipdata.a);
     a = mix(a, ui.rgb, ui.a);
-    outColor = vec4(gammacorrect(clamp(a, 0.0, 10000.0)), 1.0);
+    outColor = vec4(afl_tonemap(clamp(a, 0.0, 10000.0)), 1.0);
 }
