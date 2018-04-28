@@ -175,7 +175,7 @@ vec3 optimizedWaveSources[32] = vec3[](
     vec3(250.0, 640.0, 30.0)
     );
 
-float getwavesHighPhase(vec3 position, int iterations, float dragmult, float timeshift, float seed){
+float getwavesHighPhase2(vec3 position, int iterations, float dragmult, float timeshift, float seed){
     timeshift *= 1000.0;
     float seedWaves = seed;
     float phase = 6.0;
@@ -184,14 +184,41 @@ float getwavesHighPhase(vec3 position, int iterations, float dragmult, float tim
     float w = 0.0;
     float ws = 0.0;
     for(int i=0;i<iterations;i++){
-        vec3 p = (vec3(oct(seedWaves += 1.0), oct(seedWaves += 1.0), oct(seedWaves += 1.0)) * 2.0 - 1.0) * 800.0;
+        vec3 p = (vec3(oct(seedWaves += 1.0), oct(seedWaves += 1.0), oct(seedWaves += 1.0)) * 2.0 - 1.0) * 1800.0;
         vec2 res = wavedx(vec3(0.0), p - position, speed, phase * 10.0, timeshift);
         position -= normalize(position - p) * weight * (res.y) * 0.0048;
         w += res.x * weight;
         ws += weight;
         weight = mix(weight, 0.0, 0.2);
-        phase *= 1.2;
+        phase *= 1.13;
         speed *= 1.02;
+    }
+    return w / ws;
+}
+
+float wavetada(vec3 position, vec3 direction, float speed, float frequency, float timeshift) {
+    return exp(sin(dot(direction, position) * frequency + timeshift * speed * frequency) - 1.0);
+}
+
+
+float getwavesHighPhase(vec3 position, int iterations, float dragmult, float timeshift, float seed){
+    timeshift *= 1000.0;
+    float seedWaves = seed;
+    float phase = 6.0;
+    float speed = 9.0;
+    float weight = 1.0;
+    float w = 0.0;
+    float ws = 0.0;
+    for(int i=0;i<iterations;i++){
+        vec3 p = normalize(vec3(oct(seedWaves += 1.0), oct(seedWaves += 1.0), oct(seedWaves += 1.0)) * 2.0 - 1.0);
+        float res = wavetada(position, p, speed, phase * 1.0, timeshift * 0.05);
+        float res2 = wavetada(position, p, speed, phase * 1.0, timeshift * 0.05 + 0.006);
+        position -= normalize(position - p) * weight * pow(res - res2, 2.0) * 2.48;
+        w += res * weight;
+        ws += weight;
+        weight *= 0.66;//mix(weight, 0.0, 0.2);
+        phase *= 1.6;
+        speed *= 0.68;
     }
     return w / ws;
 }
