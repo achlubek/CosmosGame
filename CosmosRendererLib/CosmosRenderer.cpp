@@ -2,6 +2,7 @@
 #include "CosmosRenderer.h"
 #include "SceneProvider.h"
 #include "GalaxyContainer.h"
+#include "AbsGameContainer.h"
 #include "TimeProvider.h"
 #include "stdafx.h"
 #include "vulkan.h"
@@ -142,15 +143,6 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, TimeProvider* itimeProvid
     starsDataSet->bindStorageBuffer(0, starsDataBuffer);
     starsDataSet->update();
 
-    modelMRTLayout = new VulkanDescriptorSetLayout(vulkan);
-    modelMRTLayout->addField(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
-    modelMRTLayout->addField(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    modelMRTLayout->addField(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    modelMRTLayout->addField(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    modelMRTLayout->addField(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    modelMRTLayout->addField(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    modelMRTLayout->addField(6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    modelMRTLayout->compile();
 
 
     combineLayout = new VulkanDescriptorSetLayout(vulkan);
@@ -395,7 +387,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     modelsStage->addShaderStage(shipvert->createShaderStage(VK_SHADER_STAGE_VERTEX_BIT, "main"));
     modelsStage->addShaderStage(shipfrag->createShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT, "main"));
     modelsStage->addDescriptorSetLayout(rendererDataLayout->layout);
-    modelsStage->addDescriptorSetLayout(modelMRTLayout->layout);
+    modelsStage->addDescriptorSetLayout(AbsGameContainer::getInstance()->getModelMRTLayout()->layout);
     modelsStage->addOutputImage(modelsResultImage);
     modelsStage->addOutputImage(modelsDepthImage);
     modelsStage->cullFlags = 0;

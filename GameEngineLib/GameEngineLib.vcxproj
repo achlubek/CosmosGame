@@ -92,6 +92,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\Code\SFML-2.4.2\include\;C:\Code\glfw-3.2.1\include;C:\VulkanSDK\1.1.70.1\Include\vulkan;C:\Code\VEngineNative\VESound;C:\Code\glm-0.9.9-a1;C:\Code\VEngineNative\VECommon;C:\Code\VEngineNative\VEInput;C:\Code\VEngineNative\VERenderer;C:\Code\VEngineNative\VEUserInterface;C:\Code\VEngineNative\VEMultiplayer;C:\Code\VEngineNative\VEngineNative;C:\Code\VEngineNative\VESQLite3Wrapper</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -147,16 +148,47 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AbsCameraViewStrategy.h" />
+    <ClInclude Include="AbsComponent.h" />
+    <ClInclude Include="AbsDrawableComponent.h" />
+    <ClInclude Include="AbsGameContainer.h" />
+    <ClInclude Include="CameraChaseStrategy.h" />
+    <ClInclude Include="CameraController.h" />
+    <ClInclude Include="CameraOrbitStrategy.h" />
+    <ClInclude Include="CommandTerminal.h" />
+    <ClInclude Include="ComponentTypes.h" />
+    <ClInclude Include="GameControls.h" />
+    <ClInclude Include="GameObject.h" />
+    <ClInclude Include="Model3d.h" />
+    <ClInclude Include="Model3dFactory.h" />
+    <ClInclude Include="SceneProvider.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TimeProvider.h" />
+    <ClInclude Include="Transformation3DComponent.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AbsCameraViewStrategy.cpp" />
+    <ClCompile Include="AbsComponent.cpp" />
+    <ClCompile Include="AbsDrawableComponent.cpp" />
+    <ClCompile Include="AbsGameContainer.cpp" />
+    <ClCompile Include="CameraChaseStrategy.cpp" />
+    <ClCompile Include="CameraController.cpp" />
+    <ClCompile Include="CameraOrbitStrategy.cpp" />
+    <ClCompile Include="CommandTerminal.cpp" />
+    <ClCompile Include="GameControls.cpp" />
+    <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="Model3d.cpp" />
+    <ClCompile Include="Model3dFactory.cpp" />
+    <ClCompile Include="SceneProvider.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TimeProvider.cpp" />
+    <ClCompile Include="Transformation3DComponent.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

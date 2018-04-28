@@ -50,7 +50,6 @@ public:
     VulkanDescriptorSet* combineSet{ nullptr };
 
 
-    VulkanDescriptorSetLayout* modelMRTLayout{ nullptr };
 
     VulkanDescriptorSetLayout* celestialBodyDataSetLayout{ nullptr };
     VulkanDescriptorSetLayout* celestialBodyRenderSetLayout{ nullptr };

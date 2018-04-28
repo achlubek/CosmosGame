@@ -92,7 +92,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Code\glm-0.9.9-a1;C:\Code\VEngineNative\VESQLite3Wrapper;C:\VulkanSDK\1.1.70.1\Include\vulkan;C:\Code\glfw-3.2.1\include;C:\Code\VEngineNative\VEngineNative;C:\Code\VEngineNative\VERenderer;C:\Code\VEngineNative\VECommon;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Code\glm-0.9.9-a1;C:\Code\VEngineNative\VESQLite3Wrapper;C:\VulkanSDK\1.1.70.1\Include\vulkan;C:\Code\glfw-3.2.1\include;C:\Code\VEngineNative\VEngineNative;C:\Code\VEngineNative\VERenderer;C:\Code\VEngineNative\VECommon;C:\Code\CosmosGame\GameEngineLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -155,10 +155,8 @@
     <ClInclude Include="GeneratedStarInfo.h" />
     <ClInclude Include="InvokeQueue.h" />
     <ClInclude Include="RenderedCelestialBody.h" />
-    <ClInclude Include="SceneProvider.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="TimeProvider.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AbsCelestialObject.cpp" />
@@ -168,14 +166,12 @@
     <ClCompile Include="GeneratedStarInfo.cpp" />
     <ClCompile Include="InvokeQueue.cpp" />
     <ClCompile Include="RenderedCelestialBody.cpp" />
-    <ClCompile Include="SceneProvider.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="TimeProvider.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
