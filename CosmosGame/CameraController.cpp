@@ -10,7 +10,7 @@ CameraController::CameraController()
     : internalCamera(new Camera()), position(glm::dvec3(0.0)), activeViewStrategy(new CameraChaseStrategy(false))
 {
     auto resolution = GameContainer::getInstance()->getResolution();
-    internalCamera->createProjectionPerspective(90.0f, resolution.x / resolution.y, 0.00001f, 600000.0f);
+    internalCamera->createProjectionPerspective(90.0f, resolution.x / resolution.y, 0.0001f, 600.0f);
 }
 
 
@@ -26,7 +26,7 @@ float CameraController::getFov()
 void CameraController::setFov(float fov)
 {
     auto resolution = GameContainer::getInstance()->getResolution();
-    internalCamera->createProjectionPerspective(fov, resolution.x / resolution.y, 0.00001f, 600000.0f);
+    internalCamera->createProjectionPerspective(fov, resolution.x / resolution.y, 0.0001f, 600.0f);
 }
 
 GameObject * CameraController::getTarget()

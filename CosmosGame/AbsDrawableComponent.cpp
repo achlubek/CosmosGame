@@ -46,3 +46,23 @@ AbsDrawableComponent * AbsDrawableComponent::clone()
 { 
     return new AbsDrawableComponent(getType(), model, relativePosition, relativeOrientation);
 }
+
+void AbsDrawableComponent::setRelativePosition(glm::dvec3 irelativePosition)
+{
+    relativePosition = irelativePosition;
+}
+
+glm::dvec3 AbsDrawableComponent::getRelativePosition()
+{
+    return relativePosition;
+}
+
+void AbsDrawableComponent::setRelativeOrientation(glm::dquat irelativeOrientation)
+{
+    relativeOrientation = irelativeOrientation;
+}
+
+glm::dquat AbsDrawableComponent::getRelativeOrientation()
+{
+    return relativeOrientation;
+}

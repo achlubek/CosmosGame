@@ -6,6 +6,8 @@ class GalaxyGenerator;
 class CosmosRenderer;
 class GameControls; 
 class SQLiteDatabase;
+class Model3dFactory;
+class ModuleFactory;
 class ShipFactory;
 class GameObject;
 class CameraController;
@@ -40,6 +42,8 @@ private:
     UIRenderer* ui;
     GameControls* gameControls; 
     SQLiteDatabase* database;
+    Model3dFactory* model3dFactory;
+    ModuleFactory* moduleFactory;
     ShipFactory* shipFactory;
     std::vector<GameObject*> activeObjects;
     CameraController* viewCamera;

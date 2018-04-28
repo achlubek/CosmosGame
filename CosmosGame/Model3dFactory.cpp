@@ -24,13 +24,13 @@ glm::dquat axes_vec3toquat(glm::dvec3 rot) {
 Model3d* Model3dFactory::build(std::string mediakey)
 {
     INIReader reader = INIReader(mediakey);
-    auto info3d = reader.gets("model");
-    auto albedoImage = reader.gets("albedo");
-    auto normalImage = reader.gets("normal");
-    auto roughnessImage = reader.gets("roughness");
-    auto metalnessImage = reader.gets("metalness");
-    auto emissionIdleImage = reader.gets("emission_idle");
-    auto emissionPoweredImage = reader.gets("emission_powered");
+    auto info3d = reader.gets("info3d_file");
+    auto albedoImage = reader.gets("albedo_image");
+    auto normalImage = reader.gets("normal_image");
+    auto roughnessImage = reader.gets("roughness_image");
+    auto metalnessImage = reader.gets("metalness_image");
+    auto emissionIdleImage = reader.gets("emission_idle_image");
+    auto emissionPoweredImage = reader.gets("emission_powered_image");
 
     auto vulkan = GameContainer::getInstance()->getVulkanToolkit();
     auto modeldset = GameContainer::getInstance()->getCosmosRenderer()->modelMRTLayout;

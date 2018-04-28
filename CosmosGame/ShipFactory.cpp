@@ -11,9 +11,12 @@
 #include "ThrustControllerComponent.h"
 #include "ShipManualControlsComponent.h"
 #include "BatteryComponent.h"
+#include "Model3dFactory.h"
+#include "ModuleFactory.h"
 
 
-ShipFactory::ShipFactory()
+ShipFactory::ShipFactory(Model3dFactory* imodel3dFactory, ModuleFactory* imoduleFactory)
+    : model3dFactory(imodel3dFactory), moduleFactory(imoduleFactory)
 {
 }
 
@@ -21,10 +24,6 @@ ShipFactory::ShipFactory()
 ShipFactory::~ShipFactory()
 {
 }
-
-#define asstring(a) std::to_string(a)
-#define asdouble(a) std::stod(a)
-#define asint(a) std::stoi(a)
 
 glm::dquat vec3toquat(glm::dvec3 dir, double angle = 0) {
 
@@ -42,72 +41,52 @@ glm::dquat vec3toquat(glm::dvec3 dir, double angle = 0) {
     glm::dmat3 m = glm::dmat3(cr1, cr2, dir);
     return glm::angleAxis(angle, dir) * glm::quat_cast(m);
 }
-glm::dquat axes_vec3toquat2(glm::dvec3 rot ) {
-    glm::mat3 xrot = glm::mat3_cast(glm::angleAxis(deg2rad(rot.x), glm::dvec3(1.0, 0.0, 0.0)));
-    glm::mat3 zrot = glm::mat3_cast(glm::angleAxis(deg2rad(rot.y), glm::dvec3(0.0, 1.0, 0.0)));
-    glm::mat3 yrot = glm::mat3_cast(glm::angleAxis(deg2rad(rot.z), glm::dvec3(0.0, 0.0, 1.0)));
-    return glm::dquat(xrot * yrot * zrot);
-}
 
-Model3d * readModel3d(int id)
+GameObject * ShipFactory::build(std::string mediakey)
 {
-    auto db = GameContainer::getInstance()->getDatabase();
-    auto model3d_data = db->query("SELECT * FROM models3d WHERE id = " + asstring(id))[0];
-    // TODO this smells a lot
-    auto vulkan = GameContainer::getInstance()->getVulkanToolkit();
-    auto modeldset = GameContainer::getInstance()->getCosmosRenderer()->modelMRTLayout;
-    glm::dquat correction = axes_vec3toquat2(glm::dvec3(asdouble(model3d_data["rotx"]), asdouble(model3d_data["roty"]), asdouble(model3d_data["rotz"])));
-    auto model3d = new Model3d(vulkan, modeldset, model3d_data["info3d_file"], model3d_data["albedo_image"], model3d_data["normal_image"],
-        model3d_data["roughness_image"], model3d_data["metalness_image"], model3d_data["emission_idle_image"], model3d_data["emission_powered_image"], correction);
-    return model3d;
-}
-
-
-#define MODULE_TYPE_HYPERDRIVE 1
-#define MODULE_TYPE_ENGINE 2
-
-GameObject * ShipFactory::build(int id)
-{
-    auto db = GameContainer::getInstance()->getDatabase();
+    INIReader reader = INIReader(mediakey);
     GameObject* ship = new GameObject();
 
-
-    auto ship_data = db->query("SELECT * FROM ships WHERE id = " + asstring(id))[0];
-    auto ship_modules = db->query("SELECT * FROM ships_modules WHERE shipid = " + asstring(id));
-    auto ship_unicontrol_map = db->query("SELECT * FROM ship_modules_united_controls_map");
-    std::unordered_map<string, int> functionalityMap = {};
-
-    for (int i = 0; i < ship_unicontrol_map.size(); i++) {
-        auto link = ship_unicontrol_map[i];
-        int func = asint(link["functionality"]);
-        std::string name = link["module_link_name"];
-        functionalityMap[name] = func;
-    }
-
-    auto model3d = readModel3d(asint(ship_data["modelid"]));
+    auto model3d = model3dFactory->build(reader.gets("model3d"));
 
     auto drawableComponent = new AbsDrawableComponent(model3d, glm::dvec3(0.0), glm::dquat(1.0, 0.0, 0.0, 0.0));
-    auto transformComponent = new Transformation3DComponent(asdouble(ship_data["mass"]), glm::dvec3(0.0));
+    auto transformComponent = new Transformation3DComponent(reader.getf("mass"), glm::dvec3(0.0));
     ship->addComponent(drawableComponent);
     ship->addComponent(transformComponent);
 
+    std::unordered_map<string, int> functionalityMap = {};
+    functionalityMap["forward"] = 0;
+    functionalityMap["backward"] = 1;
+    functionalityMap["left"] = 2;
+    functionalityMap["right"] = 3;
+    functionalityMap["up"] = 4;
+    functionalityMap["down"] = 5;
+    functionalityMap["pitch_up"] = 6;
+    functionalityMap["pitch_down"] = 7;
+    functionalityMap["roll_left"] = 8;
+    functionalityMap["roll_right"] = 9;
+    functionalityMap["yaw_left"] = 10;
+    functionalityMap["yaw_right"] = 11;
+
     ship->addComponent(new BatteryComponent(100000, 100000));
-    
-    for (int i = 0; i < ship_modules.size(); i++) {
-        auto mod = ship_modules[i];
-        glm::dvec3 pos = glm::dvec3(asdouble(mod["posx"]), asdouble(mod["posy"]), asdouble(mod["posz"]));
-        glm::dquat rot = vec3toquat(glm::dvec3(asdouble(mod["dirx"]), asdouble(mod["diry"]), asdouble(mod["dirz"])), asdouble(mod["dirrot"]));
-        auto mod_data = db->query("SELECT * FROM modules WHERE id = " + mod["moduleid"])[0];
-        auto module_model3d = readModel3d(asint(mod_data["modelid"]));
-        if (asint(mod_data["typeid"]) == MODULE_TYPE_ENGINE) {
-            auto engine_data = db->query("SELECT * FROM engines WHERE moduleid = " + mod_data["id"])[0];
-            auto thrustgencomponent = new ThrustGeneratorComponent(module_model3d, pos, rot, asdouble(engine_data["power"]), asdouble(mod_data["wattage"]));
-            thrustgencomponent->functionalityGroup = static_cast<ThrustGroup>(functionalityMap[mod["link_name"]]);
-            ship->addComponent(thrustgencomponent);
+
+    int modulesCount = reader.geti("modules_count");
+
+    for (int i = 0; i < modulesCount; i++) {
+        std::string prefix = "module_" + std::to_string(i) + ".";
+        auto component = moduleFactory->build(reader.gets(prefix + "module"));
+        if (component->isDrawable()) {
+            auto drawable = static_cast<AbsDrawableComponent*>(component);
+            drawable->setRelativePosition(reader.getv3(prefix + "pos"));
+            drawable->setRelativeOrientation(vec3toquat(reader.getv3(prefix + "rot"), reader.getf(prefix + "dirrot")));
         }
+        if (component->getType() == ComponentTypes::ThrustGenerator) {
+            static_cast<ThrustGeneratorComponent*>(component)->functionalityGroup = static_cast<ThrustGroup>(functionalityMap[reader.gets(prefix + "link_name")]);
+        }
+        ship->addComponent(component);
     }
     ship->addComponent(new ThrustControllerComponent());
     ship->addComponent(new ShipManualControlsComponent());
-    
+
     return ship;
 }

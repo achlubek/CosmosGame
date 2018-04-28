@@ -12,11 +12,14 @@ public:
     virtual void update(double elapsed) override;
     virtual void loadFromFile(std::string mediakey) override;
     virtual AbsDrawableComponent * clone() override;
+
+    void setRelativePosition(glm::dvec3 relativePosition);
+    glm::dvec3 getRelativePosition();
+    void setRelativeOrientation(glm::dquat relativeOrientation);
+    glm::dquat getRelativeOrientation();
 protected:
     glm::dvec3 relativePosition;
     glm::dquat relativeOrientation;
     Model3d* model;
-
-    // Odziedziczono za poœrednictwem elementu AbsComponent
 };
 

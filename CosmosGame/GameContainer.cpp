@@ -6,6 +6,8 @@
 #include "AssetLoader.h"
 #include "GameControls.h" 
 #include "SQLiteDatabase.h"
+#include "Model3dFactory.h"
+#include "ModuleFactory.h"
 #include "ShipFactory.h"
 #include "GameObject.h"
 #include "AbsComponent.h"
@@ -74,13 +76,15 @@ GameContainer::GameContainer()
 
     database = new SQLiteDatabase(Media::getPath("gamedata.db"));
 
-    shipFactory = new ShipFactory();
+    model3dFactory = new Model3dFactory();
+    moduleFactory = new ModuleFactory(model3dFactory);
+    shipFactory = new ShipFactory(model3dFactory, moduleFactory);
 
     // fuck it for now
     viewCamera = new CameraController();
 
     // a test
-    auto testship = shipFactory->build(1);
+    auto testship = shipFactory->build("Generix Explorer 1.ship_blueprint.ini");
     //auto testspawnpos = cosmosRenderer->galaxy->getAllStars()[666].getPosition(0);
     //auto testspawnradius = cosmosRenderer->galaxy->getAllStars()[666].radius;
    //cosmosRenderer->galaxy->update(testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->getPosition());

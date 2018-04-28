@@ -202,17 +202,16 @@ float wavetada(vec3 position, vec3 direction, float speed, float frequency, floa
 
 
 float getwavesHighPhase(vec3 position, int iterations, float dragmult, float timeshift, float seed){
-    timeshift *= 1000.0;
     float seedWaves = seed;
     float phase = 6.0;
-    float speed = 9.0;
+    float speed = 2.0;
     float weight = 1.0;
     float w = 0.0;
     float ws = 0.0;
     for(int i=0;i<iterations;i++){
         vec3 p = normalize(vec3(oct(seedWaves += 1.0), oct(seedWaves += 1.0), oct(seedWaves += 1.0)) * 2.0 - 1.0);
-        float res = wavetada(position, p, speed, phase * 1.0, timeshift * 0.05);
-        float res2 = wavetada(position, p, speed, phase * 1.0, timeshift * 0.05 + 0.006);
+        float res = wavetada(position, p, speed, phase * 1.0, timeshift * 0.5);
+        float res2 = wavetada(position, p, speed, phase * 1.0, timeshift * 0.5 + 0.0006);
         position -= normalize(position - p) * weight * pow(res - res2, 2.0) * 2.48;
         w += res * weight;
         ws += weight;
