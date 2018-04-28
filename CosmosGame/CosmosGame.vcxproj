@@ -151,6 +151,7 @@
     <ClInclude Include="GameControls.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Model3d.h" />
+    <ClInclude Include="Model3dFactory.h" />
     <ClInclude Include="ShipFactory.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -174,6 +175,7 @@
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Model3d.cpp" />
+    <ClCompile Include="Model3dFactory.cpp" />
     <ClCompile Include="ShipFactory.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>

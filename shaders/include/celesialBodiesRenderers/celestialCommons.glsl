@@ -78,19 +78,19 @@ float getStarTerrainShadowAtPoint(RenderedCelestialBody body, vec3 point, float 
     // dirty hacks
     float surfaceShadow = waterSphereShadow;
     if(tolerance > 0.0){
-        if(length(opo) < 1.0){
+        if(length(opo) < 0.94){
             float depthTexture = 1.0 - textureBicubic(shadowMap1, opo.xy * 0.5 + 0.5).r;
             surfaceShadow = 1.0 - smoothstep(-0.001, 0.03, ((opo.z * 0.5 + 0.5) - depthTexture));
         } else {
             opo = (body.fromHostToThisMatrix) * (point / ShadowMapDivisors2);
             opo.y *= -1.0;
-            if(length(opo) < 1.0){
+            if(length(opo) < 0.98){
                 float depthTexture = 1.0 - textureBicubic(shadowMap2, opo.xy * 0.5 + 0.5).r;
                 surfaceShadow = 1.0 - smoothstep(-0.001, 0.03, ((opo.z * 0.5 + 0.5) - depthTexture));
             } else {
                 opo = (body.fromHostToThisMatrix) * (point / ShadowMapDivisors3);
                 opo.y *= -1.0;
-                if(length(opo) < 1.0){
+                if(length(opo) < 0.98){
                     float depthTexture = 1.0 - textureBicubic(shadowMap3, opo.xy * 0.5 + 0.5).r;
                     surfaceShadow = 1.0 - smoothstep(-0.001, 0.03, ((opo.z * 0.5 + 0.5) - depthTexture));
                 }
@@ -191,11 +191,11 @@ vec3 celestialGetNormalRaycast(RenderedCelestialBody body, float dxrange, vec3 p
 
 float getWaterHeightHiRes(RenderedCelestialBody body, vec3 dir){
     dir = body.rotationMatrix * dir;
-    return (body.radius + body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir *body.radius * 100.01, 4, 1.8, Time, 0.0)) * 0.0014;
+    return (body.radius + body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir *body.radius * 20.01, 8, 1.8, Time, 0.0)) * 0.0024;
 }
 float getWaterHeightLowRes(RenderedCelestialBody body, vec3 dir){
     dir = body.rotationMatrix * dir;
-    return (body.radius + body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir * body.radius * 100.01, 4, 1.8, Time, 0.0)) * 0.0014;
+    return (body.radius + body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir * body.radius * 20.01, 8, 1.8, Time, 0.0)) * 0.0024;
 }
 
 vec3 celestialGetWaterNormal(RenderedCelestialBody body, float dxrange, vec3 dir){
@@ -249,8 +249,8 @@ void updatePassHits(inout RenderPass pass){
     #endif
     if(hit_Water < 0.22 && hit_Water > 0.0){
         float hit_Water_Spherical = rsi2(pass.ray, pass.body.waterSphere).x;
-    //    hit_Water = raymarchCelestialWater(pass.ray, hit_Water_Spherical, pass.body, 0.000001);
-    //    hit_Water = mix(hit_Water, hit_Water_Spherical, clamp(hit_Water_Spherical / 2.22, 0.0, 1.0)); //magic
+        hit_Water = raymarchCelestialWater(pass.ray, hit_Water_Spherical, pass.body, 0.000001);
+        hit_Water = mix(hit_Water, hit_Water_Spherical, clamp(hit_Water_Spherical / 2.22, 0.0, 1.0)); //magic
     }
     vec2 hits_Atmosphere = rsi2(pass.ray, pass.body.atmosphereSphere);
     if(hit_Surface > 0.0 && hit_Surface < DISTANCE_INFINITY) {

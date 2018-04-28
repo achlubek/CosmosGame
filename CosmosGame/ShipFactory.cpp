@@ -42,7 +42,7 @@ glm::dquat vec3toquat(glm::dvec3 dir, double angle = 0) {
     glm::dmat3 m = glm::dmat3(cr1, cr2, dir);
     return glm::angleAxis(angle, dir) * glm::quat_cast(m);
 }
-glm::dquat axes_vec3toquat(glm::dvec3 rot ) {
+glm::dquat axes_vec3toquat2(glm::dvec3 rot ) {
     glm::mat3 xrot = glm::mat3_cast(glm::angleAxis(deg2rad(rot.x), glm::dvec3(1.0, 0.0, 0.0)));
     glm::mat3 zrot = glm::mat3_cast(glm::angleAxis(deg2rad(rot.y), glm::dvec3(0.0, 1.0, 0.0)));
     glm::mat3 yrot = glm::mat3_cast(glm::angleAxis(deg2rad(rot.z), glm::dvec3(0.0, 0.0, 1.0)));
@@ -56,7 +56,7 @@ Model3d * readModel3d(int id)
     // TODO this smells a lot
     auto vulkan = GameContainer::getInstance()->getVulkanToolkit();
     auto modeldset = GameContainer::getInstance()->getCosmosRenderer()->modelMRTLayout;
-    glm::dquat correction = axes_vec3toquat(glm::dvec3(asdouble(model3d_data["rotx"]), asdouble(model3d_data["roty"]), asdouble(model3d_data["rotz"])));
+    glm::dquat correction = axes_vec3toquat2(glm::dvec3(asdouble(model3d_data["rotx"]), asdouble(model3d_data["roty"]), asdouble(model3d_data["rotz"])));
     auto model3d = new Model3d(vulkan, modeldset, model3d_data["info3d_file"], model3d_data["albedo_image"], model3d_data["normal_image"],
         model3d_data["roughness_image"], model3d_data["metalness_image"], model3d_data["emission_idle_image"], model3d_data["emission_powered_image"], correction);
     return model3d;

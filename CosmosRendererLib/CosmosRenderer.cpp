@@ -27,8 +27,8 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, TimeProvider* itimeProvid
 
         glm::vec3 dir = glm::normalize((v1 + v2 + v3) / glm::vec3(3.0));
         auto low = subdivide(splitMesh[i]);
-        auto medium = subdivide(low);
-        auto high = subdivide(subdivide(subdivide(medium)));
+        auto medium = subdivide(subdivide(low));
+        auto high = subdivide(subdivide(medium));
         patchesLowPoly.push_back({ dir, low });
         patchesMediumPoly.push_back({ dir, medium });
         patchesHighPoly.push_back({ dir, high });
@@ -691,7 +691,7 @@ void CosmosRenderer::draw()
                     meshSequence.push_back(std::get<1>(patchesHighPoly[g]));
                   //  celestialBodySurfaceRenderStage->drawMesh(std::get<1>(patchesHighPoly[g]), 1);
                 }
-                else if (dist < radius * 0.6) {
+                else if (dist < radius * 3.6) {
                     meshSequence.push_back(std::get<1>(patchesMediumPoly[g]));
                   //  celestialBodySurfaceRenderStage->drawMesh(std::get<1>(patchesMediumPoly[g]), 1);
                 }
@@ -735,7 +735,7 @@ void CosmosRenderer::draw()
 
             celestialBodyWaterRenderStage->setSets({ rendererDataSet, renderables[i]->renderWaterSet });
 
-            if (centerdist < radius * 3.0) {
+            if (centerdist < radius * 7.0) {
                 celestialBodyWaterRenderStage->drawMesh(icosphereMedium, 1);
             }
             else {
