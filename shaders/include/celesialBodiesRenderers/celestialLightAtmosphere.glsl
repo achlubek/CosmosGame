@@ -226,8 +226,8 @@ vec3 renderWater(RenderPass pass, vec3 background, float depth){
     float distr = DistributionGGX(waternormal, -dirToStar, 1.0 - roughness * 0.94);
     vec3 result = fresnel * reflectedAtmo;//fresnel * reflectedAtmo;// * (getStarTerrainShadowAtPoint(pass.body, pass.waterHitPos) * 0.7 + 0.3);
     result += flatdt * 10000.0 * distr * fresnel * getSunColorForRay(pass.body, Ray(pass.waterHitPos, reflected)) * pow(refldt, phongMult);
-    //result += (1.0 - fresnel) * (background / (depth*depth * 100000.0 + 1.0)) / (depth*depth * 100000.0 + 1.0);
-    //result *= getStarTerrainShadowAtPoint(pass.body, pass.waterHitPos, 0.001);
+    result *= getStarTerrainShadowAtPoint(pass.body, pass.waterHitPos, 0.001);
+    result += (1.0 - fresnel) * (background / (depth*depth * 10000.0 + 1.0)) / (depth*depth * 10000.0 + 1.0);
     //result += getAtmosphereLightForRay(pass, Ray(pass.surfaceHitPos, waternormal), 0.0).additionLight.xyz * dtup * 1.0;
     return scatterLight(pass.body, pass.ray.o, pass.waterHitPos, result);
 }

@@ -44,7 +44,7 @@ vec3 gammacorrect(vec3 c){
 }
 
 vec3 afl_tonemap(vec3 c){
-    return gammacorrect(normalize(c) * 0.1 * pow(length(c), 0.7));
+    return gammacorrect(normalize(c) * 0.1 * pow(length(c), 0.55));
 }
 
 vec2 project(vec3 pos){

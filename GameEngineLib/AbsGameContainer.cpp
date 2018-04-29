@@ -85,6 +85,7 @@ void AbsGameContainer::updateObjects()
         onUpdateObject(activeObjects[i], (nowtime - lastTime) * timescale);
         activeObjects[i]->update((nowtime - lastTime) * timescale);
     }
+    onUpdate((nowtime - lastTime) * timescale);
     viewCamera->update(nowtime - lastTime);
     timeProvider->update((nowtime - lastTime) * timescale);
     lastTime = nowtime;

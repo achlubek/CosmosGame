@@ -99,4 +99,14 @@ glm::ivec2 GameControls::getCursorPosition()
     auto tup = mouse->getCursorPosition();
     return glm::ivec2(get<0>(tup), get<1>(tup));
 }
+
+Keyboard * GameControls::getRawKeyboard()
+{
+    return keyboard;
+}
+
+Mouse * GameControls::getRawMouse()
+{
+    return mouse;
+}
  

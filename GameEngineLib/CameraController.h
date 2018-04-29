@@ -17,6 +17,7 @@ public:
     void setOrientation(glm::dquat orient);
     void update(double elapsed);
     Camera* getInternalCamera();
+    void setStrategy(AbsCameraViewStrategy* strategy);
 private:
     GameObject * target{ nullptr };
     glm::dvec3 position;

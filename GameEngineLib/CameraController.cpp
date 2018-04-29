@@ -74,3 +74,7 @@ Camera * CameraController::getInternalCamera()
 {
     return internalCamera;
 }
+void CameraController::setStrategy(AbsCameraViewStrategy * strategy)
+{
+    activeViewStrategy = strategy;
+}

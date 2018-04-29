@@ -50,6 +50,8 @@ public:
     bool isKeyDown(std::string name);
     double readAxisValue(std::string name);
     glm::ivec2 getCursorPosition();
+    Keyboard* getRawKeyboard();
+    Mouse* getRawMouse();
 private:
     Keyboard * keyboard;
     Mouse* mouse;
