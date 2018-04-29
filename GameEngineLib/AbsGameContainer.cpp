@@ -13,6 +13,7 @@
 #include "CameraController.h"
 #include "TimeProvider.h"
 #include "UIRenderer.h"
+#include "ModelsRenderer.h"
 #include <ctype.h>
 
 AbsGameContainer* AbsGameContainer::instance = nullptr;
@@ -41,15 +42,7 @@ AbsGameContainer::AbsGameContainer()
 
     viewCamera = new CameraController();
      
-    modelMRTLayout = new VulkanDescriptorSetLayout(vulkanToolkit);
-    modelMRTLayout->addField(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
-    modelMRTLayout->addField(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    modelMRTLayout->addField(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    modelMRTLayout->addField(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    modelMRTLayout->addField(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    modelMRTLayout->addField(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    modelMRTLayout->addField(6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    modelMRTLayout->compile();
+    modelsRenderer = new ModelsRenderer(vulkanToolkit, vulkanToolkit->windowWidth, vulkanToolkit->windowHeight);
 }
 
 
@@ -116,17 +109,7 @@ glm::vec2 AbsGameContainer::getResolution()
     return glm::vec2((float)vulkanToolkit->windowWidth, (float)vulkanToolkit->windowHeight);
 }
 
-VulkanDescriptorSetLayout* AbsGameContainer::getModelMRTLayout()
-{
-    return modelMRTLayout;
-}
-
-void AbsGameContainer::setGlobalDrawingScale(double scale)
-{
-    globalDrawingScale = scale;
-}
-
-void AbsGameContainer::drawDrawableObjects(VulkanRenderStage* stage, VulkanDescriptorSet* set)
+void AbsGameContainer::drawDrawableObjects(VulkanRenderStage* stage, VulkanDescriptorSet* set, double scale)
 {
     auto observerPosition = viewCamera->getPosition();
     for (int i = 0; i < activeObjects.size(); i++) {
@@ -134,7 +117,7 @@ void AbsGameContainer::drawDrawableObjects(VulkanRenderStage* stage, VulkanDescr
         for (int g = 0; g < comps.size(); g++) {
             if (comps[g]->isDrawable()) {
                 auto drawable = static_cast<AbsDrawableComponent*>(comps[g]);
-                drawable->draw(observerPosition, stage, set, globalDrawingScale);
+                drawable->draw(observerPosition, stage, set, scale);
             }
         }
     }

@@ -4,6 +4,6 @@ class VulkanDescriptorSet;
 class SceneProvider
 {
 public:
-    virtual void drawDrawableObjects(VulkanRenderStage* stage, VulkanDescriptorSet* set) = 0;
+    virtual void drawDrawableObjects(VulkanRenderStage* stage, VulkanDescriptorSet* set, double scale) = 0;
 };
 
