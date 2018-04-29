@@ -34,6 +34,11 @@ CelestialBody GalaxyContainer::getClosestMoon()
     return closestMoon;
 }
 
+CelestialBody GalaxyContainer::getClosestCelestialBody()
+{
+    return closestCelestialBody;
+}
+
 std::vector<CelestialBody>& GalaxyContainer::getClosestStarPlanets()
 {
     return closestStarPlanets;
@@ -129,6 +134,7 @@ void GalaxyContainer::update(glm::dvec3 observerPosition)
         lastMoonId = closestMoon.bodyId;
         onClosestMoonChange.invoke(closestMoon);
     }
+    updateClosestCelestialBody(observerPosition);
 }
 
 std::string GalaxyContainer::getStarName(int id)
@@ -270,4 +276,35 @@ void GalaxyContainer::updateClosestMoon(glm::dvec3 observerPosition)
         }
     }
     closestMoon = result;
+}
+
+void GalaxyContainer::updateClosestCelestialBody(glm::dvec3 observerPosition)
+{
+    CelestialBody result;
+    double closestDistance = 9999999999.0;
+    for (int s = 0; s < closestStarPlanets.size(); s++) {
+        auto planet = closestStarPlanets[s];
+
+        glm::dvec3 pos = planet.getPosition(glfwGetTime());
+        glm::dvec3 relpos = pos - observerPosition;
+
+        double dst = glm::length(relpos);
+        if (dst < closestDistance) {
+            closestDistance = dst;
+            result = planet;
+        }
+    }
+    for (int s = 0; s < closestPlanetMoons.size(); s++) {
+        auto moon = closestPlanetMoons[s];
+
+        glm::dvec3 pos = moon.getPosition(glfwGetTime());
+        glm::dvec3 relpos = pos - observerPosition;
+
+        double dst = glm::length(relpos);
+        if (dst < closestDistance) {
+            closestDistance = dst;
+            result = moon;
+        }
+    }
+    closestCelestialBody = result;
 }

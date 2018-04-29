@@ -32,7 +32,7 @@ public:
         double percentagePerSecond = orbitSpeed / orbitLength;
         glm::dvec3 orbitplaneTangent = glm::normalize(glm::cross(orbitPlane, glm::dvec3(0.0, 1.0, 0.0)));
         return host->getPosition(at_time)
-            + glm::dvec3(glm::angleAxis(percentagePerSecond * at_time * 2.0 * 3.14159265359 * 0.0, glm::dvec3(orbitPlane)) * glm::dvec3(orbitplaneTangent)) * hostDistance;
+            + glm::dvec3(glm::angleAxis(percentagePerSecond * at_time * 2.0 * 3.14159265359 * 1.0, glm::dvec3(orbitPlane)) * glm::dvec3(orbitplaneTangent)) * hostDistance;
     }
 
     glm::mat4 getRotationMatrix(double at_time) {
@@ -51,6 +51,13 @@ public:
 
     virtual glm::dvec3 getLinearVelocity(double at_time) {
         return getPosition(at_time + 1.0) - getPosition(at_time);
+    }
+
+    glm::dvec3 getSurfaceVelocityAtPoint(glm::dvec3 point, double at_time) {
+        glm::dvec3 relative = point - getPosition(at_time);
+        glm::dvec3 rot1 = glm::dquat(quat_cast(getRotationMatrix(at_time))) * relative;
+        glm::dvec3 rot2 = glm::dquat(glm::quat_cast(getRotationMatrix(at_time + 1.0))) * relative;
+        return getLinearVelocity(at_time) + (rot1 - rot2);
     }
 
     CelestialRenderMethod getRenderMethod() {

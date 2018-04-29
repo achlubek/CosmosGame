@@ -46,7 +46,32 @@ vec3 gammacorrect(vec3 c){
 }
 
 vec3 afl_tonemap(vec3 c){
-    return gammacorrect(normalize(c) * 0.1 * pow(length(c), 0.55));
+    /*
+    vec3 underExposed = c * 0.1;
+    vec3 mediumExposed = c * 1.1;
+    vec3 overExposed = c * 10.1;
+    float exposure = 0.0;//textureBicubic(c)
+    float divisor = 0.0;
+    vec3 pixel = vec3(1.0 / Resolution, 0.0);
+    vec3 bloom = vec3(0.0);
+    float lengthLimit = length(vec2(4.0, 4.0));
+    for(int x=-4;x<4;x++){
+        for(int y=-4;y<4;y++){
+            vec2 displacer = pixel.xy * vec2(x, y) * (1.0 - smoothstep(0.0, lengthLimit, length(vec2(x, y))));
+            vec4 celestial = texture(texCelestialAlpha, UV + displacer).rgba;
+            vec3 adddata = texture(texCelestialAdditive, UV + displacer).rgb;
+            exposure += length(celestial.rgb * celestial.a + adddata);
+            bloom += (celestial.rgb * celestial.a + adddata);
+            divisor += 1.0;
+        }
+    }
+    exposure /= divisor;
+    bloom /= divisor;
+    c += bloom;*/
+    vec3 bleachedShadows = pow(mix(c, vec3(length(c)), 0.17), vec3(2.0)) * 1.0;
+    vec3 dimmedIntensiveLight = c * 0.07;
+    vec3 result = normalize(c) * pow(length(c), 0.5);
+    return gammacorrect(result);//gammacorrect(normalize(c) * 0.1 * pow(exposure, 0.7));
 }
 
 vec2 project(vec3 pos){
@@ -78,7 +103,7 @@ void main() {
     vec3 sunFlareColorizer = mix(vec3(1.0), normalize(adddata.rgb + 0.001), min(1.0, 10.0 *length(adddata.rgb)));
     a += adddata.rgb + sunflare * sunFlareColorizer * Exposure * 10.8;
     vec4 shipdata = texture(texModelsAlbedoRoughness, UV).rgba;
-    a = mix(a, shipdata.rgb, 1.0);
+    a = mix(a, shipdata.rgb, shipdata.a);
     a = mix(a, ui.rgb, ui.a);
     outColor = vec4(afl_tonemap(clamp(a, 0.0, 10000.0)), 1.0);
 }

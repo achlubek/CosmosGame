@@ -13,6 +13,7 @@ public:
     GeneratedStarInfo getClosestStar();
     CelestialBody getClosestPlanet();
     CelestialBody getClosestMoon();
+    CelestialBody getClosestCelestialBody();
     std::vector<CelestialBody>& getClosestStarPlanets();
     std::vector<CelestialBody>& getClosestPlanetMoons();
     glm::dvec3 getGravity(glm::dvec3 observerPosition, double atTime);
@@ -31,6 +32,7 @@ private:
     GeneratedStarInfo closestStar;
     CelestialBody closestPlanet;
     CelestialBody closestMoon;
+    CelestialBody closestCelestialBody;
     std::vector<CelestialBody> closestStarPlanets;
     std::vector<CelestialBody> closestPlanetMoons;
 
@@ -39,6 +41,7 @@ private:
     void updateClosestStar(glm::dvec3 observerPosition);
     void updateClosestPlanet(glm::dvec3 observerPosition);
     void updateClosestMoon(glm::dvec3 observerPosition);
+    void updateClosestCelestialBody(glm::dvec3 observerPosition);
     uint64_t lastStarId = 0;
     uint64_t lastPlanetId = 0;
     uint64_t lastMoonId = 0;

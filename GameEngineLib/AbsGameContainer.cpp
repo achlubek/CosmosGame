@@ -27,7 +27,7 @@ AbsGameContainer::AbsGameContainer()
 
     INIReader* configreader = new INIReader("settings.ini");
     vulkanToolkit = new VulkanToolkit();
-    vulkanToolkit->initialize(configreader->geti("window_width"), configreader->geti("window_height"), true, "Galaxy Game");
+    vulkanToolkit->initialize(configreader->geti("window_width"), configreader->geti("window_height"), configreader->geti("enable_validation_layers") > 0, "Galaxy Game");
 
     Mouse* mouse = new Mouse(vulkanToolkit->window);
     Keyboard* keyboard = new Keyboard(vulkanToolkit->window);

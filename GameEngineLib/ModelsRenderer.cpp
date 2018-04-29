@@ -144,4 +144,9 @@ void ModelsRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosi
     bb.emplaceFloat32((float)height);
     bb.emplaceFloat32((float)renderingScale);
     bb.emplaceFloat32((float)renderingScale);
+
+    void* data;
+    modelsDataBuffer->map(0, bb.buffer.size(), &data);
+    memcpy(data, bb.getPointer(), bb.buffer.size());
+    modelsDataBuffer->unmap();
 }

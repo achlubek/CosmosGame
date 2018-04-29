@@ -215,7 +215,7 @@ vec3 renderWater(RenderPass pass, vec3 background, float depth){
     float roughness = mix(0.0, 1.0, clamp(1.0 - 1.0 / (1.0 + (pass.waterHit * pass.waterHit ) * 2.38) , 0.0, 1.0));
     float colormultiplier = 1.0 - roughness * roughness * 0.984;
     float phongMult = mix(555.0, 14.0, roughness );
-    roughness = roughness * 0.97 + roughness * 0.03 * FBM3(flatnormal * 20.0 + 2.0 * FBM3(flatnormal * 22.0, 5, 1.9, 0.6), 4, 2.0, 0.5);
+    roughness = roughness * 0.97 + sqrt(roughness) * 0.03 * FBM3(flatnormal * 20.0 + 2.0 * FBM3(flatnormal * 22.0, 5, 1.9, 0.6), 4, 2.0, 0.5);
     waternormal = normalize(mix(waternormal, flatnormal, roughness ));
     float fresnel = fresnelCoefficent(waternormal, pass.ray.d, 0.04);
     vec3 reflected = normalize(reflect(pass.ray.d, waternormal));
@@ -226,7 +226,7 @@ vec3 renderWater(RenderPass pass, vec3 background, float depth){
     float distr = DistributionGGX(waternormal, -dirToStar, 1.0 - roughness * 0.94);
     vec3 result = fresnel * reflectedAtmo;//fresnel * reflectedAtmo;// * (getStarTerrainShadowAtPoint(pass.body, pass.waterHitPos) * 0.7 + 0.3);
     result += flatdt * 10000.0 * distr * fresnel * getSunColorForRay(pass.body, Ray(pass.waterHitPos, reflected)) * pow(refldt, phongMult);
-    result *= getStarTerrainShadowAtPoint(pass.body, pass.waterHitPos, 0.001);
+    //result *= getStarTerrainShadowAtPoint(pass.body, pass.waterHitPos, 0.001);
     result += (1.0 - fresnel) * (background / (depth*depth * 10000.0 + 1.0)) / (depth*depth * 10000.0 + 1.0);
     //result += getAtmosphereLightForRay(pass, Ray(pass.surfaceHitPos, waternormal), 0.0).additionLight.xyz * dtup * 1.0;
     return scatterLight(pass.body, pass.ray.o, pass.waterHitPos, result);

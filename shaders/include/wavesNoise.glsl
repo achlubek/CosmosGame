@@ -211,7 +211,8 @@ float getwavesHighPhase(vec3 position, int iterations, float dragmult, float tim
     vec3 displacevector = position * 0.001;
     for(int i=0;i<iterations;i++){
         //vec3 p = normalize(vec3(noise3d(0.000015 * position * (seedWaves += 10.0)), noise3d(0.000015 * position * (seedWaves += 10.0)), noise3d(0.000015 * position * (seedWaves += 10.0))) * 2.0 - 1.0);
-        vec3 p = normalize(vec3(sin(oct(seedWaves += 1.0) * 12.987852 + displacevector.x), sin(oct(seedWaves += 1.0) * 12.987852 + displacevector.y), sin(oct(seedWaves += 1.0) * 12.987852 + displacevector.z)));
+        //vec3 p = normalize(vec3(sin(oct(seedWaves += 1.0) * 12.987852 + displacevector.x), sin(oct(seedWaves += 1.0) * 12.987852 + displacevector.y), sin(oct(seedWaves += 1.0) * 12.987852 + displacevector.z)));
+        vec3 p = normalize(vec3(oct(seedWaves += 1.0), oct(seedWaves += 1.0), oct(seedWaves += 1.0)) * 2.0 - 1.0);
         float res = wavetada(position, p, speed, phase * 1.0, timeshift * 0.05);
         //float res2 = wavetada(position, p, speed, phase * 1.0, timeshift * 0.5 + 0.0006);
         //position -= normalize(position - p) * weight * pow(res - res2, 2.0) * 0.048;

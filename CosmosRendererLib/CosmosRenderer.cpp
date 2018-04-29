@@ -382,7 +382,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     auto combinefrag = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-combine.frag.spv");
 
     combineStage = new VulkanRenderStage(vulkan);
-    combineStage->setViewport(width, height);
+    combineStage->setViewport(vulkan->windowWidth, vulkan->windowHeight);
     combineStage->addShaderStage(combinevert->createShaderStage(VK_SHADER_STAGE_VERTEX_BIT, "main"));
     combineStage->addShaderStage(combinefrag->createShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT, "main"));
     combineStage->addDescriptorSetLayout(combineLayout->layout);
@@ -699,7 +699,7 @@ void CosmosRenderer::draw()
                 }
                 celestialShadowMapRenderStages[z]->endDrawing();
                 celestialShadowMapRenderStages[z]->submitNoSemaphores({});
-                measureTimeEnd("Celestial shadow cascade "+std::to_string(z) +" data for " + std::to_string(i));
+                measureTimeEnd("Celestial shadow cascade " + std::to_string(z) + " data for " + std::to_string(i));
             }
         }
 

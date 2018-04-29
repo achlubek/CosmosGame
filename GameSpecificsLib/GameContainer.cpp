@@ -120,8 +120,9 @@ GameContainer::GameContainer()
         if (key == "recompile_shaders") getCosmosRenderer()->recompileShaders(true);
     });
 
-    testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(center + glm::dvec3(0.0, dist * 1.03, 0.0));
-    testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(velocity + 1000.0 * targetBody.calculateOrbitVelocity(dist * 0.03) * glm::dvec3(1.0, 0.0, 0.0));
+    testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(center + glm::dvec3(0.0, dist * 1.043, 0.0));
+    //testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(velocity + 1000.0 * targetBody.calculateOrbitVelocity(dist * 0.03) * glm::dvec3(1.0, 0.0, 0.0));
+    testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(velocity);
 
     addObject(testship);
     getViewCamera()->setTarget(testship);
@@ -178,8 +179,26 @@ void GameContainer::onUpdateObject(GameObject * object, double elapsed)
         auto g = cosmosRenderer->galaxy->getGravity(physicsComponent->getPosition(), getTimeProvider()->getTime());
         physicsComponent->applyGravity(g);
         gravityFluxText->updateText(std::to_string(glm::length(g)));
-        altitudeText->updateText("Altitude KM: " + std::to_string(getCosmosRenderer()->galaxy->getClosestPlanet().getAltitude(physicsComponent->getPosition(), getTimeProvider()->getTime())));
-        auto relativeVel = getCosmosRenderer()->galaxy->getClosestPlanet().getRelativeLinearVelocity(physicsComponent->getLinearVelocity(), getTimeProvider()->getTime());
+        auto relativeVel = getCosmosRenderer()->galaxy->getClosestCelestialBody().getRelativeLinearVelocity(physicsComponent->getLinearVelocity() * 0.001, getTimeProvider()->getTime());
         velocityText->updateText("Relative velocity M/S: " + std::to_string(1000.0 * glm::length(relativeVel)));
+        auto body = getCosmosRenderer()->galaxy->getClosestCelestialBody();
+        auto position = body.getPosition(getTimeProvider()->getTime());
+        auto waterLevel = body.radius + body.fluidMaxLevel;
+        auto atmoLevel = body.radius + body.atmosphereRadius; 
+        auto dirToShip = glm::normalize(physicsComponent->getPosition() - position);
+        auto dist = glm::distance(position, physicsComponent->getPosition()) - waterLevel;
+        auto distatm = glm::distance(position, physicsComponent->getPosition()) - atmoLevel;
+        altitudeText->updateText("Altitude KM: " + std::to_string(dist));
+        auto airVelocity = body.getSurfaceVelocityAtPoint(physicsComponent->getPosition(), getTimeProvider()->getTime());
+        if (dist < 0.0) {
+            physicsComponent->setLinearVelocity(glm::mix(physicsComponent->getLinearVelocity(), airVelocity * 1000.0, elapsed * 2.0 * min(1.0, -dist * 1000.0)));
+            physicsComponent->setLinearVelocity(physicsComponent->getLinearVelocity() + dirToShip * elapsed * 10.0 * min(1.0, -dist * 1000.0));
+            //physicsComponent->applyAbsoluteImpulse(glm::dvec3(0.0), -physicsComponent->getLinearVelocity() * min(1.0, -dist * 1000.0) * 15000000.0 * elapsed);
+           // physicsComponent->applyAbsoluteImpulse(glm::dvec3(0.0), dirToShip * 5000000.0 * min(1.0, -dist * 1000.0) * elapsed);
+        }
+        if (distatm < 0.0) {
+            auto relativeVel = physicsComponent->getLinearVelocity() - airVelocity * 1000.0;
+            physicsComponent->applyAbsoluteImpulse(glm::dvec3(0.0), relativeVel * elapsed * -1000.0);
+        }
     }
 }

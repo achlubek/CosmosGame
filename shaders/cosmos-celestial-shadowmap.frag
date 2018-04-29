@@ -41,5 +41,5 @@ void main() {
     RenderedCelestialBody body = getRenderedBody(celestialBuffer.celestialBody);
 
     outDistance = 1.0 - inDepth;//1.0;//length(inWorldPos);
-    gl_FragDepth = inDepth;
+    //gl_FragDepth = inDepth;
 }
