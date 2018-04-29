@@ -25,6 +25,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CelestialBodyEditor", "Cele
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTests", "UnitTests\UnitTests.vcxproj", "{66A076BC-2077-416B-BA53-B639FF526A79}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5767443A-4CD7-4E4D-B94F-CF8596EA63DF} = {5767443A-4CD7-4E4D-B94F-CF8596EA63DF}
+		{20406D44-5955-4CEA-ACE9-9432A3010A6A} = {20406D44-5955-4CEA-ACE9-9432A3010A6A}
+		{1A8000FF-04F4-4D3A-B6FB-47E9342CE22B} = {1A8000FF-04F4-4D3A-B6FB-47E9342CE22B}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

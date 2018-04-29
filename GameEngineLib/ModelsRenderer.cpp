@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "ModelsRenderer.h"
 #include "SceneProvider.h"
+#include "AbsGameContainer.h"
+#include "TimeProvider.h"
 
 
 ModelsRenderer::ModelsRenderer(VulkanToolkit* ivulkan, int iwidth, int iheight)
@@ -74,7 +76,7 @@ void ModelsRenderer::draw(SceneProvider * scene)
 {
     modelsStage->beginDrawing();
 
-    scene->drawDrawableObjects(modelsStage, modelsDataSet);
+    scene->drawDrawableObjects(modelsStage, modelsDataSet, renderingScale);
 
     modelsStage->endDrawing();
     modelsStage->submitNoSemaphores({});
@@ -98,4 +100,48 @@ VulkanImage * ModelsRenderer::getNormalMetalnessImage()
 VulkanImage * ModelsRenderer::getDistanceImage()
 {
     return modelsDistanceImage;
+}
+
+VulkanDescriptorSetLayout * ModelsRenderer::getModelMRTLayout()
+{
+    return modelMRTLayout;
+}
+
+void ModelsRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosition)
+{
+    VulkanBinaryBufferBuilder bb = VulkanBinaryBufferBuilder();
+    double xpos, ypos;
+    glfwGetCursorPos(vulkan->window, &xpos, &ypos);
+
+    glm::mat4 clip(1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, -1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.5f, 0.0f,
+        0.0f, 0.0f, 0.5f, 1.0f);
+    glm::mat4 vpmatrix = clip * camera->projectionMatrix * camera->transformation->getInverseWorldTransform();
+
+    glm::mat4 cameraViewMatrix = camera->transformation->getInverseWorldTransform();
+    glm::mat4 cameraRotMatrix = camera->transformation->getRotationMatrix();
+    glm::mat4 rpmatrix = camera->projectionMatrix * inverse(cameraRotMatrix);
+    camera->cone->update(inverse(rpmatrix));
+
+    bb.emplaceFloat32((float)AbsGameContainer::getInstance()->getTimeProvider()->getTime());
+    bb.emplaceFloat32(0.0f);
+    bb.emplaceFloat32((float)xpos / (float)width);
+    bb.emplaceFloat32((float)ypos / (float)height);
+    bb.emplaceGeneric((unsigned char*)&rpmatrix, sizeof(rpmatrix));
+
+    glm::vec3 newcamerapos = glm::vec3(observerPosition * renderingScale);
+    bb.emplaceGeneric((unsigned char*)&newcamerapos, sizeof(camera->cone->leftBottom));
+    bb.emplaceFloat32(0.0f);
+
+    bb.emplaceGeneric((unsigned char*)&(camera->cone->leftBottom), sizeof(camera->cone->leftBottom));
+    bb.emplaceFloat32(0.0f);
+    bb.emplaceGeneric((unsigned char*)&(camera->cone->rightBottom - camera->cone->leftBottom), sizeof(camera->cone->leftBottom));
+    bb.emplaceFloat32(0.0f);
+    bb.emplaceGeneric((unsigned char*)&(camera->cone->leftTop - camera->cone->leftBottom), sizeof(camera->cone->leftBottom));
+    bb.emplaceFloat32(0.0f);
+    bb.emplaceFloat32((float)width);
+    bb.emplaceFloat32((float)height);
+    bb.emplaceFloat32(renderingScale);
+    bb.emplaceFloat32(renderingScale);
 }

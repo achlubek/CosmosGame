@@ -27,7 +27,7 @@ AbsGameContainer::AbsGameContainer()
 
     INIReader* configreader = new INIReader("settings.ini");
     vulkanToolkit = new VulkanToolkit();
-    vulkanToolkit->initialize(configreader->geti("window_width"), configreader->geti("window_height"), false, "Galaxy Game");
+    vulkanToolkit->initialize(configreader->geti("window_width"), configreader->geti("window_height"), true, "Galaxy Game");
 
     Mouse* mouse = new Mouse(vulkanToolkit->window);
     Keyboard* keyboard = new Keyboard(vulkanToolkit->window);
@@ -94,6 +94,16 @@ SQLiteDatabase * AbsGameContainer::getDatabase()
     return database;
 }
 
+AssetLoader * AbsGameContainer::getAssetLoader()
+{
+    return assetLoader;
+}
+
+Model3dFactory * AbsGameContainer::getModel3dFactory()
+{
+    return model3dFactory;
+}
+
 GameControls * AbsGameContainer::getControls()
 {
     return gameControls;
@@ -101,12 +111,27 @@ GameControls * AbsGameContainer::getControls()
 
 TimeProvider * AbsGameContainer::getTimeProvider()
 {
-    return nullptr;
+    return timeProvider;
+}
+
+CameraController * AbsGameContainer::getViewCamera()
+{
+    return viewCamera;
+}
+
+UIRenderer * AbsGameContainer::getUIRenderer()
+{
+    return ui;
 }
 
 glm::vec2 AbsGameContainer::getResolution()
 {
     return glm::vec2((float)vulkanToolkit->windowWidth, (float)vulkanToolkit->windowHeight);
+}
+
+ModelsRenderer * AbsGameContainer::getModelsRenderer()
+{
+    return modelsRenderer;
 }
 
 void AbsGameContainer::drawDrawableObjects(VulkanRenderStage* stage, VulkanDescriptorSet* set, double scale)
@@ -126,4 +151,35 @@ void AbsGameContainer::drawDrawableObjects(VulkanRenderStage* stage, VulkanDescr
 AbsGameContainer * AbsGameContainer::getInstance()
 {
     return instance;
+}
+
+void AbsGameContainer::startGameLoops()
+{
+    onDrawingStart();
+    int frames = 0;
+    double lastTime = 0.0;
+    while (!vulkanToolkit->shouldCloseWindow()) {
+        frames++;
+        double time = glfwGetTime();
+        double nowtime = floor(time);
+        if (nowtime != lastTime) {
+            printf("FPS %d\n", frames);
+            frames = 0;
+        }
+        lastTime = nowtime;
+
+        modelsRenderer->updateCameraBuffer(getViewCamera()->getInternalCamera(), getViewCamera()->getPosition());
+        modelsRenderer->draw(this);
+        ui->draw();
+        onDraw();
+
+        updateObjects();
+
+        vulkanToolkit->poolEvents();
+    }
+}
+
+double AbsGameContainer::getLastTime()
+{
+    return lastTime;
 }

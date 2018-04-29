@@ -28,14 +28,17 @@ public:
     Model3dFactory* getModel3dFactory();
     GameControls* getControls();
     TimeProvider* getTimeProvider();
+    CameraController* getViewCamera();
+    UIRenderer* getUIRenderer();
     glm::vec2 getResolution();
     ModelsRenderer* getModelsRenderer();
-    VulkanDescriptorSetLayout* getModelMRTLayout();
-    virtual void startGameLoops() = 0;
+    void startGameLoops();
 protected:
     double getLastTime();
+    virtual void onDrawingStart() = 0;
     virtual void onUpdate(double elapsed) = 0;
     virtual void onUpdateObject(GameObject* object, double elapsed) = 0;
+    virtual void onDraw() = 0;
 private:
     VulkanToolkit* vulkanToolkit;
     AssetLoader* assetLoader;

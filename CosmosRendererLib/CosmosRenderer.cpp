@@ -3,6 +3,7 @@
 #include "SceneProvider.h"
 #include "GalaxyContainer.h"
 #include "AbsGameContainer.h"
+#include "ModelsRenderer.h"
 #include "TimeProvider.h"
 #include "stdafx.h"
 #include "vulkan.h"
@@ -55,12 +56,6 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, TimeProvider* itimeProvid
 
     starsImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
         VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
-
-    modelsResultImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
-        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
-
-    modelsDepthImage = new VulkanImage(vulkan, width, height, VK_FORMAT_D32_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
-        VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, true);
 
     //####################//
 
@@ -152,6 +147,8 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, TimeProvider* itimeProvid
     combineLayout->addField(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
     combineLayout->addField(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
     combineLayout->addField(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
+    combineLayout->addField(6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
+    combineLayout->addField(7, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
     combineLayout->compile();
 
 
@@ -215,8 +212,10 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, TimeProvider* itimeProvid
     combineSet->bindImageViewSampler(1, celestialAlphaImage);
     combineSet->bindImageViewSampler(2, starsImage);
     combineSet->bindImageViewSampler(3, overlayImage);
-    combineSet->bindImageViewSampler(4, modelsResultImage);
-    combineSet->bindImageViewSampler(5, celestialAdditiveImage);
+    combineSet->bindImageViewSampler(4, celestialAdditiveImage);
+    combineSet->bindImageViewSampler(5, AbsGameContainer::getInstance()->getModelsRenderer()->getAlbedoRoughnessImage());
+    combineSet->bindImageViewSampler(6, AbsGameContainer::getInstance()->getModelsRenderer()->getNormalMetalnessImage());
+    combineSet->bindImageViewSampler(7, AbsGameContainer::getInstance()->getModelsRenderer()->getDistanceImage());
     combineSet->update();
 
 
@@ -377,22 +376,6 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     starsStage->cullFlags = VK_CULL_MODE_BACK_BIT;
     // starsStage->topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
     starsStage->compile();
-    //**********************//
-
-    auto shipvert = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-ship.vert.spv");
-    auto shipfrag = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-ship.frag.spv");
-
-    modelsStage = new VulkanRenderStage(vulkan);
-    modelsStage->setViewport(width, height);
-    modelsStage->addShaderStage(shipvert->createShaderStage(VK_SHADER_STAGE_VERTEX_BIT, "main"));
-    modelsStage->addShaderStage(shipfrag->createShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT, "main"));
-    modelsStage->addDescriptorSetLayout(rendererDataLayout->layout);
-    modelsStage->addDescriptorSetLayout(AbsGameContainer::getInstance()->getModelMRTLayout()->layout);
-    modelsStage->addOutputImage(modelsResultImage);
-    modelsStage->addOutputImage(modelsDepthImage);
-    modelsStage->cullFlags = 0;
-    modelsStage->compile();
-
     //**********************//
 
     auto combinevert = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-combine.vert.spv");
@@ -753,21 +736,6 @@ void CosmosRenderer::draw()
         measureTimeEnd("Celestial atmosphere and composite for " + std::to_string(i));
         vkDeviceWaitIdle(vulkan->device);
     }
-
-
-    measureTimeStart();
-    vkDeviceWaitIdle(vulkan->device);
-    modelsStage->beginDrawing();
-
-    //for (int i = 0; i < ships.size(); i++)ships[i]->drawShipAndModules(modelsStage, celestialSet, observerCameraPosition);
-    //GameContainer::getInstance()->drawDrawableObjects();
-    sceneProvider->drawDrawableObjects(modelsStage, rendererDataSet);
-
-
-    modelsStage->endDrawing();
-    modelsStage->submitNoSemaphores({});
-    vkDeviceWaitIdle(vulkan->device);
-    measureTimeEnd("Models drawing");
 
     measureTimeStart();
     renderer->beginDrawing();

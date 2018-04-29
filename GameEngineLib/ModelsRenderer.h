@@ -10,6 +10,8 @@ public:
     VulkanImage* getAlbedoRoughnessImage();
     VulkanImage* getNormalMetalnessImage();
     VulkanImage* getDistanceImage();
+    VulkanDescriptorSetLayout* getModelMRTLayout();
+    void updateCameraBuffer(Camera * camera, glm::dvec3 observerPosition);
 private:
     VulkanToolkit* vulkan;
     int width;

@@ -24,7 +24,7 @@ layout(set = 0, binding = 0) uniform UniformBufferObject1 {
     vec4 inFrustumConeLeftBottom;
     vec4 inFrustumConeBottomLeftToBottomRight;
     vec4 inFrustumConeBottomLeftToTopLeft;
-    vec2 Resolution;
+    vec4 Resolution_scale;
 } hiFreq;
 
 layout(set = 1, binding = 0) buffer modelStorageBuffer {
@@ -34,7 +34,7 @@ layout(set = 1, binding = 0) buffer modelStorageBuffer {
 
 void main() {
     vec3 WorldPos = (modelBuffer.transformation
-        * vec4(inPosition.xyz, 1.0)).rgb * 0.001 * modelBuffer.position.a + modelBuffer.position.rgb;
+        * vec4(inPosition.xyz, 1.0)).rgb * hiFreq.Resolution_scale.z * modelBuffer.position.a + modelBuffer.position.rgb;
     vec4 opo = (hiFreq.VPMatrix)
         * vec4(WorldPos, 1.0);
     vec3 Normal = inNormal;

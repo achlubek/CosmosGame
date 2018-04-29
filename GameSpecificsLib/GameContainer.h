@@ -22,7 +22,8 @@ public:
     ~GameContainer();
     ShipFactory* getShipFactory();
     CosmosRenderer* getCosmosRenderer();
-    virtual void startGameLoops() override;
+    virtual void onDraw() override;
+    virtual void onDrawingStart() override;
     virtual void onUpdate(double elapsed) override;
     virtual void onUpdateObject(GameObject* object, double elapsed) override;
     static GameContainer* getInstance();

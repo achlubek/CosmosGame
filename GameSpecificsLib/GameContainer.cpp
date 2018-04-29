@@ -17,6 +17,7 @@
 #include "GalaxyContainer.h"
 #include "TimeProvider.h"
 #include "UIRenderer.h"
+#include "ModelsRenderer.h"
 #include <ctype.h>
 
 // kids, this is how to not do single responsibility principle
@@ -27,17 +28,19 @@ GameContainer::GameContainer()
     auto galaxy = new GalaxyContainer();
     galaxy->loadFromDatabase(galaxydb);
 
-    cosmosRenderer = new CosmosRenderer(vulkanToolkit, timeProvider, this, galaxy, ui->outputImage, vulkanToolkit->windowWidth, vulkanToolkit->windowHeight);
+    auto vulkanToolkit = getVulkanToolkit();
+    cosmosRenderer = new CosmosRenderer(vulkanToolkit, getTimeProvider(), this, galaxy, getUIRenderer()->outputImage, vulkanToolkit->windowWidth, vulkanToolkit->windowHeight);
     cosmosRenderer->exposure = 0.0001;
-    globalDrawingScale = cosmosRenderer->scale;
+    getModelsRenderer()->setRenderingScale(cosmosRenderer->scale);
 
+    auto ui = getUIRenderer();
     fpsText = new UIText(ui, 0.01, 0.0, UIColor(1.0, 1.0, 1.0, 1.0), Media::getPath("chintzy.ttf"), 13, "Hmm");
     ui->addDrawable(fpsText);
 
     gravityFluxText = new UIText(ui, 0.01, 0.028, UIColor(1.0, 1.0, 1.0, 1.0), Media::getPath("Sansation_Regular.ttf"), 23, "Hmm");
     ui->addDrawable(gravityFluxText);
 
-    starNameText = new UIText(ui, 0.01, 0.028 * 2.0 , UIColor(1.0, 1.0, 1.0, 1.0), Media::getPath("Sansation_Regular.ttf"), 23, "Hmm");
+    starNameText = new UIText(ui, 0.01, 0.028 * 2.0, UIColor(1.0, 1.0, 1.0, 1.0), Media::getPath("Sansation_Regular.ttf"), 23, "Hmm");
     ui->addDrawable(starNameText);
 
     planetNameText = new UIText(ui, 0.01, 0.028 * 3.0, UIColor(1.0, 1.0, 1.0, 1.0), Media::getPath("Sansation_Regular.ttf"), 23, "Hmm");
@@ -52,10 +55,9 @@ GameContainer::GameContainer()
     velocityText = new UIText(ui, 0.01, 0.028 * 6.0, UIColor(1.0, 1.0, 1.0, 1.0), Media::getPath("Sansation_Regular.ttf"), 23, "Hmm");
     ui->addDrawable(velocityText);
 
-    database = new SQLiteDatabase(Media::getPath("gamedata.db"));
 
-    moduleFactory = new ModuleFactory(model3dFactory);
-    shipFactory = new ShipFactory(model3dFactory, moduleFactory);
+    moduleFactory = new ModuleFactory(getModel3dFactory());
+    shipFactory = new ShipFactory(getModel3dFactory(), moduleFactory);
 
     // fuck it for now
 
@@ -77,14 +79,14 @@ GameContainer::GameContainer()
         auto planet = galaxy->getClosestStarPlanets()[targetPlanet - 1];
         center = planet.getPosition(0);
         dist = planet.radius - planet.fluidMaxLevel;
-        velocity = planet.getLinearVelocity(timeProvider->getTime());
+        velocity = planet.getLinearVelocity(getTimeProvider()->getTime());
         targetBody = planet;
         if (targetMoon > 0) {
             galaxy->update(planet.getPosition(0));
             auto moon = galaxy->getClosestPlanetMoons()[targetMoon - 1];
             center = moon.getPosition(0);
             dist = moon.radius - moon.fluidMaxLevel;
-            velocity = moon.getLinearVelocity(timeProvider->getTime());
+            velocity = moon.getLinearVelocity(getTimeProvider()->getTime());
             targetBody = moon;
         }
     }
@@ -114,15 +116,15 @@ GameContainer::GameContainer()
         });
     });
 
-    gameControls->onKeyDown.add([&](std::string key) {
+    getControls()->onKeyDown.add([&](std::string key) {
         if (key == "recompile_shaders") getCosmosRenderer()->recompileShaders(true);
     });
 
     testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(center + glm::dvec3(0.0, dist * 1.03, 0.0));
     testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(velocity + 1000.0 * targetBody.calculateOrbitVelocity(dist * 0.03) * glm::dvec3(1.0, 0.0, 0.0));
 
-    activeObjects.push_back(testship);
-    viewCamera->setTarget(activeObjects[0]);
+    addObject(testship);
+    getViewCamera()->setTarget(testship);
 }
 
 
@@ -143,47 +145,25 @@ CosmosRenderer * GameContainer::getCosmosRenderer()
 
 GameContainer * GameContainer::getInstance()
 {
-    return static_cast<GameContainer*>(instance);
+    return static_cast<GameContainer*>(getInstance());
 }
 
-void GameContainer::startGameLoops()
+void GameContainer::onDrawingStart()
 {
     cosmosRenderer->mapBuffers();
     cosmosRenderer->updateStarsBuffer();
     std::thread background1 = std::thread([&]() {
         while (true) {
-            cosmosRenderer->galaxy->update(viewCamera->getPosition());
+            cosmosRenderer->galaxy->update(getViewCamera()->getPosition());
 
         }
     });
     background1.detach();
-    int frames = 0;
-    double lastTime = 0.0;
-    double lastRawTime = 0.0;
-    while (!vulkanToolkit->shouldCloseWindow()) {
-        frames++;
-        double time = glfwGetTime();
-        double nowtime = floor(time);
-        if (nowtime != lastTime) {
-            printf("FPS %d\n", frames);
-            fpsText->updateText("FPS: " + std::to_string(frames));
-            frames = 0;
-        }
-        double elapsed_x100 = (float)(100.0 * (time - lastRawTime));
-        double elapsed = (float)((time - lastRawTime));
-        lastRawTime = time;
-        lastTime = nowtime;
-
-        //
-        ui->draw();
-        cosmosRenderer->updateCameraBuffer(viewCamera->getInternalCamera(), viewCamera->getPosition());
-        cosmosRenderer->draw();
-
-        updateObjects();
-
-        vulkanToolkit->poolEvents();
-    }
-    cosmosRenderer->unmapBuffers();
+}
+void GameContainer::onDraw()
+{
+    cosmosRenderer->updateCameraBuffer(getViewCamera()->getInternalCamera(), getViewCamera()->getPosition());
+    cosmosRenderer->draw();
 }
 
 void GameContainer::onUpdate(double elapsed)
@@ -195,11 +175,11 @@ void GameContainer::onUpdateObject(GameObject * object, double elapsed)
     auto physicsComponent = object->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D);
     if (nullptr != physicsComponent) {
         physicsComponent->setTimeScale(0.001);
-        auto g = cosmosRenderer->galaxy->getGravity(physicsComponent->getPosition(), timeProvider->getTime());
+        auto g = cosmosRenderer->galaxy->getGravity(physicsComponent->getPosition(), getTimeProvider()->getTime());
         physicsComponent->applyGravity(g);
         gravityFluxText->updateText(std::to_string(glm::length(g)));
-        altitudeText->updateText("Altitude KM: " + std::to_string(getCosmosRenderer()->galaxy->getClosestPlanet().getAltitude(physicsComponent->getPosition(), timeProvider->getTime())));
-        auto relativeVel = getCosmosRenderer()->galaxy->getClosestPlanet().getRelativeLinearVelocity(physicsComponent->getLinearVelocity(), timeProvider->getTime());
+        altitudeText->updateText("Altitude KM: " + std::to_string(getCosmosRenderer()->galaxy->getClosestPlanet().getAltitude(physicsComponent->getPosition(), getTimeProvider()->getTime())));
+        auto relativeVel = getCosmosRenderer()->galaxy->getClosestPlanet().getRelativeLinearVelocity(physicsComponent->getLinearVelocity(), getTimeProvider()->getTime());
         velocityText->updateText("Relative velocity M/S: " + std::to_string(1000.0 * glm::length(relativeVel)));
     }
 }

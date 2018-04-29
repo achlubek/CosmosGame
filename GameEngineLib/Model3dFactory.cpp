@@ -2,6 +2,7 @@
 #include "Model3dFactory.h"
 #include "Model3d.h"
 #include "AbsGameContainer.h"
+#include "ModelsRenderer.h"
 
 
 Model3dFactory::Model3dFactory()
@@ -32,7 +33,7 @@ Model3d* Model3dFactory::build(std::string mediakey)
     auto emissionPoweredImage = reader.gets("emission_powered_image");
 
     auto vulkan = AbsGameContainer::getInstance()->getVulkanToolkit();
-    auto modeldset = AbsGameContainer::getInstance()->getModelMRTLayout();
+    auto modeldset = AbsGameContainer::getInstance()->getModelsRenderer()->getModelMRTLayout();
 
     auto orientationCorrection = axes_vec3toquat(glm::dvec3(reader.getf("rotx"), reader.getf("roty"), reader.getf("rotz")));
     return new Model3d(vulkan, modeldset, info3d, albedoImage, normalImage, roughnessImage, metalnessImage, emissionIdleImage, emissionPoweredImage, orientationCorrection);

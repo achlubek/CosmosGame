@@ -43,12 +43,9 @@ public:
    // VulkanDescriptorSetLayout* starsLayout{ nullptr };
    // VulkanDescriptorSet* starsSet{ nullptr };
 
-    VulkanRenderStage* modelsStage{ nullptr };
-
     VulkanRenderStage* combineStage{ nullptr };
     VulkanDescriptorSetLayout* combineLayout{ nullptr };
     VulkanDescriptorSet* combineSet{ nullptr };
-
 
 
     VulkanDescriptorSetLayout* celestialBodyDataSetLayout{ nullptr };
@@ -78,9 +75,6 @@ public:
     VulkanImage* celestialAlphaImage;
     VulkanImage* celestialAdditiveImage;
     VulkanImage* starsImage;
-    //VulkanImage* cosmosImage;
-    VulkanImage* modelsResultImage;
-    VulkanImage* modelsDepthImage; 
 
     VulkanImage* surfaceRenderedAlbedoRoughnessImage;
     VulkanImage* surfaceRenderedNormalMetalnessImage;
