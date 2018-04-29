@@ -145,7 +145,7 @@ CosmosRenderer * GameContainer::getCosmosRenderer()
 
 GameContainer * GameContainer::getInstance()
 {
-    return static_cast<GameContainer*>(getInstance());
+    return static_cast<GameContainer*>(AbsGameContainer::getInstance());
 }
 
 void GameContainer::onDrawingStart()

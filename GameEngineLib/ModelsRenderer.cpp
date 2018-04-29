@@ -142,6 +142,6 @@ void ModelsRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosi
     bb.emplaceFloat32(0.0f);
     bb.emplaceFloat32((float)width);
     bb.emplaceFloat32((float)height);
-    bb.emplaceFloat32(renderingScale);
-    bb.emplaceFloat32(renderingScale);
+    bb.emplaceFloat32((float)renderingScale);
+    bb.emplaceFloat32((float)renderingScale);
 }

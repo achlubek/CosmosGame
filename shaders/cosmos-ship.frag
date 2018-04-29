@@ -5,7 +5,9 @@ layout(location = 0) in vec2 UV;
 layout(location = 1) in flat uint inInstanceId;
 layout(location = 2) in vec3 inWorldPos;
 layout(location = 3) in vec3 inNormal;
-layout(location = 0) out vec4 outColor;
+layout(location = 0) out vec4 outAlbedoRoughness;
+layout(location = 1) out vec4 outNormalMetalness;
+layout(location = 2) out float outDistance;
 layout(set = 1, binding = 1) uniform sampler2D texAlbedo;
 layout(set = 1, binding = 2) uniform sampler2D texNormal;
 layout(set = 1, binding = 3) uniform sampler2D texRoughness;
@@ -66,6 +68,8 @@ vec3 thrustengine(vec3 rayorigin, vec3 raydir, vec3 position, vec3 direction, fl
 Ray cameraRay;
 void main() {
     float dt = max(0.0, dot(normalize(inNormal), normalize(ClosestStarPosition - inWorldPos)));
-    outColor = vec4(dt * texture(texAlbedo, vec2(UV.x, 1.0 - UV.y)).rgb, 1.0);
+    outAlbedoRoughness = vec4(texture(texAlbedo, vec2(UV.x, 1.0 - UV.y)).rgb, 1.0);
+    outNormalMetalness = vec4(normalize(inNormal), 0.0);
+    outDistance = length(inWorldPos);
 
 }

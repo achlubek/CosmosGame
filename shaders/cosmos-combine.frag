@@ -78,7 +78,7 @@ void main() {
     vec3 sunFlareColorizer = mix(vec3(1.0), normalize(adddata.rgb + 0.001), min(1.0, 10.0 *length(adddata.rgb)));
     a += adddata.rgb + sunflare * sunFlareColorizer * Exposure * 10.8;
     vec4 shipdata = texture(texModelsAlbedoRoughness, UV).rgba;
-    a = mix(a, shipdata.rgb, shipdata.a);
+    a = mix(a, shipdata.rgb, 1.0);
     a = mix(a, ui.rgb, ui.a);
     outColor = vec4(afl_tonemap(clamp(a, 0.0, 10000.0)), 1.0);
 }

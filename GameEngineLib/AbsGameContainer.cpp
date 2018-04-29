@@ -43,6 +43,8 @@ AbsGameContainer::AbsGameContainer()
     viewCamera = new CameraController();
      
     modelsRenderer = new ModelsRenderer(vulkanToolkit, vulkanToolkit->windowWidth, vulkanToolkit->windowHeight);
+
+    database = new SQLiteDatabase("gamedata.db");
 }
 
 
