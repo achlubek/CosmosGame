@@ -101,7 +101,7 @@ void main() {
     sunflare += exp(starDist * -0.025 * (dot(dir, starDir) * 0.5 + 0.5)) * ClosestStarColor *3.3 * max(0.0, 1.0 - adddata.a);
     //sunflare += pow(1.0 - (dot(dir, starDir) * 0.5 + 0.5), 62.0) * ClosestStarColor * 0.01;
     vec3 sunFlareColorizer = mix(vec3(1.0), normalize(adddata.rgb + 0.001), min(1.0, 10.0 *length(adddata.rgb)));
-    a += adddata.rgb + sunflare * sunFlareColorizer * Exposure * 10.8;
+    a += adddata.rgb + sunflare * max(0.0, 1.0 - adddata.a) * sunFlareColorizer * Exposure * 10.8;
     vec4 shipdata = texture(texModelsAlbedoRoughness, UV).rgba;
     a = mix(a, shipdata.rgb, shipdata.a);
     a = mix(a, ui.rgb, ui.a);

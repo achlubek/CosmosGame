@@ -20,7 +20,8 @@ layout(local_size_x = 256, local_size_y = 2, local_size_z = 1) in;
 void main()
 {
     ivec2 pixel = ivec2(gl_GlobalInvocationID.xy);
-    vec2 resolution = celestialBuffer.time_dataresolution.yz;
+    vec2 resolution = celestialBuffer.time_dataresolution.yz;\
+    if(pixel.x > resolution.x || pixel.y > resolution.y) return;
     vec2 UV = vec2(pixel) / vec2(resolution);
     vec3 dir = polarToXyz(UV);
 

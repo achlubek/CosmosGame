@@ -44,9 +44,8 @@ void main() {
     CelestialRenderResult result = renderCelestialBody(body, Ray(vec3(0.0), dir));
     result.alphaBlendedLight.rgb *= Exposure;
     result.additionLight.rgb *= Exposure;
-    result.additionLight.a = result.alphaBlendedLight.a;
     outColorAlpha = result.alphaBlendedLight;
-    outColorAdditive = result.additionLight;
+    outColorAdditive = vec4(result.additionLight.rgb, result.alphaBlendedLight.a);
 
 //    outColorAlpha = vec4(getShadowAtPoint(body, dir * texture(surfaceRenderedDistanceImage, gl_FragCoord.xy / Resolution).r) * vec3(1.0), result.alphaBlendedLight.a);//result.alphaBlendedLight;
     //outColorAdditive = 0.0*result.additionLight;
