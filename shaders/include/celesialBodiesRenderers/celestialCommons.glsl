@@ -297,6 +297,50 @@ float fresnelCoefficent(vec3 surfaceDir, vec3 incomingDir, float baseReflectivit
     return (baseReflectivity + (1.0 - baseReflectivity) * (pow(1.0 - max(0.0, dot(surfaceDir, -incomingDir)), 5.0)));
 }
 
+float intersectPlane(vec3 origin, vec3 direction, vec3 point, vec3 normal)
+{
+    return dot(point - origin, normal) / dot(direction, normal);
+}
+
+CelestialRenderResult renderRings(RenderPass pass, CelestialRenderResult currentResult){
+    if(oct(pass.body.seed) < 0.0) return currentResult;
+    vec3 planepoint = pass.body.position;
+    vec3 planenormal = normalize(vec3(oct(pass.body.seed) * 2.0 - 1.0, 5.0, oct(pass.body.seed + 100.0) * 2.0 - 1.0));
+    float hit = intersectPlane(pass.ray.o, pass.ray.d, planepoint, planenormal);
+    if(hit <= 0.0 || hit > 99999.0) return currentResult;
+    vec3 pos = pass.ray.o + pass.ray.d * hit;
+    float centerDistance = distance(pos, planepoint);
+    float start =  mix(1.2, 7.0, oct(pass.body.seed + 10.0));
+    float stop = start + mix(0.5, 2.5, oct(pass.body.seed + 20.0));
+    float frequency = 0.1 + 2.0 * oct(pass.body.seed + 30.0);
+    float begin = pass.body.radius * start;
+    float end = pass.body.radius * stop;
+    float falloffBegin = 5.1 + 8.4 * oct(pass.body.seed + 40.0);
+    float falloffEnd = 5.1 + 8.4 * oct(pass.body.seed + 50.0);
+    float coverage = smoothstep(begin, begin + falloffBegin, centerDistance) * (1.0 - smoothstep(end, end + falloffEnd, centerDistance));
+
+    vec3 dirToStar = normalize(ClosestStarPosition - pos);
+    float dt = abs(dot(planenormal, dirToStar));
+    float waterhit = rsi2(Ray(pos, dirToStar), pass.body.waterSphere).x;
+    float shadow = waterhit > 0.0 && waterhit < 999999.0 ? 0.0 : 1.0;
+
+    centerDistance += FBM3(pos - planepoint, 6, 2.0, 0.66);
+    float coverageFlunctuations = FBM1(frequency * centerDistance, 6, 2.0, 0.66);
+    vec3 color = pass.body.sufraceMainColor * vec3(FBM1(frequency * centerDistance + 100.0, 6, 2.0, 0.66), FBM1(frequency * centerDistance + 200.0, 6, 2.0, 0.66), FBM1(frequency * centerDistance + 300.0, 6, 2.0, 0.66));
+    vec4 rings = vec4(shadow * ClosestStarColor * dt * color, min(1.0, coverage * coverageFlunctuations * 2.0));
+
+    if(distance(pos, pass.ray.o) < distance(planepoint, pass.ray.o)){
+        // rings in front of planet
+        currentResult.alphaBlendedLight.rgb = mix(currentResult.alphaBlendedLight.rgb, rings.rgb, rings.a);
+        currentResult.additionLight.rgb *= 1.0 - rings.a;
+        currentResult.alphaBlendedLight.a = min(1.0, rings.a + currentResult.alphaBlendedLight.a);
+    } else {
+        // rings in the back
+        currentResult.alphaBlendedLight.rgb = mix(rings.rgb * rings.a, currentResult.alphaBlendedLight.rgb, currentResult.alphaBlendedLight.a);
+        currentResult.alphaBlendedLight.a = min(1.0, rings.a + currentResult.alphaBlendedLight.a);
+    }
+    return currentResult;
+}
 
 #include celestialNoAtmosphere.glsl
 #include celestialLightAtmosphere.glsl
@@ -321,6 +365,7 @@ CelestialRenderResult renderCelestialBody(RenderedCelestialBody body, Ray ray){
             result = renderCelestialBodyThickAtmosphere(pass);
         }
     }
+    result = renderRings(pass, result);
     //result.additionLight = vec4(0.0);
     //vec3 nrm = texture(surfaceRenderedAlbedoRoughnessImage, gl_FragCoord.xy / Resolution).rgb;
     //float ddd = texture(surfaceRenderedDistanceImage, gl_FragCoord.xy / Resolution).r;

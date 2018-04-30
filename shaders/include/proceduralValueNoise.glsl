@@ -168,6 +168,16 @@ float achnoise(vec4 x){
 #define noise3d(a) achnoise(a)
 #define noise4d(a) achnoise(a)
 
+float FBM1(float p, int octaves, float dx, float ww){
+    float a = 0.0;
+    float w = 0.5;
+    for(int i=0;i<octaves;i++){
+        a += noise1d(p) * w;
+        w *= ww;
+        p *= dx;
+    }
+    return a;
+}
 float FBM2(vec2 p, int octaves, float dx){
     float a = 0.0;
     float w = 0.5;

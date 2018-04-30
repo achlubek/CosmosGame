@@ -25,4 +25,8 @@ void main() {
 
     outNormalMetalness = vec4(inNormal, 0.0);
     outDistance = length(inWorldPos) ;
+    float C = 0.001;
+    float w = length(inWorldPos);
+    float Far = 1000.0;
+    gl_FragDepth = min(1.0, log(C*w + 1.0) / log(C*Far + 1.0));
 }

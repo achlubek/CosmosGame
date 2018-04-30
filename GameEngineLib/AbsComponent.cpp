@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "AbsComponent.h"
 
-unsigned long AbsComponent::idSharedCounter = 0;
+unsigned long AbsComponent::idSharedCounter = 1;
 
 AbsComponent::AbsComponent(ComponentTypes itype)
     : id(idSharedCounter++), type(itype)

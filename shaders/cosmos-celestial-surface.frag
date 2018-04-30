@@ -71,4 +71,8 @@ void main() {
     outAlbedoRoughness = texture(baseColorImage, xyzToPolar(Dir)).rgba;
     outNormalMetalness = vec4(inverse(body.rotationMatrix) * celestialGetNormal(body, 0.001, Dir).rgb, 0.0);
     outDistance = length(inWorldPos);
+    float C = 0.001;
+    float w = length(inWorldPos);
+    float Far = 1000.0;
+    gl_FragDepth = min(1.0, log(C*w + 1.0) / log(C*Far + 1.0));
 }

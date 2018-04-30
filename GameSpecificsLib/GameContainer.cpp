@@ -169,6 +169,8 @@ void GameContainer::onDraw()
 
 void GameContainer::onUpdate(double elapsed)
 {
+    unsigned int componentId = getModelsRenderer()->pickComponentId(glm::vec2(getControls()->getCursorPosition()) / glm::vec2(getVulkanToolkit()->windowWidth, getVulkanToolkit()->windowHeight));
+    printf("componentid %d\n", componentId);
 }
 
 void GameContainer::onUpdateObject(GameObject * object, double elapsed)

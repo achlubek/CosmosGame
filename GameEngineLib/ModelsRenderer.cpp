@@ -37,6 +37,9 @@ ModelsRenderer::ModelsRenderer(VulkanToolkit* ivulkan, int iwidth, int iheight)
     modelsDistanceImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R32_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
         VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
 
+    modelsIDImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R32_UINT, VK_IMAGE_TILING_OPTIMAL,
+        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
+
     modelsDepthImage = new VulkanImage(vulkan, width, height, VK_FORMAT_D32_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
         VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, true);
 
@@ -53,9 +56,31 @@ ModelsRenderer::ModelsRenderer(VulkanToolkit* ivulkan, int iwidth, int iheight)
     modelsStage->addOutputImage(modelsAlbedoRoughnessImage);
     modelsStage->addOutputImage(modelsNormalMetalnessImage);
     modelsStage->addOutputImage(modelsDistanceImage);
+    modelsStage->addOutputImage(modelsIDImage);
     modelsStage->addOutputImage(modelsDepthImage);
     modelsStage->cullFlags = 0;
     modelsStage->compile();
+
+    //############################//
+
+    pickerDataLayout = new VulkanDescriptorSetLayout(vulkan);
+    pickerDataLayout->addField(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT);
+    pickerDataLayout->addField(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_COMPUTE_BIT);
+    pickerDataLayout->compile();
+
+    pickerDataBuffer = new VulkanGenericBuffer(vulkan, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, sizeof(float) * 1024);
+
+    pickerDataSet = pickerDataLayout->generateDescriptorSet();
+    pickerDataSet->bindStorageBuffer(0, pickerDataBuffer);
+    pickerDataSet->bindImageViewSampler(1, modelsIDImage);
+    pickerDataSet->update();
+
+    auto pickershader = new VulkanShaderModule(vulkan, "../../shaders/compiled/models-picker.comp.spv");
+
+    pickerStage = new VulkanComputeStage(vulkan);
+    pickerStage->setShaderStage(pickershader->createShaderStage(VK_SHADER_STAGE_COMPUTE_BIT, "main"));
+    pickerStage->addDescriptorSetLayout(pickerDataLayout->layout);
+    pickerStage->compile();
 }
 
 
@@ -149,4 +174,26 @@ void ModelsRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosi
     modelsDataBuffer->map(0, bb.buffer.size(), &data);
     memcpy(data, bb.getPointer(), bb.buffer.size());
     modelsDataBuffer->unmap();
+}
+
+unsigned int ModelsRenderer::pickComponentId(glm::vec2 uv)
+{
+    //uv.y = 1.0 - uv.y;
+    VulkanBinaryBufferBuilder bb = VulkanBinaryBufferBuilder();
+    bb.emplaceFloat32((float)uv.x);
+    bb.emplaceFloat32((float)uv.y);
+    bb.emplaceFloat32(0.0f);
+    bb.emplaceFloat32(0.0f);
+    void* data;
+    pickerDataBuffer->map(0, bb.buffer.size(), &data);
+    memcpy(data, bb.getPointer(), bb.buffer.size());
+    pickerDataBuffer->unmap();
+    pickerStage->beginRecording();
+    pickerStage->dispatch({ pickerDataSet }, 1, 1, 1);
+    pickerStage->endRecording();
+    pickerStage->submitNoSemaphores({});
+    pickerDataBuffer->map(4 * sizeof(float), 1 * sizeof(uint32_t), &data);
+    unsigned int result = static_cast<unsigned int*>(data)[0];
+    pickerDataBuffer->unmap();
+    return result;
 }
