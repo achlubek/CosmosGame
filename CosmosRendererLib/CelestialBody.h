@@ -1,5 +1,6 @@
 #pragma once
 #include "AbsCelestialObject.h"
+#include "GeneratedStarInfo.h"
 enum CelestialRenderMethod {
     noAtmosphere = 1,
     lightAtmosphere = 2,
@@ -25,6 +26,7 @@ public:
     // 
     double rotationSpeed;
     AbsCelestialObject* host{ nullptr };
+    GeneratedStarInfo* starhost{ nullptr };
     uint64_t bodyId;
 
     glm::dvec3 getPosition(double at_time) {
@@ -43,7 +45,7 @@ public:
     }
 
     glm::mat4 getFromParentLookAtThisMatrix(double at_time) {
-        auto parentPos = host->getPosition(at_time);
+        auto parentPos = starhost->getPosition(at_time); 
         auto thisPos = getPosition(at_time);
         auto direction = glm::normalize(thisPos - parentPos);
         return glm::lookAt(glm::dvec3(0.0), -direction, glm::dvec3(0.0, 1.0, 0.0));

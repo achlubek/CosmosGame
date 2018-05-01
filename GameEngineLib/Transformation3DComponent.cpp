@@ -14,7 +14,10 @@ void Transformation3DComponent::loadFromFile(std::string mediakey)
 
 Transformation3DComponent * Transformation3DComponent::clone()
 {
-    return new Transformation3DComponent(mass, position, orientation, linearVelocity, angularVelocity);
+    auto res = new Transformation3DComponent(mass, position, orientation, linearVelocity, angularVelocity);
+    res->gravityAcceleration = gravityAcceleration;
+    res->timeScale = timeScale;
+    return res;
 }
 
 Transformation3DComponent::Transformation3DComponent(double imass, glm::dvec3 iposition, glm::dquat iorientation, glm::dvec3 ilinearVelocity, glm::dvec3 iangularVelocity)

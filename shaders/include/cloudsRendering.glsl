@@ -40,6 +40,8 @@ float clouds(vec3 p, float seed){
 }
 
 vec2 getLowAndHighClouds(vec3 dir, float seed){
+    dir *= 0.5;
+    dir *= 0.5 + 2.0 * oct(sin(seed + 12.01223));
     float low = 1.0 - clouds(dir, seed);
     float c = cloud(vec4(dir, 1.0));
     vec3 wind = vec3(
@@ -55,7 +57,7 @@ vec2 getLowAndHighClouds(vec3 dir, float seed){
     float scale = 0.3 + 1.0 * aBitBetterNoise(vec4(dir * 3.2 - 10.0, 1.0));
     float experimental = getwaves(scale * (dir * 10.0 + wind * 5.0), 13.0, 13.0, 3.0) * getwaves(scale * (dir * 3.0 + wind * 5.0), 13.0, 13.0, 3.0)
      + getwaves(scale * (dir * 40.0 + wind * 5.0), 13.0, 13.0, 3.0) * 0.1;
-    float threshold = 0.005 + 0.4 * aBitBetterNoise(vec4(dir * 3.2 , 1.0));
-    float range = 0.3* aBitBetterNoise(vec4(dir * 3.2 + 10.0 , 1.0));
+    float threshold = 0.00015 + 0.2 * aBitBetterNoise(vec4(dir * 3.2 , 1.0)) + 0.3 * oct(sin(seed));
+    float range = 0.3* aBitBetterNoise(vec4(dir * 3.2 + 10.0 , 1.0)) + 0.3 * oct(sin(seed + 12.0));
     return vec2(smoothstep(threshold, threshold + range, experimental), low);
 }

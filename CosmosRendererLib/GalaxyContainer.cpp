@@ -160,6 +160,7 @@ std::vector<CelestialBody> GalaxyContainer::loadPlanetsByStar(GeneratedStarInfo&
         auto planet = CelestialBody();
         planet.bodyId = aslong(planetrow["id"]);
         planet.host = &star;
+        planet.starhost = static_cast<GeneratedStarInfo*>(&star);
         planet.radius = asdouble(planetrow["radius"]);
         planet.terrainMaxLevel = asdouble(planetrow["terrain_max"]);
         planet.fluidMaxLevel = asdouble(planetrow["fluid_max"]);
@@ -195,6 +196,7 @@ std::vector<CelestialBody> GalaxyContainer::loadMoonsByPlanet(CelestialBody& pla
         auto moon = CelestialBody();
         moon.bodyId = aslong(moonrow["id"]);
         moon.host = &planet;
+        moon.starhost = static_cast<GeneratedStarInfo*>(planet.host);
         moon.radius = asdouble(moonrow["radius"]);
         moon.terrainMaxLevel = asdouble(moonrow["terrain_max"]);
         moon.fluidMaxLevel = asdouble(moonrow["fluid_max"]);

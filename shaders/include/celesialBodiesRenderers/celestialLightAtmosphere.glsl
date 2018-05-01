@@ -41,7 +41,7 @@ vec3 scatterLight(RenderedCelestialBody body, vec3 observer, vec3 point, vec3 li
     float newpower = 0.0;
     primaryLength = pow(primaryLength, 1.0);
     float mixer = clamp(primaryLength / maxradius, 0.0, 1.0);
-    return mix(light, colorized, mixer) * mix(1.0, newpower, mixer);
+    return mix(light, colorized, mixer) * mix(newpower, 1.0, pow(1.0 - mixer, 2.0));
 
 }
 CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end, float mieMultiplier, bool highQuality){
@@ -130,7 +130,7 @@ vec4 getHighClouds(RenderedCelestialBody body, vec3 position){
     vec3 dirToStar = normalize(ClosestStarPosition - position);
     vec3 color = max(vec3(0.0), getSunColorForRay(body, Ray(position, dirToStar)));
     //if(distance(vec3(0.0), body.position) < body.atmosphereRadius) color *= 0.5;
-    return vec4(shadow * color * 0.1, highClouds * 0.0);
+    return vec4(shadow * color * 1.0, highClouds * 1.0);
 }
 CelestialRenderResult renderAtmosphere(RenderPass pass){
     float centerDistance = distance(pass.ray.o, pass.body.position);
@@ -171,7 +171,7 @@ CelestialRenderResult renderAtmosphere(RenderPass pass){
         }
         else if(hitcount == 2){
             result = renderAtmospherePath(pass, pass.ray.o, planetHit, 1.0, true);
-            vec4 hclouds = pass.isHighCloudsHit ? getHighClouds(pass.body, pass.highCloudsHitPos) : vec4(0.0);
+            vec4 hclouds = pass.isHighCloudsHit && pass.highCloudsHit < pass.surfaceHit && pass.highCloudsHit < pass.waterHit ? getHighClouds(pass.body, pass.highCloudsHitPos) : vec4(0.0);
             result.alphaBlendedLight.rgba = alphaMix(result.alphaBlendedLight.rgba, hclouds);
         }
     } else {

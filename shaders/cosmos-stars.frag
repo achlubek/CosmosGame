@@ -52,6 +52,7 @@ Ray cameraRay;
 GeneratedStarInfo currentStar;
 
 vec3 traceStarGlow(Ray ray){
+    float fov = sqrt(length(FrustumConeBottomLeftToBottomRight)) * 0.5;
     float dtraw = dot(normalize(currentStar.position_radius.rgb  - ray.o), ray.d);
     float dotz = max(0.0, dtraw);
 
@@ -59,24 +60,22 @@ vec3 traceStarGlow(Ray ray){
     vec4 posradius = currentStar.position_radius;
     posradius.xyz -= CameraPosition;
     float realdist = length(posradius.xyz);
-    float dist = min(500000.0, realdist);
+    float dist = min(250000.0 / fov, realdist);
     float camdist = dist;
 
     vec3 reconpoint = ray.o + ray.d * camdist;
     float deltadst = distance(ray.o + normalize(posradius.xyz) * dist, reconpoint);
-    float prcnt = max(0.0, 1.0 - deltadst / (currentStar.position_radius.a * 1.0));
-    float prcnt2 = max(0.0, 1.0 - deltadst / (currentStar.position_radius.a * 4.0));
+    float prcnt = max(0.0, 1.0 - deltadst / (currentStar.position_radius.a * 1.0 * fov));
+    float prcnt2 = max(0.0, 1.0 - deltadst / (currentStar.position_radius.a * 4.0 * fov));
     prcnt *= prcnt;
-    prcnt2 *= prcnt2 * prcnt2 * prcnt2 * prcnt2;
     camdist = distance(CameraPosition, currentStar.position_radius.xyz);
     camdist *= 0.001;
     //camdist = min(camdist, 66000.0);
-    float cst2 = camdist * 0.001;
+    float cst2 = camdist * 0.001 * fov;
     float dim = clamp(1.0 /(1.0 + cst2 * cst2 * 0.06), 0.0001, 1.0);
     dim = pow(dim,1.2);
-    float additionalCloseMultiplier = 1.0 + (1.0 - smoothstep(100.0, 100000.0, realdist)) * 10000.0;
 
-    return dim * (smoothstep(0.00, 0.3, prcnt) * 14.9 ) * currentStar.color_age.xyz;
+    return dim * (prcnt * 14.9 ) * currentStar.color_age.xyz;
 
 }
 

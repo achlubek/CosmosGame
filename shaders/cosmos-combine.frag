@@ -71,7 +71,9 @@ vec3 afl_tonemap(vec3 c){
     vec3 bleachedShadows = pow(mix(c, vec3(length(c)), 0.17), vec3(2.0)) * 1.0;
     vec3 dimmedIntensiveLight = c * 0.07;
     vec3 result = normalize(c) * pow(length(c), 0.5);
-    return gammacorrect(result);//gammacorrect(normalize(c) * 0.1 * pow(exposure, 0.7));
+    float L = 0.27*c.r + 0.67*c.g + 0.06*c.b;
+    float Ld = L / ( 1.0 + L * 15.0 );
+    return gammacorrect(Ld * result);//gammacorrect(normalize(c) * 0.1 * pow(exposure, 0.7));
 }
 
 vec2 project(vec3 pos){

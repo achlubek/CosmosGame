@@ -102,7 +102,7 @@ float getStarTerrainShadowAtPoint(RenderedCelestialBody body, vec3 point, float 
         vec3 cloudsPos = ray.o + ray.d * highCloudsHit;
         cloudsShadow = 1.0 - celestialGetCloudsRaycast(body, cloudsPos).x;
     }
-    return surfaceShadow;// * cloudsShadow;//temouv.x < 0.5 ? depthTexture : (opo.z * 0.5 + 0.5);
+    return surfaceShadow * cloudsShadow;//temouv.x < 0.5 ? depthTexture : (opo.z * 0.5 + 0.5);
 }
 
 float getStarTerrainShadowAtPointNoClouds(RenderedCelestialBody body, vec3 point){
@@ -372,7 +372,7 @@ CelestialRenderResult renderCelestialBody(RenderedCelestialBody body, Ray ray){
     //result.additionLight = vec4(0.0);
     //vec3 nrm = texture(surfaceRenderedAlbedoRoughnessImage, gl_FragCoord.xy / Resolution).rgb;
     //float ddd = texture(surfaceRenderedDistanceImage, gl_FragCoord.xy / Resolution).r;
-    //result.alphaBlendedLight = vec4(nrm * 10000.0, step(0.01, ddd));
+    result.additionLight.a = pass.isSurfaceHit || pass.isWaterHit ? 1.0 : 0.0;
     return result;
 }
 
