@@ -310,3 +310,21 @@ void GalaxyContainer::updateClosestCelestialBody(glm::dvec3 observerPosition)
     }
     closestCelestialBody = result;
 }
+
+AbsCelestialObject * GalaxyContainer::getByPath(int starId, int planetId, int moonId)
+{
+    auto star = getAllStars()[starId - 1];
+    if (planetId <= 0) return &star;
+    GeneratedStarInfo* starinfo = new GeneratedStarInfo();
+    *starinfo = star;
+    auto celestialTarget = loadPlanetsByStar(star)[planetId - 1];
+    auto planet = new CelestialBody();
+    *planet = celestialTarget;
+    planet->host = starinfo;
+    if (moonId <= 0) return planet;
+    auto moonCelestialTarget = loadMoonsByPlanet(*planet)[moonId - 1];
+    auto moon = new CelestialBody();
+    *moon = moonCelestialTarget;
+    moon->host = planet;
+    return moon;
+}

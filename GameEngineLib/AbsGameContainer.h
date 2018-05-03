@@ -8,6 +8,7 @@ class Model3dFactory;
 class GameObject;
 class CameraController;
 class TimeProvider;
+class Interpolator;
 class ModelsRenderer;
 #include "SceneProvider.h"
 
@@ -32,6 +33,7 @@ public:
     UIRenderer* getUIRenderer();
     glm::vec2 getResolution();
     ModelsRenderer* getModelsRenderer();
+    Interpolator* getInterpolator();
     void startGameLoops();
 protected:
     double getLastTime();
@@ -49,6 +51,7 @@ private:
     std::vector<GameObject*> activeObjects;
     CameraController* viewCamera;
     TimeProvider* timeProvider;
+    Interpolator* interpolator;
     ModelsRenderer* modelsRenderer;
     double lastTime;
     static AbsGameContainer* instance;

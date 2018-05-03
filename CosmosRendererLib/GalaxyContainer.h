@@ -21,6 +21,8 @@ public:
     void loadFromDatabase(SQLiteDatabase* db);
     void update(glm::dvec3 observerPosition);
 
+    AbsCelestialObject* getByPath(int starId, int planetId = 0, int moonId = 0);
+
     EventHandler<GeneratedStarInfo> onClosestStarChange;
     EventHandler<CelestialBody> onClosestPlanetChange;
     EventHandler<CelestialBody> onClosestMoonChange;

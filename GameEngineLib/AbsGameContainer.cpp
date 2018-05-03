@@ -13,6 +13,7 @@
 #include "CameraController.h"
 #include "TimeProvider.h"
 #include "UIRenderer.h"
+#include "Interpolator.h"
 #include "ModelsRenderer.h"
 #include <ctype.h>
 
@@ -45,6 +46,8 @@ AbsGameContainer::AbsGameContainer()
     modelsRenderer = new ModelsRenderer(vulkanToolkit, vulkanToolkit->windowWidth, vulkanToolkit->windowHeight);
 
     database = new SQLiteDatabase("gamedata.db");
+
+    interpolator = new Interpolator();
 }
 
 
@@ -136,6 +139,11 @@ ModelsRenderer * AbsGameContainer::getModelsRenderer()
     return modelsRenderer;
 }
 
+Interpolator * AbsGameContainer::getInterpolator()
+{
+    return interpolator;
+}
+
 void AbsGameContainer::drawDrawableObjects(VulkanRenderStage* stage, VulkanDescriptorSet* set, double scale)
 {
     auto observerPosition = viewCamera->getPosition();
@@ -176,6 +184,8 @@ void AbsGameContainer::startGameLoops()
         onDraw();
 
         updateObjects();
+
+        interpolator->update(timeProvider->getTime());
 
         vulkanToolkit->poolEvents();
     }
