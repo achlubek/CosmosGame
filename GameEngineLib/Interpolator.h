@@ -12,6 +12,15 @@ public:
     }
 
     double getInterpolationCoefficent(double time) {
+        if (duration <= 0) {
+            if (time > start) {
+                finished = true;
+                return 1.0;
+            }
+            else {
+                return 0.0;
+            }
+        }
         double tmp = time - start;
         tmp /= duration;
         if (tmp >= 1.0) {
@@ -78,13 +87,15 @@ public:
         if (coeff <= 0.0) {
             startingValue = *valuePointer;
         }
-        *valuePointer = glm::mix(startingValue, endingValue, coeff);
+        else {
+            *valuePointer = glm::mix(startingValue, endingValue, coeff);
+        }
     }
 
 private:
     double startingValue;
     double endingValue;
-    double* valuePointer;
+    volatile double* valuePointer;
 };
 
 class Vec3InterpolatorTask : public AbsInterpolatorTask {
@@ -105,15 +116,20 @@ public:
     virtual void update(double time) override {
         double coeff = getInterpolationCoefficent(time);
         if (coeff <= 0.0) {
-            startingValue = *valuePointer;
+            startingValue.x = valuePointer->x;
+            startingValue.y = valuePointer->y;
+            startingValue.z = valuePointer->z;
         }
-        *valuePointer = glm::mix(startingValue, endingValue, coeff);
+        else {
+            auto res = glm::mix(startingValue, endingValue, coeff);
+            memcpy((void*)valuePointer, (void*)&res, sizeof(glm::dvec3));
+        }
     }
 
 private:
     glm::dvec3 startingValue;
     glm::dvec3 endingValue;
-    glm::dvec3* valuePointer;
+    volatile glm::dvec3* valuePointer;
 };
 
 class QuatInterpolatorTask : public AbsInterpolatorTask {
@@ -134,15 +150,21 @@ public:
     virtual void update(double time) override {
         double coeff = getInterpolationCoefficent(time);
         if (coeff <= 0.0) {
-            startingValue = *valuePointer;
+            startingValue.x = valuePointer->x;
+            startingValue.y = valuePointer->y;
+            startingValue.z = valuePointer->z;
+            startingValue.w = valuePointer->w;
         }
-        *valuePointer = glm::slerp(startingValue, endingValue, coeff);
+        else {
+            auto res = glm::slerp(startingValue, endingValue, coeff);
+            memcpy((void*)valuePointer, (void*)&res, sizeof(glm::dquat));
+        }
     }
 
 private:
     glm::dquat startingValue;
     glm::dquat endingValue;
-    glm::dquat* valuePointer;
+    volatile glm::dquat* valuePointer;
 };
 
 class Interpolator

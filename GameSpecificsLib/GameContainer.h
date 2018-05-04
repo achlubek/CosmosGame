@@ -22,23 +22,15 @@ public:
     ~GameContainer();
     ShipFactory* getShipFactory();
     CosmosRenderer* getCosmosRenderer();
-    virtual void onDraw() override;
-    virtual void onDrawingStart() override;
-    virtual void onUpdate(double elapsed) override;
-    virtual void onUpdateObject(GameObject* object, double elapsed) override;
     static GameContainer* getInstance();
 
 private:
+    virtual void onDraw() override;
+    virtual void onDrawingStart() override;
+
     GalaxyGenerator* galaxyGenerator;
     CosmosRenderer* cosmosRenderer;
     ModuleFactory* moduleFactory;
     ShipFactory* shipFactory;
-    UIText* fpsText;
-    UIText* gravityFluxText;
-    UIText* starNameText;
-    UIText* planetNameText;
-    UIText* moonNameText;
-    UIText* altitudeText;
-    UIText* velocityText;
 };
 

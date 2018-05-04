@@ -3,6 +3,7 @@
 #include "SceneProvider.h"
 #include "AbsGameContainer.h"
 #include "TimeProvider.h"
+#include "AbsGameStage.h"
 
 
 ModelsRenderer::ModelsRenderer(VulkanToolkit* ivulkan, int iwidth, int iheight)
@@ -149,7 +150,7 @@ void ModelsRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosi
     glm::mat4 rpmatrix = camera->projectionMatrix * inverse(cameraRotMatrix);
     camera->cone->update(inverse(rpmatrix));
 
-    bb.emplaceFloat32((float)AbsGameContainer::getInstance()->getTimeProvider()->getTime());
+    bb.emplaceFloat32((float)AbsGameContainer::getInstance()->getCurrentStage()->getTimeProvider()->getTime());
     bb.emplaceFloat32(0.0f);
     bb.emplaceFloat32((float)xpos / (float)width);
     bb.emplaceFloat32((float)ypos / (float)height);

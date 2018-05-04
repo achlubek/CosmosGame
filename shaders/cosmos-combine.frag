@@ -6,11 +6,10 @@ layout(location = 0) out vec4 outColor;
 
 layout(set = 0, binding = 1) uniform sampler2D texCelestialAlpha;
 layout(set = 0, binding = 2) uniform sampler2D texStars;
-layout(set = 0, binding = 3) uniform sampler2D uiTexture;
-layout(set = 0, binding = 4) uniform sampler2D texCelestialAdditive;
-layout(set = 0, binding = 5) uniform sampler2D texModelsAlbedoRoughness;
-layout(set = 0, binding = 6) uniform sampler2D texModelsNormalMetalness;
-layout(set = 0, binding = 7) uniform sampler2D texModelsDistance;
+layout(set = 0, binding = 3) uniform sampler2D texCelestialAdditive;
+layout(set = 0, binding = 4) uniform sampler2D texModelsAlbedoRoughness;
+layout(set = 0, binding = 5) uniform sampler2D texModelsNormalMetalness;
+layout(set = 0, binding = 6) uniform sampler2D texModelsDistance;
 
 #include rendererDataSet.glsl
 #include proceduralValueNoise.glsl
@@ -87,7 +86,6 @@ void main() {
     vec3 dir = reconstructCameraSpaceDistance(gl_FragCoord.xy / Resolution, 1.0);
 
     vec3 stars = texture(texStars, UV).rgb ;//texture(texStars, UV);
-    vec4 ui = texture(uiTexture, UV);
     //stars.rgb /= max(0.0001, stars.a);
     vec3 a = celestial.rgb;//mix(stars, celestial.rgb, celestial.a);
     vec4 adddata = texture(texCelestialAdditive, UV).rgba;
@@ -106,6 +104,5 @@ void main() {
     a += adddata.rgb + sunflare * max(0.0, 1.0 - adddata.a) * sunFlareColorizer * Exposure * 10.8;
     vec4 shipdata = texture(texModelsAlbedoRoughness, UV).rgba;
     a = mix(a, shipdata.rgb, shipdata.a);
-    a = mix(a, ui.rgb, ui.a);
     outColor = vec4(afl_tonemap(clamp(a, 0.0, 10000.0)), 1.0);
 }

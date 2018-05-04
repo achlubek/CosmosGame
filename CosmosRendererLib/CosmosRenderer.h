@@ -10,18 +10,30 @@ class TimeProvider;
 class CosmosRenderer
 {
 public:
-    CosmosRenderer(VulkanToolkit* ivulkan, TimeProvider* timeProvider, SceneProvider* sceneProvider, GalaxyContainer* galaxy, VulkanImage* overlayImage, int iwidth, int iheight);
+    CosmosRenderer(VulkanToolkit* ivulkan, GalaxyContainer* galaxy, int iwidth, int iheight);
     ~CosmosRenderer();
+
+    const double scale = 0.01;
+
     void recompileShaders(bool deleteOld); 
 
+    void mapBuffers();
+    void unmapBuffers();
+
+    void updateStarsBuffer();
+
+    void updateCameraBuffer(Camera* cam, glm::dvec3 observerPosition, double time);
+    void draw(double time);
+
+    GalaxyContainer* getGalaxy();
+    double getExposure();
+    void setExposure(double value);
+    void invokeOnDrawingThread(std::function<void(void)> func);
+private:
     GalaxyContainer* galaxy;
-    VulkanImage* overlayImage;
     AssetLoader assets;
-    TimeProvider* timeProvider;
 
-    Camera* internalCamera; 
-
-    SceneProvider* sceneProvider;
+    //Camera* internalCamera; 
 
     int lastPlanetId;
 
@@ -100,7 +112,6 @@ public:
     Object3dInfo* icosphereMedium;
     Object3dInfo* icosphereHigh;
 
-    const double scale = 0.01;
 
     double exposure = 0.0003;
 
@@ -111,13 +122,6 @@ public:
     void* planetsDataBufferPointer;
     void* moonsDataBufferPointer;
 
-    void mapBuffers();
-    void unmapBuffers();
-
-    void updateStarsBuffer();
-    
-    void updateCameraBuffer(Camera* cam, glm::dvec3 observerPosition);
-    void draw();
 
     void onClosestStarChange(GeneratedStarInfo star);
     void onClosestPlanetChange(CelestialBody planet);
@@ -130,7 +134,6 @@ public:
     volatile bool readyForDrawing = false;
     volatile bool firstRecordingDone = false;
 
-private:
 //#define PERFORMANCE_DEBUG
     double measurementStopwatch = 0.0;
     void measureTimeStart();

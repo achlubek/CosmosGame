@@ -117,6 +117,7 @@ void GalaxyContainer::loadFromDatabase(SQLiteDatabase * db)
 
 void GalaxyContainer::update(glm::dvec3 observerPosition)
 {
+    if (disableBodyUpdates) return;
     updateClosestStar(observerPosition);
     if (lastStarId != closestStar.starId) {
         lastStarId = closestStar.starId;
@@ -327,4 +328,9 @@ AbsCelestialObject * GalaxyContainer::getByPath(int starId, int planetId, int mo
     *moon = moonCelestialTarget;
     moon->host = planet;
     return moon;
+}
+
+void GalaxyContainer::setBodyUpdates(bool enable)
+{
+    disableBodyUpdates = enable;
 }

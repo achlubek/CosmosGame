@@ -152,6 +152,7 @@
     <ClInclude Include="AbsComponent.h" />
     <ClInclude Include="AbsDrawableComponent.h" />
     <ClInclude Include="AbsGameContainer.h" />
+    <ClInclude Include="AbsGameStage.h" />
     <ClInclude Include="CameraChaseStrategy.h" />
     <ClInclude Include="CameraController.h" />
     <ClInclude Include="CameraOrbitStrategy.h" />
@@ -175,6 +176,7 @@
     <ClCompile Include="AbsComponent.cpp" />
     <ClCompile Include="AbsDrawableComponent.cpp" />
     <ClCompile Include="AbsGameContainer.cpp" />
+    <ClCompile Include="AbsGameStage.cpp" />
     <ClCompile Include="CameraChaseStrategy.cpp" />
     <ClCompile Include="CameraController.cpp" />
     <ClCompile Include="CameraOrbitStrategy.cpp" />

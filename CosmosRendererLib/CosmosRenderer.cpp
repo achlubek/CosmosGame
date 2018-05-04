@@ -9,11 +9,11 @@
 #include "vulkan.h"
 
 
-CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, TimeProvider* itimeProvider, SceneProvider* isceneProvider, GalaxyContainer* igalaxy, VulkanImage* ioverlayImage, int iwidth, int iheight) :
-    galaxy(igalaxy), overlayImage(ioverlayImage), width(iwidth), height(iheight), timeProvider(itimeProvider),
-    vulkan(ivulkan), sceneProvider(isceneProvider), assets(AssetLoader(ivulkan)), renderablePlanets({}), renderableMoons({}), updatingSafetyQueue(InvokeQueue())
+CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, GalaxyContainer* igalaxy, int iwidth, int iheight) :
+    galaxy(igalaxy), width(iwidth), height(iheight),
+    vulkan(ivulkan), assets(AssetLoader(ivulkan)), renderablePlanets({}), renderableMoons({}), updatingSafetyQueue(InvokeQueue())
 {
-    internalCamera = new Camera();
+  //  internalCamera = new Camera();
 
     cube3dInfo = assets.loadObject3dInfoFile("cube1unitradius.raw");
 
@@ -148,7 +148,6 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, TimeProvider* itimeProvid
     combineLayout->addField(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
     combineLayout->addField(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
     combineLayout->addField(6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    combineLayout->addField(7, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
     combineLayout->compile();
 
 
@@ -211,11 +210,10 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, TimeProvider* itimeProvid
     combineSet->bindUniformBuffer(0, cameraDataBuffer);
     combineSet->bindImageViewSampler(1, celestialAlphaImage);
     combineSet->bindImageViewSampler(2, starsImage);
-    combineSet->bindImageViewSampler(3, overlayImage);
-    combineSet->bindImageViewSampler(4, celestialAdditiveImage);
-    combineSet->bindImageViewSampler(5, AbsGameContainer::getInstance()->getModelsRenderer()->getAlbedoRoughnessImage());
-    combineSet->bindImageViewSampler(6, AbsGameContainer::getInstance()->getModelsRenderer()->getNormalMetalnessImage());
-    combineSet->bindImageViewSampler(7, AbsGameContainer::getInstance()->getModelsRenderer()->getDistanceImage());
+    combineSet->bindImageViewSampler(3, celestialAdditiveImage);
+    combineSet->bindImageViewSampler(4, AbsGameContainer::getInstance()->getModelsRenderer()->getAlbedoRoughnessImage());
+    combineSet->bindImageViewSampler(5, AbsGameContainer::getInstance()->getModelsRenderer()->getNormalMetalnessImage());
+    combineSet->bindImageViewSampler(6, AbsGameContainer::getInstance()->getModelsRenderer()->getDistanceImage());
     combineSet->update();
 
 
@@ -405,7 +403,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
 
 void CosmosRenderer::mapBuffers()
 {
-    starsDataBuffer->map(0, starsDataBuffer->size, &starsDataBufferPointer);
+starsDataBuffer->map(0, starsDataBuffer->size, &starsDataBufferPointer);
     planetsDataBuffer->map(0, planetsDataBuffer->size, &planetsDataBufferPointer);
     moonsDataBuffer->map(0, moonsDataBuffer->size, &moonsDataBufferPointer);
 }
@@ -428,7 +426,7 @@ void CosmosRenderer::updateStarsBuffer()
     for (int s = 0; s < stars.size(); s++) {
         auto star = stars[s];
 
-        glm::dvec3 starpos = star.getPosition(timeProvider->getTime()) * scale;
+        glm::dvec3 starpos = star.getPosition(0.0) * scale;
 
         starsBB.emplaceFloat32((float)starpos.x);
         starsBB.emplaceFloat32((float)starpos.y);
@@ -454,11 +452,8 @@ void CosmosRenderer::updateStarsBuffer()
 }
 
 
-void CosmosRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosition)
+void CosmosRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosition, double time)
 {
-    internalCamera->projectionMatrix = camera->projectionMatrix;
-    internalCamera->transformation->setOrientation(camera->transformation->getOrientation());
-    internalCamera->transformation->setPosition(glm::vec3(0.0));
     VulkanBinaryBufferBuilder bb = VulkanBinaryBufferBuilder();
     double xpos, ypos;
     glfwGetCursorPos(vulkan->window, &xpos, &ypos);
@@ -467,31 +462,31 @@ void CosmosRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosi
         0.0f, -1.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.5f, 0.0f,
         0.0f, 0.0f, 0.5f, 1.0f);
-    glm::mat4 vpmatrix = clip * internalCamera->projectionMatrix * internalCamera->transformation->getInverseWorldTransform();
+    glm::mat4 vpmatrix = clip * camera->projectionMatrix * camera->transformation->getInverseWorldTransform();
 
-    glm::mat4 cameraViewMatrix = internalCamera->transformation->getInverseWorldTransform();
-    glm::mat4 cameraRotMatrix = internalCamera->transformation->getRotationMatrix();
-    glm::mat4 rpmatrix = internalCamera->projectionMatrix * inverse(cameraRotMatrix);
-    internalCamera->cone->update(inverse(rpmatrix));
+    glm::mat4 cameraViewMatrix = camera->transformation->getInverseWorldTransform();
+    glm::mat4 cameraRotMatrix = camera->transformation->getRotationMatrix();
+    glm::mat4 rpmatrix = camera->projectionMatrix * inverse(cameraRotMatrix);
+   // camera->cone->update(inverse(rpmatrix));
 
     auto star = galaxy->getClosestStar();
-    glm::dvec3 closesStarRelPos = (star.getPosition(timeProvider->getTime()) - observerPosition) * scale;
+    glm::dvec3 closesStarRelPos = (star.getPosition(time) - observerPosition) * scale;
 
-    bb.emplaceFloat32((float)timeProvider->getTime());
+    bb.emplaceFloat32((float)time);
     bb.emplaceFloat32(0.0f);
     bb.emplaceFloat32((float)xpos / (float)width);
     bb.emplaceFloat32((float)ypos / (float)height);
     bb.emplaceGeneric((unsigned char*)&rpmatrix, sizeof(rpmatrix));
 
     glm::vec3 newcamerapos = glm::vec3(observerPosition * scale);
-    bb.emplaceGeneric((unsigned char*)&newcamerapos, sizeof(internalCamera->cone->leftBottom));
+    bb.emplaceGeneric((unsigned char*)&newcamerapos, sizeof(camera->cone->leftBottom));
     bb.emplaceFloat32(0.0f);
 
-    bb.emplaceGeneric((unsigned char*)&(internalCamera->cone->leftBottom), sizeof(internalCamera->cone->leftBottom));
+    bb.emplaceGeneric((unsigned char*)&(camera->cone->leftBottom), sizeof(camera->cone->leftBottom));
     bb.emplaceFloat32(0.0f);
-    bb.emplaceGeneric((unsigned char*)&(internalCamera->cone->rightBottom - internalCamera->cone->leftBottom), sizeof(internalCamera->cone->leftBottom));
+    bb.emplaceGeneric((unsigned char*)&(camera->cone->rightBottom - camera->cone->leftBottom), sizeof(camera->cone->leftBottom));
     bb.emplaceFloat32(0.0f);
-    bb.emplaceGeneric((unsigned char*)&(internalCamera->cone->leftTop - internalCamera->cone->leftBottom), sizeof(internalCamera->cone->leftBottom));
+    bb.emplaceGeneric((unsigned char*)&(camera->cone->leftTop - camera->cone->leftBottom), sizeof(camera->cone->leftBottom));
     bb.emplaceFloat32(0.0f);
     bb.emplaceFloat32((float)width);
     bb.emplaceFloat32((float)height);
@@ -545,7 +540,7 @@ void CosmosRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosi
 
 }
 
-void CosmosRenderer::draw()
+void CosmosRenderer::draw(double time)
 {
     if (!readyForDrawing) return;
 
@@ -596,8 +591,8 @@ void CosmosRenderer::draw()
 
         for (int a = 0; a < renderables.size(); a++) {
             for (int b = 0; b < renderables.size(); b++) {
-                double dist_a = renderables[a]->getDistance(observerCameraPosition, timeProvider->getTime());
-                double dist_b = renderables[b]->getDistance(observerCameraPosition, timeProvider->getTime());
+                double dist_a = renderables[a]->getDistance(observerCameraPosition, time);
+                double dist_b = renderables[b]->getDistance(observerCameraPosition, time);
                 if (dist_a > dist_b) {
                     auto tmp = renderables[b];
                     renderables[b] = renderables[a];
@@ -626,7 +621,7 @@ void CosmosRenderer::draw()
     celestialDataUpdateComputeStage->submitNoSemaphores({});
 
     for (int a = 0; a < renderables.size(); a++) {
-        renderables[a]->updateBuffer(observerCameraPosition, scale, timeProvider->getTime());
+        renderables[a]->updateBuffer(observerCameraPosition, scale, time);
     }
     measureTimeEnd("Celestial hi freq update");
     /*
@@ -650,8 +645,8 @@ void CosmosRenderer::draw()
         celestialBodySurfaceRenderStage->setSets({ rendererDataSet, renderables[i]->renderSurfaceSet });
 
         double radius = renderables[i]->getRadius();
-        auto position = renderables[i]->body.getPosition(timeProvider->getTime());
-        glm::dquat rotmat = glm::inverse(glm::quat_cast(renderables[i]->body.getRotationMatrix(timeProvider->getTime())));
+        auto position = renderables[i]->body.getPosition(time);
+        glm::dquat rotmat = glm::inverse(glm::quat_cast(renderables[i]->body.getRotationMatrix(time)));
         double centerdist = glm::distance(position, observerCameraPosition);
 
         if (centerdist > radius * 4 || renderables[i]->getRenderMethod() == CelestialRenderMethod::thickAtmosphere) {
@@ -774,7 +769,7 @@ void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
             surfaceRenderedDistanceImage,
             waterRenderedNormalMetalnessImage,
             waterRenderedDistanceImage);
-        renderable->updateBuffer(observerCameraPosition, scale, timeProvider->getTime());
+        renderable->updateBuffer(observerCameraPosition, scale, 0.0);
         renderablePlanets.push_back(renderable);
         //renderable->updateData(celestialDataUpdateComputeStage);
 
@@ -799,7 +794,7 @@ void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
                 surfaceRenderedDistanceImage,
                 waterRenderedNormalMetalnessImage,
                 waterRenderedDistanceImage);
-            renderable->updateBuffer(observerCameraPosition, scale, timeProvider->getTime());
+            renderable->updateBuffer(observerCameraPosition, scale, 0.0);
             renderableMoons.push_back(renderable);
             //renderable->updateData(celestialDataUpdateComputeStage);
         }
@@ -936,4 +931,21 @@ std::vector<Object3dInfo*> CosmosRenderer::splitTriangles(Object3dInfo * info)
         objs.push_back(new Object3dInfo(info->vulkan, buffer));
     }
     return objs;
+}
+
+GalaxyContainer * CosmosRenderer::getGalaxy()
+{
+    return galaxy;
+}
+double CosmosRenderer::getExposure()
+{
+    return exposure;
+}
+void CosmosRenderer::setExposure(double value)
+{
+    exposure = value;
+}
+void CosmosRenderer::invokeOnDrawingThread(std::function<void(void)> func)
+{
+    updatingSafetyQueue.enqueue(func);
 }

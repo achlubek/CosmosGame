@@ -28,6 +28,7 @@ public:
     EventHandler<CelestialBody> onClosestMoonChange;
     std::string getStarName(int id);
     std::string getCelestialBodyName(int id);
+    void setBodyUpdates(bool enable);
 private:
     SQLiteDatabase* database;
     std::vector<GeneratedStarInfo> allStars;
@@ -48,5 +49,6 @@ private:
     uint64_t lastPlanetId = 0;
     uint64_t lastMoonId = 0;
     std::vector<std::string> bodiesNames = {};
+    bool disableBodyUpdates = false;
 };
 

@@ -15,6 +15,7 @@
 #include "UIRenderer.h"
 #include "Interpolator.h"
 #include "ModelsRenderer.h"
+#include "AbsGameStage.h"
 #include <ctype.h>
 
 AbsGameContainer* AbsGameContainer::instance = nullptr;
@@ -22,9 +23,6 @@ AbsGameContainer* AbsGameContainer::instance = nullptr;
 AbsGameContainer::AbsGameContainer()
 {
     instance = this;
-    activeObjects = {};
-
-    timeProvider = new TimeProvider();
 
     INIReader* configreader = new INIReader("settings.ini");
     vulkanToolkit = new VulkanToolkit();
@@ -33,16 +31,12 @@ AbsGameContainer::AbsGameContainer()
     Mouse* mouse = new Mouse(vulkanToolkit->window);
     Keyboard* keyboard = new Keyboard(vulkanToolkit->window);
 
-    ui = new UIRenderer(vulkanToolkit, mouse, vulkanToolkit->windowWidth, vulkanToolkit->windowHeight);
-
     assetLoader = new AssetLoader(vulkanToolkit);
 
     gameControls = new GameControls(keyboard, mouse, "controls.ini");
 
     model3dFactory = new Model3dFactory();
 
-    viewCamera = new CameraController();
-     
     modelsRenderer = new ModelsRenderer(vulkanToolkit, vulkanToolkit->windowWidth, vulkanToolkit->windowHeight);
 
     database = new SQLiteDatabase("gamedata.db");
@@ -53,40 +47,6 @@ AbsGameContainer::AbsGameContainer()
 
 AbsGameContainer::~AbsGameContainer()
 {
-}
-
-
-void AbsGameContainer::addObject(GameObject * object)
-{
-    activeObjects.push_back(object);
-}
-
-void AbsGameContainer::removeObject(GameObject * object)
-{
-    auto found = std::find(activeObjects.begin(), activeObjects.end(), object);
-
-    if (found != activeObjects.end()) {
-        activeObjects.erase(found);
-    }
-}
-
-void AbsGameContainer::removeAllObjects()
-{
-    activeObjects.clear();
-}
-
-void AbsGameContainer::updateObjects()
-{
-    double timescale = 1.0;
-    double nowtime = glfwGetTime();
-    for (int i = 0; i < activeObjects.size(); i++) {
-        onUpdateObject(activeObjects[i], (nowtime - lastTime) * timescale);
-        activeObjects[i]->update((nowtime - lastTime) * timescale);
-    }
-    onUpdate((nowtime - lastTime) * timescale);
-    viewCamera->update(nowtime - lastTime);
-    timeProvider->update((nowtime - lastTime) * timescale);
-    lastTime = nowtime;
 }
 
 VulkanToolkit * AbsGameContainer::getVulkanToolkit()
@@ -114,21 +74,6 @@ GameControls * AbsGameContainer::getControls()
     return gameControls;
 }
 
-TimeProvider * AbsGameContainer::getTimeProvider()
-{
-    return timeProvider;
-}
-
-CameraController * AbsGameContainer::getViewCamera()
-{
-    return viewCamera;
-}
-
-UIRenderer * AbsGameContainer::getUIRenderer()
-{
-    return ui;
-}
-
 glm::vec2 AbsGameContainer::getResolution()
 {
     return glm::vec2((float)vulkanToolkit->windowWidth, (float)vulkanToolkit->windowHeight);
@@ -144,28 +89,27 @@ Interpolator * AbsGameContainer::getInterpolator()
     return interpolator;
 }
 
-void AbsGameContainer::drawDrawableObjects(VulkanRenderStage* stage, VulkanDescriptorSet* set, double scale)
+AbsGameStage * AbsGameContainer::getCurrentStage()
 {
-    auto observerPosition = viewCamera->getPosition();
-    for (int i = 0; i < activeObjects.size(); i++) {
-        auto comps = activeObjects[i]->getAllComponents();
-        for (int g = 0; g < comps.size(); g++) {
-            if (comps[g]->isDrawable()) {
-                auto drawable = static_cast<AbsDrawableComponent*>(comps[g]);
-                drawable->draw(observerPosition, stage, set, scale);
-            }
-        }
-    }
+    return currentStage;
 }
+
 
 AbsGameContainer * AbsGameContainer::getInstance()
 {
     return instance;
 }
 
+void AbsGameContainer::setCurrentStage(AbsGameStage * stage)
+{
+    currentStage = stage;
+}
+
 void AbsGameContainer::startGameLoops()
 {
+    auto stage = getCurrentStage();
     onDrawingStart();
+    stage->onDrawingStart();
     int frames = 0;
     double lastTime = 0.0;
     while (!vulkanToolkit->shouldCloseWindow()) {
@@ -178,20 +122,16 @@ void AbsGameContainer::startGameLoops()
         }
         lastTime = nowtime;
 
-        modelsRenderer->updateCameraBuffer(getViewCamera()->getInternalCamera(), getViewCamera()->getPosition());
-        modelsRenderer->draw(this);
-        ui->draw();
+        modelsRenderer->updateCameraBuffer(currentStage->getViewCamera()->getInternalCamera(), currentStage->getViewCamera()->getPosition());
+        modelsRenderer->draw(currentStage);
+        currentStage->getUIRenderer()->draw();
         onDraw();
+        stage->onDraw();
 
-        updateObjects();
+        currentStage->updateObjects();
 
-        interpolator->update(timeProvider->getTime());
+        interpolator->update(currentStage->getTimeProvider()->getTime());
 
         vulkanToolkit->poolEvents();
     }
-}
-
-double AbsGameContainer::getLastTime()
-{
-    return lastTime;
 }
