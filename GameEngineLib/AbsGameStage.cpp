@@ -26,6 +26,7 @@ AbsGameStage::AbsGameStage(AbsGameContainer* icontainer)
     ui = new UIRenderer(container->getVulkanToolkit(), container->getControls()->getRawMouse(), container->getVulkanToolkit()->windowWidth, container->getVulkanToolkit()->windowHeight);
 
     viewCamera = new CameraController();
+
 }
 
 AbsGameStage::~AbsGameStage()
@@ -53,15 +54,14 @@ void AbsGameStage::removeAllObjects()
 
 void AbsGameStage::updateObjects()
 {
+    double nowtime = timeProvider->getTime();
     double timescale = 1.0;
-    double nowtime = glfwGetTime();
     for (int i = 0; i < activeObjects.size(); i++) {
         onUpdateObject(activeObjects[i], (nowtime - lastTime) * timescale);
         activeObjects[i]->update((nowtime - lastTime) * timescale);
     }
     onUpdate((nowtime - lastTime) * timescale);
     viewCamera->update(nowtime - lastTime);
-    timeProvider->update((nowtime - lastTime) * timescale);
     lastTime = nowtime;
 }
 

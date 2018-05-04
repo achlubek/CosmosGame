@@ -71,8 +71,11 @@ vec3 afl_tonemap(vec3 c){
     vec3 dimmedIntensiveLight = c * 0.07;
     vec3 result = normalize(c) * pow(length(c), 0.5);
     float L = 0.27*c.r + 0.67*c.g + 0.06*c.b;
-    float Ld = L / ( 1.0 + L * 15.0 );
-    return gammacorrect(Ld * result);//gammacorrect(normalize(c) * 0.1 * pow(exposure, 0.7));
+    float B = 0.01*c.r + 0.47*c.g + 0.52*c.b;
+    float Ld = L / ( 0.01 + L * 4.0 );
+    vec3 bleachx = vec3(B) * vec3(0.01, 0.47, 0.52) * 0.04;
+    //return gammacorrect(bleachx);
+    return gammacorrect(Ld * c + bleachx);//gammacorrect(normalize(c) * 0.1 * pow(exposure, 0.7));
 }
 
 vec2 project(vec3 pos){

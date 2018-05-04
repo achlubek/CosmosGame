@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "GameContainer.h"
+#include "FreeFlightGameStage.h"
 
 int main()
 { 
@@ -7,6 +8,8 @@ int main()
     Media::loadFileMap("../../shaders");
 
     GameContainer * game = new GameContainer();
+    FreeFlightGameStage * stage = new FreeFlightGameStage(game);
+    game->setCurrentStage(stage);
     game->startGameLoops();
     return 0;
 

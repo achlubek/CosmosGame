@@ -22,7 +22,8 @@ public:
     UIRenderer* getUIRenderer();
     AbsGameContainer* getGameContainer();
 
-    virtual void onDrawingStart() = 0;
+    virtual void onSwitchTo() = 0;
+    virtual void onSwitchFrom() = 0;
     virtual void onDraw() = 0;
 protected:
     double getLastTime();

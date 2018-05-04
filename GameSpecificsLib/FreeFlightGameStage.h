@@ -8,7 +8,8 @@ public:
     FreeFlightGameStage(AbsGameContainer* container);
     ~FreeFlightGameStage();
     virtual void onDraw() override;
-    virtual void onDrawingStart() override;
+    virtual void onSwitchTo() override;
+    virtual void onSwitchFrom() override;
     virtual void onUpdate(double elapsed) override;
 private:
     GameContainer * getCosmosGameContainer();

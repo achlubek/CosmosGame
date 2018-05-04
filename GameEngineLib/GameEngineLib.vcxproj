@@ -161,6 +161,7 @@
     <ClInclude Include="GameControls.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Interpolator.h" />
+    <ClInclude Include="OutputScreenRenderer.h" />
     <ClInclude Include="PointerDrivenCameraStrategy.h" />
     <ClInclude Include="Model3d.h" />
     <ClInclude Include="Model3dFactory.h" />
@@ -184,6 +185,7 @@
     <ClCompile Include="GameControls.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Interpolator.cpp" />
+    <ClCompile Include="OutputScreenRenderer.cpp" />
     <ClCompile Include="PointerDrivenCameraStrategy.cpp" />
     <ClCompile Include="Model3d.cpp" />
     <ClCompile Include="Model3dFactory.cpp" />

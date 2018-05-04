@@ -117,7 +117,11 @@ GameContainer * FreeFlightGameStage::getCosmosGameContainer()
     return static_cast<GameContainer*>(getGameContainer());
 }
 
-void FreeFlightGameStage::onDrawingStart()
+void FreeFlightGameStage::onSwitchTo()
+{
+
+}
+void FreeFlightGameStage::onSwitchFrom()
 {
 
 }

@@ -43,7 +43,6 @@ private:
     int height{ 0 };
 
     VulkanToolkit* vulkan{ nullptr };
-    VulkanRenderer* renderer{ nullptr };
 
     VulkanRenderStage* celestialStage{ nullptr };
     VulkanDescriptorSetLayout* rendererDataLayout{ nullptr };

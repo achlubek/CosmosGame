@@ -13,7 +13,7 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, GalaxyContainer* igalaxy,
     galaxy(igalaxy), width(iwidth), height(iheight),
     vulkan(ivulkan), assets(AssetLoader(ivulkan)), renderablePlanets({}), renderableMoons({}), updatingSafetyQueue(InvokeQueue())
 {
-  //  internalCamera = new Camera();
+    //  internalCamera = new Camera();
 
     cube3dInfo = assets.loadObject3dInfoFile("cube1unitradius.raw");
 
@@ -252,7 +252,6 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
         safedelete(celestialStage);
         safedelete(starsStage);
         safedelete(combineStage);
-        safedelete(renderer);
         for (int i = 0; i < shadowmapsDivisors.size(); i++) {
             safedelete(celestialShadowMapRenderStages[i]);
         }
@@ -385,13 +384,10 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     combineStage->addShaderStage(combinefrag->createShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT, "main"));
     combineStage->addDescriptorSetLayout(combineLayout->layout);
     combineStage->setSets({ combineSet });
-    //combineStage->addOutputImage(outputImage); //outputs to swapchain, managed automatically
+    combineStage->addOutputImage(AbsGameContainer::getInstance()->getOutputImage());
+    combineStage->compile();
 
     //**********************//
-
-    renderer = new VulkanRenderer(vulkan);
-    renderer->setOutputStage(combineStage);
-    renderer->compile();
 
     if (deleteOld) {
         onClosestPlanetChange(galaxy->getClosestPlanet());
@@ -403,7 +399,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
 
 void CosmosRenderer::mapBuffers()
 {
-starsDataBuffer->map(0, starsDataBuffer->size, &starsDataBufferPointer);
+    starsDataBuffer->map(0, starsDataBuffer->size, &starsDataBufferPointer);
     planetsDataBuffer->map(0, planetsDataBuffer->size, &planetsDataBufferPointer);
     moonsDataBuffer->map(0, moonsDataBuffer->size, &moonsDataBufferPointer);
 }
@@ -467,7 +463,7 @@ void CosmosRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosi
     glm::mat4 cameraViewMatrix = camera->transformation->getInverseWorldTransform();
     glm::mat4 cameraRotMatrix = camera->transformation->getRotationMatrix();
     glm::mat4 rpmatrix = camera->projectionMatrix * inverse(cameraRotMatrix);
-   // camera->cone->update(inverse(rpmatrix));
+    // camera->cone->update(inverse(rpmatrix));
 
     auto star = galaxy->getClosestStar();
     glm::dvec3 closesStarRelPos = (star.getPosition(time) - observerPosition) * scale;
@@ -652,22 +648,22 @@ void CosmosRenderer::draw(double time)
         if (centerdist > radius * 4 || renderables[i]->getRenderMethod() == CelestialRenderMethod::thickAtmosphere) {
             meshSequence.push_back(icosphereLow);
             //celestialBodySurfaceRenderStage->drawMesh(icosphereLow, 1);
-        } 
+        }
         else {
             for (int g = 0; g < patchesLowPoly.size(); g++) {
                 glm::dvec3 position1 = (rotmat * glm::dvec3(std::get<0>(patchesLowPoly[g]))) * radius + position;
                 double dist = glm::distance(observerCameraPosition, position1);
                 if (dist < radius * 0.2) {
                     meshSequence.push_back(std::get<1>(patchesHighPoly[g]));
-                  //  celestialBodySurfaceRenderStage->drawMesh(std::get<1>(patchesHighPoly[g]), 1);
+                    //  celestialBodySurfaceRenderStage->drawMesh(std::get<1>(patchesHighPoly[g]), 1);
                 }
                 else if (dist < radius * 3.6) {
                     meshSequence.push_back(std::get<1>(patchesMediumPoly[g]));
-                  //  celestialBodySurfaceRenderStage->drawMesh(std::get<1>(patchesMediumPoly[g]), 1);
+                    //  celestialBodySurfaceRenderStage->drawMesh(std::get<1>(patchesMediumPoly[g]), 1);
                 }
                 else {
                     meshSequence.push_back(std::get<1>(patchesLowPoly[g]));
-                  //  celestialBodySurfaceRenderStage->drawMesh(std::get<1>(patchesLowPoly[g]), 1);
+                    //  celestialBodySurfaceRenderStage->drawMesh(std::get<1>(patchesLowPoly[g]), 1);
                 }
             }
         }
@@ -733,9 +729,11 @@ void CosmosRenderer::draw(double time)
     }
 
     measureTimeStart();
-    renderer->beginDrawing();
-
-    renderer->endDrawing();
+    combineStage->beginDrawing();
+    combineStage->setSets({combineSet});
+    combineStage->drawMesh(vulkan->fullScreenQuad3dInfo, 1);
+    combineStage->endDrawing();
+    combineStage->submitNoSemaphores({});
     measureTimeEnd("Composite output");
 
 #ifdef PERFORMANCE_DEBUG

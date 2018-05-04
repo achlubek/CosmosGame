@@ -8,6 +8,7 @@ class Model3dFactory;
 class Interpolator;
 class ModelsRenderer;
 class AbsGameStage;
+class OutputScreenRenderer;
 
 class AbsGameContainer
 {
@@ -27,6 +28,9 @@ public:
     AbsGameStage* getCurrentStage();
     void setCurrentStage(AbsGameStage* stage);
     void startGameLoops();
+    double getFramesPerSecond();
+    double getFrameLength();
+    VulkanImage* getOutputImage();
 protected:
     virtual void onDrawingStart() = 0;
     virtual void onDraw() = 0;
@@ -39,6 +43,9 @@ private:
     Interpolator* interpolator;
     ModelsRenderer* modelsRenderer;
     static AbsGameContainer* instance;
-    AbsGameStage* currentStage;
+    AbsGameStage* currentStage{ nullptr };
+    double fps{ 0 };
+    VulkanImage* outputImage;
+    OutputScreenRenderer* outputScreenRenderer;
 };
 
