@@ -160,7 +160,9 @@
     <ClInclude Include="ComponentTypes.h" />
     <ClInclude Include="GameControls.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="GameStageCollection.h" />
     <ClInclude Include="Interpolator.h" />
+    <ClInclude Include="ManualCameraStrategy.h" />
     <ClInclude Include="OutputScreenRenderer.h" />
     <ClInclude Include="PointerDrivenCameraStrategy.h" />
     <ClInclude Include="Model3d.h" />
@@ -184,7 +186,9 @@
     <ClCompile Include="CommandTerminal.cpp" />
     <ClCompile Include="GameControls.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="GameStageCollection.cpp" />
     <ClCompile Include="Interpolator.cpp" />
+    <ClCompile Include="ManualCameraStrategy.cpp" />
     <ClCompile Include="OutputScreenRenderer.cpp" />
     <ClCompile Include="PointerDrivenCameraStrategy.cpp" />
     <ClCompile Include="Model3d.cpp" />

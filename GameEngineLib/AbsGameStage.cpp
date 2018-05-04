@@ -23,7 +23,7 @@ AbsGameStage::AbsGameStage(AbsGameContainer* icontainer)
 
     timeProvider = new TimeProvider();
 
-    ui = new UIRenderer(container->getVulkanToolkit(), container->getControls()->getRawMouse(), container->getVulkanToolkit()->windowWidth, container->getVulkanToolkit()->windowHeight);
+    ui = new UIRenderer(container->getVulkanToolkit(), container->getControls()->getRawMouse(), container->getUiOutputImage(), container->getVulkanToolkit()->windowWidth, container->getVulkanToolkit()->windowHeight);
 
     viewCamera = new CameraController();
 

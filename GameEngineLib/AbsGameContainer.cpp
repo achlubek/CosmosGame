@@ -17,6 +17,7 @@
 #include "ModelsRenderer.h"
 #include "OutputScreenRenderer.h"
 #include "AbsGameStage.h"
+#include "GameStageCollection.h"
 #include <ctype.h>
 
 AbsGameContainer* AbsGameContainer::instance = nullptr;
@@ -24,6 +25,8 @@ AbsGameContainer* AbsGameContainer::instance = nullptr;
 AbsGameContainer::AbsGameContainer()
 {
     instance = this;
+
+    stageCollection = new GameStageCollection();
 
     INIReader* configreader = new INIReader("settings.ini");
     vulkanToolkit = new VulkanToolkit();
@@ -47,8 +50,12 @@ AbsGameContainer::AbsGameContainer()
         VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT,
         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
 
+    uiOutputImage = new VulkanImage(getVulkanToolkit(), getVulkanToolkit()->windowWidth, getVulkanToolkit()->windowHeight,
+        VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT,
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
+
     modelsRenderer = new ModelsRenderer(vulkanToolkit, vulkanToolkit->windowWidth, vulkanToolkit->windowHeight);
-    outputScreenRenderer = new OutputScreenRenderer(vulkanToolkit, vulkanToolkit->windowWidth, vulkanToolkit->windowHeight);
+    outputScreenRenderer = new OutputScreenRenderer(vulkanToolkit, vulkanToolkit->windowWidth, vulkanToolkit->windowHeight, outputImage, uiOutputImage);
 }
 
 
@@ -107,8 +114,9 @@ AbsGameContainer * AbsGameContainer::getInstance()
     return instance;
 }
 
-void AbsGameContainer::setCurrentStage(AbsGameStage * stage)
+void AbsGameContainer::setCurrentStage(std::string stagename)
 {
+    auto stage = stageCollection->getStage(stagename);
     if (currentStage != nullptr) {
         currentStage->onSwitchFrom();
     }
@@ -116,14 +124,18 @@ void AbsGameContainer::setCurrentStage(AbsGameStage * stage)
     currentStage->onSwitchTo();
 }
 
+void AbsGameContainer::registerStage(std::string name, AbsGameStage * stage)
+{
+    stageCollection->addStage(name, stage);
+}
+
 void AbsGameContainer::startGameLoops()
 {
-    auto stage = getCurrentStage();
     onDrawingStart();
     int frames = 0;
     double lastTimeX = 0.0;
     double lastTimeFloored = 0.0;
-    while (!vulkanToolkit->shouldCloseWindow()) {
+    while (!vulkanToolkit->shouldCloseWindow() && !shouldClose) {
         frames++;
         double time = glfwGetTime();
         double floored = floor(time);
@@ -140,9 +152,10 @@ void AbsGameContainer::startGameLoops()
         modelsRenderer->draw(currentStage);
         currentStage->getUIRenderer()->draw();
         onDraw();
-        stage->onDraw();
 
-        outputScreenRenderer->draw(outputImage, stage->getUIRenderer()->outputImage);
+        currentStage->onDraw();
+
+        outputScreenRenderer->draw();
 
         currentStage->updateObjects();
 
@@ -166,4 +179,14 @@ double AbsGameContainer::getFrameLength()
 VulkanImage * AbsGameContainer::getOutputImage()
 {
     return outputImage;
+}
+
+VulkanImage * AbsGameContainer::getUiOutputImage()
+{
+    return uiOutputImage;
+}
+
+void AbsGameContainer::setShouldClose(bool close)
+{
+    shouldClose = true;
 }

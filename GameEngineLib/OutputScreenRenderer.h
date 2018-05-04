@@ -2,14 +2,10 @@
 class OutputScreenRenderer
 {
 public:
-    OutputScreenRenderer(VulkanToolkit* vulkan, int width, int height);
+    OutputScreenRenderer(VulkanToolkit* vulkan, int width, int height, VulkanImage * image, VulkanImage * uiImage);
     ~OutputScreenRenderer();
-    void draw(VulkanImage* image, VulkanImage* uiImage);
+    void draw();
 private:
-    VulkanImage * lastImage{ nullptr };
-    VulkanImage * lastUiImage{ nullptr };
-    void rebuildDescriptorSet(VulkanImage* image, VulkanImage* uiImage);
-
     VulkanToolkit * vulkan;
     int width;
     int height;

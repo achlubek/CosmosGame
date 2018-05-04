@@ -9,6 +9,7 @@ class Interpolator;
 class ModelsRenderer;
 class AbsGameStage;
 class OutputScreenRenderer;
+class GameStageCollection;
 
 class AbsGameContainer
 {
@@ -26,11 +27,14 @@ public:
     ModelsRenderer* getModelsRenderer();
     Interpolator* getInterpolator();
     AbsGameStage* getCurrentStage();
-    void setCurrentStage(AbsGameStage* stage);
+    void setCurrentStage(std::string stage);
+    void registerStage(std::string name, AbsGameStage* stage);
     void startGameLoops();
     double getFramesPerSecond();
     double getFrameLength();
     VulkanImage* getOutputImage();
+    VulkanImage* getUiOutputImage();
+    void setShouldClose(bool close);
 protected:
     virtual void onDrawingStart() = 0;
     virtual void onDraw() = 0;
@@ -46,6 +50,9 @@ private:
     AbsGameStage* currentStage{ nullptr };
     double fps{ 0 };
     VulkanImage* outputImage;
+    VulkanImage* uiOutputImage;
     OutputScreenRenderer* outputScreenRenderer;
+    GameStageCollection* stageCollection;
+    bool shouldClose = false;
 };
 

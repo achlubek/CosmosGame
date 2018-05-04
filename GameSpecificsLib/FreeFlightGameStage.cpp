@@ -13,6 +13,7 @@
 #include "CameraController.h"
 #include "AbsGameContainer.h"
 #include "ModelsRenderer.h"
+#include "CameraChaseStrategy.h"
 
 FreeFlightGameStage::FreeFlightGameStage(AbsGameContainer* container)
     : AbsGameStage(container)
@@ -105,6 +106,7 @@ FreeFlightGameStage::FreeFlightGameStage(AbsGameContainer* container)
 
     addObject(testship);
     getViewCamera()->setTarget(testship);
+    getViewCamera()->setStrategy(new CameraChaseStrategy(false));
 }
 
 

@@ -9,7 +9,8 @@ int main()
 
     GameContainer * game = new GameContainer();
     FreeFlightGameStage * stage = new FreeFlightGameStage(game);
-    game->setCurrentStage(stage);
+    game->registerStage("freeflight", stage);
+    game->setCurrentStage("freeflight");
     game->startGameLoops();
     return 0;
 

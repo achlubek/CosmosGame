@@ -2,7 +2,8 @@
 #include "OutputScreenRenderer.h"
 
 
-OutputScreenRenderer::OutputScreenRenderer(VulkanToolkit* ivulkan, int iwidth, int iheight)
+OutputScreenRenderer::OutputScreenRenderer(VulkanToolkit* ivulkan, int iwidth, int iheight,
+    VulkanImage * image, VulkanImage * uiImage)
     : vulkan(ivulkan), width(iwidth), height(iheight)
 {
     layout = new VulkanDescriptorSetLayout(vulkan);
@@ -11,7 +12,9 @@ OutputScreenRenderer::OutputScreenRenderer(VulkanToolkit* ivulkan, int iwidth, i
     layout->compile();
 
     set = layout->generateDescriptorSet();
-
+    set->bindImageViewSampler(0, image);
+    set->bindImageViewSampler(1, uiImage);
+    set->update();
 
     auto vertShader = new VulkanShaderModule(vulkan, "../../shaders/compiled/output-screen.vert.spv");
     auto fragShader = new VulkanShaderModule(vulkan, "../../shaders/compiled/output-screen.frag.spv");
@@ -33,20 +36,8 @@ OutputScreenRenderer::~OutputScreenRenderer()
 {
 }
 
-void OutputScreenRenderer::draw(VulkanImage * image, VulkanImage * uiImage)
+void OutputScreenRenderer::draw()
 {
-    if (image != lastImage || uiImage != lastUiImage) {
-        rebuildDescriptorSet(image, uiImage);
-        lastImage = image;
-        lastUiImage = uiImage;
-    }
     renderer->beginDrawing();
     renderer->endDrawing();
-}
-
-void OutputScreenRenderer::rebuildDescriptorSet(VulkanImage * image, VulkanImage * uiImage)
-{
-    set->bindImageViewSampler(0, image);
-    set->bindImageViewSampler(1, uiImage);
-    set->update();
 }

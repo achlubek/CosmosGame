@@ -153,6 +153,7 @@
     <ClInclude Include="CinematicScenarioReader.h" />
     <ClInclude Include="FreeFlightGameStage.h" />
     <ClInclude Include="GameContainer.h" />
+    <ClInclude Include="MainMenuGameStage.h" />
     <ClInclude Include="ModuleFactory.h" />
     <ClInclude Include="ShipFactory.h" />
     <ClInclude Include="ShipManualControlsComponent.h" />
@@ -167,6 +168,7 @@
     <ClCompile Include="CinematicScenarioReader.cpp" />
     <ClCompile Include="FreeFlightGameStage.cpp" />
     <ClCompile Include="GameContainer.cpp" />
+    <ClCompile Include="MainMenuGameStage.cpp" />
     <ClCompile Include="ModuleFactory.cpp" />
     <ClCompile Include="ShipFactory.cpp" />
     <ClCompile Include="ShipManualControlsComponent.cpp" />
