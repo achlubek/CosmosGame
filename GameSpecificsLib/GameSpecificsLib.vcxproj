@@ -150,6 +150,7 @@
   <ItemGroup>
     <ClInclude Include="BatteryComponent.h" />
     <ClInclude Include="BatteryDrainer.h" />
+    <ClInclude Include="CelestialBodyPreviewGameStage.h" />
     <ClInclude Include="CinematicAnimationGameStage.h" />
     <ClInclude Include="CinematicScenarioReader.h" />
     <ClInclude Include="FreeFlightGameStage.h" />
@@ -166,6 +167,7 @@
   <ItemGroup>
     <ClCompile Include="BatteryComponent.cpp" />
     <ClCompile Include="BatteryDrainer.cpp" />
+    <ClCompile Include="CelestialBodyPreviewGameStage.cpp" />
     <ClCompile Include="CinematicAnimationGameStage.cpp" />
     <ClCompile Include="CinematicScenarioReader.cpp" />
     <ClCompile Include="FreeFlightGameStage.cpp" />

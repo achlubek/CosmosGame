@@ -16,9 +16,6 @@ private:
     PointerDrivenCameraStrategy * pointerDrivenCamera;
     std::string switchToStage;
     std::string mediaKey;
-    UIText* freeFlightButton;
-    UIText* editorButton;
-    UIText* quitButton;
     double animationDuration{ 0 };
     bool started = false;
     virtual void onUpdateObject(GameObject * object, double elapsed) override;
