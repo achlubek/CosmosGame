@@ -36,7 +36,7 @@ static vector<string> splitByChar(string src, unsigned char splitter)
 static void replaceAll(std::string& source, const std::string& from, const std::string& to)
 {
     std::string newString;
-    newString.reserve(source.length());  // avoids a few memory allocations
+    newString.reserve(source.length());
 
     std::string::size_type lastPos = 0;
     std::string::size_type findPos;
@@ -48,7 +48,6 @@ static void replaceAll(std::string& source, const std::string& from, const std::
         lastPos = findPos + from.length();
     }
 
-    // Care for the rest after last occurrence
     newString += source.substr(lastPos);
 
     source.swap(newString);
@@ -82,13 +81,13 @@ void CinematicScenarioReader::load(std::string mediakey, double timeOffset)
             double smoothness = std::stod(words[w++]);
             double duration = std::stod(words[w++]);
             std::string prop = words[w++];
-            cout << prop <<endl;
-            printf("%s\n", prop.c_str());
+
             if (prop == "POS") {
                 glm::dvec3 target = glm::dvec3(std::stod(words[w]), std::stod(words[w + 1]), std::stod(words[w + 2]));
-                cout << "Origin" << target.x << " " << target.y << " " << target.z << endl;
                 w += 3;
                 auto task = new Vec3InterpolatorTask(positionPointer, referenceFrame->getPosition(timeOffset) + target, frameTime, duration, smoothness);
+                task->setTag(mediakey);
+                animationDuration = max(animationDuration, frameTime - timeOffset + duration);
                 tasks.push_back(task);
             }
             else if (prop == "LOOKAT") {
@@ -96,14 +95,12 @@ void CinematicScenarioReader::load(std::string mediakey, double timeOffset)
                 w += 3;
                 glm::dvec3 target = glm::dvec3(std::stod(words[w]), std::stod(words[w + 1]), std::stod(words[w + 2]));
                 w += 3;
-                cout << "AAA" << words[w] << " " << words[w + 1] << " " << words[w + 2] << endl;
                 glm::dvec3 up =  glm::dvec3(std::stod(words[w]), std::stod(words[w+1]), std::stod(words[w+2]));
                 w += 3;
-                cout << "upN" << up.x << " " << up.y << " " << up.z << endl;
                 glm::dquat res = glm::inverse(glm::quat_cast(glm::lookAt(glm::vec3(0.0), glm::vec3(glm::normalize(target - origin)), glm::vec3(up))));
-                cout << "Origin" << origin.x << " " << origin.y << " " << origin.z << endl;
-                cout << "Tar" << target.x << " " << target.y << " " << target.z << endl;
                 auto task = new QuatInterpolatorTask(orientationPointer, res, frameTime, duration, smoothness);
+                task->setTag(mediakey);
+                animationDuration = max(animationDuration, frameTime - timeOffset + duration);
                 tasks.push_back(task);
             }
             else if (prop == "EXPOSURE") {
@@ -112,6 +109,8 @@ void CinematicScenarioReader::load(std::string mediakey, double timeOffset)
             }
             else if (prop == "FOV") {
                 auto task = new DoubleInterpolatorTask(fovPointer, std::stod(words[w++]), frameTime, duration, smoothness);
+                task->setTag(mediakey);
+                animationDuration = max(animationDuration, frameTime - timeOffset + duration);
                 tasks.push_back(task);
             }
         }
@@ -123,4 +122,9 @@ void CinematicScenarioReader::execute()
     for (int i = 0; i < tasks.size(); i++) {
         interpolator->addPremadeInterpolator(tasks[i]);
     }
+}
+
+double CinematicScenarioReader::getAnimationDuration()
+{
+    return animationDuration;
 }

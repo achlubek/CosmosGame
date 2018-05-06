@@ -44,11 +44,20 @@ public:
         start = s;
     }
 
+    std::string getTag() {
+        return tag;
+    }
+
+    void setTag(std::string t) {
+        tag = t;
+    }
+
 
 private:
     double start;
     double duration;
     double smoothPower;
+    std::string tag{ "generic" };
     bool finished = false;
 
     double smoothstep2(double t, double f) {
@@ -177,6 +186,7 @@ public:
     void addVec3Interpolator(glm::dvec3* valuePointer, glm::dvec3 target, double start, double duration, double smoothPower);
     void addQuatInterpolator(glm::dquat* valuePointer, glm::dquat target, double start, double duration, double smoothPower);
     void addPremadeInterpolator(AbsInterpolatorTask* task);
+    void removeAllByTag(std::string tag);
 
     void update(double time);
 

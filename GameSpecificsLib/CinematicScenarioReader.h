@@ -9,6 +9,7 @@ public:
     ~CinematicScenarioReader();
     void load(std::string mediakey, double timeOffset);
     void execute();
+    double getAnimationDuration();
 
 private:
     std::vector<AbsInterpolatorTask*> tasks;
@@ -16,5 +17,6 @@ private:
     CosmosRenderer* cosmos;
     PointerDrivenCameraStrategy* camera;
     TimeProvider* time;
+    double animationDuration{ 0 };
 };
 

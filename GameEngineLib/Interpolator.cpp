@@ -53,3 +53,15 @@ void Interpolator::removeFinishedInterpolators()
         }
     }
 }
+
+void Interpolator::removeAllByTag(std::string tag)
+{
+    for (int i = 0; i < tasks.size(); i++) {
+        if (tasks[i]->getTag() == tag) {
+            delete tasks[i];
+            tasks[i] = tasks[tasks.size() - 1];
+            tasks.pop_back();
+            --i;
+        }
+    }
+}

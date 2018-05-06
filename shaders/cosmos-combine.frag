@@ -72,8 +72,8 @@ vec3 afl_tonemap(vec3 c){
     vec3 result = normalize(c) * pow(length(c), 0.5);
     float L = 0.27*c.r + 0.67*c.g + 0.06*c.b;
     float B = 0.01*c.r + 0.47*c.g + 0.52*c.b;
-    float Ld = L / ( 0.01 + L * 4.0 );
-    vec3 bleachx = vec3(B) * vec3(0.01, 0.47, 0.52) * 0.04;
+    float Ld = L / ( 0.01 + L * 5.0 );
+    vec3 bleachx = vec3(B) * vec3(0.01, 0.47, 0.52) * 0.02;
     //return gammacorrect(bleachx);
     return gammacorrect(Ld * c + bleachx);//gammacorrect(normalize(c) * 0.1 * pow(exposure, 0.7));
 }

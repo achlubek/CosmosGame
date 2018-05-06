@@ -45,35 +45,18 @@ FreeFlightGameStage::FreeFlightGameStage(AbsGameContainer* container)
     //auto testspawnpos = cosmosRenderer->galaxy->getAllStars()[666].getPosition(0);
     //auto testspawnradius = cosmosRenderer->galaxy->getAllStars()[666].radius;
     //cosmosRenderer->galaxy->update(testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->getPosition());
-    int targetStar = 1234;
+    int targetStar = 558;
     int targetPlanet = 4;
-    int targetMoon = -1;
+    int targetMoon = 0;
     auto galaxy = getCosmosGameContainer()->getCosmosRenderer()->getGalaxy();
-    GeneratedStarInfo star = galaxy->getAllStars()[targetStar - 1];
-    auto center = star.getPosition(0);
-    auto dist = star.radius;
-    auto velocity = glm::dvec3(0.0);
-    CelestialBody targetBody = CelestialBody();
-    if (targetPlanet > 0) {
-        galaxy->update(star.getPosition(0));
-        auto planet = galaxy->getClosestStarPlanets()[targetPlanet - 1];
-        center = planet.getPosition(0);
-        dist = planet.radius - planet.fluidMaxLevel;
-        velocity = planet.getLinearVelocity(getTimeProvider()->getTime());
-        targetBody = planet;
-        if (targetMoon > 0) {
-            galaxy->update(planet.getPosition(0));
-            auto moon = galaxy->getClosestPlanetMoons()[targetMoon - 1];
-            center = moon.getPosition(0);
-            dist = moon.radius - moon.fluidMaxLevel;
-            velocity = moon.getLinearVelocity(getTimeProvider()->getTime());
-            targetBody = moon;
-        }
-    }
+
+    auto targetBody = galaxy->getByPath(targetStar, targetPlanet, targetMoon);
+    auto center = targetBody->getPosition(0);
+    auto dist = targetBody->radius;
+    auto velocity = targetBody->getLinearVelocity(getTimeProvider()->getTime());
 
     galaxy->onClosestStarChange.add([&](GeneratedStarInfo star) {
         auto name = getCosmosGameContainer()->getCosmosRenderer()->getGalaxy()->getStarName(star.starId);
-        // if(name.length() > 0) name.at(0) = toupper(name.at(0));
         getCosmosGameContainer()->getCosmosRenderer()->invokeOnDrawingThread([=]() {
             starNameText->updateText("Star: " + std::to_string(star.starId) + " " + name);
         });
@@ -81,8 +64,6 @@ FreeFlightGameStage::FreeFlightGameStage(AbsGameContainer* container)
 
     galaxy->onClosestPlanetChange.add([&](CelestialBody body) {
         auto name = getCosmosGameContainer()->getCosmosRenderer()->getGalaxy()->getCelestialBodyName(body.bodyId);
-        printf(("\n\n" + std::to_string(body.bodyId) + "CHANGE!!" + name + "!!\n\n").c_str());
-        // if (name.length() > 0) name.at(0) = toupper(name.at(0));
         getCosmosGameContainer()->getCosmosRenderer()->invokeOnDrawingThread([=]() {
             planetNameText->updateText("Planet: " + name);
         });
@@ -90,7 +71,6 @@ FreeFlightGameStage::FreeFlightGameStage(AbsGameContainer* container)
 
     getCosmosGameContainer()->getCosmosRenderer()->getGalaxy()->onClosestMoonChange.add([&](CelestialBody body) {
         auto name = getCosmosGameContainer()->getCosmosRenderer()->getGalaxy()->getCelestialBodyName(body.bodyId);
-        // if (name.length() > 0) name.at(0) = toupper(name.at(0));
         getCosmosGameContainer()->getCosmosRenderer()->invokeOnDrawingThread([=]() {
             moonNameText->updateText("Moon: " + name);
         });
@@ -101,8 +81,8 @@ FreeFlightGameStage::FreeFlightGameStage(AbsGameContainer* container)
     });
 
     testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(center + glm::dvec3(0.0, dist * 1.043, 0.0));
-    //testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(velocity + 1000.0 * targetBody.calculateOrbitVelocity(dist * 0.03) * glm::dvec3(1.0, 0.0, 0.0));
-    testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(velocity);
+    testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(velocity + 1000.0 * targetBody->calculateOrbitVelocity(dist * 0.03) * glm::dvec3(1.0, 0.0, 0.0));
+    //testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(velocity);
 
     addObject(testship);
     getViewCamera()->setTarget(testship);

@@ -42,6 +42,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTests", "UnitTests\Unit
 		{1A8000FF-04F4-4D3A-B6FB-47E9342CE22B} = {1A8000FF-04F4-4D3A-B6FB-47E9342CE22B}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CustomUIWidgetsLib", "CustomUIWidgetsLib\CustomUIWidgetsLib.vcxproj", "{F0DEC29A-AD38-4195-BED9-F266E076B85D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -116,6 +118,14 @@ Global
 		{66A076BC-2077-416B-BA53-B639FF526A79}.Release|x64.Build.0 = Release|x64
 		{66A076BC-2077-416B-BA53-B639FF526A79}.Release|x86.ActiveCfg = Release|Win32
 		{66A076BC-2077-416B-BA53-B639FF526A79}.Release|x86.Build.0 = Release|Win32
+		{F0DEC29A-AD38-4195-BED9-F266E076B85D}.Debug|x64.ActiveCfg = Debug|x64
+		{F0DEC29A-AD38-4195-BED9-F266E076B85D}.Debug|x64.Build.0 = Debug|x64
+		{F0DEC29A-AD38-4195-BED9-F266E076B85D}.Debug|x86.ActiveCfg = Debug|Win32
+		{F0DEC29A-AD38-4195-BED9-F266E076B85D}.Debug|x86.Build.0 = Debug|Win32
+		{F0DEC29A-AD38-4195-BED9-F266E076B85D}.Release|x64.ActiveCfg = Release|x64
+		{F0DEC29A-AD38-4195-BED9-F266E076B85D}.Release|x64.Build.0 = Release|x64
+		{F0DEC29A-AD38-4195-BED9-F266E076B85D}.Release|x86.ActiveCfg = Release|Win32
+		{F0DEC29A-AD38-4195-BED9-F266E076B85D}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
