@@ -164,6 +164,7 @@
     <ClInclude Include="Interpolator.h" />
     <ClInclude Include="ManualCameraStrategy.h" />
     <ClInclude Include="OutputScreenRenderer.h" />
+    <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="PointerDrivenCameraStrategy.h" />
     <ClInclude Include="Model3d.h" />
     <ClInclude Include="Model3dFactory.h" />
@@ -190,6 +191,7 @@
     <ClCompile Include="Interpolator.cpp" />
     <ClCompile Include="ManualCameraStrategy.cpp" />
     <ClCompile Include="OutputScreenRenderer.cpp" />
+    <ClCompile Include="ParticleSystem.cpp" />
     <ClCompile Include="PointerDrivenCameraStrategy.cpp" />
     <ClCompile Include="Model3d.cpp" />
     <ClCompile Include="Model3dFactory.cpp" />
