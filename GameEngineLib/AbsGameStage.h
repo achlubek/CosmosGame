@@ -5,6 +5,7 @@ class CameraController;
 class TimeProvider;
 class AbsGameContainer;
 #include "SceneProvider.h"
+class ParticlesRenderer;
 
 class AbsGameStage : public SceneProvider
 {

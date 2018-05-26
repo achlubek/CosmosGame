@@ -19,11 +19,9 @@ void ThrustGeneratorComponent::update(double elapsed)
 {
     drainer->setOwner(owner);
     double realPower = drainer->extractEnergy(elapsed, powerPercentage) * powerPercentage;
-    Transformation3DComponent* transform = owner->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D);
-
-    auto m3_thrust = glm::mat3_cast(relativeOrientation);
-    auto thrustDirection = m3_thrust * glm::dvec3(0.0, 0.0, 1.0);
+    auto thrustDirection = getThrustVector();
     glm::dvec3 force = -thrustDirection * maxThrust * realPower;
+    Transformation3DComponent* transform = owner->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D);
     transform->applyImpulse(relativePosition, force);
 }
 
@@ -39,4 +37,16 @@ ThrustGeneratorComponent * ThrustGeneratorComponent::clone()
 void ThrustGeneratorComponent::setPowerPercentage(double p)
 {
     powerPercentage = glm::clamp(p, 0.0, 1.0);
+}
+
+double ThrustGeneratorComponent::getPowerPercentage()
+{
+    return powerPercentage;
+}
+
+glm::dvec3 ThrustGeneratorComponent::getThrustVector()
+{
+    auto m3_thrust = glm::mat3_cast(relativeOrientation);
+    auto thrustDirection = m3_thrust * glm::dvec3(0.0, 0.0, 1.0);
+    return thrustDirection;
 }

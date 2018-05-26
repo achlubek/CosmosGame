@@ -15,6 +15,8 @@
 #include "CameraController.h"
 #include "TimeProvider.h"
 #include "UIRenderer.h"
+#include "ParticlesRenderer.h"
+#include "ModelsRenderer.h"
 
 AbsGameStage::AbsGameStage(AbsGameContainer* icontainer)
     : container(icontainer)

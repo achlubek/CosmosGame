@@ -19,6 +19,7 @@
 #include "UIRenderer.h"
 #include "ModelsRenderer.h"
 #include "AbsGameStage.h"
+#include "ParticlesRenderer.h"
 #include <ctype.h>
 
 // kids, this is how to not do single responsibility principle
@@ -33,6 +34,7 @@ GameContainer::GameContainer()
     cosmosRenderer = new CosmosRenderer(vulkanToolkit, galaxy, vulkanToolkit->windowWidth, vulkanToolkit->windowHeight);
     cosmosRenderer->setExposure(0.0001);
     getModelsRenderer()->setRenderingScale(cosmosRenderer->scale);
+    getParticlesRenderer()->setRenderingScale(cosmosRenderer->scale);
 
     moduleFactory = new ModuleFactory(getModel3dFactory());
     shipFactory = new ShipFactory(getModel3dFactory(), moduleFactory);

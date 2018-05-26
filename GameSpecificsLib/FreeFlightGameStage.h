@@ -1,6 +1,7 @@
 #pragma once
 #include "AbsGameStage.h"
 class GameContainer;
+class ParticleSystem;
 
 class FreeFlightGameStage : public AbsGameStage
 {
@@ -21,5 +22,6 @@ private:
     UIText* moonNameText;
     UIText* altitudeText;
     UIText* velocityText;
+    ParticleSystem* smokeParticleSystem;
 };
 

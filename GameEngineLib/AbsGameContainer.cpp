@@ -18,6 +18,7 @@
 #include "OutputScreenRenderer.h"
 #include "AbsGameStage.h"
 #include "GameStageCollection.h"
+#include "ParticlesRenderer.h"
 #include <ctype.h>
 
 AbsGameContainer* AbsGameContainer::instance = nullptr;
@@ -56,6 +57,8 @@ AbsGameContainer::AbsGameContainer()
 
     modelsRenderer = new ModelsRenderer(vulkanToolkit, vulkanToolkit->windowWidth, vulkanToolkit->windowHeight);
     outputScreenRenderer = new OutputScreenRenderer(vulkanToolkit, vulkanToolkit->windowWidth, vulkanToolkit->windowHeight, outputImage, uiOutputImage);
+    particlesRenderer = new ParticlesRenderer(getVulkanToolkit(),
+        getVulkanToolkit()->windowWidth, getVulkanToolkit()->windowHeight, getModelsRenderer()->getDistanceImage());
 }
 
 
@@ -108,7 +111,6 @@ AbsGameStage * AbsGameContainer::getCurrentStage()
     return currentStage;
 }
 
-
 AbsGameContainer * AbsGameContainer::getInstance()
 {
     return instance;
@@ -145,12 +147,17 @@ void AbsGameContainer::startGameLoops()
             frames = 0;
         }
         currentStage->getTimeProvider()->update(time - lastTimeX);
+        getParticlesRenderer()->update(time - lastTimeX);
+        getParticlesRenderer()->updateCameraBuffer(currentStage->getViewCamera()->getInternalCamera(), currentStage->getViewCamera()->getPosition());
         lastTimeFloored = floored;
         lastTimeX = time;
 
         modelsRenderer->updateCameraBuffer(currentStage->getViewCamera()->getInternalCamera(), currentStage->getViewCamera()->getPosition());
         modelsRenderer->draw(currentStage);
         currentStage->getUIRenderer()->draw();
+
+
+        getParticlesRenderer()->draw();
         onDraw();
 
         currentStage->onDraw();
@@ -184,6 +191,11 @@ VulkanImage * AbsGameContainer::getOutputImage()
 VulkanImage * AbsGameContainer::getUiOutputImage()
 {
     return uiOutputImage;
+}
+
+ParticlesRenderer * AbsGameContainer::getParticlesRenderer()
+{
+    return particlesRenderer;
 }
 
 void AbsGameContainer::setShouldClose(bool close)

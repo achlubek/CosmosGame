@@ -3,9 +3,10 @@
 #include "AbsGameContainer.h"
 #include "TimeProvider.h"
 #include "AbsGameStage.h"
+#include "ParticleSystem.h"
 
 ParticlesRenderer::ParticlesRenderer(VulkanToolkit * vulkan, int width, int height, VulkanImage * mrtDistanceTexture)
-    : vulkan(vulkan), width(width), height(height), mrtDistanceTexture(mrtDistanceTexture)
+    : vulkan(vulkan), width(width), height(height), mrtDistanceTexture(mrtDistanceTexture), particleSystems({})
 {
     particleLayout = new VulkanDescriptorSetLayout(vulkan);
     particleLayout->addField(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
@@ -14,12 +15,14 @@ ParticlesRenderer::ParticlesRenderer(VulkanToolkit * vulkan, int width, int heig
 
     rendererDataLayout = new VulkanDescriptorSetLayout(vulkan);
     rendererDataLayout->addField(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS | VK_SHADER_STAGE_COMPUTE_BIT);
+    rendererDataLayout->addField(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
     rendererDataLayout->compile();
 
     rendererDataBuffer = new VulkanGenericBuffer(vulkan, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, sizeof(float) * 1024);
 
     rendererDataSet = rendererDataLayout->generateDescriptorSet();
     rendererDataSet->bindUniformBuffer(0, rendererDataBuffer);
+    rendererDataSet->bindImageViewSampler(1, mrtDistanceTexture);
     rendererDataSet->update();
 
     resultImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
@@ -32,8 +35,9 @@ ParticlesRenderer::ParticlesRenderer(VulkanToolkit * vulkan, int width, int heig
     renderStage->setViewport(width, height);
     renderStage->addShaderStage(shipvert->createShaderStage(VK_SHADER_STAGE_VERTEX_BIT, "main"));
     renderStage->addShaderStage(shipfrag->createShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT, "main"));
-    renderStage->addDescriptorSetLayout(particleLayout->layout);
     renderStage->addDescriptorSetLayout(rendererDataSet->layout);
+    renderStage->addDescriptorSetLayout(particleLayout->layout);
+    renderStage->additiveBlending = true;
     renderStage->addOutputImage(resultImage);
     renderStage->cullFlags = 0;
     renderStage->compile();
@@ -50,17 +54,38 @@ ParticlesRenderer::~ParticlesRenderer()
     safedelete(particleLayout);
 }
 
-void ParticlesRenderer::draw()
+void ParticlesRenderer::update(double elapsed)
 {
+    for (int i = 0; i < particleSystems.size(); i++) {
+        particleSystems[i]->update(elapsed);
+    }
 }
 
-void ParticlesRenderer::setRenderingScale(double renderingScale)
+void ParticlesRenderer::draw()
 {
+    renderStage->beginDrawing();
+    for (int i = 0; i < particleSystems.size(); i++) {
+        if (particleSystems[i]->getCount() == 0) break;
+        renderStage->setSets({ rendererDataSet, particleSystems[i]->getSet() });
+        renderStage->drawMesh(AbsGameContainer::getInstance()->getVulkanToolkit()->fullScreenQuad3dInfo, particleSystems[i]->getCount());
+    }
+    renderStage->endDrawing();
+    renderStage->submitNoSemaphores({});
+}
+
+void ParticlesRenderer::setRenderingScale(double irenderingScale)
+{
+    renderingScale = irenderingScale;
 }
 
 VulkanDescriptorSetLayout * ParticlesRenderer::getParticleLayout()
 {
-    return nullptr;
+    return particleLayout;
+}
+
+VulkanImage * ParticlesRenderer::getResultImage()
+{
+    return resultImage;
 }
 
 void ParticlesRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosition)
@@ -105,4 +130,13 @@ void ParticlesRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerP
     rendererDataBuffer->map(0, bb.buffer.size(), &data);
     memcpy(data, bb.getPointer(), bb.buffer.size());
     rendererDataBuffer->unmap();
+
+    for (int i = 0; i < particleSystems.size(); i++) {
+        particleSystems[i]->updateBuffers(observerPosition);
+    }
+}
+
+void ParticlesRenderer::registerParticleSystem(ParticleSystem * system)
+{
+    particleSystems.push_back(system);
 }

@@ -10,6 +10,8 @@ layout(location = 1) in vec2 inTexCoord;
 layout(location = 2) in vec3 inNormal;
 
 layout(location = 0) out vec2 outTexCoord;
+layout(location = 1) out vec3 outWorldPos;
+layout(location = 2) out float outTransparency;
 
 layout(set = 0, binding = 0) uniform UniformBufferObject1 {
     float Time;
@@ -25,7 +27,7 @@ layout(set = 0, binding = 0) uniform UniformBufferObject1 {
 
 struct Particle{
     vec4 position;
-    vec4 rotation;
+    vec4 rotation_transparency;
 };
 
 layout(set = 1, binding = 0) buffer modelStorageBuffer {
@@ -40,7 +42,8 @@ void main() {
     Particle p = modelBuffer.particles[gl_InstanceIndex];
     vec3 pos = p.position.rgb;
     float size = p.position.a;
-    float rot = p.rotation.x;
+    float rot = p.rotation_transparency.x;
+    outTransparency = p.rotation_transparency.y;
     vec3 displacements[4] = vec3[](
         -hiFreq.inFrustumConeBottomLeftToBottomRight.rgb,
         -hiFreq.inFrustumConeBottomLeftToTopLeft.rgb,
@@ -54,13 +57,17 @@ void main() {
         vec2(1.0, 1.0)
     );
     mat3 mat = rotationMatrix(normalize(pos), rot);
-    vec3 displacement = mat * displacements[vid];
+    vec2 txn = (inTexCoord * 2.0 - 1.0);
+    vec3 vector = txn.x * hiFreq.inFrustumConeBottomLeftToBottomRight.rgb
+                      + txn.y * hiFreq.inFrustumConeBottomLeftToTopLeft.rgb;
+    vec3 displacement = mat * vector;
     pos += displacement * size;
 
-    vec3 WorldPos = pos * 0.001;
+    vec3 WorldPos = pos;
+    outWorldPos = WorldPos;
     vec4 opo = (hiFreq.VPMatrix)
         * vec4(WorldPos, 1.0);
-    outTexCoord = UVs[vid];
+    outTexCoord = vec2(inTexCoord.x, 1.0 - inTexCoord.y);
     opo.y *= -1.0;
     gl_Position = opo;
 }

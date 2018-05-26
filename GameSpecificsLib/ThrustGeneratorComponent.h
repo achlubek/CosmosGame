@@ -26,6 +26,8 @@ public:
     virtual void loadFromFile(std::string mediakey) override;
     virtual ThrustGeneratorComponent * clone() override;
     void setPowerPercentage(double p);
+    double getPowerPercentage();
+    glm::dvec3 getThrustVector();
     ThrustGroup functionalityGroup;
 private:
     BatteryDrainer * drainer;

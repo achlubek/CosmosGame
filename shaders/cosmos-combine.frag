@@ -10,6 +10,7 @@ layout(set = 0, binding = 3) uniform sampler2D texCelestialAdditive;
 layout(set = 0, binding = 4) uniform sampler2D texModelsAlbedoRoughness;
 layout(set = 0, binding = 5) uniform sampler2D texModelsNormalMetalness;
 layout(set = 0, binding = 6) uniform sampler2D texModelsDistance;
+layout(set = 0, binding = 7) uniform sampler2D texParticlesResult;
 
 #include rendererDataSet.glsl
 #include proceduralValueNoise.glsl
@@ -132,5 +133,7 @@ void main() {
     a += adddata.rgb + sunflare * max(0.0, 1.0 - adddata.a) * sunFlareColorizer * Exposure * 10.8;
     vec4 shipdata = texture(texModelsAlbedoRoughness, UV).rgba;
     a = mix(a, shipdata.rgb, shipdata.a);
+    vec4 particlesData = texture(texParticlesResult, UV).rgba;
+    a += particlesData.a == 0.0 ? vec3(0.0) : (particlesData.rgb);
     outColor = vec4(ACESFitted(clamp(a, 0.0, 10000.0)), 1.0);
 }

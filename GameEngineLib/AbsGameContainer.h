@@ -10,6 +10,7 @@ class ModelsRenderer;
 class AbsGameStage;
 class OutputScreenRenderer;
 class GameStageCollection;
+class ParticlesRenderer;
 
 class AbsGameContainer
 {
@@ -34,6 +35,7 @@ public:
     double getFrameLength();
     VulkanImage* getOutputImage();
     VulkanImage* getUiOutputImage();
+    ParticlesRenderer* getParticlesRenderer();
     void setShouldClose(bool close);
 protected:
     virtual void onDrawingStart() = 0;
@@ -53,6 +55,7 @@ private:
     VulkanImage* uiOutputImage;
     OutputScreenRenderer* outputScreenRenderer;
     GameStageCollection* stageCollection;
+    ParticlesRenderer* particlesRenderer;
     bool shouldClose = false;
 };
 

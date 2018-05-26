@@ -5,6 +5,8 @@
 #include "AbsGameContainer.h"
 #include "ModelsRenderer.h"
 #include "TimeProvider.h"
+#include "ParticlesRenderer.h"
+#include "AbsGameStage.h"
 #include "stdafx.h"
 #include "vulkan.h"
 
@@ -148,6 +150,7 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, GalaxyContainer* igalaxy,
     combineLayout->addField(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
     combineLayout->addField(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
     combineLayout->addField(6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
+    combineLayout->addField(7, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
     combineLayout->compile();
 
 
@@ -214,6 +217,7 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, GalaxyContainer* igalaxy,
     combineSet->bindImageViewSampler(4, AbsGameContainer::getInstance()->getModelsRenderer()->getAlbedoRoughnessImage());
     combineSet->bindImageViewSampler(5, AbsGameContainer::getInstance()->getModelsRenderer()->getNormalMetalnessImage());
     combineSet->bindImageViewSampler(6, AbsGameContainer::getInstance()->getModelsRenderer()->getDistanceImage());
+    combineSet->bindImageViewSampler(7, AbsGameContainer::getInstance()->getParticlesRenderer()->getResultImage());
     combineSet->update();
 
 
