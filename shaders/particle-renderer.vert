@@ -58,8 +58,8 @@ void main() {
     );
     mat3 mat = rotationMatrix(normalize(pos), rot);
     vec2 txn = (inTexCoord * 2.0 - 1.0);
-    vec3 vector = txn.x * hiFreq.inFrustumConeBottomLeftToBottomRight.rgb
-                      + txn.y * hiFreq.inFrustumConeBottomLeftToTopLeft.rgb;
+    vec3 vector = txn.x * normalize(hiFreq.inFrustumConeBottomLeftToBottomRight.rgb)
+                      + txn.y * normalize(hiFreq.inFrustumConeBottomLeftToTopLeft.rgb);
     vec3 displacement = mat * vector;
     pos += displacement * size;
 

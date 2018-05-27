@@ -36,14 +36,22 @@ vec3 scatterLight(RenderedCelestialBody body, vec3 observer, vec3 point, vec3 li
     float primaryLength = max(0.0, rsi2(Ray(point, normalize(observer - point)), body.atmosphereSphere).y);
     primaryLength = min(primaryLength, distance(observer, point));
     //return max(light - (primaryLength * body.atmosphereAbsorbColor * body.radius * 89.0), vec3(0.0));// / (1.0 + primaryLength);
-    vec3 colorized = light * ( 1.0 - body.atmosphereAbsorbColor);
-    float maxradius = pow(body.radius * 0.35, 1.0);
+    vec3 colorized = light * pow( 1.0 - body.atmosphereAbsorbColor, vec3(3.0));
+    float maxradius = pow(body.radius * 0.035, 1.0);
+    float maxradius2 = pow(body.radius * 0.35, 1.0);
     float newpower = 0.0;
     primaryLength = pow(primaryLength, 1.0);
     float mixer = clamp(primaryLength / maxradius, 0.0, 1.0);
-    return mix(light, colorized, mixer) * mix(newpower, 1.0, pow(1.0 - mixer, 2.0));
+    float mixer2 = clamp(primaryLength / maxradius2, 0.0, 1.0);
+    return mix(light, colorized, mixer) * mix(newpower, 1.0, pow(1.0 - mixer2, 2.0));
 
 }
+
+vec3 getSunColorForRay(RenderedCelestialBody body, Ray ray){
+    float primaryLength = max(0.0, rsi2(ray, body.atmosphereSphere).y);
+    return scatterLight(body, ray.o, ray.o + ray.d * primaryLength, ClosestStarColor);// / (1.0 + primaryLength);
+}
+
 CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end, float mieMultiplier, bool highQuality){
     //vec3 noonColor = (1.0 - pass.body.atmosphereAbsorbColor) * ClosestStarColor * 0.02;
     //vec3 sunsetColor = (pass.body.atmosphereAbsorbColor) * ClosestStarColor;
@@ -62,7 +70,7 @@ CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end
     vec3 starDir = normalize(ClosestStarPosition - start);
     vec3 direction = normalize(end - start);
     float rayStarDt = dot(starDir, direction);
-    float mieCoeff = exp(-3.1415 * 5.0 * (-rayStarDt * 0.5 + 0.5)) * mieMultiplier;
+    float mieCoeff = exp(-3.1415 * 3.0 * (-rayStarDt * 0.5 + 0.5)) * mieMultiplier;
     float rayleightCoeff = exp(-0.1415 * (-rayStarDt * 0.5 + 0.5));//(1.0 / (1.0 + 12.1 * (  1.0 - (rayStarDt ))));
     float distmultiplier = distance(start, end);
     float shadowAccumulator = 0.0;
@@ -98,14 +106,15 @@ CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end
         float heightmix = clamp(1.0 - cdst / atmoheight, 0.0, 1.0);
 
         vec3 endSecondary = pos + starDir * rsi2(Ray(pos, starDir), pass.body.atmosphereSphere).y;
+        //rayEnergy = getSunColorForRay(pass.body, Ray(pos, starDir));
         vec3 primaryColor = scatterLight(pass.body, pos, endSecondary, rayEnergy);
-        vec3 scattered = primaryColor * mieCoeff * 1.0 + (pass.body.atmosphereAbsorbColor * primaryColor) * rayleightCoeff * 1.0;
+        vec3 scattered = primaryColor * mieCoeff * 0.2 + (pass.body.atmosphereAbsorbColor * primaryColor) * rayleightCoeff * 1.0;
         vec3 secondaryColor = scatterLight(pass.body, start, pos, scattered);
-    //    rayEnergy -= max(vec3(0.0), rayEnergy - primaryColor);
+        //rayEnergy -= max(vec3(0.0), primaryColor * 0.01);
         color += scattered * heightmix;
         iter += stepsize;
     }
-    color *= distmultiplier * stepsize * shadowAccumulator;
+    color *= distmultiplier * stepsize * pow(shadowAccumulator, 2.0);
     color = max(vec3(0.0), color);
     return CelestialRenderResult(vec4(color, 0.0), vec4(alphacolor, coverage));
 }
@@ -115,10 +124,6 @@ CelestialRenderResult getAtmosphereLightForRay(RenderPass pass, Ray ray, float m
     return renderAtmospherePath(pass, ray.o, ray.o + ray.d * primaryLength, mieMultiplier, false);
 }
 
-vec3 getSunColorForRay(RenderedCelestialBody body, Ray ray){
-    float primaryLength = max(0.0, rsi2(ray, body.atmosphereSphere).y);
-    return scatterLight(body, ray.o, ray.o + ray.d * primaryLength, ClosestStarColor);// / (1.0 + primaryLength);
-}
 
 vec4 alphaMix(vec4 a, vec4 b){
     return vec4(mix(a.rgb, b.rgb, b.a), min(1.0, a.a + b.a));

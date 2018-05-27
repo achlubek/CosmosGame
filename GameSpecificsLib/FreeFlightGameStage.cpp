@@ -48,7 +48,7 @@ FreeFlightGameStage::FreeFlightGameStage(AbsGameContainer* container)
     //auto testspawnpos = cosmosRenderer->galaxy->getAllStars()[666].getPosition(0);
     //auto testspawnradius = cosmosRenderer->galaxy->getAllStars()[666].radius;
     //cosmosRenderer->galaxy->update(testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->getPosition());
-    int targetStar = 558;
+    int targetStar = 333;
     int targetPlanet = 4;
     int targetMoon = 0;
     auto galaxy = getCosmosGameContainer()->getCosmosRenderer()->getGalaxy();
@@ -176,7 +176,7 @@ void FreeFlightGameStage::onUpdateObject(GameObject * object, double elapsed)
     }
     auto baseVelocity = physicsComponent->getLinearVelocity();
     auto basePosition = physicsComponent->getPosition();
-    smokeParticleSystem->setGenerationTimeout(0.02);
+    smokeParticleSystem->setGenerationTimeout(0.002);
     auto thrustGenerators = object->getAllComponentsByType<ThrustGeneratorComponent>(ComponentTypes::ThrustGenerator);
     if (smokeParticleSystem->ifTimeoutAllowsGeneration()) {
         smokeParticleSystem->generate(basePosition, baseVelocity * 0.0);

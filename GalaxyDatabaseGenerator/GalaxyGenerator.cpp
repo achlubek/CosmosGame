@@ -112,7 +112,7 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
         int moonsCount = 0;
         if (planet->hostDistance < habitableStart) {
             // Rocky and small ONLY
-            planet->radius = static_cast<double>(randu64(2440, 2440)); // ranges from mercury to roughly 2x mercury
+            planet->radius = static_cast<double>(randu64(1140, 3440)); // ranges from mercury to roughly 2x mercury
             moonsCount = static_cast<int>(randu64(1, 2));
             planet->atmosphereRadius = 0.0;
             planet->atmosphereAbsorbStrength = 0.0;
@@ -124,16 +124,16 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
         }
         else if (planet->hostDistance >= habitableStart && planet->hostDistance <= habitableEnd) {
             // earth like or venus/mars like
-            planet->radius = static_cast<double>(randu64(6371.0, 6371.0)); // ranges from mars to 1,5x earth
+            planet->radius = static_cast<double>(randu64(3371.0, 8371.0)); // ranges from mars to 1,5x earth
             moonsCount = randu64(1, 4);
             planet->atmosphereRadius = (planet->radius * 0.02);
             planet->terrainMaxLevel =  planet->radius * 0.02;
             float rand1 = drandnorm();
             planet->atmosphereAbsorbStrength = 0.12;
-            planet->atmosphereAbsorbColor = glm::vec3(drandnorm(), drandnorm(), drandnorm());
+            planet->atmosphereAbsorbColor = glm::vec3(drandnorm() * drandnorm() * drandnorm(), sqrt(drandnorm()), drandnorm());
             planet->fluidMaxLevel = planet->terrainMaxLevel - sqrt(drandnorm()) * planet->terrainMaxLevel;
             planet->habitableChance = drandnorm();
-            planet->preferredColor = glm::vec3(drandnorm(), drandnorm(), drandnorm());
+            planet->preferredColor = planet->atmosphereAbsorbColor * 0.5f + 0.5f * glm::vec3(drandnorm(), drandnorm(), drandnorm());
             /*
             if (rand1 < 0.5) {
                 // oxygen etc, blue marbles
