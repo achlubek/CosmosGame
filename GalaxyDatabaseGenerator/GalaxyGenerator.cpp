@@ -86,29 +86,36 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
     star->spotsIntensity = drandnorm();
     star->rotationSpeed = drandnorm();
     star->orbitPlane = glm::normalize(glm::vec3(drandnorm(), drandnorm(), drandnorm()) * 2.0f - 1.0f);
-    star->planetsCount = 8;// randu64(8, 8);
+    star->planetsCount = randu64(4, 10);
     system->star = star;
     system->bodies = {};
     //double stardisthelper = 5800000;
-    double arra[8] = { 
+    /*
+    double arra[9] = { 
         5791000,
-        10800000,
-        14960000,
-        22800000,
-        77800000,
-        142700000,
-        287100000,
-        449700000 };
+        10800000, // dx 5009000
+        14960000, // dx 4160000
+        22800000, // dx 7840000
+        77800000, // dx 55000000
+        142700000, // dx 64900000
+        287100000, //dx 144400000
+        449700000 , //dx 162600000
+        649700000 };*/
+    // planet distances delta varies from 4160000 to insanes like 162600000
+
+   // double tmpHostDistance = 2791000.0 + 3791000.0 * drandnorm();
 
     for (int i = 0; i < star->planetsCount; i++) {
         CelestialBody* planet = new CelestialBody();
         planet->bodyId = i;
         // planet->host = star;
-        planet->hostDistance = arra[i];
+        double orbitDisturb = drandnorm() * 0.25;
+        planet->hostDistance = (glm::pow(1.6 + orbitDisturb, i+1) * (5791000.0 / (1.6 + orbitDisturb))) * 0.01;// arra[i];
+       // tmpHostDistance += 4160000.0 + drandnorm() * drandnorm() * 158440000.0;
         // stardisthelper += randu64(4000000, 162600000);
 
-        uint64_t habitableStart = 10000000;// 1082000;
-        uint64_t habitableEnd = 25800000;// 3279000;
+        uint64_t habitableStart = 100000;// 1082000;
+        uint64_t habitableEnd = 258000;// 3279000;
         int moonsCount = 0;
         if (planet->hostDistance < habitableStart) {
             // Rocky and small ONLY

@@ -126,8 +126,8 @@ void main() {
     sunflare += exp(starDist * -20.0 * (dot(dir, starDir) * 0.5 + 0.5)) * ClosestStarColor * 0.001;
     vec2 displaceVector = normalize(project(dir) - project(starDir)) * 10.0;
     float flunctuations = 0.3 + 0.7 * smoothstep(0.2, 0.7, noise3d(vec3(displaceVector, Time)));
-    sunflare = flunctuations * pow(1.0 - (dot(dir, starDir) * 0.5 + 0.5), starDist * 0.008) * ClosestStarColor * 0.2 * max(0.0, 1.0 - adddata.a);
-    sunflare += exp(starDist * -0.025 * (dot(dir, starDir) * 0.5 + 0.5)) * ClosestStarColor *3.3 * max(0.0, 1.0 - adddata.a);
+    sunflare = flunctuations * pow(1.0 - (dot(dir, starDir) * 0.5 + 0.5), starDist * 0.08) * ClosestStarColor * 0.02 * max(0.0, 1.0 - adddata.a);
+    sunflare += exp(starDist * -0.25 * (dot(dir, starDir) * 0.5 + 0.5)) * ClosestStarColor *3.3 * max(0.0, 1.0 - adddata.a);
     //sunflare += pow(1.0 - (dot(dir, starDir) * 0.5 + 0.5), 62.0) * ClosestStarColor * 0.01;
     vec3 sunFlareColorizer = mix(vec3(1.0), normalize(adddata.rgb + 0.001), min(1.0, 10.0 *length(adddata.rgb)));
     a += adddata.rgb + sunflare * max(0.0, 1.0 - adddata.a) * sunFlareColorizer * Exposure * 10.8;

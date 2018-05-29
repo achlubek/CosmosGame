@@ -227,7 +227,7 @@ std::vector<CelestialBody> GalaxyContainer::loadMoonsByPlanet(CelestialBody& pla
 void GalaxyContainer::updateClosestStar(glm::dvec3 observerPosition)
 {
     GeneratedStarInfo result;
-    double closestDistance = 9999999999.0;
+    double closestDistance = 99999999999999.0;
     for (int s = 0; s < allStars.size(); s++) {
         auto star = allStars[s];
 
@@ -246,7 +246,7 @@ void GalaxyContainer::updateClosestStar(glm::dvec3 observerPosition)
 void GalaxyContainer::updateClosestPlanet(glm::dvec3 observerPosition)
 {
     CelestialBody result;
-    double closestDistance = 9999999999.0;
+    double closestDistance = 99999999999999.0;
     for (int s = 0; s < closestStarPlanets.size(); s++) {
         auto planet = closestStarPlanets[s];
 
@@ -265,7 +265,7 @@ void GalaxyContainer::updateClosestPlanet(glm::dvec3 observerPosition)
 void GalaxyContainer::updateClosestMoon(glm::dvec3 observerPosition)
 {
     CelestialBody result;
-    double closestDistance = 9999999999.0;
+    double closestDistance = 99999999999999.0;
     for (int s = 0; s < closestPlanetMoons.size(); s++) {
         auto moon = closestPlanetMoons[s];
 
@@ -284,7 +284,7 @@ void GalaxyContainer::updateClosestMoon(glm::dvec3 observerPosition)
 void GalaxyContainer::updateClosestCelestialBody(glm::dvec3 observerPosition)
 {
     CelestialBody result;
-    double closestDistance = 9999999999.0;
+    double closestDistance = 99999999999999.0;
     for (int s = 0; s < closestStarPlanets.size(); s++) {
         auto planet = closestStarPlanets[s];
 

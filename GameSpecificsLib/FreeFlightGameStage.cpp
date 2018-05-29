@@ -48,10 +48,11 @@ FreeFlightGameStage::FreeFlightGameStage(AbsGameContainer* container)
     //auto testspawnpos = cosmosRenderer->galaxy->getAllStars()[666].getPosition(0);
     //auto testspawnradius = cosmosRenderer->galaxy->getAllStars()[666].radius;
     //cosmosRenderer->galaxy->update(testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->getPosition());
-    int targetStar = 333;
-    int targetPlanet = 4;
+    int targetStar = 7565;
+    int targetPlanet = 3;
     int targetMoon = 0;
     auto galaxy = getCosmosGameContainer()->getCosmosRenderer()->getGalaxy();
+    getCosmosGameContainer()->getCosmosRenderer()->setExposure(0.001);
 
     auto targetBody = galaxy->getByPath(targetStar, targetPlanet, targetMoon);
     auto center = targetBody->getPosition(0);
@@ -84,8 +85,8 @@ FreeFlightGameStage::FreeFlightGameStage(AbsGameContainer* container)
     });
 
     testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(center + glm::dvec3(0.0, dist * 1.043, 0.0));
-    //testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(velocity + 1000.0 * targetBody->calculateOrbitVelocity(dist * 0.03) * glm::dvec3(1.0, 0.0, 0.0));
-    testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(glm::dvec3(0.0));
+    testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(velocity + 1000.0 * targetBody->calculateOrbitVelocity(dist * 0.03) * glm::dvec3(1.0, 0.0, 0.0));
+    //testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(glm::dvec3(0.0));
 
     addObject(testship);
     getViewCamera()->setTarget(testship);

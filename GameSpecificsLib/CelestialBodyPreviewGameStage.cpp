@@ -145,7 +145,7 @@ void CelestialBodyPreviewGameStage::onUpdate(double elapsed)
     auto keyboard = getCosmosGameContainer()->getControls()->getRawKeyboard();
     center = targetBody->getPosition(getTimeProvider()->getTime());
 
-    float orbitSpeed = elapsed * 0.000131 * (dist - mindist);
+    float orbitSpeed = elapsed * 0.000000131 * (dist - mindist) * mindist;
     float panSpeed = elapsed * fov * 0.01f;
     float zoomSpeed = elapsed;
 
@@ -211,13 +211,13 @@ void CelestialBodyPreviewGameStage::onUpdate(double elapsed)
     }
     if (keyboard->getKeyStatus(GLFW_KEY_MINUS) == GLFW_PRESS) {
         double e = getCosmosGameContainer()->getCosmosRenderer()->getExposure();
-        e -= 0.00001;
+        e -= e * 0.5;
         e = glm::clamp(e, 0.0000001, 10.0);
         getCosmosGameContainer()->getCosmosRenderer()->setExposure(e);
     }
     if (keyboard->getKeyStatus(GLFW_KEY_EQUAL) == GLFW_PRESS) {
         double e = getCosmosGameContainer()->getCosmosRenderer()->getExposure();
-        e += 0.00001;
+        e += e * 0.5;
         e = glm::clamp(e, 0.0000001, 10.0);
         getCosmosGameContainer()->getCosmosRenderer()->setExposure(e);
     }

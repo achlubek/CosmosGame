@@ -339,7 +339,7 @@ CelestialRenderResult renderRings(RenderPass pass, CelestialRenderResult current
         currentResult.alphaBlendedLight.a = min(1.0, rings.a + currentResult.alphaBlendedLight.a);
     } else {
         // rings in the back
-        currentResult.alphaBlendedLight.rgb = mix(rings.rgb * rings.a, currentResult.alphaBlendedLight.rgb, currentResult.alphaBlendedLight.a);
+        currentResult.alphaBlendedLight.rgb = mix(rings.rgb * rings.a + currentResult.alphaBlendedLight.rgb, currentResult.alphaBlendedLight.rgb, currentResult.alphaBlendedLight.a);
         currentResult.alphaBlendedLight.a = min(1.0, rings.a + currentResult.alphaBlendedLight.a);
     }
     return currentResult;
