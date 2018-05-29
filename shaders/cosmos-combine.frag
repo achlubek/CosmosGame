@@ -14,6 +14,7 @@ layout(set = 0, binding = 7) uniform sampler2D texParticlesResult;
 
 #include rendererDataSet.glsl
 #include proceduralValueNoise.glsl
+#include sphereRaytracing.glsl
 
 float rand2s(vec2 co){
     return fract(sin(dot(co.xy * hiFreq.Time,vec2(12.9898,78.233))) * 43758.5453);
@@ -121,16 +122,20 @@ void main() {
 
     vec3 starDir = normalize(-ClosestStarPosition + vec3(0.000001));
     float starDist = length(ClosestStarPosition);
+    float starhit = rsi2(Ray(vec3(0.0), dir), Sphere( starDist * -starDir, 55.0)).y;
     vec3 sunflare = exp(starDist * -2000.0 * (dot(dir, starDir) * 0.5 + 0.5)) * ClosestStarColor * 0.1;
     sunflare += exp(starDist * -200.0 * (dot(dir, starDir) * 0.5 + 0.5)) * ClosestStarColor * 0.01;
     sunflare += exp(starDist * -20.0 * (dot(dir, starDir) * 0.5 + 0.5)) * ClosestStarColor * 0.001;
     vec2 displaceVector = normalize(project(dir) - project(starDir)) * 10.0;
     float flunctuations = 0.3 + 0.7 * smoothstep(0.2, 0.7, noise3d(vec3(displaceVector, Time)));
-    sunflare = flunctuations * pow(1.0 - (dot(dir, starDir) * 0.5 + 0.5), starDist * 0.08) * ClosestStarColor * 0.02 * max(0.0, 1.0 - adddata.a);
-    sunflare += exp(starDist * -0.25 * (dot(dir, starDir) * 0.5 + 0.5)) * ClosestStarColor *3.3 * max(0.0, 1.0 - adddata.a);
+    sunflare = 0.0* flunctuations * pow(1.0 - (dot(dir, starDir) * 0.5 + 0.5), starDist * 0.08) * ClosestStarColor * 0.02 * max(0.0, 1.0 - adddata.a);
+    sunflare += exp(starDist * -0.0025 * (dot(dir, starDir) * 0.5 + 0.5)) * ClosestStarColor *3.3 * max(0.0, 1.0 - adddata.a);
     //sunflare += pow(1.0 - (dot(dir, starDir) * 0.5 + 0.5), 62.0) * ClosestStarColor * 0.01;
-    vec3 sunFlareColorizer = mix(vec3(1.0), normalize(adddata.rgb + 0.001), min(1.0, 10.0 *length(adddata.rgb)));
-    a += adddata.rgb + sunflare * max(0.0, 1.0 - adddata.a) * sunFlareColorizer * Exposure * 10.8;
+    vec3 sunFlareColorizer = mix(vec3(1.0), normalize(adddata.rgb + 0.001), min(1.0, 1010.0 *length(adddata.rgb)));
+    vec3 stnorm = normalize(dir * starhit - starDist * -starDir);
+    float snois = (starhit > 0.0 && starhit < 9999999.0) ? (aBitBetterNoise(stnorm * 10.0) * 0.5 + 0.25 * aBitBetterNoise(stnorm * 30.0)) : 0.0;
+    sunflare = ((starhit > 0.0 && starhit < 9999999.0) ? 1.0 : 0.0) * ClosestStarColor * max(0.0, 1.0 - adddata.a) * sunFlareColorizer * Exposure * 21.8 * snois;
+    a += adddata.rgb + sunflare;
     vec4 shipdata = texture(texModelsAlbedoRoughness, UV).rgba;
     a = mix(a, shipdata.rgb, shipdata.a);
     vec4 particlesData = texture(texParticlesResult, UV).rgba;
