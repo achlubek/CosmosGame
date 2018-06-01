@@ -91,22 +91,6 @@ FreeFlightGameStage::FreeFlightGameStage(AbsGameContainer* container)
     addObject(testship);
     getViewCamera()->setTarget(testship);
     getViewCamera()->setStrategy(new CameraChaseStrategy(false));
-
-    auto smokeTexture = container->getAssetLoader()->loadTextureFile("smoke.png");
-
-    smokeParticleSystem = new ParticleSystem(container->getVulkanToolkit(), smokeTexture, container->getParticlesRenderer()->getParticleLayout(),
-        1000, //maxParticlesCount
-        0.0002, //startSize
-        1.0, //startTransparency
-        10.01, //startRotationSpeed
-        0.0, //startVelocity
-        0.0002, //endSize
-        0.0, //endTransparency
-        0.0, //endRotationSpeed
-        0.0, //endVelocity
-        1.0, //lifeTime
-        1.0);
-    container->getParticlesRenderer()->registerParticleSystem(smokeParticleSystem);
 }
 
 
@@ -174,17 +158,5 @@ void FreeFlightGameStage::onUpdateObject(GameObject * object, double elapsed)
             auto relativeVel = physicsComponent->getLinearVelocity() - airVelocity * 1000.0;
             physicsComponent->applyAbsoluteImpulse(glm::dvec3(0.0), relativeVel * elapsed * -1000.0);
         }
-    }
-    auto baseVelocity = physicsComponent->getLinearVelocity();
-    auto basePosition = physicsComponent->getPosition();
-    smokeParticleSystem->setGenerationTimeout(0.002);
-    auto thrustGenerators = object->getAllComponentsByType<ThrustGeneratorComponent>(ComponentTypes::ThrustGenerator);
-    if (smokeParticleSystem->ifTimeoutAllowsGeneration()) {
-        smokeParticleSystem->generate(basePosition, baseVelocity * 0.0);
-    }
-    for (int i = 0; i < thrustGenerators.size(); i++) {
-        auto t = thrustGenerators[i];
-        auto vector = t->getThrustVector();
-
     }
 }

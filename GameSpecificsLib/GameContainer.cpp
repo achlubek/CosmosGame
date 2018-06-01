@@ -20,9 +20,9 @@
 #include "ModelsRenderer.h"
 #include "AbsGameStage.h"
 #include "ParticlesRenderer.h"
+#include "ParticleSystemFactory.h"
 #include <ctype.h>
 
-// kids, this is how to not do single responsibility principle
 GameContainer::GameContainer()
     : AbsGameContainer()
 {
@@ -36,7 +36,8 @@ GameContainer::GameContainer()
     getModelsRenderer()->setRenderingScale(cosmosRenderer->scale);
     getParticlesRenderer()->setRenderingScale(cosmosRenderer->scale);
 
-    moduleFactory = new ModuleFactory(getModel3dFactory());
+    particleSystemFactory = new ParticleSystemFactory();
+    moduleFactory = new ModuleFactory(getModel3dFactory(), particleSystemFactory);
     shipFactory = new ShipFactory(getModel3dFactory(), moduleFactory);
 
 }

@@ -22,6 +22,5 @@ private:
     UIText* moonNameText;
     UIText* altitudeText;
     UIText* velocityText;
-    ParticleSystem* smokeParticleSystem;
 };
 

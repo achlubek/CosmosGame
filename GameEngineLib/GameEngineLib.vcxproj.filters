@@ -96,10 +96,13 @@
     <ClInclude Include="ParticlesRenderer.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="ParticlesEmitter.h">
+    <ClInclude Include="ParticleSystemsCollection.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSystemsCollection.h">
+    <ClInclude Include="PointParticlesEmitter.h">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSystemFactory.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
   </ItemGroup>
@@ -179,10 +182,13 @@
     <ClCompile Include="ParticlesRenderer.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="ParticlesEmitter.cpp">
+    <ClCompile Include="ParticleSystemsCollection.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="ParticleSystemsCollection.cpp">
+    <ClCompile Include="PointParticlesEmitter.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSystemFactory.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
   </ItemGroup>

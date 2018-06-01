@@ -7,6 +7,7 @@ class CosmosRenderer;
 class GameControls; 
 class SQLiteDatabase;
 class Model3dFactory;
+class ParticleSystemFactory;
 class ModuleFactory;
 class ShipFactory;
 class GameObject;
@@ -31,6 +32,7 @@ private:
     GalaxyGenerator* galaxyGenerator;
     CosmosRenderer* cosmosRenderer;
     ModuleFactory* moduleFactory;
+    ParticleSystemFactory* particleSystemFactory;
     ShipFactory* shipFactory;
 };
 

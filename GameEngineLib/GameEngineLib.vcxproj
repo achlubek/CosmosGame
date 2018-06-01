@@ -164,7 +164,8 @@
     <ClInclude Include="Interpolator.h" />
     <ClInclude Include="ManualCameraStrategy.h" />
     <ClInclude Include="OutputScreenRenderer.h" />
-    <ClInclude Include="ParticlesEmitter.h" />
+    <ClInclude Include="ParticleSystemFactory.h" />
+    <ClInclude Include="PointParticlesEmitter.h" />
     <ClInclude Include="ParticlesRenderer.h" />
     <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="ParticleSystemsCollection.h" />
@@ -194,7 +195,8 @@
     <ClCompile Include="Interpolator.cpp" />
     <ClCompile Include="ManualCameraStrategy.cpp" />
     <ClCompile Include="OutputScreenRenderer.cpp" />
-    <ClCompile Include="ParticlesEmitter.cpp" />
+    <ClCompile Include="ParticleSystemFactory.cpp" />
+    <ClCompile Include="PointParticlesEmitter.cpp" />
     <ClCompile Include="ParticlesRenderer.cpp" />
     <ClCompile Include="ParticleSystem.cpp" />
     <ClCompile Include="ParticleSystemsCollection.cpp" />

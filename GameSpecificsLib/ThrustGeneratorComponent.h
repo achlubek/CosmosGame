@@ -1,6 +1,8 @@
 #pragma once
 #include "AbsDrawableComponent.h" 
-class BatteryDrainer; 
+class PointParticlesEmitter;
+class BatteryDrainer;
+class ParticleSystem;
 enum ThrustGroup {
     forward = 0,
     backward = 1,
@@ -19,7 +21,7 @@ enum ThrustGroup {
 class ThrustGeneratorComponent : public AbsDrawableComponent
 {
 public:
-    ThrustGeneratorComponent(Model3d* model, glm::dvec3 relativePosition, glm::dquat relativeOrientation, double maxthrust, double maxwattage);
+    ThrustGeneratorComponent(Model3d* model, glm::dvec3 relativePosition, glm::dquat relativeOrientation, double maxthrust, double maxwattage, ParticleSystem* particleSystem);
     ~ThrustGeneratorComponent();    
     
     virtual void update(double elapsed) override;
@@ -31,6 +33,7 @@ public:
     ThrustGroup functionalityGroup;
 private:
     BatteryDrainer * drainer;
+    PointParticlesEmitter* particleGenerator;
     double powerPercentage{ 0 };
     double maxThrust;
 };
