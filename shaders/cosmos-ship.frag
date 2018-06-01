@@ -5,6 +5,8 @@ layout(location = 0) in vec2 UV;
 layout(location = 1) in flat uint inInstanceId;
 layout(location = 2) in vec3 inWorldPos;
 layout(location = 3) in vec3 inNormal;
+layout(location = 4) in vec4 inTangent;
+
 layout(location = 0) out vec4 outAlbedoRoughness;
 layout(location = 1) out vec4 outNormalMetalness;
 layout(location = 2) out float outDistance;
@@ -75,8 +77,23 @@ vec3 thrustengine(vec3 rayorigin, vec3 raydir, vec3 position, vec3 direction, fl
 Ray cameraRay;
 void main() {
     vec2 texuv = vec2(UV.x, 1.0 - UV.y);
+    vec3 tangent = normalize(inTangent.rgb);
+    vec3 normal = normalize(inNormal);
+
+    float tangentSign = inTangent.w;
+    mat3 TBN = (mat3(
+        tangent,
+        normalize(cross(normal, tangent)) * tangentSign,
+        normal
+    ));
+
+    vec3 normalmaptex = normalize(texture(texNormal, texuv).rgb * 2.0 - 1.0);
+    //normalmaptex.r *= -1.0;
+
+    normal = TBN * normalize(normalmaptex);
+
     outAlbedoRoughness = vec4(texture(texAlbedo, texuv).rgb, texture(texRoughness, texuv).r);
-    outNormalMetalness = vec4(normalize(inNormal),texture(texMetalness, texuv).r);
+    outNormalMetalness = vec4(normalize(normal),texture(texMetalness, texuv).r);
     outDistance = length(inWorldPos);
     outId = uint(modelBuffer.id);
 }

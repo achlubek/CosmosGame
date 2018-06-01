@@ -23,6 +23,10 @@ public:
         return glm::dvec3(x, y, z);
     }
 
+    virtual glm::dvec3 getGravity(glm::dvec3 at_point, double at_time) {
+        return glm::dvec3(0.0);
+    }
+
     virtual glm::dvec3 getLinearVelocity(double at_time) {
         return glm::dvec3(0.0);
     }

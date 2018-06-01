@@ -8,7 +8,7 @@ public:
 
     double radius; 
 
-    glm::dvec3 getGravity(glm::dvec3 at_point, double at_time) {/*
+    virtual glm::dvec3 getGravity(glm::dvec3 at_point, double at_time) {/*
         double G = 0.00000000006674;
         double strength = (G * (calculateMass(radius) / maxval(radius * radius, distance * distance))); // the max is here to avoid infinities around 0 distance okay
         return glm::normalize(objectPos - at_point) * strength;*/

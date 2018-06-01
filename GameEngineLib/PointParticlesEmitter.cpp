@@ -39,6 +39,10 @@ void PointParticlesEmitter::updateProperties(glm::dvec3 iposition, glm::dvec3 iv
 
 void PointParticlesEmitter::update(double elapsed)
 {
+    generationTimeoutCounter = glm::clamp(generationTimeoutCounter, 0.0f, generationTimeout);
+    if (generationTimeoutCounter < generationTimeout) {
+        generationTimeoutCounter += elapsed;
+    }
     while (ifTimeoutAllowsGeneration()) {
         double rdRotation = drandnorm() * 3.1415 * 2.0;
         double rdVelocity = drandnorm() * 2.0 - 1.0;
@@ -48,12 +52,11 @@ void PointParticlesEmitter::update(double elapsed)
         double newStartVelocity = max(startVelocity + rdVelocity * velocityRandomness, 0.0);
         system->generate(position + rdPositionizer * elapsed * newStartVelocity * newDirection * 0.01, velocity + newStartVelocity * newDirection, rdRotation);
     }
-    generationTimeoutCounter += elapsed;
 }
 
 bool PointParticlesEmitter::ifTimeoutAllowsGeneration()
 {
-    if (generationTimeoutCounter > generationTimeout) {
+    if (generationTimeoutCounter >= generationTimeout) {
         generationTimeoutCounter -= generationTimeout;
         return true;
     }
