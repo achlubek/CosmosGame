@@ -23,15 +23,18 @@ ThrustGeneratorComponent::~ThrustGeneratorComponent()
 
 void ThrustGeneratorComponent::update(double elapsed)
 {
+    Transformation3DComponent* transform = owner->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D);
+
     drainer->setOwner(owner);
     double realPower = drainer->extractEnergy(elapsed, powerPercentage) * powerPercentage;
     auto thrustDirection = getThrustVector();
     glm::dvec3 force = -thrustDirection * maxThrust * realPower;
-    Transformation3DComponent* transform = owner->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D);
-    transform->applyImpulse(relativePosition, force);
-    particleGenerator->updateProperties(transform->getPosition(), transform->getLinearVelocity(), thrustDirection, 1.0 + realPower * 5.0, 0.6, 0.2);
-    particleGenerator->setParticlesPerSecond(realPower * 10.0);
+
+    particleGenerator->updateProperties(transform->getPosition() + getWorldTranslation(), transform->getLinearVelocity(), glm::mat3_cast(transform->getOrientation()) * thrustDirection, 10.0 + realPower * 50.0, 0.6, 0.2);
+    particleGenerator->setParticlesPerSecond(realPower * 100.0);
     particleGenerator->update(elapsed);
+
+    transform->applyImpulse(relativePosition, force);
 }
 
 void ThrustGeneratorComponent::loadFromFile(std::string mediakey)

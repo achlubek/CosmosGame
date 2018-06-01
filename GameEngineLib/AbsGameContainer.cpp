@@ -147,7 +147,6 @@ void AbsGameContainer::startGameLoops()
             frames = 0;
         }
         currentStage->getTimeProvider()->update(time - lastTimeX);
-        getParticlesRenderer()->update(time - lastTimeX);
         getParticlesRenderer()->updateCameraBuffer(currentStage->getViewCamera()->getInternalCamera(), currentStage->getViewCamera()->getPosition());
         lastTimeFloored = floored;
         lastTimeX = time;

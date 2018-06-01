@@ -74,9 +74,9 @@ vec3 thrustengine(vec3 rayorigin, vec3 raydir, vec3 position, vec3 direction, fl
 }
 Ray cameraRay;
 void main() {
-    float dt = max(0.0, dot(normalize(inNormal), normalize(ClosestStarPosition - inWorldPos)));
-    outAlbedoRoughness = vec4(texture(texAlbedo, vec2(UV.x, 1.0 - UV.y)).rgb, 1.0);
-    outNormalMetalness = vec4(normalize(inNormal), 0.0);
+    vec2 texuv = vec2(UV.x, 1.0 - UV.y);
+    outAlbedoRoughness = vec4(texture(texAlbedo, texuv).rgb, texture(texRoughness, texuv).r);
+    outNormalMetalness = vec4(normalize(inNormal),texture(texMetalness, texuv).r);
     outDistance = length(inWorldPos);
     outId = uint(modelBuffer.id);
 }

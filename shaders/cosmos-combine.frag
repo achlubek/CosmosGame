@@ -111,6 +111,7 @@ vec3 ACESFitted(vec3 color)
     return gammacorrect(clamp(color, 0.0, 1.0));
 }
 #include camera.glsl
+#include pbr.glsl
 void main() {
     vec4 celestial = texture(texCelestialAlpha, UV);
     vec3 dir = reconstructCameraSpaceDistance(gl_FragCoord.xy / Resolution, 1.0);
@@ -136,8 +137,21 @@ void main() {
     float snois = (starhit > 0.0 && starhit < 9999999.0) ? (aBitBetterNoise(stnorm * 10.0) * 0.5 + 0.25 * aBitBetterNoise(stnorm * 30.0)) : 0.0;
     sunflare = ((starhit > 0.0 && starhit < 9999999.0) ? 1.0 : 0.0) * ClosestStarColor * max(0.0, 1.0 - adddata.a) * sunFlareColorizer * Exposure * 21.8 * snois;
     a += adddata.rgb + sunflare;
-    vec4 shipdata = texture(texModelsAlbedoRoughness, UV).rgba;
-    a = mix(a, shipdata.rgb, shipdata.a);
+    vec4 shipdata1 = texture(texModelsAlbedoRoughness, UV).rgba;
+    vec4 shipdata2 = texture(texModelsNormalMetalness, UV).rgba;
+    float shipdata3 = texture(texModelsDistance, UV).r;
+    vec3 albedo = shipdata1.rgb;
+    float roughness = shipdata1.a;
+    vec3 normal = normalize(shipdata2.rgb);
+    float metalness = shipdata2.a;
+    vec3 position = dir * shipdata3;
+    vec3 viewdir = dir;
+    vec3 lightdir = -starDir;
+    vec3 lightcolor = ClosestStarColor * 0.0001;
+
+    vec3 shaded = shade_ray(albedo, normal, viewdir, roughness, metalness, lightdir, lightcolor);
+
+    a = mix(a, shaded, step(0.09, length(shipdata2.rgb)));
     vec4 particlesData = texture(texParticlesResult, UV).rgba;
     a += particlesData.a == 0.0 ? vec3(0.0) : (particlesData.rgb);
     outColor = vec4(ACESFitted(clamp(a, 0.0, 10000.0)), 1.0);

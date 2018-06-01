@@ -30,8 +30,9 @@ layout(set = 1, binding = 0) buffer modelStorageBuffer {
 
 Ray cameraRay;
 void main() {
-    float dist = distance(CameraPosition, inWorldPos);
-    float test = texture(texDistance, UV).r;
+    float dist = length(inWorldPos);
+    vec2 screenUV = gl_FragCoord.xy / Resolution;
+    float test = texture(texDistance, vec2(screenUV.x, screenUV.y)).r;
     vec4 tdata = texture(texParticle, UV).rgba;
-    outResult = tdata * vec4(vec3(inTransparency * tdata.a), 1.0);
+    outResult = step(0.0, dist - test) * tdata * vec4(vec3(inTransparency * tdata.a), 1.0);
 }

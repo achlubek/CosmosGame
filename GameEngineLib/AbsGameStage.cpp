@@ -58,6 +58,7 @@ void AbsGameStage::updateObjects()
 {
     double nowtime = timeProvider->getTime();
     double timescale = 1.0;
+    container->getParticlesRenderer()->update((nowtime - lastTime) * timescale);
     for (int i = 0; i < activeObjects.size(); i++) {
         onUpdateObject(activeObjects[i], (nowtime - lastTime) * timescale);
         activeObjects[i]->update((nowtime - lastTime) * timescale);

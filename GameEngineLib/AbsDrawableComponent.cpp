@@ -33,6 +33,15 @@ void AbsDrawableComponent::draw(glm::dvec3 observerPosition, VulkanRenderStage* 
     model->draw(stage, set, modulepos, moduleort, scale, getID());
 }
 
+glm::dvec3 AbsDrawableComponent::getWorldTranslation()
+{
+    Transformation3DComponent* parentTransform = owner->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D);
+
+    auto m3_rot = glm::mat3_cast(parentTransform->getOrientation());
+
+    return m3_rot * relativePosition * 0.001;
+}
+
 void AbsDrawableComponent::update(double elapsed)
 {
 }

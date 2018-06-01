@@ -32,7 +32,7 @@ ParticleSystem::~ParticleSystem()
 void ParticleSystem::update(double elapsed)
 {
     for (int i = 0; i < particles.size(); i++) {
-        particles[i].position += particles[i].velocity * elapsed;
+        particles[i].position += particles[i].velocity * elapsed * 0.001;
         float mixLifeTime = 1.0 - particles[i].timeLeft / lifeTime;
         particles[i].size = glm::mix(startSize, endSize, mixLifeTime);
         particles[i].transparency = glm::mix(startTransparency, endTransparency, mixLifeTime);
