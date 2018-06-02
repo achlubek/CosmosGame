@@ -504,7 +504,7 @@ void CosmosRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosi
     // the formula for AU coefficent = distance / AU1
     // the formula for lux coefficent = 1.0 / (AUcoefficent * AUcoefficent)
     // the formula for final lux is lux multiplier * 120 000
-    double au1 = 149600.0;
+    double au1 = 1496000.0;
     double aucoeff = galaxy->getClosestPlanet().hostDistance / au1;
     double luxcoeff = 1.0 / (aucoeff * aucoeff);
     double lux = luxcoeff * 120000.0;
@@ -747,6 +747,30 @@ void CosmosRenderer::draw(double time)
 
 void CosmosRenderer::onClosestStarChange(GeneratedStarInfo star)
 {
+    updatingSafetyQueue.enqueue([&]() {
+        for (int i = 0; i < renderablePlanets.size(); i++) {
+            delete renderablePlanets[i];
+            renderablePlanets[i] = nullptr;
+        }
+        renderablePlanets.clear();
+        auto planets = galaxy->getClosestStarPlanets();
+        for (int i = 0; i < planets.size(); i++) {
+            auto renderable = new RenderedCelestialBody(vulkan,
+                planets[i],
+                celestialBodyDataSetLayout,
+                celestialShadowMapSetLayout,
+                celestialBodyRenderSetLayout,
+                celestialBodySurfaceSetLayout,
+                celestialBodyWaterSetLayout,
+                surfaceRenderedAlbedoRoughnessImage,
+                surfaceRenderedNormalMetalnessImage,
+                surfaceRenderedDistanceImage,
+                waterRenderedNormalMetalnessImage,
+                waterRenderedDistanceImage);
+            renderable->updateBuffer(observerCameraPosition, scale, 0.0);
+            renderablePlanets.push_back(renderable);
+        }
+    });
 }
 
 void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
@@ -754,25 +778,6 @@ void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
 
     updatingSafetyQueue.enqueue([&]() {
 
-        for (int i = 0; i < renderablePlanets.size(); i++) {
-            delete renderablePlanets[i];
-            renderablePlanets[i] = nullptr;
-        }
-        renderablePlanets.clear();
-        auto renderable = new RenderedCelestialBody(vulkan,
-            galaxy->getClosestPlanet(),
-            celestialBodyDataSetLayout,
-            celestialShadowMapSetLayout,
-            celestialBodyRenderSetLayout,
-            celestialBodySurfaceSetLayout,
-            celestialBodyWaterSetLayout,
-            surfaceRenderedAlbedoRoughnessImage,
-            surfaceRenderedNormalMetalnessImage,
-            surfaceRenderedDistanceImage,
-            waterRenderedNormalMetalnessImage,
-            waterRenderedDistanceImage);
-        renderable->updateBuffer(observerCameraPosition, scale, 0.0);
-        renderablePlanets.push_back(renderable);
         //renderable->updateData(celestialDataUpdateComputeStage);
 
         vkDeviceWaitIdle(vulkan->device);

@@ -110,12 +110,12 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
         planet->bodyId = i;
         // planet->host = star;
         double orbitDisturb = drandnorm() * 0.25;
-        planet->hostDistance = (glm::pow(1.6 + orbitDisturb, i+1) * (5791000.0 / (1.6 + orbitDisturb))) * 0.01;// arra[i];
+        planet->hostDistance = (glm::pow(1.6 + orbitDisturb, i+1) * (5791000.0 / (1.6 + orbitDisturb))) * 0.1;// arra[i];
        // tmpHostDistance += 4160000.0 + drandnorm() * drandnorm() * 158440000.0;
         // stardisthelper += randu64(4000000, 162600000);
 
-        uint64_t habitableStart = 100000;// 1082000;
-        uint64_t habitableEnd = 258000;// 3279000;
+        uint64_t habitableStart = 1000000;// 1082000;
+        uint64_t habitableEnd = 2580000;// 3279000;
         int moonsCount = 0;
         if (planet->hostDistance < habitableStart) {
             // Rocky and small ONLY

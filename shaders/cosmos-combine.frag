@@ -123,7 +123,7 @@ void main() {
 
     vec3 starDir = normalize(-ClosestStarPosition + vec3(0.000001));
     float starDist = length(ClosestStarPosition);
-    float starhit = rsi2(Ray(vec3(0.0), dir), Sphere( starDist * -starDir, 55.0)).y;
+    float starhit = rsi2(Ray(vec3(0.0), dir), Sphere( starDist * -starDir, 550.0)).y;
     vec3 sunflare = exp(starDist * -2000.0 * (dot(dir, starDir) * 0.5 + 0.5)) * ClosestStarColor * 0.1;
     sunflare += exp(starDist * -200.0 * (dot(dir, starDir) * 0.5 + 0.5)) * ClosestStarColor * 0.01;
     sunflare += exp(starDist * -20.0 * (dot(dir, starDir) * 0.5 + 0.5)) * ClosestStarColor * 0.001;
