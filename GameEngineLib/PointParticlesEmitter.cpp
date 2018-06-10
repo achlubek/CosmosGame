@@ -47,7 +47,7 @@ void PointParticlesEmitter::update(double elapsed)
         double rdRotation = drandnorm() * 3.1415 * 2.0;
         double rdVelocity = drandnorm() * 2.0 - 1.0;
         double rdPositionizer = drandnorm();
-        glm::dvec3 rdDirection = glm::dvec3(drandnorm(), drandnorm(), drandnorm());
+        glm::dvec3 rdDirection = glm::dvec3(drandnorm(), drandnorm(), drandnorm()) * 2.0 - 1.0;
         glm::dvec3 newDirection = glm::normalize(direction + rdDirection * directionRandomness);
         double newStartVelocity = max(startVelocity + rdVelocity * velocityRandomness, 0.0);
         system->generate(position + rdPositionizer * elapsed * newStartVelocity * newDirection * 0.01, velocity + newStartVelocity * newDirection, rdRotation);

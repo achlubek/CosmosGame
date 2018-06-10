@@ -155,6 +155,7 @@
     <ClInclude Include="GeneratedStarInfo.h" />
     <ClInclude Include="InvokeQueue.h" />
     <ClInclude Include="RenderedCelestialBody.h" />
+    <ClInclude Include="StarsRenderer.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
@@ -166,6 +167,7 @@
     <ClCompile Include="GeneratedStarInfo.cpp" />
     <ClCompile Include="InvokeQueue.cpp" />
     <ClCompile Include="RenderedCelestialBody.cpp" />
+    <ClCompile Include="StarsRenderer.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
