@@ -212,7 +212,7 @@ vec3 renderWater(RenderPass pass, vec3 background, float depth){
     vec3 dirToStar = normalize(ClosestStarPosition - pass.waterHitPos);
     vec3 flatnormal = normalize(pass.waterHitPos - pass.body.position);
     float flatdt = smoothstep(-0.1, 0.0, max(-0.1, dot(flatnormal, dirToStar)));
-    vec3 waternormal = celestialGetWaterNormalRaycast(pass.body,  0.000088 * sqrt(pass.waterHit), pass.waterHitPos + vec3((sin(Time * 10.0) * 0.5 + 0.5) * 0.000088 * sqrt(pass.waterHit)));
+    vec3 waternormal = celestialGetWaterNormalRaycast(pass.body,  0.0000288 * sqrt(pass.waterHit), pass.waterHitPos + vec3((sin(Time * 10.0) * 0.5 + 0.5) * 0.0000288 * sqrt(pass.waterHit)));
     float dtup = max(-0.1, dot(waternormal, flatnormal));
 
     waternormal = normalize(waternormal);

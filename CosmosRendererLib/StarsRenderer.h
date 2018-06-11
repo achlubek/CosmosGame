@@ -10,11 +10,13 @@ public:
         GalaxyContainer* galaxy);
     ~StarsRenderer();
     void draw();
+    void recompile();
     VulkanImage* getStarsImage();
 private:
     VulkanToolkit * vulkan;
     AssetLoader* assetLoader;
     GalaxyContainer* galaxy;
+    VulkanDescriptorSet* rendererDataSet;
 
     int width;
     int height;
@@ -29,5 +31,6 @@ private:
     Object3dInfo* cube3dInfo;
 
     void updateStarsBuffer();
+    void createRenderStage();
 };
 

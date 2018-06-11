@@ -190,19 +190,16 @@ vec3 celestialGetNormalRaycast(RenderedCelestialBody body, float dxrange, vec3 p
 }
 
 float getWaterHeightHiRes(RenderedCelestialBody body, vec3 dir){
-    dir = body.rotationMatrix * dir;
-    float fbm = FBM3(dir * 4000.0, 8, 2.3, 0.66);//getwavesHighPhase(dir *body.radius * 50.01, 8, 1.8, Time, 0.0);
-    //fbm += getwavesHighPhase(dir *body.radius * 120.01 + fbm * 1.0, 8, 1.8, Time, 0.0);
-    //fbm *= 0.5;
-    //return (body.radius + body.fluidMaxLevel) - (1.0 - (getwavesHighPhase(dir *body.radius * 20.01, 8, 1.8, Time, 0.0) * 0.91 + 0.09 * fbm)) * 0.00064;
-    return (body.radius + body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir * body.radius * 200.01, 8, 1.8, Time * 0.01, 0.0)) * 0.00064;
+    //dir = body.rotationMatrix * dir;
+    return (body.radius + body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir * body.radius * 150.01, 20, 1.8, Time * 0.01, 0.0)) * 0.00264;
 }
 float getWaterHeightLowRes(RenderedCelestialBody body, vec3 dir){
     dir = body.rotationMatrix * dir;
-    return (body.radius + body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir * body.radius * 200.01, 8, 1.8, Time * 0.01, 0.0)) * 0.00064;
+    return (body.radius + body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir * body.radius * 150.01, 8, 1.8, Time * 0.01, 0.0)) * 0.00264;
 }
 
 vec3 celestialGetWaterNormal(RenderedCelestialBody body, float dxrange, vec3 dir){
+    dir = body.rotationMatrix * dir;
     vec3 tangdir = normalize(cross(dir, vec3(0.0, 1.0, 0.0)));
     vec3 bitangdir = normalize(cross(tangdir, dir));
     mat3 normrotmat1 = rotationMatrix(tangdir, dxrange);
@@ -212,7 +209,11 @@ vec3 celestialGetWaterNormal(RenderedCelestialBody body, float dxrange, vec3 dir
     vec3 p1 = dir * getWaterHeightHiRes(body, vec3(dir));
     vec3 p2 = dir2 * getWaterHeightHiRes(body, vec3(dir2));
     vec3 p3 = dir3 * getWaterHeightHiRes(body, vec3(dir3));
-    return vec3(normalize(cross(normalize(p3 - p1), normalize(p2 - p1))));
+    vec3 n =  normalize(cross(normalize(p3 - p1), normalize(p2 - p1)));
+    n += tangdir * FBM3(p1 * 3110.0, 5, 2.5, 0.75) * 0.2;
+    n += bitangdir * FBM3(p1 * 3110.0, 5, 2.5, 0.75) * 0.2;
+    return normalize(n);
+
 }
 
 vec3 celestialGetWaterNormalRaycast(RenderedCelestialBody body, float dxrange, vec3 position){

@@ -9,7 +9,13 @@ StarsRenderer::StarsRenderer(VulkanToolkit* vulkan,
     VulkanDescriptorSet* rendererDataSet, 
     AssetLoader* assetLoader, 
     GalaxyContainer* galaxy)
-    : vulkan(vulkan), width(width), height(height), scale(scale), assetLoader(assetLoader), galaxy(galaxy)
+    : vulkan(vulkan), 
+    width(width), 
+    height(height), 
+    scale(scale), 
+    rendererDataSet(rendererDataSet),
+    assetLoader(assetLoader),
+    galaxy(galaxy)
 {
     starsImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
         VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
@@ -24,20 +30,7 @@ StarsRenderer::StarsRenderer(VulkanToolkit* vulkan,
     starsDataSet->bindStorageBuffer(0, starsDataBuffer);
     starsDataSet->update();
 
-    auto starsvert = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-stars.vert.spv");
-    auto starsfrag = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-stars.frag.spv");
-
-    starsStage = new VulkanRenderStage(vulkan);
-    starsStage->setViewport(width, height);
-    starsStage->addShaderStage(starsvert->createShaderStage(VK_SHADER_STAGE_VERTEX_BIT, "main"));
-    starsStage->addShaderStage(starsfrag->createShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT, "main"));
-    starsStage->addDescriptorSetLayout(rendererDataSet->layout);
-    starsStage->addDescriptorSetLayout(starsDataLayout->layout);
-    starsStage->addOutputImage(starsImage);
-    starsStage->setSets({ rendererDataSet, starsDataSet });
-    starsStage->additiveBlending = true;
-    starsStage->cullFlags = VK_CULL_MODE_BACK_BIT;
-    starsStage->compile();
+    createRenderStage();
 
     cube3dInfo = assetLoader->loadObject3dInfoFile("cube1unitradius.raw");
 
@@ -47,21 +40,34 @@ StarsRenderer::StarsRenderer(VulkanToolkit* vulkan,
 }
 
 
+#define safedelete(a) if(a!=nullptr){delete a;a=nullptr;}
 StarsRenderer::~StarsRenderer()
 {
+    safedelete(cube3dInfo);
+    safedelete(starsStage);
+    safedelete(starsDataSet);
+    safedelete(starsDataLayout);
+    safedelete(starsDataBuffer);
+    safedelete(starsImage);
 }
 
 void StarsRenderer::draw()
 {
-    if (!doesNeedsRecording) {
+    if (doesNeedsRecording) {
         starsStage->beginDrawing();
 
         starsStage->drawMesh(cube3dInfo, galaxy->getStarsCount());
 
         starsStage->endDrawing();
+        doesNeedsRecording = false;
     }
     starsStage->submitNoSemaphores({});
-    doesNeedsRecording = false;
+}
+
+void StarsRenderer::recompile()
+{
+    safedelete(starsStage);
+    updateStarsBuffer();
 }
 
 VulkanImage * StarsRenderer::getStarsImage()
@@ -106,4 +112,22 @@ void StarsRenderer::updateStarsBuffer()
     starsDataBuffer->map(0, starsBB.buffer.size(), &data);
     memcpy(data, starsBB.getPointer(), starsBB.buffer.size());
     starsDataBuffer->unmap();
+}
+
+void StarsRenderer::createRenderStage()
+{
+    auto starsvert = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-stars.vert.spv");
+    auto starsfrag = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-stars.frag.spv");
+
+    starsStage = new VulkanRenderStage(vulkan);
+    starsStage->setViewport(width, height);
+    starsStage->addShaderStage(starsvert->createShaderStage(VK_SHADER_STAGE_VERTEX_BIT, "main"));
+    starsStage->addShaderStage(starsfrag->createShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT, "main"));
+    starsStage->addDescriptorSetLayout(rendererDataSet->layout);
+    starsStage->addDescriptorSetLayout(starsDataLayout->layout);
+    starsStage->addOutputImage(starsImage);
+    starsStage->setSets({ rendererDataSet, starsDataSet });
+    starsStage->additiveBlending = true;
+    starsStage->cullFlags = VK_CULL_MODE_BACK_BIT;
+    starsStage->compile();
 }
