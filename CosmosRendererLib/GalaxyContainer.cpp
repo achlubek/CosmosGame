@@ -3,7 +3,6 @@
 #include "SQLiteDatabase.h"
 
 GalaxyContainer::GalaxyContainer()
-    : bodiesNames({})
 {
     onClosestStarChange = EventHandler<GeneratedStarInfo>();
     onClosestPlanetChange = EventHandler<CelestialBody>();
@@ -101,18 +100,6 @@ void GalaxyContainer::loadFromDatabase(SQLiteDatabase * db)
 
     auto countbodydata = asint(database->query("SELECT count(*) FROM bodies")[0]["count(*)"]);
     countbodydata += allStars.size();
-
-    ifstream file(Media::getPath("randomized_names.txt"));
-    int i = 0;
-    if (file.is_open())
-    {
-        std::string line;
-        while (std::getline(file, line) && i < countbodydata)
-        {
-            bodiesNames.push_back(line);
-            i++;
-        }
-    }
 }
 
 void GalaxyContainer::update(glm::dvec3 observerPosition)
@@ -136,20 +123,6 @@ void GalaxyContainer::update(glm::dvec3 observerPosition)
         onClosestMoonChange.invoke(closestMoon);
     }
     updateClosestCelestialBody(observerPosition);
-}
-
-std::string GalaxyContainer::getStarName(int id)
-{
-    printf("\nSize %d\n", bodiesNames.size());
-    if (bodiesNames.size() < id) return "";
-    return bodiesNames[id];
-}
-
-std::string GalaxyContainer::getCelestialBodyName(int id)
-{
-    printf("\nSize %d\n", bodiesNames.size());
-    if (bodiesNames.size() < allStars.size() + id) return "";
-    return bodiesNames[allStars.size() + id];
 }
 
 std::vector<CelestialBody> GalaxyContainer::loadPlanetsByStar(GeneratedStarInfo& star)

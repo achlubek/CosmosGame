@@ -210,8 +210,8 @@ vec3 celestialGetWaterNormal(RenderedCelestialBody body, float dxrange, vec3 dir
     vec3 p2 = dir2 * getWaterHeightHiRes(body, vec3(dir2));
     vec3 p3 = dir3 * getWaterHeightHiRes(body, vec3(dir3));
     vec3 n =  normalize(cross(normalize(p3 - p1), normalize(p2 - p1)));
-    n += tangdir * FBM3(p1 * 3110.0, 5, 2.5, 0.75) * 0.2;
-    n += bitangdir * FBM3(p1 * 3110.0, 5, 2.5, 0.75) * 0.2;
+    n += tangdir * (FBM3(p1 * 3110.0 + 1212.0, 5, 2.5, 0.75) * 2.0 - 1.0) * 0.05;
+    n += bitangdir * (FBM3(p1 * 3110.0, 5, 2.5, 0.75) * 2.0 - 1.0) * 0.05;
     return normalize(n);
 
 }

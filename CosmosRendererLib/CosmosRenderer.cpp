@@ -575,7 +575,7 @@ void CosmosRenderer::draw(double time)
         glm::dquat rotmat = glm::inverse(glm::quat_cast(renderables[i]->body.getRotationMatrix(time)));
         double centerdist = glm::distance(position, observerCameraPosition);
 
-        if (centerdist > radius * 4 || renderables[i]->getRenderMethod() == CelestialRenderMethod::thickAtmosphere) {
+        if (centerdist > radius * 3.0 || renderables[i]->getRenderMethod() == CelestialRenderMethod::thickAtmosphere) {
             meshSequence.push_back(icosphereLow);
             //celestialBodySurfaceRenderStage->drawMesh(icosphereLow, 1);
         }
@@ -611,17 +611,22 @@ void CosmosRenderer::draw(double time)
 
 
         if (i == renderables.size() - 1) {
-            for (int z = 0; z < shadowmapsDivisors.size(); z++) {
-                measureTimeStart();
-                celestialShadowMapRenderStages[z]->beginDrawing();
-                celestialShadowMapRenderStages[z]->setSets({ rendererDataSet, renderables[i]->shadowMapSet, shadowmapsDataSets[z] });
-                for (int g = 0; g < meshSequence.size(); g++) {
-                    celestialShadowMapRenderStages[z]->drawMesh(meshSequence[g], 1);
-                }
-                celestialShadowMapRenderStages[z]->endDrawing();
-                celestialShadowMapRenderStages[z]->submitNoSemaphores({});
-                measureTimeEnd("Celestial shadow cascade " + std::to_string(z) + " data for " + std::to_string(i));
+           // for (int z = 0; z < shadowmapsDivisors.size(); z++) {
+            int z = cascadeCounter;
+            cascadeCounter++;
+            if (cascadeCounter >= shadowmapsDivisors.size()) {
+                cascadeCounter = 0;
             }
+            measureTimeStart();
+            celestialShadowMapRenderStages[z]->beginDrawing();
+            celestialShadowMapRenderStages[z]->setSets({ rendererDataSet, renderables[i]->shadowMapSet, shadowmapsDataSets[z] });
+            for (int g = 0; g < meshSequence.size(); g++) {
+                celestialShadowMapRenderStages[z]->drawMesh(meshSequence[g], 1);
+            }
+            celestialShadowMapRenderStages[z]->endDrawing();
+            celestialShadowMapRenderStages[z]->submitNoSemaphores({});
+            measureTimeEnd("Celestial shadow cascade " + std::to_string(z) + " data for " + std::to_string(i));
+           // }
         }
 
 
@@ -673,30 +678,6 @@ void CosmosRenderer::draw(double time)
 
 void CosmosRenderer::onClosestStarChange(GeneratedStarInfo star)
 {
-    updatingSafetyQueue.enqueue([&]() {
-        for (int i = 0; i < renderablePlanets.size(); i++) {
-            delete renderablePlanets[i];
-            renderablePlanets[i] = nullptr;
-        }
-        renderablePlanets.clear();
-        auto planets = galaxy->getClosestStarPlanets();
-        for (int i = 0; i < planets.size(); i++) {
-            auto renderable = new RenderedCelestialBody(vulkan,
-                planets[i],
-                celestialBodyDataSetLayout,
-                celestialShadowMapSetLayout,
-                celestialBodyRenderSetLayout,
-                celestialBodySurfaceSetLayout,
-                celestialBodyWaterSetLayout,
-                surfaceRenderedAlbedoRoughnessImage,
-                surfaceRenderedNormalMetalnessImage,
-                surfaceRenderedDistanceImage,
-                waterRenderedNormalMetalnessImage,
-                waterRenderedDistanceImage);
-            renderable->updateBuffer(observerCameraPosition, scale, 0.0);
-            renderablePlanets.push_back(renderable);
-        }
-    });
 }
 
 void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
@@ -704,6 +685,25 @@ void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
 
     updatingSafetyQueue.enqueue([&]() {
 
+        for (int i = 0; i < renderablePlanets.size(); i++) {
+            delete renderablePlanets[i];
+            renderablePlanets[i] = nullptr;
+        }
+        renderablePlanets.clear();
+        auto renderable = new RenderedCelestialBody(vulkan,
+            galaxy->getClosestPlanet(),
+            celestialBodyDataSetLayout,
+            celestialShadowMapSetLayout,
+            celestialBodyRenderSetLayout,
+            celestialBodySurfaceSetLayout,
+            celestialBodyWaterSetLayout,
+            surfaceRenderedAlbedoRoughnessImage,
+            surfaceRenderedNormalMetalnessImage,
+            surfaceRenderedDistanceImage,
+            waterRenderedNormalMetalnessImage,
+            waterRenderedDistanceImage);
+        renderable->updateBuffer(observerCameraPosition, scale, 0.0);
+        renderablePlanets.push_back(renderable);
         //renderable->updateData(celestialDataUpdateComputeStage);
 
         vkDeviceWaitIdle(vulkan->device);
@@ -732,7 +732,7 @@ void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
             //renderable->updateData(celestialDataUpdateComputeStage);
         }
         //  vkDeviceWaitIdle(vulkan->device);
-       //   vkDeviceWaitIdle(vulkan->device);
+        //   vkDeviceWaitIdle(vulkan->device);
     });//yay javascript
 }
 

@@ -148,8 +148,8 @@ vec3 flare(vec2 point, vec2 uv){
     float tt = 1.0 / abs( d * 55.0 );
     mat2 rm1 = rotmat2d(3.1415 * 0.25);
     mat2 rm2 = rotmat2d(3.1415 * 0.75);
-    float v = 1.0 / abs( length((point-uv) * vec2(0.03, 1.0)) * (350.0) );
-    float v2 = 1.0 / abs( length((point-uv) * vec2(1.0, 0.09)) * (1750.0) );
+    float v = 1.0 / abs( length((point-uv) * vec2(0.03, 1.0)) * (150.0) );
+    float v2 = 1.0 / abs( length((point-uv) * vec2(1.0, 0.09)) * (750.0) );
     float v3 = 1.0 / abs( length((rm1*(point-uv)) * (vec2(1.0, 0.09))) * (1750.0) );
     float v4 = 1.0 / abs( length((rm2*(point-uv)) * (vec2(1.0, 0.09))) * (1750.0) );
 
@@ -160,13 +160,13 @@ vec3 flare(vec2 point, vec2 uv){
     finalColor += vec3( v3 );
     finalColor += vec3( v4 );
 
-    finalColor += subflare(uv, point, 0.00005, 16.0, 0.0, 0.2, 1.0);
-    finalColor += subflare(uv, point, 0.5, 2.0, 0.0, 0.1, 1.0);
-    finalColor += subflare(uv, point, 20.0, 1.0, 0.0, 0.05, 1.0);
-    finalColor += subflare(uv, point, -10.0, 1.0, 0.0, 0.1, 1.0);
-    finalColor += subflare(uv, point, -10.0, 2.0, 0.0, 0.05, 2.0);
-    finalColor += subflare(uv, point, -1.0, 1.0, 0.0, 0.1, 2.0);
-    finalColor += subflare(uv, point, -0.00005, 16.0, 0.0, 0.2, 2.0);
+    finalColor += subflare(uv, point, 0.00005, 16.0, 0.0, 0.2, 2.0);
+    finalColor += subflare(uv, point, 0.5, 2.0, 0.0, 0.1, 2.0);
+    finalColor += subflare(uv, point, 20.0, 1.0, 0.0, 0.05, 2.0);
+    finalColor += subflare(uv, point, -10.0, 1.0, 0.0, 0.1, 2.0);
+    finalColor += subflare(uv, point, -10.0, 2.0, 0.0, 0.05, 4.0);
+    finalColor += subflare(uv, point, -1.0, 1.0, 0.0, 0.1, 4.0);
+    finalColor += subflare(uv, point, -0.00005, 16.0, 0.0, 0.2, 4.0);
     return finalColor;
 }
 
@@ -181,7 +181,7 @@ void main() {
 
     vec3 starDir = normalize(-ClosestStarPosition + vec3(0.000001));
     float starDist = length(ClosestStarPosition);
-    float starhit = rsi2(Ray(vec3(0.0), dir), Sphere( starDist * -starDir, 550.0)).y;
+    float starhit = rsi2(Ray(vec3(0.0), dir), Sphere( starDist * -starDir, 155.0)).y;
     vec3 sunflare = exp(starDist * -2000.0 * (dot(dir, starDir) * 0.5 + 0.5)) * ClosestStarColor * 0.1;
     sunflare += exp(starDist * -200.0 * (dot(dir, starDir) * 0.5 + 0.5)) * ClosestStarColor * 0.01;
     sunflare += exp(starDist * -20.0 * (dot(dir, starDir) * 0.5 + 0.5)) * ClosestStarColor * 0.001;
@@ -198,7 +198,7 @@ void main() {
     vec2 projectedSunDir = project(starDir);
     vec4 adddata2 = texture(texCelestialAdditive, clamp(projectedSunDir, 0.0, 1.0)).rgba;
     vec4 shipdata222 = texture(texModelsNormalMetalness, clamp(projectedSunDir, 0.0, 1.0)).rgba;
-    vec3 sunflare2 = flare(UV, projectedSunDir)* max(0.0, 1.0 - adddata2.a) * (1.0 - step(0.09, length(shipdata222.rgb))) * Exposure * ClosestStarColor * 0.04 * pow(max(0.0, -dot(dir, starDir)), 3.0);
+    vec3 sunflare2 = sunflare + flare(UV, projectedSunDir)* max(0.0, 1.0 - adddata2.a) * (1.0 - step(0.09, length(shipdata222.rgb))) * Exposure * normalize(ClosestStarColor) * 39000.14 * pow(max(0.0, -dot(dir, starDir)), 3.0);
 
     a += adddata.rgb;
     vec4 shipdata1 = texture(texModelsAlbedoRoughness, UV).rgba;

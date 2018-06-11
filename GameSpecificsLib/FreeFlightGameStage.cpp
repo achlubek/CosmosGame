@@ -60,23 +60,20 @@ FreeFlightGameStage::FreeFlightGameStage(AbsGameContainer* container)
     auto velocity = targetBody->getLinearVelocity(getTimeProvider()->getTime());
 
     galaxy->onClosestStarChange.add([&](GeneratedStarInfo star) {
-        auto name = getCosmosGameContainer()->getCosmosRenderer()->getGalaxy()->getStarName(star.starId);
         getCosmosGameContainer()->getCosmosRenderer()->invokeOnDrawingThread([=]() {
-            starNameText->updateText("Star: " + std::to_string(star.starId) + " " + name);
+            starNameText->updateText("Star: " + std::to_string(star.starId));
         });
     });
 
     galaxy->onClosestPlanetChange.add([&](CelestialBody body) {
-        auto name = getCosmosGameContainer()->getCosmosRenderer()->getGalaxy()->getCelestialBodyName(body.bodyId);
         getCosmosGameContainer()->getCosmosRenderer()->invokeOnDrawingThread([=]() {
-            planetNameText->updateText("Planet: " + name);
+         //   planetNameText->updateText("Planet: " + std::to_string(body.));
         });
     });
 
     getCosmosGameContainer()->getCosmosRenderer()->getGalaxy()->onClosestMoonChange.add([&](CelestialBody body) {
-        auto name = getCosmosGameContainer()->getCosmosRenderer()->getGalaxy()->getCelestialBodyName(body.bodyId);
         getCosmosGameContainer()->getCosmosRenderer()->invokeOnDrawingThread([=]() {
-            moonNameText->updateText("Moon: " + name);
+         //   moonNameText->updateText("Moon: " + name);
         });
     });
 

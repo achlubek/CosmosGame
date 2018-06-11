@@ -9,9 +9,10 @@ CelestialRenderResult renderCelestialBodyNoAtmosphere(RenderPass pass){
     float dt = max(0.0, dot(normal, dirToStar));
     float flatdt = max(0.0, dot(flatnormal, dirToStar));
     float fresnel = 0.1;// fresnelCoefficent(normal, pass.ray.d, 0.04);
+    float shadow = getStarTerrainShadowAtPoint(pass.body, pass.surfaceHitPos, 1.0);
     //dt = dtmax(dt * flatdt, flatdt);
     if(pass.isSurfaceHit){
-        return CelestialRenderResult(vec4(0.0),vec4(color * dt * fresnel * ClosestStarColor, 1.0));
+        return CelestialRenderResult(vec4(0.0),vec4(color * dt * fresnel * shadow * ClosestStarColor, 1.0));
     }
     return CelestialRenderResult(vec4(0.0), vec4(0.0));
 }

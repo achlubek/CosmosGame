@@ -125,6 +125,8 @@ private:
     volatile bool readyForDrawing = false;
     volatile bool firstRecordingDone = false;
 
+    int cascadeCounter = 0;
+
 //#define PERFORMANCE_DEBUG
     double measurementStopwatch = 0.0;
     void measureTimeStart();
