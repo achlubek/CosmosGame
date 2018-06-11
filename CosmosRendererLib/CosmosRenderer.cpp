@@ -7,19 +7,20 @@
 #include "TimeProvider.h"
 #include "ParticlesRenderer.h"
 #include "AbsGameStage.h"
+#include "StarsRenderer.h"
 #include "stdafx.h"
 #include "vulkan.h"
 
 
 CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, GalaxyContainer* igalaxy, int iwidth, int iheight) :
     galaxy(igalaxy), width(iwidth), height(iheight),
-    vulkan(ivulkan), assets(AssetLoader(ivulkan)), renderablePlanets({}), renderableMoons({}), updatingSafetyQueue(InvokeQueue())
+    vulkan(ivulkan), assets(new AssetLoader(ivulkan)), renderablePlanets({}), renderableMoons({}), updatingSafetyQueue(InvokeQueue())
 {
     //  internalCamera = new Camera();
 
-    cube3dInfo = assets.loadObject3dInfoFile("cube1unitradius.raw");
+    cube3dInfo = assets->loadObject3dInfoFile("cube1unitradius.raw");
 
-    auto wholeIcoMesh = assets.loadObject3dInfoFile("icosphere_to_separate.raw");
+    auto wholeIcoMesh = assets->loadObject3dInfoFile("icosphere_to_separate.raw");
     auto splitMesh = splitTriangles(wholeIcoMesh);
     for (int i = 0; i < splitMesh.size(); i++) {
         int g = 0;
@@ -39,15 +40,14 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, GalaxyContainer* igalaxy,
     }
 
 
-    icosphereLow = assets.loadObject3dInfoFile("icosphere_mediumpoly_1unit.raw");
+    icosphereLow = assets->loadObject3dInfoFile("icosphere_mediumpoly_1unit.raw");
 
-    icosphereMedium = assets.loadObject3dInfoFile("icosphere_mediumpoly_1unit.raw");
+    icosphereMedium = assets->loadObject3dInfoFile("icosphere_mediumpoly_1unit.raw");
 
-    icosphereHigh = subdivide(icosphereMedium);// assets.loadObject3dInfoFile("icosphere_highpoly_1unit.raw");
+    icosphereHigh = subdivide(icosphereMedium);// assets->loadObject3dInfoFile("icosphere_highpoly_1unit.raw");
 
     cameraDataBuffer = new VulkanGenericBuffer(vulkan, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, sizeof(float) * 1024);
-    starsDataBuffer = new VulkanGenericBuffer(vulkan, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, 1024 * 1024 * 128);
-    planetsDataBuffer = new VulkanGenericBuffer(vulkan, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, sizeof(float) * 1024 * 1024);
+   planetsDataBuffer = new VulkanGenericBuffer(vulkan, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, sizeof(float) * 1024 * 1024);
     moonsDataBuffer = new VulkanGenericBuffer(vulkan, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, sizeof(float) * 1024 * 1024);
 
     celestialAlphaImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
@@ -55,9 +55,6 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, GalaxyContainer* igalaxy,
 
     celestialAdditiveImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
         VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
-
-    starsImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
-        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
 
     //####################//
 
@@ -128,19 +125,9 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, GalaxyContainer* igalaxy,
     rendererDataLayout->addField(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS | VK_SHADER_STAGE_COMPUTE_BIT);
     rendererDataLayout->compile();
 
-    starsDataLayout = new VulkanDescriptorSetLayout(vulkan);
-    starsDataLayout->addField(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
-    starsDataLayout->compile();
-
     rendererDataSet = rendererDataLayout->generateDescriptorSet();
     rendererDataSet->bindUniformBuffer(0, cameraDataBuffer);
     rendererDataSet->update();
-
-    starsDataSet = starsDataLayout->generateDescriptorSet();
-    starsDataSet->bindStorageBuffer(0, starsDataBuffer);
-    starsDataSet->update();
-
-
 
     combineLayout = new VulkanDescriptorSetLayout(vulkan);
     combineLayout->addField(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
@@ -209,10 +196,12 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, GalaxyContainer* igalaxy,
     celestialShadowMapSetLayout->compile();
 
 
+    starsRenderer = new StarsRenderer(vulkan, width, height, scale, rendererDataSet, assets, galaxy);
+
     combineSet = combineLayout->generateDescriptorSet();
     combineSet->bindUniformBuffer(0, cameraDataBuffer);
     combineSet->bindImageViewSampler(1, celestialAlphaImage);
-    combineSet->bindImageViewSampler(2, starsImage);
+    combineSet->bindImageViewSampler(2, starsRenderer->getStarsImage());
     combineSet->bindImageViewSampler(3, celestialAdditiveImage);
     combineSet->bindImageViewSampler(4, AbsGameContainer::getInstance()->getModelsRenderer()->getAlbedoRoughnessImage());
     combineSet->bindImageViewSampler(5, AbsGameContainer::getInstance()->getModelsRenderer()->getNormalMetalnessImage());
@@ -228,7 +217,7 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, GalaxyContainer* igalaxy,
     shadowMapsCollectionSet->update();
 
     celestiaStarsBlitSet = celestiaStarsBlitSetLayout->generateDescriptorSet();
-    celestiaStarsBlitSet->bindImageViewSampler(0, starsImage);
+    celestiaStarsBlitSet->bindImageViewSampler(0, starsRenderer->getStarsImage());
     celestiaStarsBlitSet->bindImageStorage(1, celestialAlphaImage);
     celestiaStarsBlitSet->update();
 
@@ -236,6 +225,7 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, GalaxyContainer* igalaxy,
 
     galaxy->onClosestStarChange.add([&](GeneratedStarInfo star) { onClosestStarChange(star); });
     galaxy->onClosestPlanetChange.add([&](CelestialBody planet) { onClosestPlanetChange(planet); });
+
 
     readyForDrawing = true;
 }
@@ -254,7 +244,6 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
         safedelete(celestialBodySurfaceRenderStage);
         safedelete(celestialBodyWaterRenderStage);
         safedelete(celestialStage);
-        safedelete(starsStage);
         safedelete(combineStage);
         for (int i = 0; i < shadowmapsDivisors.size(); i++) {
             safedelete(celestialShadowMapRenderStages[i]);
@@ -360,24 +349,6 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     celestialStage->compile();
 
     //**********************//
-    auto starsvert = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-stars.vert.spv");
-    auto starsfrag = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-stars.frag.spv");
-
-    starsStage = new VulkanRenderStage(vulkan);
-    starsStage->setViewport(width, height);
-    starsStage->addShaderStage(starsvert->createShaderStage(VK_SHADER_STAGE_VERTEX_BIT, "main"));
-    starsStage->addShaderStage(starsfrag->createShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT, "main"));
-    starsStage->addDescriptorSetLayout(rendererDataLayout->layout);
-    starsStage->addDescriptorSetLayout(starsDataLayout->layout);
-    //starsStage->addOutputImage(starsImage);
-    celestialAlphaImage->clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
-    starsStage->addOutputImage(starsImage);
-    starsStage->setSets({ rendererDataSet, starsDataSet });
-    starsStage->additiveBlending = true;
-    starsStage->cullFlags = VK_CULL_MODE_BACK_BIT;
-    // starsStage->topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
-    starsStage->compile();
-    //**********************//
 
     auto combinevert = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-combine.vert.spv");
     auto combinefrag = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-combine.frag.spv");
@@ -403,54 +374,15 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
 
 void CosmosRenderer::mapBuffers()
 {
-    starsDataBuffer->map(0, starsDataBuffer->size, &starsDataBufferPointer);
     planetsDataBuffer->map(0, planetsDataBuffer->size, &planetsDataBufferPointer);
     moonsDataBuffer->map(0, moonsDataBuffer->size, &moonsDataBufferPointer);
 }
 
 void CosmosRenderer::unmapBuffers()
 {
-    starsDataBuffer->unmap();
     planetsDataBuffer->unmap();
     moonsDataBuffer->unmap();
 }
-
-void CosmosRenderer::updateStarsBuffer()
-{
-    VulkanBinaryBufferBuilder starsBB = VulkanBinaryBufferBuilder();
-    auto stars = galaxy->getAllStars();
-    starsBB.emplaceInt32(stars.size());
-    starsBB.emplaceInt32(stars.size());
-    starsBB.emplaceInt32(stars.size());
-    starsBB.emplaceInt32(stars.size());
-    for (int s = 0; s < stars.size(); s++) {
-        auto star = stars[s];
-
-        glm::dvec3 starpos = star.getPosition(0.0) * scale;
-
-        starsBB.emplaceFloat32((float)starpos.x);
-        starsBB.emplaceFloat32((float)starpos.y);
-        starsBB.emplaceFloat32((float)starpos.z);
-        starsBB.emplaceFloat32((float)star.radius * scale);
-
-        starsBB.emplaceFloat32((float)star.color.x);
-        starsBB.emplaceFloat32((float)star.color.y);
-        starsBB.emplaceFloat32((float)star.color.z);
-        starsBB.emplaceFloat32((float)star.age);
-
-        starsBB.emplaceFloat32((float)star.orbitPlane.x);
-        starsBB.emplaceFloat32((float)star.orbitPlane.y);
-        starsBB.emplaceFloat32((float)star.orbitPlane.z);
-        starsBB.emplaceFloat32((float)star.rotationSpeed);
-
-        starsBB.emplaceFloat32((float)star.spotsIntensity);
-        starsBB.emplaceFloat32((float)0.0f);
-        starsBB.emplaceFloat32((float)0.0f);
-        starsBB.emplaceFloat32((float)0.0f);
-    }
-    memcpy(starsDataBufferPointer, starsBB.getPointer(), starsBB.buffer.size());
-}
-
 
 void CosmosRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosition, double time)
 {
@@ -551,14 +483,8 @@ void CosmosRenderer::draw(double time)
     measureTimeEnd("Executing safety queue");
 
     measureTimeStart();
-    if (!firstRecordingDone) {
-        starsStage->beginDrawing();
 
-        starsStage->drawMesh(cube3dInfo, galaxy->getStarsCount());
-
-        starsStage->endDrawing();
-    }
-    starsStage->submit({});
+    starsRenderer->draw();
 
     measureTimeEnd("Stars galaxy draw");
 
@@ -572,7 +498,7 @@ void CosmosRenderer::draw(double time)
     }
     firstRecordingDone = true;
 
-    celestialStarsBlitComputeStage->submitNoSemaphores({ starsStage->signalSemaphore });
+    celestialStarsBlitComputeStage->submitNoSemaphores({  });
 
     measureTimeEnd("Stars blit");
 

@@ -66,7 +66,6 @@ GameContainer * GameContainer::getInstance()
 void GameContainer::onDrawingStart()
 {
     cosmosRenderer->mapBuffers();
-    cosmosRenderer->updateStarsBuffer();
     std::thread background1 = std::thread([&]() {
         while (true) {
             cosmosRenderer->getGalaxy()->update(getCurrentStage()->getViewCamera()->getPosition());

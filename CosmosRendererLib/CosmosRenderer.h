@@ -4,6 +4,7 @@ class VulkanRenderer;
 class VulkanToolkit;
 class SceneProvider;
 class TimeProvider;
+class StarsRenderer;
 #include "GalaxyContainer.h" 
 #include "InvokeQueue.h" 
 
@@ -20,8 +21,6 @@ public:
     void mapBuffers();
     void unmapBuffers();
 
-    void updateStarsBuffer();
-
     void updateCameraBuffer(Camera* cam, glm::dvec3 observerPosition, double time);
     void draw(double time);
 
@@ -31,7 +30,9 @@ public:
     void invokeOnDrawingThread(std::function<void(void)> func);
 private:
     GalaxyContainer* galaxy;
-    AssetLoader assets;
+    AssetLoader* assets;
+
+    StarsRenderer* starsRenderer;
 
     //Camera* internalCamera; 
 
@@ -47,12 +48,6 @@ private:
     VulkanRenderStage* celestialStage{ nullptr };
     VulkanDescriptorSetLayout* rendererDataLayout{ nullptr };
     VulkanDescriptorSet* rendererDataSet{ nullptr };
-    VulkanDescriptorSetLayout* starsDataLayout{ nullptr };
-    VulkanDescriptorSet* starsDataSet{ nullptr };
-
-    VulkanRenderStage* starsStage{ nullptr };
-   // VulkanDescriptorSetLayout* starsLayout{ nullptr };
-   // VulkanDescriptorSet* starsSet{ nullptr };
 
     VulkanRenderStage* combineStage{ nullptr };
     VulkanDescriptorSetLayout* combineLayout{ nullptr };
@@ -79,13 +74,11 @@ private:
     std::vector<VulkanRenderStage*> celestialShadowMapRenderStages = {};
 
     VulkanGenericBuffer* cameraDataBuffer;
-    VulkanGenericBuffer* starsDataBuffer;
     VulkanGenericBuffer* planetsDataBuffer;
     VulkanGenericBuffer* moonsDataBuffer;
 
     VulkanImage* celestialAlphaImage;
     VulkanImage* celestialAdditiveImage;
-    VulkanImage* starsImage;
 
     VulkanImage* surfaceRenderedAlbedoRoughnessImage;
     VulkanImage* surfaceRenderedNormalMetalnessImage;
@@ -117,7 +110,6 @@ private:
     glm::dvec3 observerCameraPosition;
     double closestSurfaceDistance;
 
-    void* starsDataBufferPointer;
     void* planetsDataBufferPointer;
     void* moonsDataBufferPointer;
 
