@@ -1,16 +1,16 @@
 #pragma once
 #include "AbsGameStage.h"
 class GameContainer;
-
-class FreeFlightGameStage : public AbsGameStage
+class ModelPreviewGameStage : public AbsGameStage
 {
 public:
-    FreeFlightGameStage(AbsGameContainer* container);
-    ~FreeFlightGameStage();
+    ModelPreviewGameStage(AbsGameContainer* container);
+    ~ModelPreviewGameStage();
     virtual void onDraw() override;
     virtual void onSwitchTo() override;
     virtual void onSwitchFrom() override;
     virtual void onUpdate(double elapsed) override;
+    void addPreviewObject(GameObject* object);
 private:
     GameContainer * getCosmosGameContainer();
     virtual void onUpdateObject(GameObject* object, double elapsed) override;
@@ -21,5 +21,5 @@ private:
     UIText* moonNameText;
     UIText* altitudeText;
     UIText* velocityText;
+    glm::dvec3 viewCenter;
 };
-

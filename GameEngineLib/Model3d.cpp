@@ -9,7 +9,9 @@
 Model3d::Model3d(VulkanToolkit * vulkan, VulkanDescriptorSetLayout * descriptorSetLayout, std::string info3d_file, std::string albedo_image, 
     std::string normal_image, std::string roughness_image, std::string metalness_image, std::string emission_idle_image, std::string emission_powered_image,
     glm::dquat iorientationCorrection)
+    : vulkan(vulkan)
 {
+
     orientationCorrection = iorientationCorrection;
     AssetLoader assets = AssetLoader(vulkan);
     info3d = assets.loadObject3dInfoFile(info3d_file);

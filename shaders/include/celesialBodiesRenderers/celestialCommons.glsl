@@ -191,11 +191,15 @@ vec3 celestialGetNormalRaycast(RenderedCelestialBody body, float dxrange, vec3 p
 
 float getWaterHeightHiRes(RenderedCelestialBody body, vec3 dir){
     //dir = body.rotationMatrix * dir;
-    return (body.radius + body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir * body.radius * 150.01, 20, 1.8, Time * 0.01, 0.0)) * 0.00264;
+    float waterHeightHere = noise4d(vec4(dir * 14.0, Time * 0.01));
+    float wheight = 0.0002 + 0.0056 * waterHeightHere;
+    return (body.radius + body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir * body.radius * 150.01, 25, 1.8, Time * 0.01, 0.0)) * wheight;
 }
 float getWaterHeightLowRes(RenderedCelestialBody body, vec3 dir){
     dir = body.rotationMatrix * dir;
-    return (body.radius + body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir * body.radius * 150.01, 8, 1.8, Time * 0.01, 0.0)) * 0.00264;
+    float waterHeightHere = noise4d(vec4(dir * 14.0, Time * 0.01));
+    float wheight = 0.0002 + 0.0056 * waterHeightHere;
+    return (body.radius + body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir * body.radius * 150.01, 10, 1.8, Time * 0.01, 0.0)) * wheight;
 }
 
 vec3 celestialGetWaterNormal(RenderedCelestialBody body, float dxrange, vec3 dir){
