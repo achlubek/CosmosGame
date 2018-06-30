@@ -13,6 +13,9 @@
 #include "BatteryComponent.h"
 #include "Model3dFactory.h"
 #include "ModuleFactory.h"
+#include "json.h"
+
+using json = nlohmann::json;
 
 
 ShipFactory::ShipFactory(Model3dFactory* imodel3dFactory, ModuleFactory* imoduleFactory)
@@ -44,14 +47,19 @@ glm::dquat vec3toquat(glm::dvec3 dir, double angle = 0) {
 
 GameObject * ShipFactory::build(std::string mediakey)
 {
-    INIReader reader = INIReader(mediakey);
+    //INIReader reader = INIReader(mediakey);
+
+    auto data = json::parse(Media::readString(mediakey));
+
     GameObject* ship = new GameObject();
 
-    auto model3d = model3dFactory->build(reader.gets("model3d"));
+    for (auto& element : data["models"]) {
+        auto model3d = model3dFactory->build(element);
+        auto drawableComponent = new AbsDrawableComponent(model3d, glm::dvec3(0.0), glm::dquat(1.0, 0.0, 0.0, 0.0));
+        ship->addComponent(drawableComponent);
+    }
 
-    auto drawableComponent = new AbsDrawableComponent(model3d, glm::dvec3(0.0), glm::dquat(1.0, 0.0, 0.0, 0.0));
-    auto transformComponent = new Transformation3DComponent(reader.getf("mass"), glm::dvec3(0.0));
-    ship->addComponent(drawableComponent);
+    auto transformComponent = new Transformation3DComponent(data["mass"], glm::dvec3(0.0));
     ship->addComponent(transformComponent);
 
     std::unordered_map<string, int> functionalityMap = {};
@@ -70,18 +78,15 @@ GameObject * ShipFactory::build(std::string mediakey)
 
     ship->addComponent(new BatteryComponent(100000, 100000));
 
-    int modulesCount = reader.geti("modules_count");
-
-    for (int i = 0; i < modulesCount; i++) {
-        std::string prefix = "module_" + std::to_string(i) + ".";
-        auto component = moduleFactory->build(reader.gets(prefix + "module"));
+    for (auto& element : data["modules"]) {
+        auto component = moduleFactory->build(element["module"]);
         if (component->isDrawable()) {
             auto drawable = static_cast<AbsDrawableComponent*>(component);
-            drawable->setRelativePosition(reader.getv3(prefix + "pos"));
-            drawable->setRelativeOrientation(vec3toquat(reader.getv3(prefix + "rot"), reader.getf(prefix + "dirrot")));
+            drawable->setRelativePosition(glm::dvec3(element["pos"]["x"], element["pos"]["y"], element["pos"]["z"]));
+            drawable->setRelativeOrientation(vec3toquat(glm::dvec3(element["rot"]["x"], element["rot"]["y"], element["rot"]["z"]), element["dirrot"]));
         }
         if (component->getType() == ComponentTypes::ThrustGenerator) {
-            static_cast<ThrustGeneratorComponent*>(component)->functionalityGroup = static_cast<ThrustGroup>(functionalityMap[reader.gets(prefix + "link_name")]);
+            static_cast<ThrustGeneratorComponent*>(component)->functionalityGroup = static_cast<ThrustGroup>(functionalityMap[element["link"]]);
         }
         ship->addComponent(component);
     }

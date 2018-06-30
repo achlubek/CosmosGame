@@ -162,6 +162,7 @@
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameStageCollection.h" />
     <ClInclude Include="Interpolator.h" />
+    <ClInclude Include="json.h" />
     <ClInclude Include="ManualCameraStrategy.h" />
     <ClInclude Include="OutputScreenRenderer.h" />
     <ClInclude Include="ParticleSystemFactory.h" />

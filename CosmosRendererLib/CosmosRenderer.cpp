@@ -437,7 +437,7 @@ void CosmosRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosi
     // the formula for lux coefficent = 1.0 / (AUcoefficent * AUcoefficent)
     // the formula for final lux is lux multiplier * 120 000
     double au1 = 1496000.0;
-    double aucoeff = galaxy->getClosestPlanet().hostDistance / au1;
+    double aucoeff = (glm::distance(observerPosition, galaxy->getClosestStar().getPosition(0))) / au1;
     double luxcoeff = 1.0 / (aucoeff * aucoeff);
     double lux = luxcoeff * 120000.0;
 
