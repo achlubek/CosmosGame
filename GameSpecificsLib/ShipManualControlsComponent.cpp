@@ -37,10 +37,6 @@ void ShipManualControlsComponent::update(double elapsed)
     );
 }
 
-void ShipManualControlsComponent::loadFromFile(std::string mediakey)
-{
-}
-
 AbsComponent * ShipManualControlsComponent::clone()
 {
     return new ShipManualControlsComponent();

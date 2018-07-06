@@ -158,6 +158,8 @@
     <ClInclude Include="MainMenuGameStage.h" />
     <ClInclude Include="ModelPreviewGameStage.h" />
     <ClInclude Include="ModuleFactory.h" />
+    <ClInclude Include="PlayerFactory.h" />
+    <ClInclude Include="PlayerManualControlsComponent.h" />
     <ClInclude Include="ShipFactory.h" />
     <ClInclude Include="ShipManualControlsComponent.h" />
     <ClInclude Include="stdafx.h" />
@@ -176,6 +178,8 @@
     <ClCompile Include="MainMenuGameStage.cpp" />
     <ClCompile Include="ModelPreviewGameStage.cpp" />
     <ClCompile Include="ModuleFactory.cpp" />
+    <ClCompile Include="PlayerFactory.cpp" />
+    <ClCompile Include="PlayerManualControlsComponent.cpp" />
     <ClCompile Include="ShipFactory.cpp" />
     <ClCompile Include="ShipManualControlsComponent.cpp" />
     <ClCompile Include="stdafx.cpp">

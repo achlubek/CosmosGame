@@ -7,5 +7,6 @@ enum ComponentTypes {
     ShipManualControls,
     Battery,
     Attachment,
-    SimpleDrawable
+    SimpleDrawable,
+    PlayerManualControls
 };

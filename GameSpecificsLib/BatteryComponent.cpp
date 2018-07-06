@@ -16,10 +16,6 @@ void BatteryComponent::update(double elapsed)
 {
 }
 
-void BatteryComponent::loadFromFile(std::string mediakey)
-{
-}
-
 AbsComponent * BatteryComponent::clone()
 {
     return new BatteryComponent(maxEnergy, energy);

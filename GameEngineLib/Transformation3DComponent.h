@@ -5,7 +5,6 @@ class Transformation3DComponent : public AbsComponent
 {
 public: 
     virtual void update(double elapsed) override;
-    virtual void loadFromFile(std::string mediakey) override;
     virtual Transformation3DComponent * clone() override;
     
     Transformation3DComponent(double mass, glm::dvec3 position, glm::dquat orientation, glm::dvec3 linearVelocity, glm::dvec3 angularVelocity);

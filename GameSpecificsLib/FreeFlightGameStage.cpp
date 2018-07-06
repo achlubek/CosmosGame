@@ -7,6 +7,7 @@
 #include "CelestialBody.h"
 #include "GameContainer.h"
 #include "ShipFactory.h"
+#include "PlayerFactory.h"
 #include "TimeProvider.h"
 #include "CosmosRenderer.h"
 #include "GalaxyContainer.h"
@@ -15,6 +16,7 @@
 #include "AbsGameContainer.h"
 #include "ModelsRenderer.h"
 #include "CameraChaseStrategy.h"
+#include "CameraFirstPersonStrategy.h"
 #include "ParticleSystem.h"
 #include "ParticlesRenderer.h"
 
@@ -44,7 +46,7 @@ FreeFlightGameStage::FreeFlightGameStage(AbsGameContainer* container)
     ui->addDrawable(velocityText);
 
     // a test
-    auto testship = getCosmosGameContainer()->getShipFactory()->build("Generix Explorer 1.ship_blueprint.ini");
+    auto testship = getCosmosGameContainer()->getShipFactory()->build("Orbiter1.ship_blueprint.json");
     //auto testspawnpos = cosmosRenderer->galaxy->getAllStars()[666].getPosition(0);
     //auto testspawnradius = cosmosRenderer->galaxy->getAllStars()[666].radius;
     //cosmosRenderer->galaxy->update(testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->getPosition());
@@ -86,8 +88,17 @@ FreeFlightGameStage::FreeFlightGameStage(AbsGameContainer* container)
     //testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(glm::dvec3(0.0));
 
     addObject(testship);
-    getViewCamera()->setTarget(testship);
-    getViewCamera()->setStrategy(new CameraChaseStrategy(false));
+
+    auto player = getCosmosGameContainer()->getPlayerFactory()->build();
+
+    player->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(center + glm::dvec3(0.0, dist * 1.043, 0.0));
+    player->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(velocity + 1000.0 * targetBody->calculateOrbitVelocity(dist * 0.03) * glm::dvec3(1.0, 0.0, 0.0));
+    //testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(glm::dvec3(0.0));
+
+    addObject(player);
+
+    getViewCamera()->setTarget(player);
+    getViewCamera()->setStrategy(new CameraFirstPersonStrategy());
     getViewCamera()->setFov(66.0);
 }
 

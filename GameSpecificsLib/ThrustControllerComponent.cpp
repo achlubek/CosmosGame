@@ -63,10 +63,6 @@ void ThrustControllerComponent::update(double elapsed)
     }
 }
 
-void ThrustControllerComponent::loadFromFile(std::string mediakey)
-{
-}
-
 ThrustControllerComponent * ThrustControllerComponent::clone()
 {
     return nullptr;

@@ -9,6 +9,7 @@
 #include "Model3dFactory.h"
 #include "ModuleFactory.h"
 #include "ShipFactory.h"
+#include "PlayerFactory.h"
 #include "GameObject.h"
 #include "AbsComponent.h"
 #include "AbsDrawableComponent.h"
@@ -39,7 +40,7 @@ GameContainer::GameContainer()
     particleSystemFactory = new ParticleSystemFactory();
     moduleFactory = new ModuleFactory(getModel3dFactory(), particleSystemFactory);
     shipFactory = new ShipFactory(getModel3dFactory(), moduleFactory);
-
+    playerFactory = new PlayerFactory();
 }
 
 
@@ -50,6 +51,11 @@ GameContainer::~GameContainer()
 ShipFactory * GameContainer::getShipFactory()
 {
     return shipFactory;
+}
+
+PlayerFactory * GameContainer::getPlayerFactory()
+{
+    return playerFactory;
 }
 
 
@@ -69,11 +75,11 @@ void GameContainer::onDrawingStart()
     std::thread background1 = std::thread([&]() {
         while (true) {
             cosmosRenderer->getGalaxy()->update(getCurrentStage()->getViewCamera()->getPosition());
-
         }
     });
     background1.detach();
 }
+
 void GameContainer::onDraw()
 {
     cosmosRenderer->updateCameraBuffer(getCurrentStage()->getViewCamera()->getInternalCamera(), getCurrentStage()->getViewCamera()->getPosition(), getCurrentStage()->getTimeProvider()->getTime());

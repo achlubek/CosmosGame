@@ -9,7 +9,6 @@ public:
     ComponentTypes getType();
     unsigned long getID();
     virtual void update(double elapsed) = 0;
-    virtual void loadFromFile(std::string mediakey) = 0;
     virtual AbsComponent* clone() = 0;
     void setOwner(GameObject* obj);
     virtual bool isDrawable();

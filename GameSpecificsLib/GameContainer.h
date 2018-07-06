@@ -10,6 +10,7 @@ class Model3dFactory;
 class ParticleSystemFactory;
 class ModuleFactory;
 class ShipFactory;
+class PlayerFactory;
 class GameObject;
 class CameraController;
 class TimeProvider;
@@ -22,6 +23,7 @@ public:
     GameContainer();
     ~GameContainer();
     ShipFactory* getShipFactory();
+    PlayerFactory* getPlayerFactory();
     CosmosRenderer* getCosmosRenderer();
     static GameContainer* getInstance();
 
@@ -34,5 +36,6 @@ private:
     ModuleFactory* moduleFactory;
     ParticleSystemFactory* particleSystemFactory;
     ShipFactory* shipFactory;
+    PlayerFactory* playerFactory;
 };
 

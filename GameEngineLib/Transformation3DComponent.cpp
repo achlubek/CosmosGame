@@ -8,10 +8,6 @@ void Transformation3DComponent::update(double elapsed)
     orientation = predictOrientation(elapsed);
 }
 
-void Transformation3DComponent::loadFromFile(std::string mediakey)
-{
-}
-
 Transformation3DComponent * Transformation3DComponent::clone()
 {
     auto res = new Transformation3DComponent(mass, position, orientation, linearVelocity, angularVelocity);

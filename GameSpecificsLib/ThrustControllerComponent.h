@@ -11,7 +11,6 @@ public:
     void setAngularThrust(glm::dvec3 at);
 
     virtual void update(double elapsed) override;
-    virtual void loadFromFile(std::string mediakey) override;
     virtual ThrustControllerComponent * clone() override;
 private:
 

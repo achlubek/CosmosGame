@@ -46,10 +46,6 @@ void AbsDrawableComponent::update(double elapsed)
 {
 }
 
-void AbsDrawableComponent::loadFromFile(std::string mediakey)
-{
-}
-
 AbsDrawableComponent * AbsDrawableComponent::clone()
 { 
     return new AbsDrawableComponent(getType(), model, relativePosition, relativeOrientation);

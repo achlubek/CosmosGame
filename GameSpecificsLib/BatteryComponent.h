@@ -8,7 +8,6 @@ public:
     ~BatteryComponent();
      
     virtual void update(double elapsed) override;
-    virtual void loadFromFile(std::string mediakey) override;
     virtual AbsComponent * clone() override;
     double getEnergy();
     void discharge(double elapsed, double amount);

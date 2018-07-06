@@ -11,7 +11,6 @@ public:
     void draw(glm::dvec3 observerPosition, VulkanRenderStage* stage, VulkanDescriptorSet* set, double scale);
     glm::dvec3 getWorldTranslation();
     virtual void update(double elapsed) override;
-    virtual void loadFromFile(std::string mediakey) override;
     virtual AbsDrawableComponent * clone() override;
 
     void setRelativePosition(glm::dvec3 relativePosition);

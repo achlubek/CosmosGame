@@ -37,10 +37,6 @@ void ThrustGeneratorComponent::update(double elapsed)
     transform->applyImpulse(relativePosition, force);
 }
 
-void ThrustGeneratorComponent::loadFromFile(std::string mediakey)
-{
-}
-
 ThrustGeneratorComponent * ThrustGeneratorComponent::clone()
 {
     return new ThrustGeneratorComponent(model, relativePosition, relativeOrientation, maxThrust, drainer->getMaximumWattage(), particleGenerator->getSystem());
