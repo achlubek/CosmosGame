@@ -21,7 +21,6 @@ public:
     static AbsGameContainer* getInstance();
     VulkanToolkit* getVulkanToolkit();
     SQLiteDatabase* getDatabase();
-    AssetLoader* getAssetLoader();
     Model3dFactory* getModel3dFactory();
     GameControls* getControls();
     glm::vec2 getResolution();
@@ -42,7 +41,6 @@ protected:
     virtual void onDraw() = 0;
 private:
     VulkanToolkit* vulkanToolkit;
-    AssetLoader* assetLoader;
     GameControls* gameControls;
     SQLiteDatabase* database;
     Model3dFactory* model3dFactory;

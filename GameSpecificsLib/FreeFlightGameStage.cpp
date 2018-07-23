@@ -50,7 +50,7 @@ FreeFlightGameStage::FreeFlightGameStage(AbsGameContainer* container)
     //auto testspawnpos = cosmosRenderer->galaxy->getAllStars()[666].getPosition(0);
     //auto testspawnradius = cosmosRenderer->galaxy->getAllStars()[666].radius;
     //cosmosRenderer->galaxy->update(testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->getPosition());
-    int targetStar = 676;
+    int targetStar = 333;
     int targetPlanet = 3;
     int targetMoon = 0;
     auto galaxy = getCosmosGameContainer()->getCosmosRenderer()->getGalaxy();
@@ -100,6 +100,21 @@ FreeFlightGameStage::FreeFlightGameStage(AbsGameContainer* container)
     getViewCamera()->setTarget(player);
     getViewCamera()->setStrategy(new CameraFirstPersonStrategy());
     getViewCamera()->setFov(66.0);
+
+    getGameContainer()->getControls()->onKeyDown.add([&](std::string key) {
+        if (key == "time_scale_x1") {
+            setTimeScale(1.0);
+        }
+        if (key == "time_scale_x10") {
+            setTimeScale(10.0);
+        }
+        if (key == "time_scale_x100") {
+            setTimeScale(100.0);
+        }
+        if (key == "time_scale_x1000") {
+            setTimeScale(1000.0);
+        }
+    });
 }
 
 

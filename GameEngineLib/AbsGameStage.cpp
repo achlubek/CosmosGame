@@ -57,15 +57,20 @@ void AbsGameStage::removeAllObjects()
 void AbsGameStage::updateObjects()
 {
     double nowtime = timeProvider->getTime();
-    double timescale = 1.0;
-    container->getParticlesRenderer()->update((nowtime - lastTime) * timescale);
+    // TODO hmm
+    //container->getParticlesRenderer()->update((nowtime - lastTime) * timescale);
     for (int i = 0; i < activeObjects.size(); i++) {
-        onUpdateObject(activeObjects[i], (nowtime - lastTime) * timescale);
-        activeObjects[i]->update((nowtime - lastTime) * timescale);
+        onUpdateObject(activeObjects[i], (nowtime - lastTime) * timeScale);
+        activeObjects[i]->update((nowtime - lastTime) * timeScale);
     }
-    onUpdate((nowtime - lastTime) * timescale);
+    onUpdate((nowtime - lastTime) * timeScale);
     viewCamera->update(nowtime - lastTime);
     lastTime = nowtime;
+}
+
+void AbsGameStage::setTimeScale(double itimeScale)
+{
+    timeScale = itimeScale;
 }
 
 TimeProvider * AbsGameStage::getTimeProvider()

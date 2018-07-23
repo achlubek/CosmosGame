@@ -44,6 +44,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTests", "UnitTests\Unit
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CustomUIWidgetsLib", "CustomUIWidgetsLib\CustomUIWidgetsLib.vcxproj", "{F0DEC29A-AD38-4195-BED9-F266E076B85D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SQLiteSupport", "SQLiteSupport\SQLiteSupport.vcxproj", "{E68901DA-AB4F-4D1B-B721-479CA6F6F825}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -126,6 +128,14 @@ Global
 		{F0DEC29A-AD38-4195-BED9-F266E076B85D}.Release|x64.Build.0 = Release|x64
 		{F0DEC29A-AD38-4195-BED9-F266E076B85D}.Release|x86.ActiveCfg = Release|Win32
 		{F0DEC29A-AD38-4195-BED9-F266E076B85D}.Release|x86.Build.0 = Release|Win32
+		{E68901DA-AB4F-4D1B-B721-479CA6F6F825}.Debug|x64.ActiveCfg = Debug|x64
+		{E68901DA-AB4F-4D1B-B721-479CA6F6F825}.Debug|x64.Build.0 = Debug|x64
+		{E68901DA-AB4F-4D1B-B721-479CA6F6F825}.Debug|x86.ActiveCfg = Debug|Win32
+		{E68901DA-AB4F-4D1B-B721-479CA6F6F825}.Debug|x86.Build.0 = Debug|Win32
+		{E68901DA-AB4F-4D1B-B721-479CA6F6F825}.Release|x64.ActiveCfg = Release|x64
+		{E68901DA-AB4F-4D1B-B721-479CA6F6F825}.Release|x64.Build.0 = Release|x64
+		{E68901DA-AB4F-4D1B-B721-479CA6F6F825}.Release|x86.ActiveCfg = Release|Win32
+		{E68901DA-AB4F-4D1B-B721-479CA6F6F825}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

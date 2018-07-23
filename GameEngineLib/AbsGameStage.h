@@ -17,6 +17,7 @@ public:
     void removeObject(GameObject* object);
     void removeAllObjects();
     void updateObjects();
+    void setTimeScale(double timeScale);
 
     TimeProvider* getTimeProvider();
     CameraController* getViewCamera();
@@ -34,6 +35,7 @@ protected:
 
 private:
     double lastTime = 0.0;
+    double timeScale = 1.0;
     AbsGameContainer * container;
     TimeProvider* timeProvider;
     std::vector<GameObject*> activeObjects;

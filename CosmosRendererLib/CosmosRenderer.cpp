@@ -476,6 +476,9 @@ void CosmosRenderer::draw(double time)
 {
     if (!readyForDrawing) return;
 
+#ifdef PERFORMANCE_DEBUG
+    printf("{");
+#endif
     //galaxy->update(observerCameraPosition);
 
     measureTimeStart();
@@ -672,7 +675,7 @@ void CosmosRenderer::draw(double time)
     measureTimeEnd("Composite output");
 
 #ifdef PERFORMANCE_DEBUG
-    printf("\n");
+    printf("\"nextframe\":true},");
 #endif
 }
 
@@ -749,7 +752,7 @@ void CosmosRenderer::measureTimeEnd(std::string name)
 #ifdef PERFORMANCE_DEBUG
     vkDeviceWaitIdle(vulkan->device);
     double end = glfwGetTime();
-    printf("Time on [%s]: %f miliseconds\n", name.c_str(), 1000.0 * (end - measurementStopwatch));
+    printf("    \"%s\": %f,\n", name.c_str(), 1000.0 * (end - measurementStopwatch));
 #endif
 }
 

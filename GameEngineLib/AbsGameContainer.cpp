@@ -2,7 +2,6 @@
 #include "AbsGameContainer.h"
 #include "INIReader.h"
 #include "VulkanToolkit.h"
-#include "AssetLoader.h"
 #include "GameControls.h" 
 #include "SQLiteDatabase.h"
 #include "Model3dFactory.h"
@@ -19,6 +18,7 @@
 #include "AbsGameStage.h"
 #include "GameStageCollection.h"
 #include "ParticlesRenderer.h"
+#include "VulkanToolkit.h"
 #include <ctype.h>
 
 AbsGameContainer* AbsGameContainer::instance = nullptr;
@@ -30,8 +30,7 @@ AbsGameContainer::AbsGameContainer()
     stageCollection = new GameStageCollection();
 
     INIReader* configreader = new INIReader("settings.ini");
-    vulkanToolkit = new VulkanToolkit();
-    vulkanToolkit->initialize(configreader->geti("window_width"), configreader->geti("window_height"), configreader->geti("enable_validation_layers") > 0, "Galaxy Game");
+    vulkanToolkit = new VulkanToolkit(configreader->geti("window_width"), configreader->geti("window_height"), configreader->geti("enable_validation_layers") > 0, "Galaxy Game");
 
     Mouse* mouse = new Mouse(vulkanToolkit->window);
     Keyboard* keyboard = new Keyboard(vulkanToolkit->window);
