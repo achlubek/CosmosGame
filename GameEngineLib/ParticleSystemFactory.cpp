@@ -22,7 +22,7 @@ ParticleSystem * ParticleSystemFactory::build(std::string mediakey)
     
     INIReader reader = INIReader(mediakey);
 
-    auto texture = AbsGameContainer::getInstance()->getAssetLoader()->loadTextureFile(reader.gets("texture"));
+    auto texture = AbsGameContainer::getInstance()->getVulkanToolkit()->getVulkanImageFactory()->build(reader.gets("texture"));
 
     auto system = new ParticleSystem(AbsGameContainer::getInstance()->getVulkanToolkit(), texture, AbsGameContainer::getInstance()->getParticlesRenderer()->getParticleLayout(),
         reader.geti("max_count"),

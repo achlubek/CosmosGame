@@ -1,10 +1,6 @@
 #include "stdafx.h"
 #include "CommandTerminal.h"
 
-#include "UIText.h"
-#include "UIColor.h"
-#include "Keyboard.h"
-#include "UIRenderer.h"
 
 
 CommandTerminal::CommandTerminal(UIRenderer* irenderer, Keyboard* ikeyboard)
@@ -13,7 +9,7 @@ CommandTerminal::CommandTerminal(UIRenderer* irenderer, Keyboard* ikeyboard)
     onSendText = EventHandler<std::string>();
     float y = 0.0;
     int fontsize = 20;
-    float lineheight = (float)(fontsize + 2) / (float)renderer->height;
+    float lineheight = (float)(fontsize + 2) / (float)renderer->getHeight();
     y += lineheight;
     lines = {};
     linesStrings = {};

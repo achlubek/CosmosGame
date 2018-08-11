@@ -2,18 +2,18 @@
 class OutputScreenRenderer
 {
 public:
-    OutputScreenRenderer(VulkanToolkit* vulkan, int width, int height, VulkanImage * image, VulkanImage * uiImage);
+    OutputScreenRenderer(VEngine::Renderer::VulkanToolkit* vulkan, int width, int height, VEngine::Renderer::VulkanImage * image, VEngine::Renderer::VulkanImage * uiImage);
     ~OutputScreenRenderer();
     void draw();
 private:
-    VulkanToolkit * vulkan;
+    VEngine::Renderer::VulkanToolkit * vulkan;
     int width;
     int height;
 
-    VulkanRenderer* renderer{ nullptr };
-    VulkanDescriptorSetLayout* layout{ nullptr };
-    VulkanDescriptorSet* set{ nullptr };
-    VulkanRenderStage* renderStage{ nullptr };
+    VEngine::Renderer::VulkanSwapChainOutput* swapChainOutput{ nullptr };
+    VEngine::Renderer::VulkanDescriptorSetLayout* layout{ nullptr };
+    VEngine::Renderer::VulkanDescriptorSet* set{ nullptr };
+    VEngine::Renderer::VulkanRenderStage* renderStage{ nullptr };
 
 };
 

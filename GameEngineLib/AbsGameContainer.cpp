@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "AbsGameContainer.h"
 #include "INIReader.h"
-#include "VulkanToolkit.h"
 #include "GameControls.h" 
 #include "SQLiteDatabase.h"
 #include "Model3dFactory.h"
@@ -18,7 +17,6 @@
 #include "AbsGameStage.h"
 #include "GameStageCollection.h"
 #include "ParticlesRenderer.h"
-#include "VulkanToolkit.h"
 #include "SQLiteDatabase.h"
 #include <ctype.h>
 

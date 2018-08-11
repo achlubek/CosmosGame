@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "INIReader.h"
 #include "Model3d.h"
-#include "VulkanToolkit.h"
-#include "AssetLoader.h"
 #include "AbsGameContainer.h"
  
 
@@ -13,25 +11,23 @@ Model3d::Model3d(VulkanToolkit * vulkan, VulkanDescriptorSetLayout * descriptorS
 {
 
     orientationCorrection = iorientationCorrection;
-    AssetLoader assets = AssetLoader(vulkan);
-    info3d = assets.loadObject3dInfoFile(info3d_file);
-    albedoImage = assets.loadTextureFile(albedo_image);
-    normalImage = assets.loadTextureFile(normal_image);
-    roughnessImage = assets.loadTextureFile(roughness_image);
-    metalnessImage = assets.loadTextureFile(metalness_image);
-    emissionIdleImage = assets.loadTextureFile(emission_idle_image);
-    emissionPoweredImage = assets.loadTextureFile(emission_powered_image);
+    info3d = vulkan->getObject3dInfoFactory()->build(info3d_file);
+    albedoImage = vulkan->getVulkanImageFactory()->build(albedo_image);
+    normalImage = vulkan->getVulkanImageFactory()->build(normal_image);
+    roughnessImage = vulkan->getVulkanImageFactory()->build(roughness_image);
+    metalnessImage = vulkan->getVulkanImageFactory()->build(metalness_image);
+    emissionIdleImage = vulkan->getVulkanImageFactory()->build(emission_idle_image);
+    emissionPoweredImage = vulkan->getVulkanImageFactory()->build(emission_powered_image);
 
     descriptorSet = descriptorSetLayout->generateDescriptorSet();
-    dataBuffer = new VulkanGenericBuffer(vulkan, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, sizeof(float) * 1024);
-    descriptorSet->bindStorageBuffer(0, dataBuffer);
+    dataBuffer = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeUniform, sizeof(float) * 1024);
+    descriptorSet->bindBuffer(0, dataBuffer);
     descriptorSet->bindImageViewSampler(1, albedoImage);
     descriptorSet->bindImageViewSampler(2, normalImage);
     descriptorSet->bindImageViewSampler(3, roughnessImage);
     descriptorSet->bindImageViewSampler(4, metalnessImage);
     descriptorSet->bindImageViewSampler(5, emissionIdleImage);
     descriptorSet->bindImageViewSampler(6, emissionPoweredImage);
-    descriptorSet->update();
 }
 
 

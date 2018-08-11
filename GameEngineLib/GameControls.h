@@ -1,7 +1,4 @@
 #pragma once
-#include "EventHandler.h"
-#include "Mouse.h"
-#include "Keyboard.h"
 class KeyValuePair {
 public:
     int key;
@@ -43,18 +40,18 @@ public:
 class GameControls
 {
 public:
-    GameControls(Keyboard* keyboard, Mouse* mouse, std::string inifile);
+    GameControls(VEngine::Input::Keyboard* keyboard, VEngine::Input::Mouse* mouse, std::string inifile);
     ~GameControls();
-    EventHandler<std::string> onKeyDown;
-    EventHandler<std::string> onKeyUp;
+    VEngine::Utilities::EventHandler<std::string> onKeyDown;
+    VEngine::Utilities::EventHandler<std::string> onKeyUp;
     bool isKeyDown(std::string name);
     double readAxisValue(std::string name);
     glm::ivec2 getCursorPosition();
-    Keyboard* getRawKeyboard();
-    Mouse* getRawMouse();
+    VEngine::Input::Keyboard* getRawKeyboard();
+    VEngine::Input::Mouse* getRawMouse();
 private:
-    Keyboard * keyboard;
-    Mouse* mouse;
+    VEngine::Input::Keyboard * keyboard;
+    VEngine::Input::Mouse* mouse;
     std::map<std::string, int> simpleKeyBinds;
     std::map<std::string, ControlKeyAxis> keysAxisBinds;
 };
