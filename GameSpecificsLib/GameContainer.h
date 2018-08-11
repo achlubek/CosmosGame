@@ -1,6 +1,5 @@
 #pragma once
 
-class VulkanToolkit;
 class AssetLoader;
 class GalaxyGenerator;
 class CosmosRenderer;

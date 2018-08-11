@@ -1,9 +1,7 @@
 #pragma once
-class VulkanRenderStage;
-class VulkanDescriptorSet;
 class SceneProvider
 {
 public:
-    virtual void drawDrawableObjects(VulkanRenderStage* stage, VulkanDescriptorSet* set, double scale) = 0;
+    virtual void drawDrawableObjects(VEngine::Renderer::VulkanRenderStage* stage, VEngine::Renderer::VulkanDescriptorSet* set, double scale) = 0;
 };
 

@@ -17,11 +17,10 @@ ParticleSystem::ParticleSystem(VulkanToolkit* vulkan, VulkanImage* texture,
     lifeTime(lifeTime),
     particles({})
 {
-    dataBuffer = new VulkanGenericBuffer(vulkan, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, sizeof(float) * 1024 * 1024);
+    dataBuffer = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeStorage, sizeof(float) * 1024 * 1024);
     set = particleLayout->generateDescriptorSet();
-    set->bindStorageBuffer(0, dataBuffer);
+    set->bindBuffer(0, dataBuffer);
     set->bindImageViewSampler(1, texture);
-    set->update();
 }
 
 

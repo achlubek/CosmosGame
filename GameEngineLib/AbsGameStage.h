@@ -31,7 +31,7 @@ protected:
     double getLastTime();
     virtual void onUpdate(double elapsed) = 0;
     virtual void onUpdateObject(GameObject* object, double elapsed) = 0;
-    virtual void drawDrawableObjects(VulkanRenderStage* stage, VulkanDescriptorSet* set, double scale) override;
+    virtual void drawDrawableObjects(VEngine::Renderer::VulkanRenderStage* stage, VEngine::Renderer::VulkanDescriptorSet* set, double scale) override;
 
 private:
     double lastTime = 0.0;

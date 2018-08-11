@@ -1,9 +1,5 @@
 #pragma once
-class Object3dInfo;
-class VulkanImage;
-class VulkanToolkit;
-class VulkanDescriptorSet;
-class VulkanRenderStage;
+
 class Model3d
 {
 public: 

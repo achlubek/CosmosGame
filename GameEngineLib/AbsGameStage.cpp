@@ -1,10 +1,7 @@
 #include "stdafx.h"
 #include "AbsGameStage.h"
-#include "stdafx.h"
 #include "AbsGameContainer.h"
 #include "INIReader.h"
-#include "VulkanToolkit.h"
-#include "AssetLoader.h"
 #include "GameControls.h" 
 #include "SQLiteDatabase.h"
 #include "AbsGameContainer.h"
@@ -14,7 +11,6 @@
 #include "Transformation3DComponent.h"
 #include "CameraController.h"
 #include "TimeProvider.h"
-#include "UIRenderer.h"
 #include "ParticlesRenderer.h"
 #include "ModelsRenderer.h"
 
@@ -25,7 +21,7 @@ AbsGameStage::AbsGameStage(AbsGameContainer* icontainer)
 
     timeProvider = new TimeProvider();
 
-    ui = new UIRenderer(container->getVulkanToolkit(), container->getControls()->getRawMouse(), container->getUiOutputImage(), container->getVulkanToolkit()->windowWidth, container->getVulkanToolkit()->windowHeight);
+    ui = new UIRenderer(container->getVulkanToolkit(), container->getControls()->getRawMouse(), container->getUiOutputImage(), container->getResolution().x, container->getResolution().y);
 
     viewCamera = new CameraController();
 

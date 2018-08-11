@@ -1,7 +1,5 @@
 #pragma once
 
-class VulkanToolkit;
-class AssetLoader;
 class GameControls;
 class SQLiteDatabase;
 class Model3dFactory;
@@ -55,5 +53,6 @@ private:
     GameStageCollection* stageCollection;
     ParticlesRenderer* particlesRenderer;
     bool shouldClose = false;
+    int width, height;
 };
 

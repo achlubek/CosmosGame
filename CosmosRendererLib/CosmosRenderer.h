@@ -1,7 +1,5 @@
 #pragma once
 
-class VulkanRenderer;
-class VulkanToolkit;
 class SceneProvider;
 class TimeProvider;
 class StarsRenderer;

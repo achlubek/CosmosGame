@@ -19,6 +19,7 @@
 #include "GameStageCollection.h"
 #include "ParticlesRenderer.h"
 #include "VulkanToolkit.h"
+#include "SQLiteDatabase.h"
 #include <ctype.h>
 
 AbsGameContainer* AbsGameContainer::instance = nullptr;
@@ -30,14 +31,11 @@ AbsGameContainer::AbsGameContainer()
     stageCollection = new GameStageCollection();
 
     INIReader* configreader = new INIReader("settings.ini");
-    vulkanToolkit = new VulkanToolkit(configreader->geti("window_width"), configreader->geti("window_height"), configreader->geti("enable_validation_layers") > 0, "Galaxy Game");
-
-    Mouse* mouse = new Mouse(vulkanToolkit->window);
-    Keyboard* keyboard = new Keyboard(vulkanToolkit->window);
-
-    assetLoader = new AssetLoader(vulkanToolkit);
-
-    gameControls = new GameControls(keyboard, mouse, "controls.ini");
+    width = configreader->geti("window_width");
+    height = configreader->geti("window_height");
+    vulkanToolkit = new VulkanToolkit(width, height, configreader->geti("enable_validation_layers") > 0, "Galaxy Game");
+    
+    gameControls = new GameControls(vulkanToolkit->getKeyboard(), vulkanToolkit->getMouse(), "controls.ini");
 
     model3dFactory = new Model3dFactory();
 
@@ -46,18 +44,14 @@ AbsGameContainer::AbsGameContainer()
 
     interpolator = new Interpolator();
 
-    outputImage = new VulkanImage(getVulkanToolkit(), getVulkanToolkit()->windowWidth, getVulkanToolkit()->windowHeight,
-        VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT,
-        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
+    outputImage = vulkanToolkit->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA16f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
 
-    uiOutputImage = new VulkanImage(getVulkanToolkit(), getVulkanToolkit()->windowWidth, getVulkanToolkit()->windowHeight,
-        VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT,
-        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
+    uiOutputImage = vulkanToolkit->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA16f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
 
-    modelsRenderer = new ModelsRenderer(vulkanToolkit, vulkanToolkit->windowWidth, vulkanToolkit->windowHeight);
-    outputScreenRenderer = new OutputScreenRenderer(vulkanToolkit, vulkanToolkit->windowWidth, vulkanToolkit->windowHeight, outputImage, uiOutputImage);
+    modelsRenderer = new ModelsRenderer(vulkanToolkit, width, height);
+    outputScreenRenderer = new OutputScreenRenderer(vulkanToolkit, width, height, outputImage, uiOutputImage);
     particlesRenderer = new ParticlesRenderer(getVulkanToolkit(),
-        getVulkanToolkit()->windowWidth, getVulkanToolkit()->windowHeight, getModelsRenderer()->getDistanceImage());
+        width, height, getModelsRenderer()->getDistanceImage());
 }
 
 
@@ -75,11 +69,6 @@ SQLiteDatabase * AbsGameContainer::getDatabase()
     return database;
 }
 
-AssetLoader * AbsGameContainer::getAssetLoader()
-{
-    return assetLoader;
-}
-
 Model3dFactory * AbsGameContainer::getModel3dFactory()
 {
     return model3dFactory;
@@ -92,7 +81,7 @@ GameControls * AbsGameContainer::getControls()
 
 glm::vec2 AbsGameContainer::getResolution()
 {
-    return glm::vec2((float)vulkanToolkit->windowWidth, (float)vulkanToolkit->windowHeight);
+    return glm::vec2((float)width, (float)height);
 }
 
 ModelsRenderer * AbsGameContainer::getModelsRenderer()
