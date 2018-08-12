@@ -12,7 +12,7 @@
 
 CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, int width, int height) :
     galaxy(galaxy), width(width), height(height),
-    vulkan(vulkan),  renderablePlanets({}), renderableMoons({}), updatingSafetyQueue(InvokeQueue())
+    vulkan(vulkan), renderablePlanets({}), renderableMoons({}), updatingSafetyQueue(InvokeQueue())
 {
     //  internalCamera = new Camera();
 
@@ -39,62 +39,48 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, i
     }
 
 
-    icosphereLow = assets->loadObject3dInfoFile("icosphere_mediumpoly_1unit.raw");
+    icosphereLow = vulkan->getObject3dInfoFactory->build("icosphere_mediumpoly_1unit.raw");
 
-    icosphereMedium = assets->loadObject3dInfoFile("icosphere_mediumpoly_1unit.raw");
+    icosphereMedium = vulkan->getObject3dInfoFactory->build("icosphere_mediumpoly_1unit.raw");
 
-    icosphereHigh = subdivide(icosphereMedium);// assets->loadObject3dInfoFile("icosphere_highpoly_1unit.raw");
+    icosphereHigh = subdivide(icosphereMedium);// vulkan->getObject3dInfoFactory->build("icosphere_highpoly_1unit.raw");
 
-    cameraDataBuffer = new VulkanGenericBuffer(vulkan, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, sizeof(float) * 1024);
-   planetsDataBuffer = new VulkanGenericBuffer(vulkan, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, sizeof(float) * 1024 * 1024);
-    moonsDataBuffer = new VulkanGenericBuffer(vulkan, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, sizeof(float) * 1024 * 1024);
+    cameraDataBuffer = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeUniform, sizeof(float) * 1024);
+    planetsDataBuffer = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeStorage, sizeof(float) * 1024 * 1024);
+    moonsDataBuffer = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeStorage, sizeof(float) * 1024 * 1024);
 
-    celestialAlphaImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
-        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
+    celestialAlphaImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA16f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Storage | VulkanImageUsage::Sampled);
 
-    celestialAdditiveImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
-        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
+    celestialAdditiveImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA16f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
 
     //####################//
 
-    surfaceRenderedAlbedoRoughnessImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL,
-        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
+    surfaceRenderedAlbedoRoughnessImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA8unorm, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
 
-    surfaceRenderedNormalMetalnessImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
-        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
+    surfaceRenderedNormalMetalnessImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA16f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
 
-    surfaceRenderedDistanceImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R32_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
-        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
+    surfaceRenderedDistanceImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::R32f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
 
-    surfaceRenderedDepthImage = new VulkanImage(vulkan, width, height, VK_FORMAT_D32_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
-        VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, true);
-
+    surfaceRenderedDepthImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::Depth32f, VulkanImageUsage::Depth);
 
     //#######//
 
-    waterRenderedNormalMetalnessImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
-        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
+    waterRenderedNormalMetalnessImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA16f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
 
-    waterRenderedDistanceImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R32_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
-        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
+    waterRenderedDistanceImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::R32f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
 
-    waterRenderedDepthImage = new VulkanImage(vulkan, width, height, VK_FORMAT_D32_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
-        VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, true);
+    waterRenderedDepthImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::Depth32f, VulkanImageUsage::Depth);
 
     //#########//
 
+    shadowmapsDepthMap = vulkan->getVulkanImageFactory()->build(shadowMapWidth, shadowMapHeight, VulkanImageFormat::Depth32f, VulkanImageUsage::Depth);
 
-    shadowmapsDepthMap = new VulkanImage(vulkan, shadowMapWidth, shadowMapHeight, VK_FORMAT_D32_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
-        VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, true);
-
-    shadowMapDataSetLayout = new VulkanDescriptorSetLayout(vulkan);
-    shadowMapDataSetLayout->addField(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
-    shadowMapDataSetLayout->compile();
+    shadowMapDataSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
+    shadowMapDataSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
 
     for (int i = 0; i < shadowmapsDivisors.size(); i++) {
-        shadowmaps.push_back(new VulkanImage(vulkan, shadowMapWidth, shadowMapHeight, VK_FORMAT_R32_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
-            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false));
-        auto buff = new VulkanGenericBuffer(vulkan, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, sizeof(float) * 1024);
+        shadowmaps.push_back(vulkan->getVulkanImageFactory()->build(shadowMapWidth, shadowMapHeight, VulkanImageFormat::R32f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled));
+        auto buff = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeUniform, sizeof(float) * 1024);
         void* data;
         buff->map(0, sizeof(float) * 4, &data);
         float invdivisor = 1.0 / (float)shadowmapsDivisors[i];
@@ -107,98 +93,81 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, i
         shadowmapsBuffers.push_back(buff);
 
         auto dataSet = shadowMapDataSetLayout->generateDescriptorSet();
-        dataSet->bindUniformBuffer(0, buff);
-        dataSet->update();
+        dataSet->bindBuffer(0, buff);
         shadowmapsDataSets.push_back(dataSet);
 
     }
 
-
     //####################//
 
-
-    // cosmosImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
-   //      VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
-
-    rendererDataLayout = new VulkanDescriptorSetLayout(vulkan);
-    rendererDataLayout->addField(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS | VK_SHADER_STAGE_COMPUTE_BIT);
-    rendererDataLayout->compile();
+    rendererDataLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
+    rendererDataLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageAll);
 
     rendererDataSet = rendererDataLayout->generateDescriptorSet();
-    rendererDataSet->bindUniformBuffer(0, cameraDataBuffer);
-    rendererDataSet->update();
+    rendererDataSet->bindBuffer(0, cameraDataBuffer);
 
-    combineLayout = new VulkanDescriptorSetLayout(vulkan);
-    combineLayout->addField(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
-    combineLayout->addField(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    combineLayout->addField(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    combineLayout->addField(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    combineLayout->addField(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    combineLayout->addField(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    combineLayout->addField(6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    combineLayout->addField(7, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    combineLayout->compile();
+    combineLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
+    combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
+    combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
+    combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
+    combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
+    combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
+    combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
+    combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
+    combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
 
 
-    shadowMapsCollectionLayout = new VulkanDescriptorSetLayout(vulkan);
+    shadowMapsCollectionLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
     for (int i = 0; i < shadowmapsDivisors.size(); i++) {
-        shadowMapsCollectionLayout->addField(i, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
+        shadowMapsCollectionLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
     }
-    shadowMapsCollectionLayout->compile();
 
-    celestialBodyDataSetLayout = new VulkanDescriptorSetLayout(vulkan);
-    celestialBodyDataSetLayout->addField(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT);
-    celestialBodyDataSetLayout->addField(1, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_COMPUTE_BIT);
-    celestialBodyDataSetLayout->addField(2, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_COMPUTE_BIT);
-    celestialBodyDataSetLayout->addField(3, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_COMPUTE_BIT);
-    celestialBodyDataSetLayout->compile();
+    celestialBodyDataSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
+    celestialBodyDataSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageCompute);
+    celestialBodyDataSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeStorageImage, VulkanDescriptorSetFieldStage::FieldStageCompute);
+    celestialBodyDataSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeStorageImage, VulkanDescriptorSetFieldStage::FieldStageCompute);
+    celestialBodyDataSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeStorageImage, VulkanDescriptorSetFieldStage::FieldStageCompute);
 
-    celestiaStarsBlitSetLayout = new VulkanDescriptorSetLayout(vulkan);
-    celestiaStarsBlitSetLayout->addField(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_COMPUTE_BIT);
-    celestiaStarsBlitSetLayout->addField(1, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_COMPUTE_BIT);
-    celestiaStarsBlitSetLayout->compile();
+    celestiaStarsBlitSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
+    celestiaStarsBlitSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageCompute);
+    celestiaStarsBlitSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeStorageImage, VulkanDescriptorSetFieldStage::FieldStageCompute);
 
-    celestialShadowMapSetLayout = new VulkanDescriptorSetLayout(vulkan);
-    celestialShadowMapSetLayout->addField(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT);
-    celestialShadowMapSetLayout->addField(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_COMPUTE_BIT);
-    celestialShadowMapSetLayout->addField(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_COMPUTE_BIT);
-    celestialShadowMapSetLayout->addField(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_COMPUTE_BIT);
-    celestialShadowMapSetLayout->addField(4, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_COMPUTE_BIT);
-    celestialShadowMapSetLayout->compile();
+    celestialShadowMapSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
+    celestialShadowMapSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageCompute);
+    celestialShadowMapSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageCompute);
+    celestialShadowMapSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageCompute);
+    celestialShadowMapSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageCompute);
+    celestialShadowMapSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeStorageImage, VulkanDescriptorSetFieldStage::FieldStageCompute);
 
-    celestialBodyRenderSetLayout = new VulkanDescriptorSetLayout(vulkan);
-    celestialBodyRenderSetLayout->addField(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
-    celestialBodyRenderSetLayout->addField(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    celestialBodyRenderSetLayout->addField(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    celestialBodyRenderSetLayout->addField(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    celestialBodyRenderSetLayout->addField(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    celestialBodyRenderSetLayout->addField(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    celestialBodyRenderSetLayout->addField(6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    celestialBodyRenderSetLayout->addField(7, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    celestialBodyRenderSetLayout->addField(8, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    celestialBodyRenderSetLayout->addField(9, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    celestialBodyRenderSetLayout->compile();
+    celestialBodyRenderSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
+    celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
+    celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
+    celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
+    celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
+    celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
+    celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
+    celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
+    celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
+    celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
+    celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
 
-    celestialBodySurfaceSetLayout = new VulkanDescriptorSetLayout(vulkan);
-    celestialBodySurfaceSetLayout->addField(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
-    celestialBodySurfaceSetLayout->addField(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS);
-    celestialBodySurfaceSetLayout->addField(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS);
-    celestialBodySurfaceSetLayout->compile();
+    celestialBodySurfaceSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
+    celestialBodySurfaceSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
+    celestialBodySurfaceSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
+    celestialBodySurfaceSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
 
-    celestialBodyWaterSetLayout = new VulkanDescriptorSetLayout(vulkan);
-    celestialBodyWaterSetLayout->addField(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
-    celestialBodyWaterSetLayout->compile();
+    celestialBodyWaterSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
+    celestialBodyWaterSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
 
-    celestialShadowMapSetLayout = new VulkanDescriptorSetLayout(vulkan);
-    celestialShadowMapSetLayout->addField(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
-    celestialShadowMapSetLayout->addField(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS);
-    celestialShadowMapSetLayout->compile();
+    celestialShadowMapSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
+    celestialShadowMapSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
+    celestialShadowMapSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
 
 
-    starsRenderer = new StarsRenderer(vulkan, width, height, scale, rendererDataSet, assets, galaxy);
+    starsRenderer = new StarsRenderer(vulkan, width, height, scale, rendererDataSet, galaxy);
 
     combineSet = combineLayout->generateDescriptorSet();
-    combineSet->bindUniformBuffer(0, cameraDataBuffer);
+    combineSet->bindBuffer(0, cameraDataBuffer);
     combineSet->bindImageViewSampler(1, celestialAlphaImage);
     combineSet->bindImageViewSampler(2, starsRenderer->getStarsImage());
     combineSet->bindImageViewSampler(3, celestialAdditiveImage);
@@ -206,19 +175,16 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, i
     combineSet->bindImageViewSampler(5, AbsGameContainer::getInstance()->getModelsRenderer()->getNormalMetalnessImage());
     combineSet->bindImageViewSampler(6, AbsGameContainer::getInstance()->getModelsRenderer()->getDistanceImage());
     combineSet->bindImageViewSampler(7, AbsGameContainer::getInstance()->getParticlesRenderer()->getResultImage());
-    combineSet->update();
 
 
     shadowMapsCollectionSet = shadowMapsCollectionLayout->generateDescriptorSet();
     for (int i = 0; i < shadowmapsDivisors.size(); i++) {
         shadowMapsCollectionSet->bindImageViewSampler(i, shadowmaps[i]);
     }
-    shadowMapsCollectionSet->update();
 
     celestiaStarsBlitSet = celestiaStarsBlitSetLayout->generateDescriptorSet();
     celestiaStarsBlitSet->bindImageViewSampler(0, starsRenderer->getStarsImage());
     celestiaStarsBlitSet->bindImageStorage(1, celestialAlphaImage);
-    celestiaStarsBlitSet->update();
 
     recompileShaders(false);
 
@@ -239,7 +205,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
 {
     readyForDrawing = false;
     if (deleteOld) {
-        vkDeviceWaitIdle(vulkan->device);
+        vulkan->waitDeviceIdle();
         safedelete(celestialBodySurfaceRenderStage);
         safedelete(celestialBodyWaterRenderStage);
         safedelete(celestialStage);
@@ -249,7 +215,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
         }
         celestialShadowMapRenderStages.clear();
     }
-    vkDeviceWaitIdle(vulkan->device);
+    vulkan->waitDeviceIdle();
 
 
     //**********************//
@@ -261,7 +227,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
         auto celestialShadowMapRenderStage = new VulkanRenderStage(vulkan);
         celestialShadowMapRenderStage->setViewport(shadowMapWidth, shadowMapHeight);
         celestialShadowMapRenderStage->addShaderStage(celestialshadowmapvert->createShaderStage(VK_SHADER_STAGE_VERTEX_BIT, "main"));
-        celestialShadowMapRenderStage->addShaderStage(celestialshadowmapfrag->createShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT, "main"));
+        celestialShadowMapRenderStage->addShaderStage(celestialshadowmapfrag->createShaderStage(VulkanDescriptorSetFieldStage::FieldStageFragment, "main"));
         celestialShadowMapRenderStage->addDescriptorSetLayout(rendererDataLayout->layout);
         celestialShadowMapRenderStage->addDescriptorSetLayout(celestialShadowMapSetLayout->layout);
         celestialShadowMapRenderStage->addDescriptorSetLayout(shadowMapDataSetLayout->layout);
@@ -280,7 +246,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     celestialBodySurfaceRenderStage = new VulkanRenderStage(vulkan);
     celestialBodySurfaceRenderStage->setViewport(width, height);
     celestialBodySurfaceRenderStage->addShaderStage(celestialsurfacevert->createShaderStage(VK_SHADER_STAGE_VERTEX_BIT, "main"));
-    celestialBodySurfaceRenderStage->addShaderStage(celestialsurfacefrag->createShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT, "main"));
+    celestialBodySurfaceRenderStage->addShaderStage(celestialsurfacefrag->createShaderStage(VulkanDescriptorSetFieldStage::FieldStageFragment, "main"));
     celestialBodySurfaceRenderStage->addDescriptorSetLayout(rendererDataLayout->layout);
     celestialBodySurfaceRenderStage->addDescriptorSetLayout(celestialBodySurfaceSetLayout->layout);
     celestialBodySurfaceRenderStage->addOutputImage(surfaceRenderedAlbedoRoughnessImage);
@@ -298,7 +264,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     celestialBodyWaterRenderStage = new VulkanRenderStage(vulkan);
     celestialBodyWaterRenderStage->setViewport(width, height);
     celestialBodyWaterRenderStage->addShaderStage(celestialwatervert->createShaderStage(VK_SHADER_STAGE_VERTEX_BIT, "main"));
-    celestialBodyWaterRenderStage->addShaderStage(celestialwaterfrag->createShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT, "main"));
+    celestialBodyWaterRenderStage->addShaderStage(celestialwaterfrag->createShaderStage(VulkanDescriptorSetFieldStage::FieldStageFragment, "main"));
     celestialBodyWaterRenderStage->addDescriptorSetLayout(rendererDataLayout->layout);
     celestialBodyWaterRenderStage->addDescriptorSetLayout(celestialBodyWaterSetLayout->layout);
     celestialBodyWaterRenderStage->addOutputImage(waterRenderedNormalMetalnessImage);
@@ -332,7 +298,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     celestialStage = new VulkanRenderStage(vulkan);
     celestialStage->setViewport(width, height);
     celestialStage->addShaderStage(celestialvert->createShaderStage(VK_SHADER_STAGE_VERTEX_BIT, "main"));
-    celestialStage->addShaderStage(celestialfrag->createShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT, "main"));
+    celestialStage->addShaderStage(celestialfrag->createShaderStage(VulkanDescriptorSetFieldStage::FieldStageFragment, "main"));
     celestialStage->addDescriptorSetLayout(rendererDataLayout->layout);
     celestialStage->addDescriptorSetLayout(celestialBodyRenderSetLayout->layout);
     celestialStage->addDescriptorSetLayout(shadowMapsCollectionLayout->layout);
@@ -355,7 +321,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     combineStage = new VulkanRenderStage(vulkan);
     combineStage->setViewport(vulkan->windowWidth, vulkan->windowHeight);
     combineStage->addShaderStage(combinevert->createShaderStage(VK_SHADER_STAGE_VERTEX_BIT, "main"));
-    combineStage->addShaderStage(combinefrag->createShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT, "main"));
+    combineStage->addShaderStage(combinefrag->createShaderStage(VulkanDescriptorSetFieldStage::FieldStageFragment, "main"));
     combineStage->addDescriptorSetLayout(combineLayout->layout);
     combineStage->setSets({ combineSet });
     combineStage->addOutputImage(AbsGameContainer::getInstance()->getOutputImage());
@@ -613,7 +579,7 @@ void CosmosRenderer::draw(double time)
 
 
         if (i == renderables.size() - 1) {
-           // for (int z = 0; z < shadowmapsDivisors.size(); z++) {
+            // for (int z = 0; z < shadowmapsDivisors.size(); z++) {
             int z = cascadeCounter;
             cascadeCounter++;
             if (cascadeCounter >= shadowmapsDivisors.size()) {
@@ -628,7 +594,7 @@ void CosmosRenderer::draw(double time)
             celestialShadowMapRenderStages[z]->endDrawing();
             celestialShadowMapRenderStages[z]->submitNoSemaphores({});
             measureTimeEnd("Celestial shadow cascade " + std::to_string(z) + " data for " + std::to_string(i));
-           // }
+            // }
         }
 
 
@@ -667,7 +633,7 @@ void CosmosRenderer::draw(double time)
 
     measureTimeStart();
     combineStage->beginDrawing();
-    combineStage->setSets({combineSet});
+    combineStage->setSets({ combineSet });
     combineStage->drawMesh(vulkan->fullScreenQuad3dInfo, 1);
     combineStage->endDrawing();
     combineStage->submitNoSemaphores({});

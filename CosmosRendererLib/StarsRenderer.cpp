@@ -7,14 +7,12 @@
 StarsRenderer::StarsRenderer(VulkanToolkit* vulkan, 
     int width, int height, double scale,
     VulkanDescriptorSet* rendererDataSet, 
-    AssetLoader* assetLoader, 
     GalaxyContainer* galaxy)
     : vulkan(vulkan), 
     width(width), 
     height(height), 
     scale(scale), 
     rendererDataSet(rendererDataSet),
-    assetLoader(assetLoader),
     galaxy(galaxy)
 {
     starsImage = new VulkanImage(vulkan, width, height, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,

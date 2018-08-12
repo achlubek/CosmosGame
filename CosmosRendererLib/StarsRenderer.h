@@ -6,7 +6,6 @@ public:
     StarsRenderer(VulkanToolkit* vulkan, 
         int width, int height, double scale,
         VulkanDescriptorSet* rendererDataSet, 
-        AssetLoader* assetLoader, 
         GalaxyContainer* galaxy);
     ~StarsRenderer();
     void draw();
@@ -14,7 +13,6 @@ public:
     VulkanImage* getStarsImage();
 private:
     VulkanToolkit * vulkan;
-    AssetLoader* assetLoader;
     GalaxyContainer* galaxy;
     VulkanDescriptorSet* rendererDataSet;
 
