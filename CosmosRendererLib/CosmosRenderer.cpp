@@ -8,27 +8,26 @@
 #include "ParticlesRenderer.h"
 #include "AbsGameStage.h"
 #include "StarsRenderer.h"
-#include "stdafx.h"
-#include "vulkan.h"
 
 
-CosmosRenderer::CosmosRenderer(VulkanToolkit* ivulkan, GalaxyContainer* igalaxy, int iwidth, int iheight) :
-    galaxy(igalaxy), width(iwidth), height(iheight),
-    vulkan(ivulkan), assets(new AssetLoader(ivulkan)), renderablePlanets({}), renderableMoons({}), updatingSafetyQueue(InvokeQueue())
+CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, int width, int height) :
+    galaxy(galaxy), width(width), height(height),
+    vulkan(vulkan),  renderablePlanets({}), renderableMoons({}), updatingSafetyQueue(InvokeQueue())
 {
     //  internalCamera = new Camera();
 
-    cube3dInfo = assets->loadObject3dInfoFile("cube1unitradius.raw");
+    cube3dInfo = vulkan->getObject3dInfoFactory->build("cube1unitradius.raw");
 
-    auto wholeIcoMesh = assets->loadObject3dInfoFile("icosphere_to_separate.raw");
+    auto wholeIcoMesh = vulkan->getObject3dInfoFactory->build("icosphere_to_separate.raw");
     auto splitMesh = splitTriangles(wholeIcoMesh);
     for (int i = 0; i < splitMesh.size(); i++) {
+        auto vbo = splitMesh[i]->getVBO();
         int g = 0;
-        glm::vec3 v1 = glm::normalize(glm::vec3(splitMesh[i]->vbo[g], splitMesh[i]->vbo[g + 1], splitMesh[i]->vbo[g + 2]));
+        glm::vec3 v1 = glm::normalize(glm::vec3(vbo[g], vbo[g + 1], vbo[g + 2]));
         g += 12;
-        glm::vec3 v2 = glm::normalize(glm::vec3(splitMesh[i]->vbo[g], splitMesh[i]->vbo[g + 1], splitMesh[i]->vbo[g + 2]));
+        glm::vec3 v2 = glm::normalize(glm::vec3(vbo[g], vbo[g + 1], vbo[g + 2]));
         g += 12;
-        glm::vec3 v3 = glm::normalize(glm::vec3(splitMesh[i]->vbo[g], splitMesh[i]->vbo[g + 1], splitMesh[i]->vbo[g + 2]));
+        glm::vec3 v3 = glm::normalize(glm::vec3(vbo[g], vbo[g + 1], vbo[g + 2]));
 
         glm::vec3 dir = glm::normalize((v1 + v2 + v3) / glm::vec3(3.0));
         auto low = subdivide(splitMesh[i]);
