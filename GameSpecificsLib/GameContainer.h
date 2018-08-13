@@ -1,6 +1,5 @@
 #pragma once
 
-class AssetLoader;
 class GalaxyGenerator;
 class CosmosRenderer;
 class GameControls; 
@@ -13,7 +12,6 @@ class PlayerFactory;
 class GameObject;
 class CameraController;
 class TimeProvider;
-class UIText;
 #include "AbsGameContainer.h"
 
 class GameContainer : public AbsGameContainer

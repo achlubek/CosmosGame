@@ -4,27 +4,27 @@
 
 
 RenderedCelestialBody::RenderedCelestialBody(
-    VulkanToolkit* itoolkit,
-    CelestialBody ibody,
+    VulkanToolkit* toolkit,
+    CelestialBody body,
     VulkanDescriptorSetLayout* dataSetLayout,
     VulkanDescriptorSetLayout* shadowMapSetLayout,
     VulkanDescriptorSetLayout* renderSetLayout,
     VulkanDescriptorSetLayout* celestialBodySurfaceSetLayout,
     VulkanDescriptorSetLayout* celestialBodyWaterSetLayout,
-    VulkanImage* isurfaceRenderedAlbedoRoughnessImage,
-    VulkanImage* isurfaceRenderedNormalMetalnessImage,
-    VulkanImage* isurfaceRenderedDistanceImage,
-    VulkanImage* iwaterRenderedNormalMetalnessImage,
-    VulkanImage* iwaterRenderedDistanceImage)
-    : toolkit(itoolkit), body(ibody),
-    surfaceRenderedAlbedoRoughnessImage(isurfaceRenderedAlbedoRoughnessImage),
-    surfaceRenderedNormalMetalnessImage(isurfaceRenderedNormalMetalnessImage),
-    surfaceRenderedDistanceImage(isurfaceRenderedDistanceImage),
-    waterRenderedNormalMetalnessImage(iwaterRenderedNormalMetalnessImage),
-    waterRenderedDistanceImage(iwaterRenderedDistanceImage)
+    VulkanImage* surfaceRenderedAlbedoRoughnessImage,
+    VulkanImage* surfaceRenderedNormalMetalnessImage,
+    VulkanImage* surfaceRenderedDistanceImage,
+    VulkanImage* waterRenderedNormalMetalnessImage,
+    VulkanImage* waterRenderedDistanceImage)
+    : toolkit(toolkit), body(body),
+    surfaceRenderedAlbedoRoughnessImage(surfaceRenderedAlbedoRoughnessImage),
+    surfaceRenderedNormalMetalnessImage(surfaceRenderedNormalMetalnessImage),
+    surfaceRenderedDistanceImage(surfaceRenderedDistanceImage),
+    waterRenderedNormalMetalnessImage(waterRenderedNormalMetalnessImage),
+    waterRenderedDistanceImage(waterRenderedDistanceImage)
 {
-
-    dataBuffer = new VulkanGenericBuffer(toolkit, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, 65535);
+    
+    dataBuffer = toolkit->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeUniform, sizeof(float) * 65535);
 
     dataSet = dataSetLayout->generateDescriptorSet();
     
@@ -49,14 +49,11 @@ void RenderedCelestialBody::resizeDataImages(int ilowFreqWidth, int ilowFreqHeig
         safedelete(baseColorImage);
         safedelete(heightMapImage);
 
-        heightMapImage = new VulkanImage(toolkit, lowFreqWidth, lowFreqHeight, VK_FORMAT_R32_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
-            VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
+        heightMapImage = toolkit->getVulkanImageFactory()->build(lowFreqWidth, lowFreqHeight, VulkanImageFormat::R32f, VulkanImageUsage::Storage | VulkanImageUsage::Sampled);
 
-        baseColorImage = new VulkanImage(toolkit, lowFreqWidth, lowFreqHeight, VK_FORMAT_R16G16B16A16_UNORM, VK_IMAGE_TILING_OPTIMAL,
-            VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
+        baseColorImage = toolkit->getVulkanImageFactory()->build(lowFreqWidth, lowFreqHeight, VulkanImageFormat::RGBA16f, VulkanImageUsage::Storage | VulkanImageUsage::Sampled);
 
-        cloudsImage = new VulkanImage(toolkit, lowFreqWidth, lowFreqHeight, VK_FORMAT_R8G8_UNORM, VK_IMAGE_TILING_OPTIMAL,
-            VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
+        cloudsImage = toolkit->getVulkanImageFactory()->build(lowFreqWidth, lowFreqHeight, VulkanImageFormat::RG8unorm, VulkanImageUsage::Storage | VulkanImageUsage::Sampled);
 
         needsUpdate = true;
     }
@@ -67,23 +64,20 @@ void RenderedCelestialBody::resizeDataImages(int ilowFreqWidth, int ilowFreqHeig
 
         safedelete(shadowMapImage);
 
-        shadowMapImage = new VulkanImage(toolkit, hiFreqWidth, hiFreqHeight, VK_FORMAT_R16G16_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
-            VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED, false);
+        shadowMapImage = toolkit->getVulkanImageFactory()->build(hiFreqWidth, hiFreqHeight, VulkanImageFormat::RG16f, VulkanImageUsage::Storage | VulkanImageUsage::Sampled);
 
         shadowMapWidthOffset = 0;
     }    
     
-    dataSet->bindUniformBuffer(0, dataBuffer);
+    dataSet->bindBuffer(0, dataBuffer);
     dataSet->bindImageStorage(1, heightMapImage);
     dataSet->bindImageStorage(2, baseColorImage);
     dataSet->bindImageStorage(3, cloudsImage);
-    dataSet->update();
 
-    shadowMapSet->bindUniformBuffer(0, dataBuffer);
+    shadowMapSet->bindBuffer(0, dataBuffer);
     shadowMapSet->bindImageViewSampler(1, heightMapImage);
-    shadowMapSet->update();
 
-    renderSet->bindUniformBuffer(0, dataBuffer);
+    renderSet->bindBuffer(0, dataBuffer);
     renderSet->bindImageViewSampler(1, heightMapImage);
     renderSet->bindImageViewSampler(2, baseColorImage);
     renderSet->bindImageViewSampler(3, cloudsImage);
@@ -93,15 +87,12 @@ void RenderedCelestialBody::resizeDataImages(int ilowFreqWidth, int ilowFreqHeig
     renderSet->bindImageViewSampler(7, surfaceRenderedDistanceImage);
     renderSet->bindImageViewSampler(8, waterRenderedNormalMetalnessImage);
     renderSet->bindImageViewSampler(9, waterRenderedDistanceImage);
-    renderSet->update();
 
-    renderSurfaceSet->bindUniformBuffer(0, dataBuffer);
+    renderSurfaceSet->bindBuffer(0, dataBuffer);
     renderSurfaceSet->bindImageViewSampler(1, heightMapImage);
     renderSurfaceSet->bindImageViewSampler(2, baseColorImage);
-    renderSurfaceSet->update();
 
-    renderWaterSet->bindUniformBuffer(0, dataBuffer);
-    renderWaterSet->update();
+    renderWaterSet->bindBuffer(0, dataBuffer);
     
     initialized = true;
 }

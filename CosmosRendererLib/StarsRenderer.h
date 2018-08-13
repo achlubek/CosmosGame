@@ -5,7 +5,8 @@ class StarsRenderer
 public:
     StarsRenderer(VulkanToolkit* vulkan, 
         int width, int height, double scale,
-        VulkanDescriptorSet* rendererDataSet, 
+        VulkanDescriptorSetLayout* rendererDataSetLayout,
+        VulkanDescriptorSet* rendererDataSet,
         GalaxyContainer* galaxy);
     ~StarsRenderer();
     void draw();
@@ -14,6 +15,7 @@ public:
 private:
     VulkanToolkit * vulkan;
     GalaxyContainer* galaxy;
+    VulkanDescriptorSetLayout* rendererDataSetLayout;
     VulkanDescriptorSet* rendererDataSet;
 
     int width;

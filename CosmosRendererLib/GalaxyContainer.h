@@ -2,7 +2,6 @@
 #include "GeneratedStarInfo.h"
 #include "CelestialBody.h"
 #include "RenderedCelestialBody.h"
-#include "EventHandler.h"
 class SQLiteDatabase;
 class GalaxyContainer
 {

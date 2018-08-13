@@ -1,6 +1,7 @@
 #pragma once
 class GameObject;
 class AbsCameraViewStrategy;
+class Camera;
 class CameraController
 {
 public:

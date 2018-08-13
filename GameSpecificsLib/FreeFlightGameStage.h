@@ -14,12 +14,12 @@ public:
 private:
     GameContainer * getCosmosGameContainer();
     virtual void onUpdateObject(GameObject* object, double elapsed) override;
-    UIText* fpsText;
-    UIText* gravityFluxText;
-    UIText* starNameText;
-    UIText* planetNameText;
-    UIText* moonNameText;
-    UIText* altitudeText;
-    UIText* velocityText;
+    VEngine::UserInterface::UIText* fpsText;
+    VEngine::UserInterface::UIText* gravityFluxText;
+    VEngine::UserInterface::UIText* starNameText;
+    VEngine::UserInterface::UIText* planetNameText;
+    VEngine::UserInterface::UIText* moonNameText;
+    VEngine::UserInterface::UIText* altitudeText;
+    VEngine::UserInterface::UIText* velocityText;
 };
 

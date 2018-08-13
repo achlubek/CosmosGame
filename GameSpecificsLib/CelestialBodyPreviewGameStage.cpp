@@ -13,6 +13,7 @@
 #include "CinematicAnimationGameStage.h"
 #include "GameContainer.h"
 #include "CelestialBody.h"
+#include "INIReader.h"
 
 CelestialBodyPreviewGameStage::CelestialBodyPreviewGameStage(AbsGameContainer* container, int64_t itargetStar, int64_t itargetPlanet, int64_t itargetMoon)
     : AbsGameStage(container), targetStar(itargetStar), targetPlanet(itargetPlanet), targetMoon(itargetMoon)

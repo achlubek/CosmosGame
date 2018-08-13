@@ -16,9 +16,9 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, i
 {
     //  internalCamera = new Camera();
 
-    cube3dInfo = vulkan->getObject3dInfoFactory->build("cube1unitradius.raw");
+    cube3dInfo = vulkan->getObject3dInfoFactory()->build("cube1unitradius.raw");
 
-    auto wholeIcoMesh = vulkan->getObject3dInfoFactory->build("icosphere_to_separate.raw");
+    auto wholeIcoMesh = vulkan->getObject3dInfoFactory()->build("icosphere_to_separate.raw");
     auto splitMesh = splitTriangles(wholeIcoMesh);
     for (int i = 0; i < splitMesh.size(); i++) {
         auto vbo = splitMesh[i]->getVBO();
@@ -39,9 +39,9 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, i
     }
 
 
-    icosphereLow = vulkan->getObject3dInfoFactory->build("icosphere_mediumpoly_1unit.raw");
+    icosphereLow = vulkan->getObject3dInfoFactory()->build("icosphere_mediumpoly_1unit.raw");
 
-    icosphereMedium = vulkan->getObject3dInfoFactory->build("icosphere_mediumpoly_1unit.raw");
+    icosphereMedium = vulkan->getObject3dInfoFactory()->build("icosphere_mediumpoly_1unit.raw");
 
     icosphereHigh = subdivide(icosphereMedium);// vulkan->getObject3dInfoFactory->build("icosphere_highpoly_1unit.raw");
 
@@ -164,7 +164,7 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, i
     celestialShadowMapSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
 
 
-    starsRenderer = new StarsRenderer(vulkan, width, height, scale, rendererDataSet, galaxy);
+    starsRenderer = new StarsRenderer(vulkan, width, height, scale, rendererDataLayout, rendererDataSet, galaxy);
 
     combineSet = combineLayout->generateDescriptorSet();
     combineSet->bindBuffer(0, cameraDataBuffer);
@@ -220,8 +220,8 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
 
     //**********************//
 
-    auto celestialshadowmapvert = vulkan->getVulkanShaderFactory->build(VulkanShaderModuleType::Vertex, "cosmos-celestial-shadowmap.vert.spv");
-    auto celestialshadowmapfrag = vulkan->getVulkanShaderFactory->build(VulkanShaderModuleType::Fragment, "cosmos-celestial-shadowmap.frag.spv");
+    auto celestialshadowmapvert = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Vertex, "cosmos-celestial-shadowmap.vert.spv");
+    auto celestialshadowmapfrag = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Fragment, "cosmos-celestial-shadowmap.frag.spv");
 
     for (int i = 0; i < shadowmapsDivisors.size(); i++) {
         auto celestialShadowMapRenderStage = vulkan->getVulkanRenderStageFactory()->build(shadowMapWidth, shadowMapHeight,
@@ -235,8 +235,8 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
 
     //**********************//
 
-    auto celestialsurfacevert = vulkan->getVulkanShaderFactory->build(VulkanShaderModuleType::Vertex, "cosmos-celestial-surface.vert.spv");
-    auto celestialsurfacefrag = vulkan->getVulkanShaderFactory->build(VulkanShaderModuleType::Fragment, "cosmos-celestial-surface.frag.spv");
+    auto celestialsurfacevert = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Vertex, "cosmos-celestial-surface.vert.spv");
+    auto celestialsurfacefrag = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Fragment, "cosmos-celestial-surface.frag.spv");
 
     celestialBodySurfaceRenderStage = vulkan->getVulkanRenderStageFactory()->build(width, height, 
         { celestialsurfacevert, celestialsurfacefrag }, { rendererDataLayout, celestialBodySurfaceSetLayout },
@@ -249,8 +249,8 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
 
     //**********************//
 
-    auto celestialwatervert = vulkan->getVulkanShaderFactory->build(VulkanShaderModuleType::Vertex, "cosmos-celestial-water.vert.spv");
-    auto celestialwaterfrag = vulkan->getVulkanShaderFactory->build(VulkanShaderModuleType::Fragment, "cosmos-celestial-water.frag.spv");
+    auto celestialwatervert = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Vertex, "cosmos-celestial-water.vert.spv");
+    auto celestialwaterfrag = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Fragment, "cosmos-celestial-water.frag.spv");
 
     celestialBodyWaterRenderStage = vulkan->getVulkanRenderStageFactory()->build(width, height,
         { celestialwatervert, celestialwaterfrag }, { rendererDataLayout, celestialBodyWaterSetLayout },
@@ -261,19 +261,19 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
         });
 
     //**********************//
-    auto celestialdatacompute = vulkan->getVulkanShaderFactory->build(VulkanShaderModuleType::Compute, "celestial-updatedata.comp.spv");
+    auto celestialdatacompute = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Compute, "celestial-updatedata.comp.spv");
 
     celestialDataUpdateComputeStage = vulkan->getVulkanComputeStageFactory()->build(celestialdatacompute, { celestialBodyDataSetLayout });
 
     //**********************//
-    auto celestialblitcompute = vulkan->getVulkanShaderFactory->build(VulkanShaderModuleType::Compute, "celestial-blit-stars.comp.spv");
+    auto celestialblitcompute = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Compute, "celestial-blit-stars.comp.spv");
 
     celestialStarsBlitComputeStage = vulkan->getVulkanComputeStageFactory()->build(celestialblitcompute, { celestiaStarsBlitSetLayout });
 
     //**********************//
 
-    auto celestialvert = vulkan->getVulkanShaderFactory->build(VulkanShaderModuleType::Vertex, "cosmos-celestial.vert.spv");
-    auto celestialfrag = vulkan->getVulkanShaderFactory->build(VulkanShaderModuleType::Fragment, "cosmos-celestial.frag.spv");
+    auto celestialvert = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Vertex, "cosmos-celestial.vert.spv");
+    auto celestialfrag = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Fragment, "cosmos-celestial.frag.spv");
     
     celestialStage = vulkan->getVulkanRenderStageFactory()->build(width, height,
         { celestialvert, celestialfrag }, { rendererDataLayout, celestialBodyRenderSetLayout, shadowMapsCollectionLayout },
@@ -284,8 +284,8 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
 
     //**********************//
 
-    auto combinevert = vulkan->getVulkanShaderFactory->build(VulkanShaderModuleType::Vertex, "cosmos-combine.vert.spv");
-    auto combinefrag = vulkan->getVulkanShaderFactory->build(VulkanShaderModuleType::Fragment, "cosmos-combine.frag.spv");
+    auto combinevert = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Vertex, "cosmos-combine.vert.spv");
+    auto combinefrag = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Fragment, "cosmos-combine.frag.spv");
     
     celestialStage = vulkan->getVulkanRenderStageFactory()->build(width, height,
         { combinevert, combinefrag }, { combineLayout },

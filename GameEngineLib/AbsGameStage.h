@@ -21,7 +21,7 @@ public:
 
     TimeProvider* getTimeProvider();
     CameraController* getViewCamera();
-    UIRenderer* getUIRenderer();
+    VEngine::UserInterface::UIRenderer* getUIRenderer();
     AbsGameContainer* getGameContainer();
 
     virtual void onSwitchTo() = 0;
@@ -39,7 +39,7 @@ private:
     AbsGameContainer * container;
     TimeProvider* timeProvider;
     std::vector<GameObject*> activeObjects;
-    UIRenderer* ui;
+    VEngine::UserInterface::UIRenderer* ui;
     CameraController* viewCamera;
 };
 

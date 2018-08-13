@@ -3,6 +3,8 @@
 #include "Model3dFactory.h"
 #include "ThrustGeneratorComponent.h"
 #include "ParticleSystemFactory.h"
+#include "INIReader.h"
+
 
 ModuleFactory::ModuleFactory(Model3dFactory* model3dFactory, ParticleSystemFactory* particleSystemFactory)
     : model3dFactory(model3dFactory),
