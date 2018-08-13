@@ -33,4 +33,5 @@ void OutputScreenRenderer::draw()
     swapChainOutput->beginDrawing();
     swapChainOutput->drawMesh(vulkan->getObject3dInfoFactory()->getFullScreenQuad(), 1);
     swapChainOutput->endDrawing();
+    swapChainOutput->submit({ });
 }

@@ -30,9 +30,9 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, i
         glm::vec3 v3 = glm::normalize(glm::vec3(vbo[g], vbo[g + 1], vbo[g + 2]));
 
         glm::vec3 dir = glm::normalize((v1 + v2 + v3) / glm::vec3(3.0));
-        auto low = subdivide(splitMesh[i]);
-        auto medium = subdivide(subdivide(low));
-        auto high = subdivide(subdivide(medium));
+        auto low = (splitMesh[i]);
+        auto medium = subdivide(low);
+        auto high = (medium);
         patchesLowPoly.push_back({ dir, low });
         patchesMediumPoly.push_back({ dir, medium });
         patchesHighPoly.push_back({ dir, high });
@@ -287,7 +287,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     auto combinevert = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Vertex, "cosmos-combine.vert.spv");
     auto combinefrag = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Fragment, "cosmos-combine.frag.spv");
     
-    celestialStage = vulkan->getVulkanRenderStageFactory()->build(width, height,
+    combineStage = vulkan->getVulkanRenderStageFactory()->build(width, height,
         { combinevert, combinefrag }, { combineLayout },
         {
             AbsGameContainer::getInstance()->getOutputImage()->getAttachment(VulkanAttachmentBlending::None, true),
