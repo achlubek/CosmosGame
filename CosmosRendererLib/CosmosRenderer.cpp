@@ -220,112 +220,79 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
 
     //**********************//
 
-    auto celestialshadowmapvert = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-celestial-shadowmap.vert.spv");
-    auto celestialshadowmapfrag = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-celestial-shadowmap.frag.spv");
+    auto celestialshadowmapvert = vulkan->getVulkanShaderFactory->build(VulkanShaderModuleType::Vertex, "cosmos-celestial-shadowmap.vert.spv");
+    auto celestialshadowmapfrag = vulkan->getVulkanShaderFactory->build(VulkanShaderModuleType::Fragment, "cosmos-celestial-shadowmap.frag.spv");
 
     for (int i = 0; i < shadowmapsDivisors.size(); i++) {
-        auto celestialShadowMapRenderStage = new VulkanRenderStage(vulkan);
-        celestialShadowMapRenderStage->setViewport(shadowMapWidth, shadowMapHeight);
-        celestialShadowMapRenderStage->addShaderStage(celestialshadowmapvert->createShaderStage(VK_SHADER_STAGE_VERTEX_BIT, "main"));
-        celestialShadowMapRenderStage->addShaderStage(celestialshadowmapfrag->createShaderStage(VulkanDescriptorSetFieldStage::FieldStageFragment, "main"));
-        celestialShadowMapRenderStage->addDescriptorSetLayout(rendererDataLayout->layout);
-        celestialShadowMapRenderStage->addDescriptorSetLayout(celestialShadowMapSetLayout->layout);
-        celestialShadowMapRenderStage->addDescriptorSetLayout(shadowMapDataSetLayout->layout);
-        celestialShadowMapRenderStage->addOutputImage(shadowmaps[i]);
-        celestialShadowMapRenderStage->addOutputImage(shadowmapsDepthMap);
-        celestialShadowMapRenderStage->cullFlags = 0;// VK_CULL_MODE_FRONT_BIT;
-        celestialShadowMapRenderStage->compile();
+        auto celestialShadowMapRenderStage = vulkan->getVulkanRenderStageFactory()->build(shadowMapWidth, shadowMapHeight,
+            { celestialshadowmapvert, celestialshadowmapfrag }, { rendererDataLayout, celestialShadowMapSetLayout, shadowMapDataSetLayout },
+            {
+                shadowmaps[i]->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
+                shadowmapsDepthMap->getAttachment(VulkanAttachmentBlending::None)
+            });
         celestialShadowMapRenderStages.push_back(celestialShadowMapRenderStage);
     }
 
     //**********************//
 
-    auto celestialsurfacevert = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-celestial-surface.vert.spv");
-    auto celestialsurfacefrag = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-celestial-surface.frag.spv");
+    auto celestialsurfacevert = vulkan->getVulkanShaderFactory->build(VulkanShaderModuleType::Vertex, "cosmos-celestial-surface.vert.spv");
+    auto celestialsurfacefrag = vulkan->getVulkanShaderFactory->build(VulkanShaderModuleType::Fragment, "cosmos-celestial-surface.frag.spv");
 
-    celestialBodySurfaceRenderStage = new VulkanRenderStage(vulkan);
-    celestialBodySurfaceRenderStage->setViewport(width, height);
-    celestialBodySurfaceRenderStage->addShaderStage(celestialsurfacevert->createShaderStage(VK_SHADER_STAGE_VERTEX_BIT, "main"));
-    celestialBodySurfaceRenderStage->addShaderStage(celestialsurfacefrag->createShaderStage(VulkanDescriptorSetFieldStage::FieldStageFragment, "main"));
-    celestialBodySurfaceRenderStage->addDescriptorSetLayout(rendererDataLayout->layout);
-    celestialBodySurfaceRenderStage->addDescriptorSetLayout(celestialBodySurfaceSetLayout->layout);
-    celestialBodySurfaceRenderStage->addOutputImage(surfaceRenderedAlbedoRoughnessImage);
-    celestialBodySurfaceRenderStage->addOutputImage(surfaceRenderedNormalMetalnessImage);
-    celestialBodySurfaceRenderStage->addOutputImage(surfaceRenderedDistanceImage);
-    celestialBodySurfaceRenderStage->addOutputImage(surfaceRenderedDepthImage);
-    celestialBodySurfaceRenderStage->cullFlags = VK_CULL_MODE_FRONT_BIT;
-    celestialBodySurfaceRenderStage->compile();
+    celestialBodySurfaceRenderStage = vulkan->getVulkanRenderStageFactory()->build(width, height, 
+        { celestialsurfacevert, celestialsurfacefrag }, { rendererDataLayout, celestialBodySurfaceSetLayout },
+        {
+            surfaceRenderedAlbedoRoughnessImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
+            surfaceRenderedNormalMetalnessImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
+            surfaceRenderedDistanceImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
+            surfaceRenderedDepthImage->getAttachment(VulkanAttachmentBlending::None)
+        }, VulkanCullMode::CullModeFront);
 
     //**********************//
 
-    auto celestialwatervert = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-celestial-water.vert.spv");
-    auto celestialwaterfrag = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-celestial-water.frag.spv");
+    auto celestialwatervert = vulkan->getVulkanShaderFactory->build(VulkanShaderModuleType::Vertex, "cosmos-celestial-water.vert.spv");
+    auto celestialwaterfrag = vulkan->getVulkanShaderFactory->build(VulkanShaderModuleType::Fragment, "cosmos-celestial-water.frag.spv");
 
-    celestialBodyWaterRenderStage = new VulkanRenderStage(vulkan);
-    celestialBodyWaterRenderStage->setViewport(width, height);
-    celestialBodyWaterRenderStage->addShaderStage(celestialwatervert->createShaderStage(VK_SHADER_STAGE_VERTEX_BIT, "main"));
-    celestialBodyWaterRenderStage->addShaderStage(celestialwaterfrag->createShaderStage(VulkanDescriptorSetFieldStage::FieldStageFragment, "main"));
-    celestialBodyWaterRenderStage->addDescriptorSetLayout(rendererDataLayout->layout);
-    celestialBodyWaterRenderStage->addDescriptorSetLayout(celestialBodyWaterSetLayout->layout);
-    celestialBodyWaterRenderStage->addOutputImage(waterRenderedNormalMetalnessImage);
-    celestialBodyWaterRenderStage->addOutputImage(waterRenderedDistanceImage);
-    celestialBodyWaterRenderStage->addOutputImage(waterRenderedDepthImage);
-    celestialBodyWaterRenderStage->cullFlags = 0;// VK_CULL_MODE_FRONT_BIT;
-    celestialBodyWaterRenderStage->compile();
+    celestialBodyWaterRenderStage = vulkan->getVulkanRenderStageFactory()->build(width, height,
+        { celestialwatervert, celestialwaterfrag }, { rendererDataLayout, celestialBodyWaterSetLayout },
+        {
+            waterRenderedNormalMetalnessImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
+            waterRenderedDistanceImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
+            waterRenderedDepthImage->getAttachment(VulkanAttachmentBlending::None)
+        });
 
     //**********************//
-    auto celestialdatacompute = new VulkanShaderModule(vulkan, "../../shaders/compiled/celestial-updatedata.comp.spv");
+    auto celestialdatacompute = vulkan->getVulkanShaderFactory->build(VulkanShaderModuleType::Compute, "celestial-updatedata.comp.spv");
 
-    celestialDataUpdateComputeStage = new VulkanComputeStage(vulkan);
-    celestialDataUpdateComputeStage->setShaderStage(celestialdatacompute->createShaderStage(VK_SHADER_STAGE_COMPUTE_BIT, "main"));
-    celestialDataUpdateComputeStage->addDescriptorSetLayout(celestialBodyDataSetLayout->layout);
-    celestialDataUpdateComputeStage->queue = vulkan->secondaryQueue;
-    celestialDataUpdateComputeStage->compile();
+    celestialDataUpdateComputeStage = vulkan->getVulkanComputeStageFactory()->build(celestialdatacompute, { celestialBodyDataSetLayout });
 
     //**********************//
-    auto celestialblitcompute = new VulkanShaderModule(vulkan, "../../shaders/compiled/celestial-blit-stars.comp.spv");
+    auto celestialblitcompute = vulkan->getVulkanShaderFactory->build(VulkanShaderModuleType::Compute, "celestial-blit-stars.comp.spv");
 
-    celestialStarsBlitComputeStage = new VulkanComputeStage(vulkan);
-    celestialStarsBlitComputeStage->setShaderStage(celestialblitcompute->createShaderStage(VK_SHADER_STAGE_COMPUTE_BIT, "main"));
-    celestialStarsBlitComputeStage->addDescriptorSetLayout(celestiaStarsBlitSetLayout->layout);
-    celestialStarsBlitComputeStage->compile();
+    celestialStarsBlitComputeStage = vulkan->getVulkanComputeStageFactory()->build(celestialblitcompute, { celestiaStarsBlitSetLayout });
 
     //**********************//
 
-    auto celestialvert = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-celestial.vert.spv");
-    auto celestialfrag = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-celestial.frag.spv");
-
-    celestialStage = new VulkanRenderStage(vulkan);
-    celestialStage->setViewport(width, height);
-    celestialStage->addShaderStage(celestialvert->createShaderStage(VK_SHADER_STAGE_VERTEX_BIT, "main"));
-    celestialStage->addShaderStage(celestialfrag->createShaderStage(VulkanDescriptorSetFieldStage::FieldStageFragment, "main"));
-    celestialStage->addDescriptorSetLayout(rendererDataLayout->layout);
-    celestialStage->addDescriptorSetLayout(celestialBodyRenderSetLayout->layout);
-    celestialStage->addDescriptorSetLayout(shadowMapsCollectionLayout->layout);
-    celestialAlphaImage->attachmentBlending = VulkanAttachmentBlending::Alpha;
-    celestialAlphaImage->clear = false;
-    celestialAdditiveImage->attachmentBlending = VulkanAttachmentBlending::Additive;
-    celestialAdditiveImage->clear = true;
-    celestialStage->addOutputImage(celestialAlphaImage);
-    celestialStage->addOutputImage(celestialAdditiveImage);
-    // celestialStage->alphaBlending = true;
-    celestialStage->cullFlags = VK_CULL_MODE_BACK_BIT;
-    celestialStage->clearBeforeDrawing = true;
-    celestialStage->compile();
+    auto celestialvert = vulkan->getVulkanShaderFactory->build(VulkanShaderModuleType::Vertex, "cosmos-celestial.vert.spv");
+    auto celestialfrag = vulkan->getVulkanShaderFactory->build(VulkanShaderModuleType::Fragment, "cosmos-celestial.frag.spv");
+    
+    celestialStage = vulkan->getVulkanRenderStageFactory()->build(width, height,
+        { celestialvert, celestialfrag }, { rendererDataLayout, celestialBodyRenderSetLayout, shadowMapsCollectionLayout },
+        {
+            celestialAlphaImage->getAttachment(VulkanAttachmentBlending::Alpha, false),
+            celestialAdditiveImage->getAttachment(VulkanAttachmentBlending::Additive, true, { { 0.0f, 0.0f, 0.0f, 0.0f } })
+        }, VulkanCullMode::CullModeBack);
 
     //**********************//
 
-    auto combinevert = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-combine.vert.spv");
-    auto combinefrag = new VulkanShaderModule(vulkan, "../../shaders/compiled/cosmos-combine.frag.spv");
-
-    combineStage = new VulkanRenderStage(vulkan);
-    combineStage->setViewport(vulkan->windowWidth, vulkan->windowHeight);
-    combineStage->addShaderStage(combinevert->createShaderStage(VK_SHADER_STAGE_VERTEX_BIT, "main"));
-    combineStage->addShaderStage(combinefrag->createShaderStage(VulkanDescriptorSetFieldStage::FieldStageFragment, "main"));
-    combineStage->addDescriptorSetLayout(combineLayout->layout);
+    auto combinevert = vulkan->getVulkanShaderFactory->build(VulkanShaderModuleType::Vertex, "cosmos-combine.vert.spv");
+    auto combinefrag = vulkan->getVulkanShaderFactory->build(VulkanShaderModuleType::Fragment, "cosmos-combine.frag.spv");
+    
+    celestialStage = vulkan->getVulkanRenderStageFactory()->build(width, height,
+        { combinevert, combinefrag }, { combineLayout },
+        {
+            AbsGameContainer::getInstance()->getOutputImage()->getAttachment(VulkanAttachmentBlending::None, true),
+        });
     combineStage->setSets({ combineSet });
-    combineStage->addOutputImage(AbsGameContainer::getInstance()->getOutputImage());
-    combineStage->compile();
 
     //**********************//
 
@@ -339,8 +306,8 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
 
 void CosmosRenderer::mapBuffers()
 {
-    planetsDataBuffer->map(0, planetsDataBuffer->size, &planetsDataBufferPointer);
-    moonsDataBuffer->map(0, moonsDataBuffer->size, &moonsDataBufferPointer);
+    planetsDataBuffer->map(0, planetsDataBuffer->getSize(), &planetsDataBufferPointer);
+    moonsDataBuffer->map(0, moonsDataBuffer->getSize(), &moonsDataBufferPointer);
 }
 
 void CosmosRenderer::unmapBuffers()
@@ -353,7 +320,9 @@ void CosmosRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosi
 {
     VulkanBinaryBufferBuilder bb = VulkanBinaryBufferBuilder();
     double xpos, ypos;
-    glfwGetCursorPos(vulkan->window, &xpos, &ypos);
+    auto cursorpos = vulkan->getMouse()->getCursorPosition();
+    xpos = std::get<0>(cursorpos);
+    ypos = std::get<1>(cursorpos);
 
     glm::mat4 clip(1.0f, 0.0f, 0.0f, 0.0f,
         0.0f, -1.0f, 0.0f, 0.0f,
@@ -628,13 +597,13 @@ void CosmosRenderer::draw(double time)
         celestialStage->endDrawing();
         celestialStage->submitNoSemaphores({ });
         measureTimeEnd("Celestial atmosphere and composite for " + std::to_string(i));
-        vkDeviceWaitIdle(vulkan->device);
+        vulkan->waitDeviceIdle();
     }
 
     measureTimeStart();
     combineStage->beginDrawing();
     combineStage->setSets({ combineSet });
-    combineStage->drawMesh(vulkan->fullScreenQuad3dInfo, 1);
+    combineStage->drawMesh(vulkan->getObject3dInfoFactory()->getFullScreenQuad(), 1);
     combineStage->endDrawing();
     combineStage->submitNoSemaphores({});
     measureTimeEnd("Composite output");
@@ -674,7 +643,7 @@ void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
         renderablePlanets.push_back(renderable);
         //renderable->updateData(celestialDataUpdateComputeStage);
 
-        vkDeviceWaitIdle(vulkan->device);
+        vulkan->waitDeviceIdle();
 
         for (int i = 0; i < renderableMoons.size(); i++) {
             delete renderableMoons[i];
@@ -724,12 +693,13 @@ void CosmosRenderer::measureTimeEnd(std::string name)
 Object3dInfo * CosmosRenderer::subdivide(Object3dInfo * info)
 {
     std::vector<float> floats = {};
-    for (int i = 0; i < info->vbo.size();) {
-        glm::vec3 v1 = glm::normalize(glm::vec3(info->vbo[i], info->vbo[i + 1], info->vbo[i + 2]));
+    auto vbo = info->getVBO();
+    for (int i = 0; i < vbo.size();) {
+        glm::vec3 v1 = glm::normalize(glm::vec3(vbo[i], vbo[i + 1], vbo[i + 2]));
         i += 12;
-        glm::vec3 v2 = glm::normalize(glm::vec3(info->vbo[i], info->vbo[i + 1], info->vbo[i + 2]));
+        glm::vec3 v2 = glm::normalize(glm::vec3(vbo[i], vbo[i + 1], vbo[i + 2]));
         i += 12;
-        glm::vec3 v3 = glm::normalize(glm::vec3(info->vbo[i], info->vbo[i + 1], info->vbo[i + 2]));
+        glm::vec3 v3 = glm::normalize(glm::vec3(vbo[i], vbo[i + 1], vbo[i + 2]));
         i += 12;
         glm::vec3 tricenter = glm::normalize((v1 + v2 + v3) * glm::vec3(0.33333333));
         glm::vec3 v1tov2 = glm::normalize((v1 + v2) * glm::vec3(0.5));
@@ -774,19 +744,20 @@ Object3dInfo * CosmosRenderer::subdivide(Object3dInfo * info)
             floats.push_back(v.x);
         }
     }
-    return new Object3dInfo(info->vulkan, floats);
+    return vulkan->getObject3dInfoFactory()->build(floats);
 }
 
 std::vector<Object3dInfo*> CosmosRenderer::splitTriangles(Object3dInfo * info)
 {
     std::vector<Object3dInfo*> objs = {};
 
-    for (int i = 0; i < info->vbo.size();) {
-        glm::vec3 v1 = glm::normalize(glm::vec3(info->vbo[i], info->vbo[i + 1], info->vbo[i + 2]));
+    auto vbo = info->getVBO();
+    for (int i = 0; i < vbo.size();) {
+        glm::vec3 v1 = glm::normalize(glm::vec3(vbo[i], vbo[i + 1], vbo[i + 2]));
         i += 12;
-        glm::vec3 v2 = glm::normalize(glm::vec3(info->vbo[i], info->vbo[i + 1], info->vbo[i + 2]));
+        glm::vec3 v2 = glm::normalize(glm::vec3(vbo[i], vbo[i + 1], vbo[i + 2]));
         i += 12;
-        glm::vec3 v3 = glm::normalize(glm::vec3(info->vbo[i], info->vbo[i + 1], info->vbo[i + 2]));
+        glm::vec3 v3 = glm::normalize(glm::vec3(vbo[i], vbo[i + 1], vbo[i + 2]));
         i += 12;
 
         auto buffer = std::vector<float>{
@@ -829,7 +800,7 @@ std::vector<Object3dInfo*> CosmosRenderer::splitTriangles(Object3dInfo * info)
             v3.z,
             v3.x
         };
-        objs.push_back(new Object3dInfo(info->vulkan, buffer));
+        objs.push_back(vulkan->getObject3dInfoFactory()->build(buffer));
     }
     return objs;
 }
