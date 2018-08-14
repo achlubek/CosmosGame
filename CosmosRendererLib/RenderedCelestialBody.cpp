@@ -24,7 +24,7 @@ RenderedCelestialBody::RenderedCelestialBody(
     waterRenderedDistanceImage(waterRenderedDistanceImage)
 {
     
-    dataBuffer = toolkit->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeUniform, sizeof(float) * 65535);
+    dataBuffer = toolkit->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeUniform, sizeof(float) * 1024);
 
     dataSet = dataSetLayout->generateDescriptorSet();
     
