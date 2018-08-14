@@ -139,7 +139,7 @@ void AbsGameContainer::startGameLoops()
 
         modelsRenderer->updateCameraBuffer(currentStage->getViewCamera()->getInternalCamera(), currentStage->getViewCamera()->getPosition());
         modelsRenderer->draw(currentStage);
-        currentStage->getUIRenderer()->draw();
+      //  currentStage->getUIRenderer()->draw();
 
 
         getParticlesRenderer()->draw();

@@ -467,7 +467,7 @@ void CosmosRenderer::draw(double time)
         for (int a = 0; a < renderables.size() - 1; a++) {
             renderables[a]->resizeDataImages(256, 256, 256, 256);
         }
-        renderables[renderables.size() - 1]->resizeDataImages(4096, 4096, 1024, 1024);
+        renderables[renderables.size() - 1]->resizeDataImages(2048, 2048, 1024, 1024);
 
     }
 

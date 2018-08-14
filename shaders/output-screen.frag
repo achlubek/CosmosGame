@@ -11,5 +11,5 @@ void main() {
     vec4 rendered = texture(texGameStageRenderResult, UV);
     vec4 ui = texture(texGameStageUI, UV);
 
-    outColor = vec4(mix(rendered.rgb, ui.rgb, ui.a), 1.0);
+    outColor = vec4(rendered.rgb, 1.0);
 }
