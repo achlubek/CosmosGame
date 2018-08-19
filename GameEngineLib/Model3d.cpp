@@ -20,7 +20,7 @@ Model3d::Model3d(VulkanToolkit * vulkan, VulkanDescriptorSetLayout * descriptorS
     emissionPoweredImage = vulkan->getVulkanImageFactory()->build(emission_powered_image);
 
     descriptorSet = descriptorSetLayout->generateDescriptorSet();
-    dataBuffer = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeUniform, sizeof(float) * 1024);
+    dataBuffer = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeStorage, sizeof(float) * 1024);
     descriptorSet->bindBuffer(0, dataBuffer);
     descriptorSet->bindImageViewSampler(1, albedoImage);
     descriptorSet->bindImageViewSampler(2, normalImage);
