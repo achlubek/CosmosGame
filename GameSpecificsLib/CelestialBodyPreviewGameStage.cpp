@@ -18,7 +18,7 @@
 CelestialBodyPreviewGameStage::CelestialBodyPreviewGameStage(AbsGameContainer* container, int64_t itargetStar, int64_t itargetPlanet, int64_t itargetMoon)
     : AbsGameStage(container), targetStar(itargetStar), targetPlanet(itargetPlanet), targetMoon(itargetMoon)
 {
-    INIReader* configreader = new INIReader("settings.ini");
+    INIReader* configreader = new INIReader(container->getVulkanToolkit()->getMedia(), "settings.ini");
 
     getViewCamera()->setStrategy(new ManualCameraStrategy());
     targetBody = getCosmosGameContainer()->getCosmosRenderer()->getGalaxy()->getByPath(targetStar, targetPlanet, targetMoon);
@@ -37,7 +37,7 @@ CelestialBodyPreviewGameStage::CelestialBodyPreviewGameStage(AbsGameContainer* c
         if (key == GLFW_KEY_O) {
             auto pointerdrivencamera = new PointerDrivenCameraStrategy();
             getViewCamera()->setStrategy(pointerdrivencamera);
-            auto scenario = CinematicScenarioReader(getCosmosGameContainer()->getInterpolator(), getCosmosGameContainer()->getCosmosRenderer(), pointerdrivencamera, getTimeProvider());
+            auto scenario = CinematicScenarioReader(getCosmosGameContainer()->getInterpolator(), getCosmosGameContainer()->getCosmosRenderer(), container->getVulkanToolkit()->getMedia(), pointerdrivencamera, getTimeProvider());
             disableThings = true;
             scenario.load("cinematic_scenario.txt", getTimeProvider()->getTime());
             scenario.execute();

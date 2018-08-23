@@ -3,7 +3,7 @@
 class CommandTerminal
 {
 public:
-    CommandTerminal(VEngine::UserInterface::UIRenderer* renderer, VEngine::Input::Keyboard* keyboards);
+    CommandTerminal(VEngine::UserInterface::UIRenderer* renderer, VEngine::Input::Keyboard* keyboards, VEngine::FileSystem::Media* media);
     ~CommandTerminal();
     void printMessage(VEngine::UserInterface::UIColor color, std::string msg);
     void clear();

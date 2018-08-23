@@ -4,11 +4,11 @@
 using namespace std;
 
 
-GameControls::GameControls(Keyboard* ikeyboard, Mouse* imouse, std::string inifile)
-    : keyboard(ikeyboard), mouse(imouse)
+GameControls::GameControls(Keyboard* ikeyboard, Mouse* imouse, Media* media, std::string inifile)
+    : keyboard(ikeyboard), mouse(imouse), media(media)
 {
-    INIReader reader = INIReader(inifile);
-    INIReader keynamemap = INIReader("keys_name_value_map.ini");
+    INIReader reader = INIReader(media, inifile);
+    INIReader keynamemap = INIReader(media, "keys_name_value_map.ini");
     auto allkeys = reader.getAllKeys();
     for (auto key : allkeys) {
         auto val = reader.gets(key);

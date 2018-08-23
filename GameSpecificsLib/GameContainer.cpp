@@ -30,14 +30,15 @@ GameContainer::GameContainer()
     galaxy->loadFromDatabase(galaxydb);
 
     auto vulkanToolkit = getVulkanToolkit();
+
     cosmosRenderer = new CosmosRenderer(vulkanToolkit, galaxy, getResolution().x, getResolution().y);
     cosmosRenderer->setExposure(0.0001);
     getModelsRenderer()->setRenderingScale(cosmosRenderer->scale);
     getParticlesRenderer()->setRenderingScale(cosmosRenderer->scale);
 
-    particleSystemFactory = new ParticleSystemFactory();
-    moduleFactory = new ModuleFactory(getModel3dFactory(), particleSystemFactory);
-    shipFactory = new ShipFactory(getModel3dFactory(), moduleFactory);
+    particleSystemFactory = new ParticleSystemFactory(vulkanToolkit->getMedia());
+    moduleFactory = new ModuleFactory(getModel3dFactory(), particleSystemFactory, vulkanToolkit->getMedia());
+    shipFactory = new ShipFactory(getModel3dFactory(), moduleFactory, vulkanToolkit->getMedia());
     playerFactory = new PlayerFactory();
 }
 

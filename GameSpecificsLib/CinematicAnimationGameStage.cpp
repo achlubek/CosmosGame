@@ -31,7 +31,7 @@ void CinematicAnimationGameStage::onSwitchTo()
     getGameContainer()->getInterpolator()->removeAllByTag(mediaKey);
     getViewCamera()->setStrategy(pointerDrivenCamera);
     auto container = static_cast<GameContainer*>(getGameContainer());
-    auto scenario = CinematicScenarioReader(getGameContainer()->getInterpolator(), container->getCosmosRenderer(), pointerDrivenCamera, getTimeProvider());
+    auto scenario = CinematicScenarioReader(getGameContainer()->getInterpolator(), container->getCosmosRenderer(), container->getVulkanToolkit()->getMedia(), pointerDrivenCamera, getTimeProvider());
     scenario.load(mediaKey, getTimeProvider()->getTime());
     animationDuration = scenario.getAnimationDuration();
     started = true;

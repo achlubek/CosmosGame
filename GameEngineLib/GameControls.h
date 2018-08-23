@@ -40,7 +40,7 @@ public:
 class GameControls
 {
 public:
-    GameControls(VEngine::Input::Keyboard* keyboard, VEngine::Input::Mouse* mouse, std::string inifile);
+    GameControls(VEngine::Input::Keyboard* keyboard, VEngine::Input::Mouse* mouse, VEngine::FileSystem::Media* media, std::string inifile);
     ~GameControls();
     VEngine::Utilities::EventHandler<std::string> onKeyDown;
     VEngine::Utilities::EventHandler<std::string> onKeyUp;
@@ -52,6 +52,7 @@ public:
 private:
     VEngine::Input::Keyboard * keyboard;
     VEngine::Input::Mouse* mouse;
+    VEngine::FileSystem::Media* media;
     std::map<std::string, int> simpleKeyBinds;
     std::map<std::string, ControlKeyAxis> keysAxisBinds;
 };

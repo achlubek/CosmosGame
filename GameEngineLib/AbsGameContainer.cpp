@@ -28,14 +28,18 @@ AbsGameContainer::AbsGameContainer()
 
     stageCollection = new GameStageCollection();
 
-    INIReader* configreader = new INIReader("settings.ini");
+    auto temporaryMedia = new Media();
+    temporaryMedia->scanDirectory("../../media");
+    INIReader* configreader = new INIReader(temporaryMedia, "settings.ini");
     width = configreader->geti("window_width");
     height = configreader->geti("window_height");
     vulkanToolkit = new VulkanToolkit(width, height, configreader->geti("enable_validation_layers") > 0, "Galaxy Game");
+    vulkanToolkit->getMedia()->scanDirectory("../../media");
+    vulkanToolkit->getMedia()->scanDirectory("../../shaders");
     
-    gameControls = new GameControls(vulkanToolkit->getKeyboard(), vulkanToolkit->getMouse(), "controls.ini");
+    gameControls = new GameControls(vulkanToolkit->getKeyboard(), vulkanToolkit->getMouse(), vulkanToolkit->getMedia(), "controls.ini");
 
-    model3dFactory = new Model3dFactory();
+    model3dFactory = new Model3dFactory(vulkanToolkit->getMedia());
 
 
     database = new SQLiteDatabase("gamedata.db");

@@ -63,7 +63,8 @@ void StarsRenderer::draw()
 void StarsRenderer::recompile()
 {
     safedelete(starsStage);
-    updateStarsBuffer();
+    createRenderStage();
+    doesNeedsRecording = true;
 }
 
 VulkanImage * StarsRenderer::getStarsImage()

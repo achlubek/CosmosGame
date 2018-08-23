@@ -2,10 +2,9 @@
 #include "CinematicScenarioReader.h"
 
 
-CinematicScenarioReader::CinematicScenarioReader(Interpolator* iinterpolator, CosmosRenderer* icosmos, PointerDrivenCameraStrategy* icamera, TimeProvider* itime)
-    : tasks({}), cosmos(icosmos), interpolator(iinterpolator), camera(icamera), time(itime)
+CinematicScenarioReader::CinematicScenarioReader(Interpolator* iinterpolator, CosmosRenderer* icosmos, Media* media, PointerDrivenCameraStrategy* icamera, TimeProvider* itime)
+    : tasks({}), cosmos(icosmos), interpolator(iinterpolator), camera(icamera), time(itime), media(media)
 {
-
 }
 
 
@@ -57,7 +56,7 @@ void CinematicScenarioReader::load(std::string mediakey, double timeOffset)
 {
     double frameTime = timeOffset;
     AbsCelestialObject* referenceFrame = &cosmos->getGalaxy()->getClosestCelestialBody();
-    auto lines = splitByChar(Media::readString(mediakey), '\n');
+    auto lines = splitByChar(media->readString(mediakey), '\n');
   //  double* exposurePointer = &cosmos->exposure;
     glm::dvec3 currentPos = glm::dvec3(0.0);
     glm::dvec3* positionPointer = camera->getPositionPointer();

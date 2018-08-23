@@ -6,9 +6,10 @@
 #include "INIReader.h"
 
 
-ModuleFactory::ModuleFactory(Model3dFactory* model3dFactory, ParticleSystemFactory* particleSystemFactory)
+ModuleFactory::ModuleFactory(Model3dFactory* model3dFactory, ParticleSystemFactory* particleSystemFactory, Media * media)
     : model3dFactory(model3dFactory),
-    particleSystemFactory(particleSystemFactory)
+    particleSystemFactory(particleSystemFactory),
+    media(media)
 {
 }
 
@@ -25,7 +26,7 @@ bool ends_with(std::string const & value, std::string const & ending)
 
 AbsComponent * ModuleFactory::build(std::string mediakey)
 {
-    INIReader reader = INIReader(mediakey);        
+    INIReader reader = INIReader(media, mediakey);
      
     if (ends_with(mediakey, ".engine.ini")) {
         auto particleSystem = particleSystemFactory->build(reader.gets("particle_system"));

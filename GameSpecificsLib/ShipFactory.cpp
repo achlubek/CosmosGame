@@ -18,8 +18,8 @@
 using json = nlohmann::json;
 
 
-ShipFactory::ShipFactory(Model3dFactory* imodel3dFactory, ModuleFactory* imoduleFactory)
-    : model3dFactory(imodel3dFactory), moduleFactory(imoduleFactory)
+ShipFactory::ShipFactory(Model3dFactory* imodel3dFactory, ModuleFactory* imoduleFactory, Media* media)
+    : model3dFactory(imodel3dFactory), moduleFactory(imoduleFactory), media(media)
 {
 }
 
@@ -49,7 +49,7 @@ GameObject * ShipFactory::build(std::string mediakey)
 {
     //INIReader reader = INIReader(mediakey);
 
-    auto data = json::parse(Media::readString(mediakey));
+    auto data = json::parse(media->readString(mediakey));
 
     GameObject* ship = new GameObject();
 

@@ -5,8 +5,8 @@
 #include "ParticlesRenderer.h"
 
 
-ParticleSystemFactory::ParticleSystemFactory()
-    : cache({})
+ParticleSystemFactory::ParticleSystemFactory(Media * media)
+    : cache({}), media(media)
 {
 }
 
@@ -20,7 +20,7 @@ ParticleSystem * ParticleSystemFactory::build(std::string mediakey)
     if (cache.find(mediakey) != cache.end())
         return cache.at(mediakey);
     
-    INIReader reader = INIReader(mediakey);
+    INIReader reader = INIReader(media, mediakey);
 
     auto texture = AbsGameContainer::getInstance()->getVulkanToolkit()->getVulkanImageFactory()->build(reader.gets("texture"));
 

@@ -5,7 +5,7 @@
 class CinematicScenarioReader
 {
 public:
-    CinematicScenarioReader(Interpolator* interpolator, CosmosRenderer* cosmos, PointerDrivenCameraStrategy* camera, TimeProvider* time);
+    CinematicScenarioReader(Interpolator* interpolator, CosmosRenderer* cosmos, VEngine::FileSystem::Media* media, PointerDrivenCameraStrategy* camera, TimeProvider* time);
     ~CinematicScenarioReader();
     void load(std::string mediakey, double timeOffset);
     void execute();
@@ -15,6 +15,7 @@ private:
     std::vector<AbsInterpolatorTask*> tasks;
     Interpolator* interpolator;
     CosmosRenderer* cosmos;
+    VEngine::FileSystem::Media* media;
     PointerDrivenCameraStrategy* camera;
     TimeProvider* time;
     double animationDuration{ 0 };

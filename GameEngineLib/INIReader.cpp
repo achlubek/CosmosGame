@@ -1,9 +1,9 @@
 #include "stdafx.h"
 using namespace std;
 
-INIReader::INIReader(string mediakey)
+INIReader::INIReader(Media* media, string mediakey)
 {
-    readString(Media::readString(mediakey));
+    readString(media->readString(mediakey));
 }
 
 void INIReader::splitBySpaces(vector<string>& output, string src)

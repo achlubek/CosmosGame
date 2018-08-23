@@ -2,7 +2,7 @@
 class INIReader
 {
 public:
-    INIReader(std::string mediakey);
+    INIReader(VEngine::FileSystem::Media* media, std::string mediakey);
     float getf(std::string key);
     glm::vec2 getv2(std::string key);
     glm::vec3 getv3(std::string key);

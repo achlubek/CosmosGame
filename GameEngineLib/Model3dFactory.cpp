@@ -5,7 +5,8 @@
 #include "ModelsRenderer.h"
 
 
-Model3dFactory::Model3dFactory()
+Model3dFactory::Model3dFactory(Media * media)
+    : media(media)
 {
 }
 
@@ -23,7 +24,7 @@ glm::dquat axes_vec3toquat(glm::dvec3 rot) {
 
 Model3d* Model3dFactory::build(std::string mediakey)
 {
-    INIReader reader = INIReader(mediakey);
+    INIReader reader = INIReader(media, mediakey);
     auto info3d = reader.gets("info3d_file");
     auto albedoImage = reader.gets("albedo_image");
     auto normalImage = reader.gets("normal_image");

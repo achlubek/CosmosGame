@@ -23,93 +23,28 @@ float rand2s2(vec2 co){
     return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
 }
 
-float A = 0.15;
-float B = 0.50;
-float C = 0.10;
-float D = 0.20;
-float E = 0.02;
-float F = 0.30;
-float W = 11.2;
-
-vec3 Uncharted2Tonemap(vec3 x) {
-   return ((x * (A * x + C * B) + D * E) / (x * (A * x + B) + D * F)) - E / F;
-}
-vec3 tonemapUncharted2(vec3 color) {
-    float ExposureBias = 2.0;
-    vec3 curr = Uncharted2Tonemap(ExposureBias * color);
-
-    vec3 whiteScale = 1.0 / Uncharted2Tonemap(vec3(W));
-    return curr * whiteScale;
-}
-
-vec3 gammacorrect(vec3 c){
-    return pow(c, vec3(1.0 / 2.4));
-}
-
-vec3 afl_tonemap(vec3 c){
-    /*
-    vec3 underExposed = c * 0.1;
-    vec3 mediumExposed = c * 1.1;
-    vec3 overExposed = c * 10.1;
-    float exposure = 0.0;//textureBicubic(c)
-    float divisor = 0.0;
-    vec3 pixel = vec3(1.0 / Resolution, 0.0);
-    vec3 bloom = vec3(0.0);
-    float lengthLimit = length(vec2(4.0, 4.0));
-    for(int x=-4;x<4;x++){
-        for(int y=-4;y<4;y++){
-            vec2 displacer = pixel.xy * vec2(x, y) * (1.0 - smoothstep(0.0, lengthLimit, length(vec2(x, y))));
-            vec4 celestial = texture(texCelestialAlpha, UV + displacer).rgba;
-            vec3 adddata = texture(texCelestialAdditive, UV + displacer).rgb;
-            exposure += length(celestial.rgb * celestial.a + adddata);
-            bloom += (celestial.rgb * celestial.a + adddata);
-            divisor += 1.0;
-        }
-    }
-    exposure /= divisor;
-    bloom /= divisor;
-    c += bloom;*/
-    vec3 bleachedShadows = pow(mix(c, vec3(length(c)), 0.17), vec3(2.0)) * 1.0;
-    vec3 dimmedIntensiveLight = c * 0.07;
-    vec3 result = normalize(c) * pow(length(c), 0.5);
-    float L = 0.27*c.r + 0.67*c.g + 0.06*c.b;
-    float B = 0.01*c.r + 0.47*c.g + 0.52*c.b;
-    float Ld = L / ( 0.01 + L * 5.0 );
-    vec3 bleachx = vec3(B) * vec3(0.01, 0.47, 0.52) * 0.02;
-    //return gammacorrect(bleachx);
-    return gammacorrect(Ld * c + bleachx);//gammacorrect(normalize(c) * 0.1 * pow(exposure, 0.7));
-}
-
 vec2 project(vec3 pos){
     vec4 tmp = (hiFreq.VPMatrix * vec4(pos, 1.0));
     return ((tmp.xy / tmp.w) * vec2(1.0, -1.0)) * 0.5 + 0.5;
 }
-mat3 ACESInputMat = mat3(
-    0.59719, 0.35458, 0.04823,
-    0.07600, 0.90834, 0.01566,
-    0.02840, 0.13383, 0.83777
-);
 
-mat3 ACESOutputMat = mat3(
-     1.60475, -0.53108, -0.07367,
-    -0.10208,  1.10813, -0.00605,
-    -0.00327, -0.07276,  1.07602
-);
-
-vec3 RRTAndODTFit(vec3 v)
-{
+vec3 aces_tonemap(vec3 color){
+    mat3 m1 = mat3(
+        0.59719, 0.07600, 0.02840,
+        0.35458, 0.90834, 0.13383,
+        0.04823, 0.01566, 0.83777
+    );
+    mat3 m2 = mat3(
+        1.60475, -0.10208, -0.00327,
+        -0.53108,  1.10813, -0.07276,
+        -0.07367, -0.00605,  1.07602
+    );
+    vec3 v = m1 * color;
     vec3 a = v * (v + 0.0245786) - 0.000090537;
     vec3 b = v * (0.983729 * v + 0.4329510) + 0.238081;
-    return a / b;
+    return pow(clamp(m2 * (a / b), 0.0, 1.0), vec3(1.0 / 2.2));
 }
 
-vec3 ACESFitted(vec3 color)
-{
-    color = transpose(ACESInputMat) * color;
-    color = RRTAndODTFit(color);
-    color = (transpose(ACESOutputMat) * color);
-    return gammacorrect(clamp(color, 0.0, 1.0));
-}
 #include camera.glsl
 #include pbr.glsl
 
@@ -218,5 +153,5 @@ void main() {
     a = mix(a, shaded, step(0.09, length(shipdata2.rgb))) + sunflare2;
     vec4 particlesData = texture(texParticlesResult, UV).rgba;
     a += particlesData.a == 0.0 ? vec3(0.0) : (particlesData.rgb);
-    outColor = vec4(ACESFitted(clamp(a, 0.0, 10000.0)), 1.0);
+    outColor = vec4(aces_tonemap(clamp(a, 0.0, 10000.0)), 1.0);
 }
