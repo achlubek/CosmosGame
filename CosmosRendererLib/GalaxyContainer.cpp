@@ -4,7 +4,7 @@
 
 GalaxyContainer::GalaxyContainer()
 {
-    onClosestStarChange = EventHandler<GeneratedStarInfo>();
+    onClosestStarChange = EventHandler<Star>();
     onClosestPlanetChange = EventHandler<CelestialBody>();
 }
 
@@ -13,12 +13,12 @@ GalaxyContainer::~GalaxyContainer()
 {
 }
 
-std::vector<GeneratedStarInfo>& GalaxyContainer::getAllStars()
+std::vector<Star>& GalaxyContainer::getAllStars()
 {
     return allStars;
 }
 
-GeneratedStarInfo GalaxyContainer::getClosestStar()
+Star GalaxyContainer::getClosestStar()
 {
     return closestStar;
 }
@@ -79,7 +79,7 @@ void GalaxyContainer::loadFromDatabase(SQLiteDatabase * db)
     auto starsdata = database->query("SELECT * FROM stars ORDER BY id ASC");
     for (int i = 0; i < starsdata.size(); i++) {
         auto starrow = starsdata[i];
-        auto star = GeneratedStarInfo();
+        auto star = Star();
         star.starId = aslonglong(starrow["id"]);
         star.x = aslonglong(starrow["x"]);
         star.y = aslonglong(starrow["y"]);
@@ -125,7 +125,7 @@ void GalaxyContainer::update(glm::dvec3 observerPosition)
     updateClosestCelestialBody(observerPosition);
 }
 
-std::vector<CelestialBody> GalaxyContainer::loadPlanetsByStar(GeneratedStarInfo& star)
+std::vector<CelestialBody> GalaxyContainer::loadPlanetsByStar(Star& star)
 {
     auto planets = std::vector<CelestialBody>();
     auto planetsdata = database->query("SELECT * FROM bodies WHERE parentid = 0 AND starid = " + std::to_string(star.starId));
@@ -134,7 +134,7 @@ std::vector<CelestialBody> GalaxyContainer::loadPlanetsByStar(GeneratedStarInfo&
         auto planet = CelestialBody();
         planet.bodyId = aslong(planetrow["id"]);
         planet.host = &star;
-        planet.starhost = static_cast<GeneratedStarInfo*>(&star);
+        planet.starhost = static_cast<Star*>(&star);
         planet.radius = asdouble(planetrow["radius"]);
         planet.terrainMaxLevel = asdouble(planetrow["terrain_max"]);
         planet.fluidMaxLevel = asdouble(planetrow["fluid_max"]);
@@ -170,7 +170,7 @@ std::vector<CelestialBody> GalaxyContainer::loadMoonsByPlanet(CelestialBody& pla
         auto moon = CelestialBody();
         moon.bodyId = aslong(moonrow["id"]);
         moon.host = &planet;
-        moon.starhost = static_cast<GeneratedStarInfo*>(planet.host);
+        moon.starhost = static_cast<Star*>(planet.host);
         moon.radius = asdouble(moonrow["radius"]);
         moon.terrainMaxLevel = asdouble(moonrow["terrain_max"]);
         moon.fluidMaxLevel = asdouble(moonrow["fluid_max"]);
@@ -199,7 +199,7 @@ std::vector<CelestialBody> GalaxyContainer::loadMoonsByPlanet(CelestialBody& pla
 
 void GalaxyContainer::updateClosestStar(glm::dvec3 observerPosition)
 {
-    GeneratedStarInfo result;
+    Star result;
     double closestDistance = 99999999999999.0;
     for (int s = 0; s < allStars.size(); s++) {
         auto star = allStars[s];
@@ -289,7 +289,7 @@ AbsCelestialObject * GalaxyContainer::getByPath(int starId, int planetId, int mo
 {
     auto star = getAllStars()[starId - 1];
     if (planetId <= 0) return &star;
-    GeneratedStarInfo* starinfo = new GeneratedStarInfo();
+    Star* starinfo = new Star();
     *starinfo = star;
     auto celestialTarget = loadPlanetsByStar(star)[planetId - 1];
     auto planet = new CelestialBody();

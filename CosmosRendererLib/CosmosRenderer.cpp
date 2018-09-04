@@ -182,7 +182,7 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, i
 
     recompileShaders(false);
 
-    galaxy->onClosestStarChange.add([&](GeneratedStarInfo star) { onClosestStarChange(star); });
+    galaxy->onClosestStarChange.add([&](Star star) { onClosestStarChange(star); });
     galaxy->onClosestPlanetChange.add([&](CelestialBody planet) { onClosestPlanetChange(planet); });
 
 
@@ -607,7 +607,7 @@ void CosmosRenderer::draw(double time)
 #endif
 }
 
-void CosmosRenderer::onClosestStarChange(GeneratedStarInfo star)
+void CosmosRenderer::onClosestStarChange(Star star)
 {
 }
 

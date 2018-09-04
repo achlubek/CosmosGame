@@ -1,6 +1,6 @@
 #pragma once
 #include "AbsCelestialObject.h"
-#include "GeneratedStarInfo.h"
+#include "Star.h"
 enum CelestialRenderMethod {
     noAtmosphere = 1,
     lightAtmosphere = 2,
@@ -26,7 +26,7 @@ public:
     // 
     double rotationSpeed;
     AbsCelestialObject* host{ nullptr };
-    GeneratedStarInfo* starhost{ nullptr };
+    Star* starhost{ nullptr };
     uint64_t bodyId;
 
     glm::dvec3 getPosition(double at_time) {

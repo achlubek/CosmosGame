@@ -1,5 +1,5 @@
 #pragma once
-#include "GeneratedStarInfo.h"
+#include "Star.h"
 #include "CelestialBody.h"
 #include "RenderedCelestialBody.h"
 class SQLiteDatabase;
@@ -8,8 +8,8 @@ class GalaxyContainer
 public:
     GalaxyContainer();
     ~GalaxyContainer();
-    std::vector<GeneratedStarInfo>& getAllStars();
-    GeneratedStarInfo getClosestStar();
+    std::vector<Star>& getAllStars();
+    Star getClosestStar();
     CelestialBody getClosestPlanet();
     CelestialBody getClosestMoon();
     CelestialBody getClosestCelestialBody();
@@ -22,21 +22,21 @@ public:
 
     AbsCelestialObject* getByPath(int starId, int planetId = 0, int moonId = 0);
 
-    EventHandler<GeneratedStarInfo> onClosestStarChange;
+    EventHandler<Star> onClosestStarChange;
     EventHandler<CelestialBody> onClosestPlanetChange;
     EventHandler<CelestialBody> onClosestMoonChange;
     void setBodyUpdates(bool enable);
 private:
     SQLiteDatabase* database;
-    std::vector<GeneratedStarInfo> allStars;
-    GeneratedStarInfo closestStar;
+    std::vector<Star> allStars;
+    Star closestStar;
     CelestialBody closestPlanet;
     CelestialBody closestMoon;
     CelestialBody closestCelestialBody;
     std::vector<CelestialBody> closestStarPlanets;
     std::vector<CelestialBody> closestPlanetMoons;
 
-    std::vector<CelestialBody> loadPlanetsByStar(GeneratedStarInfo& star);
+    std::vector<CelestialBody> loadPlanetsByStar(Star& star);
     std::vector<CelestialBody> loadMoonsByPlanet(CelestialBody& planet);
     void updateClosestStar(glm::dvec3 observerPosition);
     void updateClosestPlanet(glm::dvec3 observerPosition);

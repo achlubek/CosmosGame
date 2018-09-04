@@ -8,34 +8,39 @@ out gl_PerVertex {
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec2 inTexCoord;
 
-layout(location = 0) out vec2 outTexCoord;
-layout(location = 1) out flat uint inInstanceId;
-layout(location = 2) out vec3 outWorldPos;
+layout(location = 0) out flat uint inInstanceId;
 
 #include rendererDataSet.glsl
 
 struct GeneratedStarInfo {
     vec4 position_radius;
-    vec4 color_age; //0->maybe 10? maybe 100?
-    vec4 orbitPlane_rotationSpeed;
-    vec4 spotsIntensity_zero_zero_zero; //0->1
+    vec4 color_zero; //0->maybe 10? maybe 100?
 };
 
 layout(set = 1, binding = 0) buffer StarsStorageBuffer {
-    ivec4 count;
     GeneratedStarInfo stars[];
 } starsBuffer;
 
 void main() {
     inInstanceId = gl_InstanceIndex;
-    vec4 posradius = starsBuffer.stars[gl_InstanceIndex].position_radius;
-    posradius.xyz -= CameraPosition;
-    float dist = min(300000.0, length(posradius.xyz));
-    outWorldPos = normalize(posradius.xyz) * dist + inPosition.xyz * posradius.a * 2.0;
-    // + inPosition.xyz * starsBuffer.stars[gl_InstanceIndex].position_radius.a * 7.0;
-    vec4 opo = (hiFreq.VPMatrix) * vec4(outWorldPos, 1.0);
-    opo.y *= -1.0;
-    vec2 newuv = (opo.xy / opo.w) * 0.5 + 0.5;
-    outTexCoord = newuv;
-    gl_Position = opo; //    gl_Position = vec4(inPosition.xyz, 1.0);
+
+    // get star data
+    vec3 starPosition = starsBuffer.stars[gl_InstanceIndex].position_radius.xyz;
+    float starRadius = starsBuffer.stars[gl_InstanceIndex].position_radius.a;
+
+    // transform star position into camera space
+    starPosition -= CameraPosition;
+
+    // calculate real distance and clamp it to avoid invisible stars
+    float dist = min(250000.0, length(starPosition));
+
+    // calculate camera space position of the vertex, 2.0 multiplier to avoid bugs at edges
+    vec3 cameraSpacePos = normalize(starPosition) * dist + inPosition.xyz * starRadius * 2.0;
+
+    // project the vertex
+    vec4 outPos = (hiFreq.VPMatrix) * vec4(cameraSpacePos, 1.0);
+
+    outPos.y *= -1.0;
+    vec2 newuv = (outPos.xy / outPos.w) * 0.5 + 0.5;
+    gl_Position = outPos;
 }

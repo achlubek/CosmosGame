@@ -3,7 +3,7 @@
 
 #include "Transformation3DComponent.h"
 #include "ThrustGeneratorComponent.h"
-#include "GeneratedStarInfo.h"
+#include "Star.h"
 #include "CelestialBody.h"
 #include "GameContainer.h"
 #include "ShipFactory.h"
@@ -61,7 +61,7 @@ FreeFlightGameStage::FreeFlightGameStage(AbsGameContainer* container)
     auto dist = targetBody->radius;
     auto velocity = targetBody->getLinearVelocity(getTimeProvider()->getTime());
 
-    galaxy->onClosestStarChange.add([&](GeneratedStarInfo star) {
+    galaxy->onClosestStarChange.add([&](Star star) {
         getCosmosGameContainer()->getCosmosRenderer()->invokeOnDrawingThread([=]() {
             starNameText->updateText("Star: " + std::to_string(star.starId));
         });

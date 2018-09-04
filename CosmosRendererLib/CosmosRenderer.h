@@ -112,7 +112,7 @@ private:
     void* moonsDataBufferPointer;
 
 
-    void onClosestStarChange(GeneratedStarInfo star);
+    void onClosestStarChange(Star star);
     void onClosestPlanetChange(CelestialBody planet);
 
     std::vector<RenderedCelestialBody*> renderablePlanets;

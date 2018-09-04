@@ -32,7 +32,7 @@ StarsRenderer::StarsRenderer(VulkanToolkit* vulkan,
 
     updateStarsBuffer();
 
-    doesNeedsRecording = true;
+    doesNeedRecording = true;
 }
 
 
@@ -49,13 +49,13 @@ StarsRenderer::~StarsRenderer()
 
 void StarsRenderer::draw()
 {
-    if (doesNeedsRecording) {
+    if (doesNeedRecording) {
         starsStage->beginDrawing();
 
         starsStage->drawMesh(cube3dInfo, galaxy->getStarsCount());
 
         starsStage->endDrawing();
-        doesNeedsRecording = false;
+        doesNeedRecording = false;
     }
     starsStage->submitNoSemaphores({});
 }
@@ -64,7 +64,7 @@ void StarsRenderer::recompile()
 {
     safedelete(starsStage);
     createRenderStage();
-    doesNeedsRecording = true;
+    doesNeedRecording = true;
 }
 
 VulkanImage * StarsRenderer::getStarsImage()
@@ -76,34 +76,21 @@ void StarsRenderer::updateStarsBuffer()
 {
     VulkanBinaryBufferBuilder starsBB = VulkanBinaryBufferBuilder();
     auto stars = galaxy->getAllStars();
-    starsBB.emplaceInt32(stars.size());
-    starsBB.emplaceInt32(stars.size());
-    starsBB.emplaceInt32(stars.size());
-    starsBB.emplaceInt32(stars.size());
+
     for (int s = 0; s < stars.size(); s++) {
         auto star = stars[s];
 
         glm::dvec3 starpos = star.getPosition(0.0) * scale;
 
-        starsBB.emplaceFloat32((float)starpos.x);
-        starsBB.emplaceFloat32((float)starpos.y);
-        starsBB.emplaceFloat32((float)starpos.z);
-        starsBB.emplaceFloat32((float)star.radius * scale);
+        starsBB.emplaceFloat32(starpos.x);
+        starsBB.emplaceFloat32(starpos.y);
+        starsBB.emplaceFloat32(starpos.z);
+        starsBB.emplaceFloat32(star.radius * scale);
 
-        starsBB.emplaceFloat32((float)star.color.x);
-        starsBB.emplaceFloat32((float)star.color.y);
-        starsBB.emplaceFloat32((float)star.color.z);
-        starsBB.emplaceFloat32((float)star.age);
-
-        starsBB.emplaceFloat32((float)star.orbitPlane.x);
-        starsBB.emplaceFloat32((float)star.orbitPlane.y);
-        starsBB.emplaceFloat32((float)star.orbitPlane.z);
-        starsBB.emplaceFloat32((float)star.rotationSpeed);
-
-        starsBB.emplaceFloat32((float)star.spotsIntensity);
-        starsBB.emplaceFloat32((float)0.0f);
-        starsBB.emplaceFloat32((float)0.0f);
-        starsBB.emplaceFloat32((float)0.0f);
+        starsBB.emplaceFloat32(star.color.x);
+        starsBB.emplaceFloat32(star.color.y);
+        starsBB.emplaceFloat32(star.color.z);
+        starsBB.emplaceFloat32(star.age);
     }
     void* data;
     starsDataBuffer->map(0, starsBB.buffer.size(), &data);

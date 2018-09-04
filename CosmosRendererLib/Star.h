@@ -1,10 +1,10 @@
 #pragma once
 #include "AbsCelestialObject.h"
-class GeneratedStarInfo : public AbsCelestialObject
+class Star : public AbsCelestialObject
 {
 public:
-    GeneratedStarInfo();
-    ~GeneratedStarInfo();
+    Star();
+    ~Star();
 
     int64_t x;
     int64_t y;

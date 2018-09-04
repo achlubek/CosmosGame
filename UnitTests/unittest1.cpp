@@ -11,7 +11,7 @@
 #include "glm/gtc/type_ptr.hpp"
 #include <vector>
 #include "AbsCelestialObject.h"
-#include "GeneratedStarInfo.h"
+#include "Star.h"
 #include "CelestialBody.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
@@ -24,7 +24,7 @@ namespace UnitTests
 
         TEST_METHOD(TestGravityStrength)
         {
-            GeneratedStarInfo star = {};
+            Star star = {};
             star.radius = 12345.0;
             star.x = 0;
             star.y = 0;
@@ -75,7 +75,7 @@ namespace UnitTests
 
         TEST_METHOD(TestOrbitalVelocity)
         {
-            GeneratedStarInfo star = {};
+            Star star = {};
             star.radius = 12345.0;
             star.x = 0;
             star.y = 0;

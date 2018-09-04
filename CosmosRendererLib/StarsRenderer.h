@@ -21,7 +21,7 @@ private:
     int width;
     int height;
     double scale;
-    bool doesNeedsRecording;
+    bool doesNeedRecording;
 
     VulkanDescriptorSetLayout* starsDataLayout{ nullptr };
     VulkanDescriptorSet* starsDataSet{ nullptr };

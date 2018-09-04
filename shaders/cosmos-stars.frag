@@ -1,82 +1,58 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout(location = 0) in vec2 UV;
-layout(location = 1) in flat uint inInstanceId;
-layout(location = 2) in vec3 inWorldPos;
+layout(location = 0) in flat uint inInstanceId;
 layout(location = 0) out vec4 outColor;
 
 #include rendererDataSet.glsl
 #include camera.glsl
+#include sphereRaytracing.glsl
 
 struct GeneratedStarInfo {
     vec4 position_radius;
-    vec4 color_age; //0->maybe 10? maybe 100?
-    vec4 orbitPlane_rotationSpeed;
-    vec4 spotsIntensity_zero_zero_zero; //0->1
+    vec4 color_zero;
 };
 
 layout(set = 1, binding = 0) buffer StarsStorageBuffer {
-    ivec4 count;
     GeneratedStarInfo stars[];
 } starsBuffer;
-
-
-struct Ray { vec3 o; vec3 d; };
-struct Sphere { vec3 pos; float rad; };
-float rsi2_simple(in Ray ray, in Sphere sphere)
-{
-    vec3 oc = ray.o - sphere.pos;
-    float b = 2.0 * dot(ray.d, oc);
-    return -b - sqrt(b * b - 4.0 * (dot(oc, oc) - sphere.rad*sphere.rad));
-}
-vec2 rsi2(in Ray ray, in Sphere sphere)
-{
-    vec3 oc = ray.o - sphere.pos;
-    float b = 2.0 * dot(ray.d, oc);
-    float c = dot(oc, oc) - sphere.rad*sphere.rad;
-    float disc = b * b - 4.0 * c;
-    vec2 ex = vec2(-b - sqrt(disc), -b + sqrt(disc))/2.0;
-    return vec2(min(ex.x, ex.y), max(ex.x, ex.y));
-}
-float rand2s(vec2 co){
-    return fract(sin(dot(co.xy * Time,vec2(12.9898,78.233))) * 43758.5453);
-}
-
-float infinity = 1.0 / 0.0;
-Ray cameraRay;
-#define hits(a) (a > 0.0 && a < infinity)
-
-// BEGIN STAR RENDERING
 
 GeneratedStarInfo currentStar;
 
 vec3 traceStarGlow(Ray ray){
-    float fov = sqrt(length(FrustumConeBottomLeftToBottomRight)) * 0.5;
-    float dtraw = dot(normalize(currentStar.position_radius.rgb  - ray.o), ray.d);
-    float dotz = max(0.0, dtraw);
+    // calculate fov coefficent to adjust star size
+    float fovCoefficent = sqrt(length(FrustumConeBottomLeftToBottomRight)) * 0.5;
 
+    // get star data
+    vec3 starPosition = currentStar.position_radius.xyz;
+    float starRadius = currentStar.position_radius.a;
 
-    vec4 posradius = currentStar.position_radius;
-    posradius.xyz -= CameraPosition;
-    float realdist = length(posradius.xyz);
-    float dist = min(250000.0 / fov, realdist);
-    float camdist = dist;
+    // transform star position into camera space
+    starPosition -= CameraPosition;
 
-    vec3 reconpoint = ray.o + ray.d * camdist;
-    float deltadst = distance(ray.o + normalize(posradius.xyz) * dist, reconpoint);
-    float prcnt = max(0.0, 1.0 - deltadst / (currentStar.position_radius.a * 1.0 * fov));
-    float prcnt2 = max(0.0, 1.0 - deltadst / (currentStar.position_radius.a * 4.0 * fov));
-    prcnt *= prcnt;
-    camdist = distance(CameraPosition, currentStar.position_radius.xyz);
-    camdist *= 0.001;
-    //camdist = min(camdist, 66000.0);
-    float cst2 = camdist * 0.001 * fov;
-    float dim = clamp(1.0 /(1.0 + cst2 * cst2 * 0.06), 0.0001, 1.0);
-    dim = pow(dim,1.2);
+    // calculate real distance and clamp it to avoid invisible stars
+    float realdist = length(starPosition);
+    float dist = min(250000.0 / fovCoefficent, realdist);
 
-    return dim * (prcnt * 14.9 ) * currentStar.color_age.xyz;
+    // reconstruct ray hit and star center points with clamped distance
+    vec3 rayHitPoint = ray.o + ray.d * dist;
+    vec3 starCenterPoint = ray.o + normalize(starPosition) * dist;
 
+    // calculate the distance between ray hit and star center
+    float hitDistance = distance(starCenterPoint, rayHitPoint);
+
+    // calculate nice circular shape by 1.0 - distance / radius formula, modulated by fov
+    float light = max(0.0, 1.0 - hitDistance / (starRadius * fovCoefficent));
+
+    // some fine tuning
+    light *= light;
+
+    // hacky way to dim stars that are beyond distance clamping range
+    float cst2 = realdist * 0.000001 * fovCoefficent;
+    float dim = clamp(1.0 / (1.0 + cst2 * cst2 * 0.06), 0.0001, 1.0);
+    dim = pow(dim, 1.2);
+
+    return dim * light * currentStar.color_zero.xyz;
 }
 
 void main() {
@@ -85,6 +61,6 @@ void main() {
     posradius.xyz -= CameraPosition;
     Ray cameraRay = Ray(CameraPosition, reconstructCameraSpaceDistance(gl_FragCoord.xy / Resolution, 1.0));
 
-    outColor = vec4(traceStarGlow(cameraRay) * (Exposure * 13400.0), 1.0);
+    outColor = vec4(traceStarGlow(cameraRay) * (Exposure * 199660.0), 1.0);
 
 }

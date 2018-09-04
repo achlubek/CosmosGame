@@ -152,7 +152,7 @@
     <ClInclude Include="CelestialBody.h" />
     <ClInclude Include="CosmosRenderer.h" />
     <ClInclude Include="GalaxyContainer.h" />
-    <ClInclude Include="GeneratedStarInfo.h" />
+    <ClInclude Include="Star.h" />
     <ClInclude Include="InvokeQueue.h" />
     <ClInclude Include="RenderedCelestialBody.h" />
     <ClInclude Include="StarsRenderer.h" />
@@ -164,7 +164,7 @@
     <ClCompile Include="CelestialBody.cpp" />
     <ClCompile Include="CosmosRenderer.cpp" />
     <ClCompile Include="GalaxyContainer.cpp" />
-    <ClCompile Include="GeneratedStarInfo.cpp" />
+    <ClCompile Include="Star.cpp" />
     <ClCompile Include="InvokeQueue.cpp" />
     <ClCompile Include="RenderedCelestialBody.cpp" />
     <ClCompile Include="StarsRenderer.cpp" />

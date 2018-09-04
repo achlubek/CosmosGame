@@ -2,7 +2,7 @@
 #include "ModelPreviewGameStage.h"
 #include "Transformation3DComponent.h"
 #include "ThrustGeneratorComponent.h"
-#include "GeneratedStarInfo.h"
+#include "Star.h"
 #include "CelestialBody.h"
 #include "GameContainer.h"
 #include "ShipFactory.h"

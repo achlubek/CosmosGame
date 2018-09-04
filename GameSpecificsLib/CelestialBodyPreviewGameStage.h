@@ -1,6 +1,6 @@
 #pragma once
 #include "AbsGameStage.h"
-#include "GeneratedStarInfo.h"
+#include "Star.h"
 #include "CelestialBody.h"
 class AbsCelestialObject;
 class GameContainer;
@@ -12,7 +12,7 @@ public:
 private:
     AbsCelestialObject * targetBody;
     CelestialBody celestialTarget;
-    GeneratedStarInfo star;
+    Star star;
     glm::dvec3 center = glm::dvec3(0.0);
     double dist = 0.0;
     float fov = 90.0f;
