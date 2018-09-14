@@ -13,7 +13,7 @@ public:
     VEngine::Renderer::VulkanImage* getNormalMetalnessImage();
     VEngine::Renderer::VulkanImage* getDistanceImage();
     VEngine::Renderer::VulkanDescriptorSetLayout* getModelMRTLayout();
-    void updateCameraBuffer(Camera * camera, glm::dvec3 observerPosition);
+    void updateCameraBuffer(Camera * camera);
 private:
     VEngine::Renderer::VulkanToolkit* vulkan;
     int width;

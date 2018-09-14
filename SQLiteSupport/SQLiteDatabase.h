@@ -9,6 +9,7 @@ public:
     SQLiteDatabase(std::string path);
     ~SQLiteDatabase();
     std::vector<std::map<std::string, std::string>> query(std::string sql);
+    void nonquery(std::string sql);
 private:
     sqlite3 *db = nullptr;
 };

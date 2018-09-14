@@ -1,7 +1,7 @@
 {
 	"name": "Orbiter 1",
 	"mass": 10000.0,
-	"models": ["orbiter1_cargo.model3d.ini", "orbiter1_cupola.model3d.ini"],
+	"models": ["orbiter1_cargo.model3d.ini"],
 	"modules": [{
 			"type": "engine",
 			"pos": {

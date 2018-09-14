@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "GalaxyContainer.h"
-#include "SQLiteDatabase.h"
 
 GalaxyContainer::GalaxyContainer()
 {
@@ -102,27 +101,27 @@ void GalaxyContainer::loadFromDatabase(SQLiteDatabase * db)
     countbodydata += allStars.size();
 }
 
-void GalaxyContainer::update(glm::dvec3 observerPosition)
+void GalaxyContainer::update(glm::dvec3 observerPosition, double time)
 {
     if (disableBodyUpdates) return;
-    updateClosestStar(observerPosition);
+    updateClosestStar(observerPosition, time);
     if (lastStarId != closestStar.starId) {
         lastStarId = closestStar.starId;
         closestStarPlanets = loadPlanetsByStar(closestStar);
         onClosestStarChange.invoke(closestStar);
     }
-    updateClosestPlanet(observerPosition);
+    updateClosestPlanet(observerPosition, time);
     if (lastPlanetId != closestPlanet.bodyId) {
         lastPlanetId = closestPlanet.bodyId;
         closestPlanetMoons = loadMoonsByPlanet(closestPlanet);
         onClosestPlanetChange.invoke(closestPlanet);
     }
-    updateClosestMoon(observerPosition);
+    updateClosestMoon(observerPosition, time);
     if (lastMoonId != closestMoon.bodyId) {
         lastMoonId = closestMoon.bodyId;
         onClosestMoonChange.invoke(closestMoon);
     }
-    updateClosestCelestialBody(observerPosition);
+    updateClosestCelestialBody(observerPosition, time);
 }
 
 std::vector<CelestialBody> GalaxyContainer::loadPlanetsByStar(Star& star)
@@ -197,14 +196,14 @@ std::vector<CelestialBody> GalaxyContainer::loadMoonsByPlanet(CelestialBody& pla
     return moons;
 }
 
-void GalaxyContainer::updateClosestStar(glm::dvec3 observerPosition)
+void GalaxyContainer::updateClosestStar(glm::dvec3 observerPosition, double time)
 {
     Star result;
     double closestDistance = 99999999999999.0;
     for (int s = 0; s < allStars.size(); s++) {
         auto star = allStars[s];
 
-        glm::dvec3 pos = star.getPosition(glfwGetTime());
+        glm::dvec3 pos = star.getPosition(time);
         glm::dvec3 relpos = pos - observerPosition;
 
         double dst = glm::length(relpos);
@@ -216,14 +215,14 @@ void GalaxyContainer::updateClosestStar(glm::dvec3 observerPosition)
     closestStar = result;
 }
 
-void GalaxyContainer::updateClosestPlanet(glm::dvec3 observerPosition)
+void GalaxyContainer::updateClosestPlanet(glm::dvec3 observerPosition, double time)
 {
     CelestialBody result;
     double closestDistance = 99999999999999.0;
     for (int s = 0; s < closestStarPlanets.size(); s++) {
         auto planet = closestStarPlanets[s];
 
-        glm::dvec3 pos = planet.getPosition(glfwGetTime());
+        glm::dvec3 pos = planet.getPosition(time);
         glm::dvec3 relpos = pos - observerPosition;
 
         double dst = glm::length(relpos);
@@ -235,14 +234,14 @@ void GalaxyContainer::updateClosestPlanet(glm::dvec3 observerPosition)
     closestPlanet = result;
 }
 
-void GalaxyContainer::updateClosestMoon(glm::dvec3 observerPosition)
+void GalaxyContainer::updateClosestMoon(glm::dvec3 observerPosition, double time)
 {
     CelestialBody result;
     double closestDistance = 99999999999999.0;
     for (int s = 0; s < closestPlanetMoons.size(); s++) {
         auto moon = closestPlanetMoons[s];
 
-        glm::dvec3 pos = moon.getPosition(glfwGetTime());
+        glm::dvec3 pos = moon.getPosition(time);
         glm::dvec3 relpos = pos - observerPosition;
 
         double dst = glm::length(relpos);
@@ -254,14 +253,14 @@ void GalaxyContainer::updateClosestMoon(glm::dvec3 observerPosition)
     closestMoon = result;
 }
 
-void GalaxyContainer::updateClosestCelestialBody(glm::dvec3 observerPosition)
+void GalaxyContainer::updateClosestCelestialBody(glm::dvec3 observerPosition, double time)
 {
     CelestialBody result;
     double closestDistance = 99999999999999.0;
     for (int s = 0; s < closestStarPlanets.size(); s++) {
         auto planet = closestStarPlanets[s];
 
-        glm::dvec3 pos = planet.getPosition(glfwGetTime());
+        glm::dvec3 pos = planet.getPosition(time);
         glm::dvec3 relpos = pos - observerPosition;
 
         double dst = glm::length(relpos);
@@ -273,7 +272,7 @@ void GalaxyContainer::updateClosestCelestialBody(glm::dvec3 observerPosition)
     for (int s = 0; s < closestPlanetMoons.size(); s++) {
         auto moon = closestPlanetMoons[s];
 
-        glm::dvec3 pos = moon.getPosition(glfwGetTime());
+        glm::dvec3 pos = moon.getPosition(time);
         glm::dvec3 relpos = pos - observerPosition;
 
         double dst = glm::length(relpos);

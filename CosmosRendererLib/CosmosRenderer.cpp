@@ -1,13 +1,5 @@
 #include "stdafx.h"
 #include "CosmosRenderer.h"
-#include "SceneProvider.h"
-#include "GalaxyContainer.h"
-#include "AbsGameContainer.h"
-#include "ModelsRenderer.h"
-#include "TimeProvider.h"
-#include "ParticlesRenderer.h"
-#include "AbsGameStage.h"
-#include "StarsRenderer.h"
 
 
 CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, int width, int height) :
@@ -61,15 +53,13 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, i
 
     surfaceRenderedDistanceImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::R32f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
 
-    surfaceRenderedDepthImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::Depth32f, VulkanImageUsage::Depth);
+    renderedDepthImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::Depth32f, VulkanImageUsage::Depth);
 
     //#######//
 
     waterRenderedNormalMetalnessImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA16f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
 
     waterRenderedDistanceImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::R32f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
-
-    waterRenderedDepthImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::Depth32f, VulkanImageUsage::Depth);
 
     //#########//
 
@@ -118,9 +108,9 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, i
     celestialBodyDataSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeStorageImage, VulkanDescriptorSetFieldStage::FieldStageCompute);
     celestialBodyDataSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeStorageImage, VulkanDescriptorSetFieldStage::FieldStageCompute);
 
-    celestiaStarsBlitSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
-    celestiaStarsBlitSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageCompute);
-    celestiaStarsBlitSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeStorageImage, VulkanDescriptorSetFieldStage::FieldStageCompute);
+    celestialStarsBlitSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
+    celestialStarsBlitSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageCompute);
+    celestialStarsBlitSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeStorageImage, VulkanDescriptorSetFieldStage::FieldStageCompute);
 
     celestialBodyRenderSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
     celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
@@ -176,7 +166,7 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, i
         shadowMapsCollectionSet->bindImageViewSampler(i, shadowmaps[i]);
     }
 
-    celestiaStarsBlitSet = celestiaStarsBlitSetLayout->generateDescriptorSet();
+    celestiaStarsBlitSet = celestialStarsBlitSetLayout->generateDescriptorSet();
     celestiaStarsBlitSet->bindImageViewSampler(0, starsRenderer->getStarsImage());
     celestiaStarsBlitSet->bindImageStorage(1, celestialAlphaImage);
 
@@ -238,7 +228,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
             surfaceRenderedAlbedoRoughnessImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
             surfaceRenderedNormalMetalnessImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
             surfaceRenderedDistanceImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
-            surfaceRenderedDepthImage->getAttachment(VulkanAttachmentBlending::None)
+            renderedDepthImage->getAttachment(VulkanAttachmentBlending::None)
         }, VulkanCullMode::CullModeFront);
 
     //**********************//
@@ -251,7 +241,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
         {
             waterRenderedNormalMetalnessImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
             waterRenderedDistanceImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
-            waterRenderedDepthImage->getAttachment(VulkanAttachmentBlending::None)
+            renderedDepthImage->getAttachment(VulkanAttachmentBlending::None)
         });
 
     //**********************//
@@ -262,7 +252,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     //**********************//
     auto celestialblitcompute = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Compute, "celestial-blit-stars.comp.spv");
 
-    celestialStarsBlitComputeStage = vulkan->getVulkanComputeStageFactory()->build(celestialblitcompute, { celestiaStarsBlitSetLayout });
+    celestialStarsBlitComputeStage = vulkan->getVulkanComputeStageFactory()->build(celestialblitcompute, { celestialStarsBlitSetLayout });
 
     //**********************//
 
@@ -310,27 +300,20 @@ void CosmosRenderer::unmapBuffers()
     moonsDataBuffer->unmap();
 }
 
-void CosmosRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosition, double time)
+void CosmosRenderer::updateCameraBuffer(Camera * camera, double time)
 {
+    observerCameraPosition = camera->getPosition();
     VulkanBinaryBufferBuilder bb = VulkanBinaryBufferBuilder();
     double xpos, ypos;
     auto cursorpos = vulkan->getMouse()->getCursorPosition();
     xpos = std::get<0>(cursorpos);
     ypos = std::get<1>(cursorpos);
 
-    glm::mat4 clip(1.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, -1.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.5f, 0.0f,
-        0.0f, 0.0f, 0.5f, 1.0f);
-    glm::mat4 vpmatrix = clip * camera->projectionMatrix * camera->transformation->getInverseWorldTransform();
-
-    glm::mat4 cameraViewMatrix = camera->transformation->getInverseWorldTransform();
-    glm::mat4 cameraRotMatrix = camera->transformation->getRotationMatrix();
-    glm::mat4 rpmatrix = camera->projectionMatrix * inverse(cameraRotMatrix);
-    // camera->cone->update(inverse(rpmatrix));
+    glm::mat4 rpmatrix = camera->getRotationProjectionMatrix();
+    auto cone = camera->getFrustumCone();
 
     auto star = galaxy->getClosestStar();
-    glm::dvec3 closesStarRelPos = (star.getPosition(time) - observerPosition) * scale;
+    glm::dvec3 closesStarRelPos = (star.getPosition(time) - observerCameraPosition) * scale;
 
     bb.emplaceFloat32((float)time);
     bb.emplaceFloat32(0.0f);
@@ -338,15 +321,15 @@ void CosmosRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosi
     bb.emplaceFloat32((float)ypos / (float)height);
     bb.emplaceGeneric((unsigned char*)&rpmatrix, sizeof(rpmatrix));
 
-    glm::vec3 newcamerapos = glm::vec3(observerPosition * scale);
-    bb.emplaceGeneric((unsigned char*)&newcamerapos, sizeof(camera->cone->leftBottom));
+    glm::vec3 newcamerapos = glm::vec3(observerCameraPosition * scale);
+    bb.emplaceGeneric((unsigned char*)&newcamerapos, sizeof(cone->leftBottom));
     bb.emplaceFloat32(0.0f);
 
-    bb.emplaceGeneric((unsigned char*)&(camera->cone->leftBottom), sizeof(camera->cone->leftBottom));
+    bb.emplaceGeneric((unsigned char*)&(cone->leftBottom), sizeof(cone->leftBottom));
     bb.emplaceFloat32(0.0f);
-    bb.emplaceGeneric((unsigned char*)&(camera->cone->rightBottom - camera->cone->leftBottom), sizeof(camera->cone->leftBottom));
+    bb.emplaceGeneric((unsigned char*)&(cone->rightBottom - cone->leftBottom), sizeof(cone->leftBottom));
     bb.emplaceFloat32(0.0f);
-    bb.emplaceGeneric((unsigned char*)&(camera->cone->leftTop - camera->cone->leftBottom), sizeof(camera->cone->leftBottom));
+    bb.emplaceGeneric((unsigned char*)&(cone->leftTop - cone->leftBottom), sizeof(cone->leftBottom));
     bb.emplaceFloat32(0.0f);
     bb.emplaceFloat32((float)width);
     bb.emplaceFloat32((float)height);
@@ -365,7 +348,7 @@ void CosmosRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosi
     // the formula for lux coefficent = 1.0 / (AUcoefficent * AUcoefficent)
     // the formula for final lux is lux multiplier * 120 000
     double au1 = 1496000.0;
-    double aucoeff = (glm::distance(observerPosition, galaxy->getClosestStar().getPosition(0))) / au1;
+    double aucoeff = (glm::distance(observerCameraPosition, galaxy->getClosestStar().getPosition(0))) / au1;
     double luxcoeff = 1.0 / (aucoeff * aucoeff);
     double lux = luxcoeff * 120000.0;
 
@@ -396,10 +379,9 @@ void CosmosRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosi
     memcpy(data, bb.getPointer(), bb.buffer.size());
     cameraDataBuffer->unmap();
 
-    observerCameraPosition = observerPosition;
 
 }
-
+ 
 void CosmosRenderer::draw(double time)
 {
     if (!readyForDrawing) return;

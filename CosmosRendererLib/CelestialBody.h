@@ -1,11 +1,14 @@
 #pragma once
 #include "AbsCelestialObject.h"
+
 #include "Star.h"
+
 enum CelestialRenderMethod {
     noAtmosphere = 1,
     lightAtmosphere = 2,
     thickAtmosphere = 3
 };
+
 class CelestialBody : public AbsCelestialObject
 {
 public:
@@ -33,8 +36,10 @@ public:
         double orbitLength = 2.0 * glm::pi<double>() * hostDistance * 1000.0;
         double percentagePerSecond = orbitSpeed / orbitLength;
         glm::dvec3 orbitplaneTangent = glm::normalize(glm::cross(orbitPlane, glm::dvec3(0.0, 1.0, 0.0)));
+
+        glm::dquat rotation = glm::angleAxis(percentagePerSecond * at_time * 2.0 * 3.14159265359 * 1.0, glm::dvec3(orbitPlane));
         return host->getPosition(at_time)
-            + glm::dvec3(glm::angleAxis(percentagePerSecond * at_time * 2.0 * 3.14159265359 * 1.0, glm::dvec3(orbitPlane)) * glm::dvec3(orbitplaneTangent)) * hostDistance;
+            + glm::dvec3(rotation * orbitplaneTangent) * hostDistance;
     }
 
     glm::mat4 getRotationMatrix(double at_time) {

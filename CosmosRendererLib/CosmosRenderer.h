@@ -3,9 +3,10 @@
 class SceneProvider;
 class TimeProvider;
 class StarsRenderer;
-#include "GalaxyContainer.h" 
+class Camera;
+class GalaxyContainer;
+class RenderedCelestialBody;
 #include "InvokeQueue.h" 
-#include "Camera.h" 
 
 class CosmosRenderer
 {
@@ -20,7 +21,7 @@ public:
     void mapBuffers();
     void unmapBuffers();
 
-    void updateCameraBuffer(Camera* cam, glm::dvec3 observerPosition, double time);
+    void updateCameraBuffer(Camera* cam, double time);
     void draw(double time);
 
     GalaxyContainer* getGalaxy();
@@ -56,7 +57,7 @@ private:
     VEngine::Renderer::VulkanDescriptorSetLayout* celestialBodyRenderSetLayout{ nullptr };
     VEngine::Renderer::VulkanComputeStage* celestialDataUpdateComputeStage;
 
-    VEngine::Renderer::VulkanDescriptorSetLayout* celestiaStarsBlitSetLayout{ nullptr };
+    VEngine::Renderer::VulkanDescriptorSetLayout* celestialStarsBlitSetLayout{ nullptr };
     VEngine::Renderer::VulkanDescriptorSet* celestiaStarsBlitSet{ nullptr };
     VEngine::Renderer::VulkanComputeStage* celestialStarsBlitComputeStage;
 
@@ -81,10 +82,9 @@ private:
     VEngine::Renderer::VulkanImage* surfaceRenderedAlbedoRoughnessImage;
     VEngine::Renderer::VulkanImage* surfaceRenderedNormalMetalnessImage;
     VEngine::Renderer::VulkanImage* surfaceRenderedDistanceImage;
-    VEngine::Renderer::VulkanImage* surfaceRenderedDepthImage;
+    VEngine::Renderer::VulkanImage* renderedDepthImage;
     VEngine::Renderer::VulkanImage* waterRenderedNormalMetalnessImage;
     VEngine::Renderer::VulkanImage* waterRenderedDistanceImage;
-    VEngine::Renderer::VulkanImage* waterRenderedDepthImage;
 
     std::vector<VEngine::Renderer::VulkanImage*> shadowmaps = {};
     std::vector<VEngine::Renderer::VulkanGenericBuffer*> shadowmapsBuffers = {};

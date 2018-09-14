@@ -17,9 +17,6 @@ private:
 
 var source = `#include "stdafx.h"
 #include "MainMenuGameStage.h"
-#include "AbsGameContainer.h"
-#include "GameContainer.h"
-#include "AbsGameStage.h"
 
 
 MainMenuGameStage::MainMenuGameStage(AbsGameContainer* container)

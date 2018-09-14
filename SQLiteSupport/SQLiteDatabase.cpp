@@ -28,12 +28,30 @@ static int callback(void *data, int argc, char **argv, char **azColName) {
 
 std::vector<std::map<std::string, std::string>> SQLiteDatabase::query(std::string sql)
 {
+    auto sqlcopy = sql;
     char *zErrMsg = 0;
     std::vector<std::map<std::string, std::string>> res = {};
     int rc = sqlite3_exec(db, sql.c_str(), callback, (void*)&res, &zErrMsg);
     if (rc != SQLITE_OK) {
-        printf("SQL error: %s\n", zErrMsg);
+        printf("SQL Query: %s\n", sqlcopy.c_str());
+        printf("SQL error1: %s\n", zErrMsg);
+        auto err = sqlite3_errmsg(db);
+        printf("SQL error2: %s\n", err);
         sqlite3_free(zErrMsg);
     }
     return res;
+}
+
+void SQLiteDatabase::nonquery(std::string sql)
+{
+    auto sqlcopy = sql;
+    char *zErrMsg = 0;
+    int rc = sqlite3_exec(db, sql.c_str(), NULL, NULL, &zErrMsg);
+    if (rc != SQLITE_OK) {
+        printf("SQL Query: %s\n", sqlcopy.c_str());
+        printf("SQL error1: %s\n", zErrMsg);
+        auto err = sqlite3_errmsg(db);
+        printf("SQL error2: %s\n", err);
+        sqlite3_free(zErrMsg);
+    }
 }

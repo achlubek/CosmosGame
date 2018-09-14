@@ -6,6 +6,32 @@ INIReader::INIReader(Media* media, string mediakey)
     readString(media->readString(mediakey));
 }
 
+INIReader::INIReader(string inistring)
+{
+    readString(inistring);
+}
+
+glm::dvec2 INIReader::getdv2(std::string key)
+{
+    vector<string> words;
+    splitBySpaces(words, data[key]);
+    return glm::dvec2(std::stod(words[0].c_str()), std::stod(words[1].c_str()));
+}
+
+glm::dvec3 INIReader::getdv3(std::string key)
+{
+    vector<string> words;
+    splitBySpaces(words, data[key]);
+    return glm::vec3(std::stod(words[0].c_str()), std::stod(words[1].c_str()), std::stod(words[2].c_str()));
+}
+
+glm::dquat INIReader::getdquat(std::string key)
+{
+    vector<string> words;
+    splitBySpaces(words, data[key]);
+    return glm::quat(std::stod(words[0].c_str()), std::stod(words[1].c_str()), std::stod(words[2].c_str()), std::stod(words[3].c_str()));
+}
+
 void INIReader::splitBySpaces(vector<string>& output, string src)
 {
     int i = 0, d = 0;
@@ -29,6 +55,11 @@ float INIReader::getf(string key)
     return atof(data[key].c_str());
 }
 
+double INIReader::getd(std::string key)
+{
+    return std::stod(data[key].c_str());
+}
+
 glm::vec2 INIReader::getv2(string key)
 {
     vector<string> words;
@@ -40,13 +71,29 @@ glm::vec3 INIReader::getv3(string key)
 {
     vector<string> words;
     splitBySpaces(words, data[key]);
-    auto x = glm::vec3(atof(words[0].c_str()), atof(words[1].c_str()), atof(words[2].c_str()));
     return glm::vec3(atof(words[0].c_str()), atof(words[1].c_str()), atof(words[2].c_str()));
+}
+
+glm::quat INIReader::getquat(std::string key)
+{
+    vector<string> words;
+    splitBySpaces(words, data[key]);
+    return glm::quat(atof(words[0].c_str()), atof(words[1].c_str()), atof(words[2].c_str()), atof(words[3].c_str()));
 }
 
 int INIReader::geti(string key)
 {
     return atoi(data[key].c_str());
+}
+
+int64_t INIReader::geti64(std::string key)
+{
+    return std::stoll(data[key].c_str());
+}
+
+uint64_t INIReader::getu64(std::string key)
+{
+    return std::stoull(data[key].c_str());
 }
 
 string INIReader::gets(string key)

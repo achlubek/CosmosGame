@@ -1,8 +1,5 @@
 #include "stdafx.h"
 #include "GameControls.h"
-#include "INIReader.h"
-using namespace std;
-
 
 GameControls::GameControls(Keyboard* ikeyboard, Mouse* imouse, Media* media, std::string inifile)
     : keyboard(ikeyboard), mouse(imouse), media(media)

@@ -1,9 +1,5 @@
 #include "stdafx.h"
 #include "ModelsRenderer.h"
-#include "SceneProvider.h"
-#include "AbsGameContainer.h"
-#include "TimeProvider.h"
-#include "AbsGameStage.h"
 
 using namespace VEngine::Renderer;
 
@@ -99,7 +95,7 @@ VulkanDescriptorSetLayout * ModelsRenderer::getModelMRTLayout()
     return modelMRTLayout;
 }
 
-void ModelsRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosition)
+void ModelsRenderer::updateCameraBuffer(Camera * camera)
 {
     VulkanBinaryBufferBuilder bb = VulkanBinaryBufferBuilder();
     double xpos, ypos;
@@ -107,16 +103,8 @@ void ModelsRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosi
     xpos = std::get<0>(cursor);
     ypos = std::get<1>(cursor);
 
-    glm::mat4 clip(1.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, -1.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.5f, 0.0f,
-        0.0f, 0.0f, 0.5f, 1.0f);
-    glm::mat4 vpmatrix = clip * camera->projectionMatrix * camera->transformation->getInverseWorldTransform();
-
-    glm::mat4 cameraViewMatrix = camera->transformation->getInverseWorldTransform();
-    glm::mat4 cameraRotMatrix = camera->transformation->getRotationMatrix();
-    glm::mat4 rpmatrix = camera->projectionMatrix * inverse(cameraRotMatrix);
-    camera->cone->update(inverse(rpmatrix));
+    glm::mat4 rpmatrix = camera->getRotationProjectionMatrix();
+    auto cone = camera->getFrustumCone();
 
     bb.emplaceFloat32((float)AbsGameContainer::getInstance()->getCurrentStage()->getTimeProvider()->getTime());
     bb.emplaceFloat32(0.0f);
@@ -124,15 +112,15 @@ void ModelsRenderer::updateCameraBuffer(Camera * camera, glm::dvec3 observerPosi
     bb.emplaceFloat32((float)ypos / (float)height);
     bb.emplaceGeneric((unsigned char*)&rpmatrix, sizeof(rpmatrix));
 
-    glm::vec3 newcamerapos = glm::vec3(observerPosition * renderingScale);
-    bb.emplaceGeneric((unsigned char*)&newcamerapos, sizeof(camera->cone->leftBottom));
+    glm::vec3 newcamerapos = glm::vec3(camera->getPosition() * renderingScale);
+    bb.emplaceGeneric((unsigned char*)&newcamerapos, sizeof(cone->leftBottom));
     bb.emplaceFloat32(0.0f);
 
-    bb.emplaceGeneric((unsigned char*)&(camera->cone->leftBottom), sizeof(camera->cone->leftBottom));
+    bb.emplaceGeneric((unsigned char*)&(cone->leftBottom), sizeof(cone->leftBottom));
     bb.emplaceFloat32(0.0f);
-    bb.emplaceGeneric((unsigned char*)&(camera->cone->rightBottom - camera->cone->leftBottom), sizeof(camera->cone->leftBottom));
+    bb.emplaceGeneric((unsigned char*)&(cone->rightBottom - cone->leftBottom), sizeof(cone->leftBottom));
     bb.emplaceFloat32(0.0f);
-    bb.emplaceGeneric((unsigned char*)&(camera->cone->leftTop - camera->cone->leftBottom), sizeof(camera->cone->leftBottom));
+    bb.emplaceGeneric((unsigned char*)&(cone->leftTop - cone->leftBottom), sizeof(cone->leftBottom));
     bb.emplaceFloat32(0.0f);
     bb.emplaceFloat32((float)width);
     bb.emplaceFloat32((float)height);

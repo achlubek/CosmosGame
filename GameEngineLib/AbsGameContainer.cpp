@@ -1,29 +1,14 @@
 #include "stdafx.h"
 #include "AbsGameContainer.h"
-#include "INIReader.h"
-#include "GameControls.h" 
-#include "SQLiteDatabase.h"
-#include "Model3dFactory.h"
-#include "GameObject.h"
-#include "AbsComponent.h"
-#include "AbsDrawableComponent.h"
-#include "Transformation3DComponent.h"
-#include "CameraController.h"
-#include "TimeProvider.h"
-#include "UIRenderer.h"
-#include "Interpolator.h"
-#include "ModelsRenderer.h"
-#include "OutputScreenRenderer.h"
-#include "AbsGameStage.h"
-#include "GameStageCollection.h"
-#include "ParticlesRenderer.h"
-#include "SQLiteDatabase.h"
-#include <ctype.h>
 
 AbsGameContainer* AbsGameContainer::instance = nullptr;
 
 AbsGameContainer::AbsGameContainer()
 {
+    logger = new DebugLogger();
+    logger->setDesiredSeverityThreshold(LogSeverity::Normal);
+    logger->log(LogSeverity::Normal, "AbsGameContainer initialization starts");
+
     instance = this;
 
     stageCollection = new GameStageCollection();
@@ -41,7 +26,6 @@ AbsGameContainer::AbsGameContainer()
 
     model3dFactory = new Model3dFactory(vulkanToolkit->getMedia());
 
-
     database = new SQLiteDatabase("gamedata.db");
 
     interpolator = new Interpolator();
@@ -54,6 +38,19 @@ AbsGameContainer::AbsGameContainer()
     outputScreenRenderer = new OutputScreenRenderer(vulkanToolkit, width, height, outputImage, uiOutputImage);
     particlesRenderer = new ParticlesRenderer(getVulkanToolkit(),
         width, height, getModelsRenderer()->getDistanceImage());
+
+
+    gameControls->onKeyDown.add([&](std::string key) {
+        if (currentStage != nullptr) {
+            currentStage->onKeyDown(key);
+        }
+    });
+
+    gameControls->onKeyUp.add([&](std::string key) {
+        if (currentStage != nullptr) {
+            currentStage->onKeyUp(key);
+        }
+    });
 }
 
 
@@ -137,13 +134,14 @@ void AbsGameContainer::startGameLoops()
             frames = 0;
         }
         currentStage->getTimeProvider()->update(time - lastTimeX);
-        getParticlesRenderer()->updateCameraBuffer(currentStage->getViewCamera()->getInternalCamera(), currentStage->getViewCamera()->getPosition());
+        currentStage->getViewCamera()->getCamera()->updateFrustumCone();
+        getParticlesRenderer()->updateCameraBuffer(currentStage->getViewCamera()->getCamera());
         lastTimeFloored = floored;
         lastTimeX = time;
 
-        modelsRenderer->updateCameraBuffer(currentStage->getViewCamera()->getInternalCamera(), currentStage->getViewCamera()->getPosition());
+        modelsRenderer->updateCameraBuffer(currentStage->getViewCamera()->getCamera());
         modelsRenderer->draw(currentStage);
-      //  currentStage->getUIRenderer()->draw();
+        currentStage->getUIRenderer()->draw();
 
 
         getParticlesRenderer()->draw();
@@ -190,4 +188,9 @@ ParticlesRenderer * AbsGameContainer::getParticlesRenderer()
 void AbsGameContainer::setShouldClose(bool close)
 {
     shouldClose = true;
+}
+
+DebugLogger * AbsGameContainer::getLogger()
+{
+    return logger;
 }

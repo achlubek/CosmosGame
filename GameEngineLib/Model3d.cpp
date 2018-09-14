@@ -1,16 +1,22 @@
 #include "stdafx.h"
-#include "INIReader.h"
 #include "Model3d.h"
-#include "AbsGameContainer.h"
  
 
 Model3d::Model3d(VulkanToolkit * vulkan, VulkanDescriptorSetLayout * descriptorSetLayout, std::string info3d_file, std::string albedo_image, 
     std::string normal_image, std::string roughness_image, std::string metalness_image, std::string emission_idle_image, std::string emission_powered_image,
-    glm::dquat iorientationCorrection)
-    : vulkan(vulkan)
+    glm::dquat orientationCorrection, double modelScale)
+    : vulkan(vulkan), 
+    info3d_file(info3d_file), 
+    orientationCorrection(orientationCorrection),
+    albedo_image(albedo_image),
+    normal_image(normal_image),
+    roughness_image(roughness_image),
+    metalness_image(metalness_image),
+    emission_idle_image(emission_idle_image),
+    emission_powered_image(emission_powered_image),
+    modelScale(modelScale)
 {
 
-    orientationCorrection = iorientationCorrection;
     info3d = vulkan->getObject3dInfoFactory()->build(info3d_file);
     albedoImage = vulkan->getVulkanImageFactory()->build(albedo_image);
     normalImage = vulkan->getVulkanImageFactory()->build(normal_image);
@@ -53,7 +59,7 @@ void Model3d::draw(VulkanRenderStage * stage, VulkanDescriptorSet* celestialSet,
     bb2.emplaceFloat32((float)(position).x);
     bb2.emplaceFloat32((float)(position).y);
     bb2.emplaceFloat32((float)(position).z);
-    bb2.emplaceFloat32((float)scale);
+    bb2.emplaceFloat32((float)scale * modelScale);
     bb2.emplaceInt32(id);
     bb2.emplaceInt32(id);
     bb2.emplaceInt32(id);

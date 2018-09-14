@@ -92,7 +92,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Code\glfw-3.2.1\include;C:\VulkanSDK\1.1.82.0\Include\vulkan;C:\Code\glm-0.9.9-a1;C:\Code\CosmosGame\SQLiteSupport;C:\Code\VEngineNative\VEngine;C:\Code\VEUserInterface\VEUserInterface</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Code\glfw-3.2.1\include;C:\VulkanSDK\1.1.82.0\Include\vulkan;C:\Code\glm-0.9.9-a1;C:\Code\CosmosGame\SQLiteSupport;C:\Code\VEngineNative\VEngine;C:\Code\VEUserInterface\VEUserInterface;C:\Code\CosmosGame\CosmosRendererLib</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -148,74 +148,120 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AbsCameraViewStrategy.h" />
-    <ClInclude Include="AbsComponent.h" />
-    <ClInclude Include="AbsDrawableComponent.h" />
+    <ClInclude Include="DebugLogger.h" />
+    <ClInclude Include="Serializer.h" />
+    <ClInclude Include="StateMachines\PlayerMountState.h" />
+    <ClInclude Include="StateMachines\AbsStateMachine.h" />
+    <ClInclude Include="BatteryDrainer.h" />
+    <ClInclude Include="Camera\AbsCameraViewStrategy.h" />
+    <ClInclude Include="Camera\stdafx.h" />
+    <ClInclude Include="Components\FocusComponent.h" />
+    <ClInclude Include="GameObjectTags.h" />
+    <ClInclude Include="GameStages\CelestialBodyPreviewGameStage.h" />
+    <ClInclude Include="GameStages\CinematicAnimationGameStage.h" />
+    <ClInclude Include="CinematicScenarioReader.h" />
+    <ClInclude Include="Components\AbsComponent.h" />
+    <ClInclude Include="Components\AbsDrawableComponent.h" />
     <ClInclude Include="AbsGameContainer.h" />
-    <ClInclude Include="AbsGameStage.h" />
-    <ClInclude Include="AbsTransformable.h" />
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="CameraChaseStrategy.h" />
-    <ClInclude Include="CameraController.h" />
-    <ClInclude Include="CameraFirstPersonStrategy.h" />
-    <ClInclude Include="CameraOrbitStrategy.h" />
+    <ClInclude Include="GameStages\AbsGameStage.h" />
+    <ClInclude Include="Camera\Camera.h" />
+    <ClInclude Include="Camera\CameraChaseStrategy.h" />
+    <ClInclude Include="Camera\CameraController.h" />
+    <ClInclude Include="Camera\CameraFirstPersonStrategy.h" />
+    <ClInclude Include="Camera\CameraOrbitStrategy.h" />
     <ClInclude Include="CommandTerminal.h" />
-    <ClInclude Include="ComponentTypes.h" />
-    <ClInclude Include="FrustumCone.h" />
+    <ClInclude Include="Components\BatteryComponent.h" />
+    <ClInclude Include="Components\ComponentTypes.h" />
+    <ClInclude Include="Components\PlayerManualControlsComponent.h" />
+    <ClInclude Include="Components\ShipManualControlsComponent.h" />
+    <ClInclude Include="Components\stdafx.h" />
+    <ClInclude Include="Camera\FrustumCone.h" />
+    <ClInclude Include="Components\ThrustControllerComponent.h" />
+    <ClInclude Include="Components\ThrustGeneratorComponent.h" />
+    <ClInclude Include="GameStages\FreeFlightGameStage.h" />
+    <ClInclude Include="GameContainer.h" />
     <ClInclude Include="GameControls.h" />
+    <ClInclude Include="GameEngineLib.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameStageCollection.h" />
+    <ClInclude Include="GameStages\stdafx.h" />
     <ClInclude Include="INIReader.h" />
     <ClInclude Include="Interpolator.h" />
     <ClInclude Include="json.h" />
-    <ClInclude Include="ManualCameraStrategy.h" />
+    <ClInclude Include="Camera\ManualCameraStrategy.h" />
+    <ClInclude Include="GameStages\MainMenuGameStage.h" />
+    <ClInclude Include="GameStages\ModelPreviewGameStage.h" />
+    <ClInclude Include="ModuleFactory.h" />
     <ClInclude Include="OutputScreenRenderer.h" />
-    <ClInclude Include="ParticleSystemFactory.h" />
-    <ClInclude Include="PointParticlesEmitter.h" />
-    <ClInclude Include="ParticlesRenderer.h" />
-    <ClInclude Include="ParticleSystem.h" />
-    <ClInclude Include="ParticleSystemsCollection.h" />
-    <ClInclude Include="PointerDrivenCameraStrategy.h" />
+    <ClInclude Include="Particles\ParticleSystemFactory.h" />
+    <ClInclude Include="Particles\PointParticlesEmitter.h" />
+    <ClInclude Include="Particles\ParticlesRenderer.h" />
+    <ClInclude Include="Particles\ParticleSystem.h" />
+    <ClInclude Include="Particles\ParticleSystemsCollection.h" />
+    <ClInclude Include="Camera\PointerDrivenCameraStrategy.h" />
     <ClInclude Include="Model3d.h" />
     <ClInclude Include="Model3dFactory.h" />
     <ClInclude Include="ModelsRenderer.h" />
+    <ClInclude Include="Particles\stdafx.h" />
+    <ClInclude Include="PlayerFactory.h" />
     <ClInclude Include="SceneProvider.h" />
+    <ClInclude Include="ShipFactory.h" />
+    <ClInclude Include="StateMachines\stdafx.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
     <ClInclude Include="TimeProvider.h" />
-    <ClInclude Include="Transformation3DComponent.h" />
+    <ClInclude Include="Components\Transformation3DComponent.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AbsCameraViewStrategy.cpp" />
-    <ClCompile Include="AbsComponent.cpp" />
-    <ClCompile Include="AbsDrawableComponent.cpp" />
+    <ClCompile Include="DebugLogger.cpp" />
+    <ClCompile Include="Serializer.cpp" />
+    <ClCompile Include="StateMachines\PlayerMountState.cpp" />
+    <ClCompile Include="StateMachines\AbsStateMachine.cpp" />
+    <ClCompile Include="BatteryDrainer.cpp" />
+    <ClCompile Include="Camera\AbsCameraViewStrategy.cpp" />
+    <ClCompile Include="Components\FocusComponent.cpp" />
+    <ClCompile Include="GameContainer.cpp" />
+    <ClCompile Include="GameStages\CelestialBodyPreviewGameStage.cpp" />
+    <ClCompile Include="GameStages\CinematicAnimationGameStage.cpp" />
+    <ClCompile Include="CinematicScenarioReader.cpp" />
+    <ClCompile Include="Components\AbsComponent.cpp" />
+    <ClCompile Include="Components\AbsDrawableComponent.cpp" />
     <ClCompile Include="AbsGameContainer.cpp" />
-    <ClCompile Include="AbsGameStage.cpp" />
-    <ClCompile Include="AbsTransformable.cpp" />
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="CameraChaseStrategy.cpp" />
-    <ClCompile Include="CameraController.cpp" />
-    <ClCompile Include="CameraFirstPersonStrategy.cpp" />
-    <ClCompile Include="CameraOrbitStrategy.cpp" />
+    <ClCompile Include="GameStages\AbsGameStage.cpp" />
+    <ClCompile Include="Camera\Camera.cpp" />
+    <ClCompile Include="Camera\CameraChaseStrategy.cpp" />
+    <ClCompile Include="Camera\CameraController.cpp" />
+    <ClCompile Include="Camera\CameraFirstPersonStrategy.cpp" />
+    <ClCompile Include="Camera\CameraOrbitStrategy.cpp" />
     <ClCompile Include="CommandTerminal.cpp" />
-    <ClCompile Include="FrustumCone.cpp" />
+    <ClCompile Include="Camera\FrustumCone.cpp" />
+    <ClCompile Include="Components\BatteryComponent.cpp" />
+    <ClCompile Include="Components\PlayerManualControlsComponent.cpp" />
+    <ClCompile Include="Components\ShipManualControlsComponent.cpp" />
+    <ClCompile Include="Components\ThrustControllerComponent.cpp" />
+    <ClCompile Include="Components\ThrustGeneratorComponent.cpp" />
     <ClCompile Include="GameControls.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameStageCollection.cpp" />
+    <ClCompile Include="GameStages\FreeFlightGameStage.cpp" />
+    <ClCompile Include="GameStages\ModelPreviewGameStage.cpp" />
     <ClCompile Include="INIReader.cpp" />
     <ClCompile Include="Interpolator.cpp" />
-    <ClCompile Include="ManualCameraStrategy.cpp" />
+    <ClCompile Include="Camera\ManualCameraStrategy.cpp" />
+    <ClCompile Include="GameStages\MainMenuGameStage.cpp" />
+    <ClCompile Include="ModuleFactory.cpp" />
     <ClCompile Include="OutputScreenRenderer.cpp" />
-    <ClCompile Include="ParticleSystemFactory.cpp" />
-    <ClCompile Include="PointParticlesEmitter.cpp" />
-    <ClCompile Include="ParticlesRenderer.cpp" />
-    <ClCompile Include="ParticleSystem.cpp" />
-    <ClCompile Include="ParticleSystemsCollection.cpp" />
-    <ClCompile Include="PointerDrivenCameraStrategy.cpp" />
+    <ClCompile Include="Particles\ParticleSystemFactory.cpp" />
+    <ClCompile Include="Particles\PointParticlesEmitter.cpp" />
+    <ClCompile Include="Particles\ParticlesRenderer.cpp" />
+    <ClCompile Include="Particles\ParticleSystem.cpp" />
+    <ClCompile Include="Particles\ParticleSystemsCollection.cpp" />
+    <ClCompile Include="Camera\PointerDrivenCameraStrategy.cpp" />
     <ClCompile Include="Model3d.cpp" />
     <ClCompile Include="Model3dFactory.cpp" />
     <ClCompile Include="ModelsRenderer.cpp" />
+    <ClCompile Include="PlayerFactory.cpp" />
     <ClCompile Include="SceneProvider.cpp" />
+    <ClCompile Include="ShipFactory.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -223,8 +269,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="TimeProvider.cpp" />
-    <ClCompile Include="Transformation3DComponent.cpp" />
-    <ClCompile Include="TransformationManager.cpp" />
+    <ClCompile Include="Components\Transformation3DComponent.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

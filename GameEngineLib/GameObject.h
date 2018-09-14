@@ -1,11 +1,18 @@
 #pragma once
 class AbsComponent;
-#include "ComponentTypes.h"
+#include "Components/ComponentTypes.h"
+#include "GameObjectTags.h"
 class GameObject
 {
 public:
     GameObject();
     ~GameObject();
+
+    void addTag(GameObjectTags tag);
+    void removeTag(GameObjectTags tag);
+    bool hasTag(GameObjectTags tag);
+    std::vector<GameObjectTags> getAllTags();
+
     void addComponent(AbsComponent* component);
     void removeComponent(AbsComponent* component);
     void removeAllComponents();
@@ -13,18 +20,22 @@ public:
     void update(double elapsed);
     GameObject* clone();
     unsigned long getID();
+    void setID(unsigned long id);
+    bool hasComponent(ComponentTypes type);
     std::vector<AbsComponent*> getAllComponents();
     template<class T>
     T* getComponent(ComponentTypes type);
     template<class T>
     std::vector<T*> getAllComponentsByType(ComponentTypes type);
-    bool isDead();
-    void die();
+
+    static void restoreSharedCounterValue(unsigned long idSharedCounterValue);
+    static unsigned long getSharedCounterValue();
+
 private:
     std::vector<AbsComponent*> components;
+    std::vector<GameObjectTags> tags;
     static unsigned long idSharedCounter;
     unsigned long id;
-    bool dead{ false };
 };
 
 template<typename T>

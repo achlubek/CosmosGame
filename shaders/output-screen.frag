@@ -10,6 +10,6 @@ layout(set = 0, binding = 1) uniform sampler2D texGameStageUI;
 void main() {
     vec4 rendered = texture(texGameStageRenderResult, UV);
     vec4 ui = texture(texGameStageUI, UV);
-
+    rendered.rgb = mix(rendered.rgb, ui.rgb, ui.a);
     outColor = vec4(rendered.rgb, 1.0);
 }

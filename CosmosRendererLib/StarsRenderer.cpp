@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "StarsRenderer.h"
-#include "GalaxyContainer.h"
 
 
 StarsRenderer::StarsRenderer(VulkanToolkit* vulkan, 
