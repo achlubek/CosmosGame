@@ -11,6 +11,7 @@ RenderedCelestialBody::RenderedCelestialBody(
     VulkanDescriptorSetLayout* renderSetLayout,
     VulkanDescriptorSetLayout* celestialBodySurfaceSetLayout,
     VulkanDescriptorSetLayout* celestialBodyWaterSetLayout,
+    VulkanDescriptorSetLayout* celestialBodyRaycastUniqueSetLayout,
     VulkanImage* surfaceRenderedAlbedoRoughnessImage,
     VulkanImage* surfaceRenderedNormalMetalnessImage,
     VulkanImage* surfaceRenderedDistanceImage,
@@ -25,6 +26,7 @@ RenderedCelestialBody::RenderedCelestialBody(
 {
     
     dataBuffer = toolkit->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeUniform, 65535);
+    raycastResultsBuffer = toolkit->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeStorage, sizeof(float) * 1024 * 128);
 
     dataSet = dataSetLayout->generateDescriptorSet();
     
@@ -35,6 +37,8 @@ RenderedCelestialBody::RenderedCelestialBody(
     renderSurfaceSet = celestialBodySurfaceSetLayout->generateDescriptorSet();
 
     renderWaterSet = celestialBodyWaterSetLayout->generateDescriptorSet();
+
+    celestialBodyRaycastUniqueSet = celestialBodyRaycastUniqueSetLayout->generateDescriptorSet();
 }
 
 #define safedelete(a) if(a!=nullptr){delete a;a=nullptr;}
@@ -74,6 +78,13 @@ void RenderedCelestialBody::resizeDataImages(int ilowFreqWidth, int ilowFreqHeig
     dataSet->bindImageStorage(2, baseColorImage);
     dataSet->bindImageStorage(3, cloudsImage);
 
+    celestialBodyRaycastUniqueSet->bindBuffer(0, dataBuffer);
+    celestialBodyRaycastUniqueSet->bindImageViewSampler(1, heightMapImage);
+    celestialBodyRaycastUniqueSet->bindImageViewSampler(2, baseColorImage);
+    celestialBodyRaycastUniqueSet->bindImageViewSampler(3, cloudsImage);
+    celestialBodyRaycastUniqueSet->bindBuffer(4, raycastResultsBuffer);
+    
+
     shadowMapSet->bindBuffer(0, dataBuffer);
     shadowMapSet->bindImageViewSampler(1, heightMapImage);
 
@@ -102,11 +113,21 @@ RenderedCelestialBody::~RenderedCelestialBody()
     safedelete(renderSet);
     safedelete(dataSet);
     safedelete(dataBuffer);
+    safedelete(raycastResultsBuffer);
 
     safedelete(shadowMapImage);
     safedelete(cloudsImage);
     safedelete(baseColorImage);
     safedelete(heightMapImage);
+    safedelete(celestialBodyRaycastUniqueSet);
+}
+
+void RenderedCelestialBody::updateRaycasts(uint32_t raycastPointsCount, VulkanDescriptorSet * celestialBodyRaycastSharedSet, VulkanComputeStage * stage)
+{
+    if (!initialized) {
+        return;
+    }
+    stage->dispatch({ celestialBodyRaycastSharedSet, celestialBodyRaycastUniqueSet }, raycastPointsCount, 1, 1);
 }
 
 bool RenderedCelestialBody::needsDataUpdate()
@@ -122,6 +143,23 @@ CelestialRenderMethod RenderedCelestialBody::getRenderMethod()
 double RenderedCelestialBody::getRadius()
 {
     return body.radius;
+}
+
+std::vector<glm::dvec4> RenderedCelestialBody::getRaycastResults(int32_t count)
+{
+    std::vector<glm::dvec4> points = {};
+    void* data;
+    raycastResultsBuffer->map(0, raycastResultsBuffer->getSize(), &data);
+    for (int i = 0; i < count; i++) {
+        points.push_back(glm::dvec4(
+            ((float*)data)[i * 4],
+            ((float*)data)[i * 4 + 1],
+            ((float*)data)[i * 4 + 2],
+            ((float*)data)[i * 4 + 3]
+        ));
+    }
+    raycastResultsBuffer->unmap();
+    return points;
 }
 
 void RenderedCelestialBody::updateData(VulkanComputeStage * stage)

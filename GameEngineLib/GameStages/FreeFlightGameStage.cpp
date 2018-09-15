@@ -33,11 +33,11 @@ FreeFlightGameStage::FreeFlightGameStage(AbsGameContainer* container)
 
     auto galaxy = getCosmosGameContainer()->getCosmosRenderer()->getGalaxy();
 
-    galaxy->onClosestStarChange.add([&](Star star) {
-        getCosmosGameContainer()->getCosmosRenderer()->invokeOnDrawingThread([=]() {
-            starNameText->updateText("Star: " + std::to_string(star.starId));
-        });
-    });
+  //  galaxy->onClosestStarChange.add([&](Star star) {
+ //       getCosmosGameContainer()->getCosmosRenderer()->invokeOnDrawingThread([=]() {
+      //      starNameText->updateText("Star: " + std::to_string(star.starId));
+   //     });
+   // });
 
     galaxy->onClosestPlanetChange.add([&](CelestialBody body) {
         getCosmosGameContainer()->getCosmosRenderer()->invokeOnDrawingThread([=]() {
@@ -231,7 +231,7 @@ void FreeFlightGameStage::onKeyUp(std::string key)
 }
 
 void FreeFlightGameStage::onUpdateObject(GameObject * object, double elapsed)
-{/*
+{
     auto cosmosRenderer = getCosmosGameContainer()->getCosmosRenderer();
     auto physicsComponent = object->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D);
     if (nullptr != physicsComponent) {
@@ -260,5 +260,10 @@ void FreeFlightGameStage::onUpdateObject(GameObject * object, double elapsed)
             auto relativeVel = physicsComponent->getLinearVelocity() - airVelocity * 1000.0;
             physicsComponent->applyAbsoluteImpulse(glm::dvec3(0.0), relativeVel * elapsed * -1000.0);
         }
-    }*/
+        auto closestPlanetRenderable = cosmosRenderer->getRenderableForCelestialBody(cosmosRenderer->getGalaxy()->getClosestPlanet());
+        if (closestPlanetRenderable != nullptr) {
+            auto res = closestPlanetRenderable->getRaycastResults(1)[0];
+            starNameText->updateText("POINT: " + std::to_string(res.x) + "," + std::to_string(res.y) + "," + std::to_string(res.z) + ", DISTANCE: " + std::to_string(res.w));
+        }
+    }
 }

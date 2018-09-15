@@ -7,12 +7,14 @@ public:
         VulkanDescriptorSetLayout* dataSetLayout, VulkanDescriptorSetLayout* shadowMapSetLayout, VulkanDescriptorSetLayout* renderSetLayout,
         VulkanDescriptorSetLayout* celestialBodySurfaceSetLayout,
         VulkanDescriptorSetLayout* celestialBodyWaterSetLayout,
+        VulkanDescriptorSetLayout* celestialBodyRaycastUniqueSetLayout,
         VulkanImage* surfaceRenderedAlbedoRoughnessImage,
         VulkanImage* surfaceRenderedNormalMetalnessImage,
         VulkanImage* surfaceRenderedDistanceImage,
         VulkanImage* waterRenderedNormalMetalnessImage,
         VulkanImage* waterRenderedDistanceImage);
     ~RenderedCelestialBody();
+    void updateRaycasts(uint32_t raycastPointsCount, VulkanDescriptorSet* celestialBodyRaycastSharedSet, VulkanComputeStage* stage);
     void updateData(VulkanComputeStage* stage);
     void draw(VulkanRenderStage* stage, VulkanDescriptorSet* rendererDataSet, VulkanDescriptorSet* shadowMapsCollectionSet, Object3dInfo* info3d);
     void drawSurface(VulkanRenderStage* stage, VulkanDescriptorSet* rendererDataSet, Object3dInfo* info3d);
@@ -23,6 +25,7 @@ public:
     bool needsDataUpdate();
     CelestialRenderMethod getRenderMethod();
     double getRadius();
+    std::vector<glm::dvec4> getRaycastResults(int32_t count);
 
     VulkanDescriptorSet* renderSurfaceSet;
     VulkanDescriptorSet* shadowMapSet;
@@ -62,5 +65,8 @@ private:
 
     VulkanDescriptorSet* renderSet;
 
+    VulkanDescriptorSet* celestialBodyRaycastUniqueSet;
+
+    VulkanGenericBuffer* raycastResultsBuffer;
 };
 

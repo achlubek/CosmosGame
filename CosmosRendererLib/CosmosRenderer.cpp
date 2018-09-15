@@ -38,8 +38,9 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, i
     icosphereHigh = subdivide(icosphereMedium);// vulkan->getObject3dInfoFactory->build("icosphere_highpoly_1unit.raw");
 
     cameraDataBuffer = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeUniform, sizeof(float) * 1024);
-    planetsDataBuffer = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeStorage, sizeof(float) * 1024 * 1024);
-    moonsDataBuffer = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeStorage, sizeof(float) * 1024 * 1024);
+    raycastRequestsDataBuffer = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeStorage, sizeof(float) * 1024 * 128);
+    planetsDataBuffer = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeStorage, sizeof(float) * 1024 * 128);
+    moonsDataBuffer = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeStorage, sizeof(float) * 1024 * 128);
 
     celestialAlphaImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA16f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Storage | VulkanImageUsage::Sampled);
 
@@ -101,6 +102,21 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, i
     for (int i = 0; i < shadowmapsDivisors.size(); i++) {
         shadowMapsCollectionLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
     }
+
+    celestialBodyRaycastSharedSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
+    celestialBodyRaycastSharedSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageCompute);
+    celestialBodyRaycastSharedSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeStorageBuffer, VulkanDescriptorSetFieldStage::FieldStageCompute);
+
+    celestialBodyRaycastSharedSet = celestialBodyRaycastSharedSetLayout->generateDescriptorSet();
+    celestialBodyRaycastSharedSet->bindBuffer(0, cameraDataBuffer);
+    celestialBodyRaycastSharedSet->bindBuffer(1, raycastRequestsDataBuffer);
+
+    celestialBodyRaycastUniqueSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
+    celestialBodyRaycastUniqueSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageCompute);
+    celestialBodyRaycastUniqueSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageCompute);
+    celestialBodyRaycastUniqueSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageCompute);
+    celestialBodyRaycastUniqueSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageCompute);
+    celestialBodyRaycastUniqueSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeStorageBuffer, VulkanDescriptorSetFieldStage::FieldStageCompute);
 
     celestialBodyDataSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
     celestialBodyDataSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageCompute);
@@ -250,6 +266,11 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     celestialDataUpdateComputeStage = vulkan->getVulkanComputeStageFactory()->build(celestialdatacompute, { celestialBodyDataSetLayout });
 
     //**********************//
+    auto celestialdataraycast = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Compute, "celestial-raycast.comp.spv");
+
+    celestialBodyRaycastComputeStage = vulkan->getVulkanComputeStageFactory()->build(celestialdataraycast, { celestialBodyRaycastSharedSetLayout, celestialBodyRaycastUniqueSetLayout });
+
+    //**********************//
     auto celestialblitcompute = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Compute, "celestial-blit-stars.comp.spv");
 
     celestialStarsBlitComputeStage = vulkan->getVulkanComputeStageFactory()->build(celestialblitcompute, { celestialStarsBlitSetLayout });
@@ -292,17 +313,20 @@ void CosmosRenderer::mapBuffers()
 {
     planetsDataBuffer->map(0, planetsDataBuffer->getSize(), &planetsDataBufferPointer);
     moonsDataBuffer->map(0, moonsDataBuffer->getSize(), &moonsDataBufferPointer);
+    raycastRequestsDataBuffer->map(0, raycastRequestsDataBuffer->getSize(), &raycastRequestsDataBufferPointer);
 }
 
 void CosmosRenderer::unmapBuffers()
 {
     planetsDataBuffer->unmap();
     moonsDataBuffer->unmap();
+    raycastRequestsDataBuffer->unmap();
 }
 
 void CosmosRenderer::updateCameraBuffer(Camera * camera, double time)
 {
     observerCameraPosition = camera->getPosition();
+    setRaycastPoints({ observerCameraPosition });
     VulkanBinaryBufferBuilder bb = VulkanBinaryBufferBuilder();
     double xpos, ypos;
     auto cursorpos = vulkan->getMouse()->getCursorPosition();
@@ -459,6 +483,15 @@ void CosmosRenderer::draw(double time)
     celestialDataUpdateComputeStage->endRecording();
     celestialDataUpdateComputeStage->submitNoSemaphores({});
 
+    if (raycastPoints.size() > 0) {
+        celestialBodyRaycastComputeStage->beginRecording();
+        for (int a = 0; a < renderables.size(); a++) {
+            renderables[a]->updateRaycasts(raycastPoints.size(), celestialBodyRaycastSharedSet, celestialBodyRaycastComputeStage);
+        }
+        celestialBodyRaycastComputeStage->endRecording();
+        celestialBodyRaycastComputeStage->submitNoSemaphores({});
+    }
+
     for (int a = 0; a < renderables.size(); a++) {
         renderables[a]->updateBuffer(observerCameraPosition, scale, time);
     }
@@ -610,6 +643,7 @@ void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
             celestialBodyRenderSetLayout,
             celestialBodySurfaceSetLayout,
             celestialBodyWaterSetLayout,
+            celestialBodyRaycastUniqueSetLayout,
             surfaceRenderedAlbedoRoughnessImage,
             surfaceRenderedNormalMetalnessImage,
             surfaceRenderedDistanceImage,
@@ -635,6 +669,7 @@ void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
                 celestialBodyRenderSetLayout,
                 celestialBodySurfaceSetLayout,
                 celestialBodyWaterSetLayout,
+                celestialBodyRaycastUniqueSetLayout,
                 surfaceRenderedAlbedoRoughnessImage,
                 surfaceRenderedNormalMetalnessImage,
                 surfaceRenderedDistanceImage,
@@ -796,4 +831,41 @@ void CosmosRenderer::setExposure(double value)
 void CosmosRenderer::invokeOnDrawingThread(std::function<void(void)> func)
 {
     updatingSafetyQueue.enqueue(func);
+}
+
+void CosmosRenderer::setRaycastPoints(std::vector<glm::dvec3> points)
+{
+    raycastPoints = points;
+    auto bb = VulkanBinaryBufferBuilder();
+    bb.emplaceInt32(raycastPoints.size());
+    bb.emplaceInt32(raycastPoints.size());
+    bb.emplaceInt32(raycastPoints.size());
+    bb.emplaceInt32(raycastPoints.size());
+    for (auto point : raycastPoints) {
+        bb.emplaceFloat32(point.x - observerCameraPosition.x);
+        bb.emplaceFloat32(point.y - observerCameraPosition.y);
+        bb.emplaceFloat32(point.z - observerCameraPosition.z);
+        bb.emplaceFloat32(0.0f);
+    }
+    memcpy(raycastRequestsDataBufferPointer, bb.getPointer(), bb.buffer.size());
+}
+
+std::vector<glm::dvec3> CosmosRenderer::getRaycastPoints()
+{
+    return raycastPoints;
+}
+
+RenderedCelestialBody * CosmosRenderer::getRenderableForCelestialBody(CelestialBody body)
+{
+    for (auto renderable : renderablePlanets) {
+        if (renderable->body.bodyId == body.bodyId) {
+            return renderable;
+        }
+    }
+    for (auto renderable : renderableMoons) {
+        if (renderable->body.bodyId == body.bodyId) {
+            return renderable;
+        }
+    }
+    return nullptr;
 }

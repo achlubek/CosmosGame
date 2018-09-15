@@ -28,10 +28,16 @@ public:
     double getExposure();
     void setExposure(double value);
     void invokeOnDrawingThread(std::function<void(void)> func);
+
+    void setRaycastPoints(std::vector<glm::dvec3> points);
+    std::vector<glm::dvec3> getRaycastPoints();
+    RenderedCelestialBody* getRenderableForCelestialBody(CelestialBody body);
 private:
     GalaxyContainer* galaxy;
 
     StarsRenderer* starsRenderer;
+
+    std::vector<glm::dvec3> raycastPoints = {};
 
     //Camera* internalCamera; 
 
@@ -57,6 +63,11 @@ private:
     VEngine::Renderer::VulkanDescriptorSetLayout* celestialBodyRenderSetLayout{ nullptr };
     VEngine::Renderer::VulkanComputeStage* celestialDataUpdateComputeStage;
 
+    VEngine::Renderer::VulkanDescriptorSetLayout* celestialBodyRaycastSharedSetLayout{ nullptr };
+    VEngine::Renderer::VulkanDescriptorSet* celestialBodyRaycastSharedSet{ nullptr };
+    VEngine::Renderer::VulkanDescriptorSetLayout* celestialBodyRaycastUniqueSetLayout{ nullptr };
+    VEngine::Renderer::VulkanComputeStage* celestialBodyRaycastComputeStage;
+
     VEngine::Renderer::VulkanDescriptorSetLayout* celestialStarsBlitSetLayout{ nullptr };
     VEngine::Renderer::VulkanDescriptorSet* celestiaStarsBlitSet{ nullptr };
     VEngine::Renderer::VulkanComputeStage* celestialStarsBlitComputeStage;
@@ -73,6 +84,7 @@ private:
     std::vector<VEngine::Renderer::VulkanRenderStage*> celestialShadowMapRenderStages = {};
 
     VEngine::Renderer::VulkanGenericBuffer* cameraDataBuffer;
+    VEngine::Renderer::VulkanGenericBuffer* raycastRequestsDataBuffer;
     VEngine::Renderer::VulkanGenericBuffer* planetsDataBuffer;
     VEngine::Renderer::VulkanGenericBuffer* moonsDataBuffer;
 
@@ -110,6 +122,7 @@ private:
 
     void* planetsDataBufferPointer;
     void* moonsDataBufferPointer;
+    void* raycastRequestsDataBufferPointer;
 
 
     void onClosestStarChange(Star star);
