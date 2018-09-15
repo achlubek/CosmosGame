@@ -12,8 +12,8 @@ GameContainer::GameContainer()
 
     cosmosRenderer = new CosmosRenderer(vulkanToolkit, galaxy, getResolution().x, getResolution().y);
     cosmosRenderer->setExposure(0.0001);
-    getModelsRenderer()->setRenderingScale(cosmosRenderer->scale);
-    getParticlesRenderer()->setRenderingScale(cosmosRenderer->scale);
+    getModelsRenderer()->setRenderingScale(1.0);
+    getParticlesRenderer()->setRenderingScale(1.0);
 
     particleSystemFactory = new ParticleSystemFactory(vulkanToolkit->getMedia());
     moduleFactory = new ModuleFactory(getModel3dFactory(), particleSystemFactory, vulkanToolkit->getMedia());

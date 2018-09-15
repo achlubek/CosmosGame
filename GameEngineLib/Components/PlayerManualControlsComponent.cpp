@@ -34,7 +34,7 @@ void PlayerManualControlsComponent::update(double elapsed)
     auto linearVector = glm::mat3_cast(rotation) * linear_controls;
 
     physicsComponent->setAngularVelocity(angular_controls * 0.1 + physicsComponent->getAngularVelocity() * 0.9); // todo make it based on time
-    physicsComponent->setLinearVelocity(linearVector + physicsComponent->getLinearVelocity());
+    physicsComponent->setLinearVelocity(linearVector * 15.0 + physicsComponent->getLinearVelocity());
 }
 
 AbsComponent * PlayerManualControlsComponent::clone()

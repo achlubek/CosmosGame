@@ -9,7 +9,7 @@ public:
     virtual void update(double elapsed, CameraController * controller) override;
 private:
     glm::ivec2 lastCursorPos;
-    double rotx{ 0 }, roty{ 0 }, distance{ 0.11 };
+    double rotx{ 0 }, roty{ 0 }, distance{ 20.11 };
     double autoKillRotCounter{ 0 };
     bool automaticAlignEnabled = true;
 };

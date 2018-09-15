@@ -6,7 +6,7 @@ CameraController::CameraController()
     : camera(new Camera()), activeViewStrategy(new ManualCameraStrategy())
 {
     auto resolution = AbsGameContainer::getInstance()->getResolution();
-    camera->createProjectionPerspective(90.0f, resolution.x / resolution.y, 0.00001f, 600.0f);
+    camera->createProjectionPerspective(90.0f, resolution.x / resolution.y, 0.001f, 60000.0f);
 }
 
 
@@ -22,7 +22,7 @@ float CameraController::getFov()
 void CameraController::setFov(float fov)
 {
     auto resolution = AbsGameContainer::getInstance()->getResolution();
-    camera->createProjectionPerspective(fov, resolution.x / resolution.y, 0.00001f, 600.0f);
+    camera->createProjectionPerspective(fov, resolution.x / resolution.y, 0.001f, 60000.0f);
 }
 
 GameObject * CameraController::getTarget()

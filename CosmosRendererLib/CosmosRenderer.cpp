@@ -326,7 +326,6 @@ void CosmosRenderer::unmapBuffers()
 void CosmosRenderer::updateCameraBuffer(Camera * camera, double time)
 {
     observerCameraPosition = camera->getPosition();
-    setRaycastPoints({ observerCameraPosition });
     VulkanBinaryBufferBuilder bb = VulkanBinaryBufferBuilder();
     double xpos, ypos;
     auto cursorpos = vulkan->getMouse()->getCursorPosition();
@@ -842,9 +841,9 @@ void CosmosRenderer::setRaycastPoints(std::vector<glm::dvec3> points)
     bb.emplaceInt32(raycastPoints.size());
     bb.emplaceInt32(raycastPoints.size());
     for (auto point : raycastPoints) {
-        bb.emplaceFloat32(point.x - observerCameraPosition.x);
-        bb.emplaceFloat32(point.y - observerCameraPosition.y);
-        bb.emplaceFloat32(point.z - observerCameraPosition.z);
+        bb.emplaceFloat32((point.x - observerCameraPosition.x) * scale);
+        bb.emplaceFloat32((point.y - observerCameraPosition.y) * scale);
+        bb.emplaceFloat32((point.z - observerCameraPosition.z) * scale);
         bb.emplaceFloat32(0.0f);
     }
     memcpy(raycastRequestsDataBufferPointer, bb.getPointer(), bb.buffer.size());

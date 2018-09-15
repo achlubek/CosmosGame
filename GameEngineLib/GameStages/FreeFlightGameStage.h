@@ -28,5 +28,6 @@ private:
     VEngine::UserInterface::UIText* altitudeText;
     VEngine::UserInterface::UIText* velocityText;
     PlayerMountState* playerMountState;
+    GameObject* debugMarker;
 };
 

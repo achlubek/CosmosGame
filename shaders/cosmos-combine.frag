@@ -78,8 +78,13 @@ vec3 subflare(vec2 uv, vec2 point, float px, float py, float pz, float cShift, f
     return t;
 }
 
+vec2 correctRatio(vec2 uv){
+    return uv * vec2(1.0, Resolution.y / Resolution.x);
+}
+
 vec3 flare(vec2 point, vec2 uv){
-    float d = distance(uv, point) ;
+
+    float d = max(0.000001, distance(correctRatio(uv), correctRatio(point)) - 0.01);
     float tt = 1.0 / abs( d * 55.0 );
     mat2 rm1 = rotmat2d(3.1415 * 0.25);
     mat2 rm2 = rotmat2d(3.1415 * 0.75);
@@ -128,16 +133,18 @@ void main() {
     vec3 sunFlareColorizer = mix(vec3(1.0), normalize(adddata.rgb + 0.001), min(1.0, 1010.0 *length(adddata.rgb)));
     vec3 stnorm = normalize(dir * starhit - starDist * -starDir);
     float snois = (starhit > 0.0 && starhit < 9999999.0) ? (aBitBetterNoise(stnorm * 10.0) * 0.5 + 0.25 * aBitBetterNoise(stnorm * 30.0)) : 0.0;
-    sunflare = ((starhit > 0.0 && starhit < 9999999.0) ? 1.0 : 0.0) * ClosestStarColor * max(0.0, 1.0 - adddata.a) * sunFlareColorizer * Exposure * 21.8 * snois;
 
     vec2 projectedSunDir = project(starDir);
     vec4 adddata2 = texture(texCelestialAdditive, clamp(projectedSunDir, 0.0, 1.0)).rgba;
     vec4 shipdata222 = texture(texModelsNormalMetalness, clamp(projectedSunDir, 0.0, 1.0)).rgba;
-    vec3 sunflare2 = sunflare + flare(UV, projectedSunDir)* max(0.0, 1.0 - adddata2.a) * (1.0 - step(0.09, length(shipdata222.rgb))) * Exposure * (ClosestStarColor) * 0.14 * pow(max(0.0, -dot(dir, starDir)), 3.0);
-
-    a += adddata.rgb;
     vec4 shipdata1 = texture(texModelsAlbedoRoughness, UV).rgba;
     vec4 shipdata2 = texture(texModelsNormalMetalness, UV).rgba;
+
+    //sunflare = ((starhit > 0.0 && starhit < 9999999.0) ? 1.0 : 0.0) * ClosestStarColor * max(0.0, 1.0 - adddata.a) * (1.0 - step(0.09, length(shipdata2.rgb))) * sunFlareColorizer * Exposure * 21.8 * snois;
+
+    vec3 sunflare2 = flare(UV, projectedSunDir)* max(0.0, 1.0 - adddata2.a) * (1.0 - step(0.09, length(shipdata222.rgb))) * Exposure * (ClosestStarColor) * 0.14 * pow(max(0.0, -dot(dir, starDir)), 3.0);
+
+    a += adddata.rgb;
     float shipdata3 = texture(texModelsDistance, UV).r;
     vec3 albedo = shipdata1.rgb;
     float roughness = shipdata1.a;
