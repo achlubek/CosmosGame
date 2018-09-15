@@ -25,6 +25,10 @@ void ThrustGeneratorComponent::update(double elapsed)
 
     drainer->setOwner(owner);
     double realPower = drainer->extractEnergy(elapsed, powerPercentage) * powerPercentage;
+
+    if (emissionValue < realPower) emissionValue = emissionValue * 0.8 + 0.2 * realPower;
+    else emissionValue = emissionValue * 0.96 + 0.94 * realPower;
+
     auto thrustDirection = getThrustVector();
     glm::dvec3 force = -thrustDirection * maxThrust * realPower;
 

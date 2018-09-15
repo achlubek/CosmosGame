@@ -10,6 +10,7 @@ public:
     void draw(SceneProvider* scene);
     void setRenderingScale(double renderingScale);
     VEngine::Renderer::VulkanImage* getAlbedoRoughnessImage();
+    VEngine::Renderer::VulkanImage* getEmissionImage();
     VEngine::Renderer::VulkanImage* getNormalMetalnessImage();
     VEngine::Renderer::VulkanImage* getDistanceImage();
     VEngine::Renderer::VulkanDescriptorSetLayout* getModelMRTLayout();
@@ -26,6 +27,7 @@ private:
     VEngine::Renderer::VulkanGenericBuffer* modelsDataBuffer;
 
     VEngine::Renderer::VulkanImage* modelsAlbedoRoughnessImage;
+    VEngine::Renderer::VulkanImage* modelsEmissionImage;
     VEngine::Renderer::VulkanImage* modelsNormalMetalnessImage;
     VEngine::Renderer::VulkanImage* modelsDistanceImage;
     VEngine::Renderer::VulkanImage* modelsIDImage;

@@ -15,7 +15,7 @@ public:
         glm::dquat orientationCorrection,
         double modelScale);
     ~Model3d();
-    void draw(VulkanRenderStage* stage, VulkanDescriptorSet* celestialSet, glm::dvec3 position, glm::dquat orientation, double scale, int id);
+    void draw(VulkanRenderStage* stage, VulkanDescriptorSet* celestialSet, glm::dvec3 position, glm::dquat orientation, double scale, int id, double emission);
 private:
     VulkanToolkit* vulkan;
     Object3dInfo* info3d;

@@ -26,5 +26,6 @@ protected:
     glm::dquat relativeOrientation;
     Model3d* model;
     std::string modelName;
+    float emissionValue = 0.0;
 };
 

@@ -50,7 +50,7 @@ Model3d::~Model3d()
     delete emissionPoweredImage;
 }
 
-void Model3d::draw(VulkanRenderStage * stage, VulkanDescriptorSet* celestialSet, glm::dvec3 position, glm::dquat orientation, double scale, int id)
+void Model3d::draw(VulkanRenderStage * stage, VulkanDescriptorSet* celestialSet, glm::dvec3 position, glm::dquat orientation, double scale, int id, double emission)
 {
     VulkanBinaryBufferBuilder bb2 = VulkanBinaryBufferBuilder();
     glm::mat4 shipmat = glm::mat4_cast(orientation * orientationCorrection);
@@ -64,6 +64,10 @@ void Model3d::draw(VulkanRenderStage * stage, VulkanDescriptorSet* celestialSet,
     bb2.emplaceInt32(id);
     bb2.emplaceInt32(id);
     bb2.emplaceInt32(id);
+    bb2.emplaceFloat32(emission);
+    bb2.emplaceFloat32(emission);
+    bb2.emplaceFloat32(emission);
+    bb2.emplaceFloat32(emission);
     void* data;
     dataBuffer->map(0, bb2.buffer.size(), &data);
     memcpy(data, bb2.getPointer(), bb2.buffer.size());

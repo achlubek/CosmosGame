@@ -8,9 +8,10 @@ layout(set = 0, binding = 1) uniform sampler2D texCelestialAlpha;
 layout(set = 0, binding = 2) uniform sampler2D texStars;
 layout(set = 0, binding = 3) uniform sampler2D texCelestialAdditive;
 layout(set = 0, binding = 4) uniform sampler2D texModelsAlbedoRoughness;
-layout(set = 0, binding = 5) uniform sampler2D texModelsNormalMetalness;
-layout(set = 0, binding = 6) uniform sampler2D texModelsDistance;
-layout(set = 0, binding = 7) uniform sampler2D texParticlesResult;
+layout(set = 0, binding = 5) uniform sampler2D texModelsEmission;
+layout(set = 0, binding = 6) uniform sampler2D texModelsNormalMetalness;
+layout(set = 0, binding = 7) uniform sampler2D texModelsDistance;
+layout(set = 0, binding = 8) uniform sampler2D texParticlesResult;
 
 #include rendererDataSet.glsl
 #include proceduralValueNoise.glsl
@@ -147,6 +148,7 @@ void main() {
     a += adddata.rgb;
     float shipdata3 = texture(texModelsDistance, UV).r;
     vec3 albedo = shipdata1.rgb;
+    vec3 emission = texture(texModelsEmission, UV).rgb;
     float roughness = shipdata1.a;
     vec3 normal = normalize(shipdata2.rgb);
     float metalness = shipdata2.a;
@@ -156,7 +158,7 @@ void main() {
     vec3 lightcolor = ClosestStarColor * 0.0001;
 
     vec3 shaded = shade_ray(albedo, normal, viewdir, roughness, metalness, lightdir, lightcolor);
-    shaded += albedo * 0.1;
+    shaded += albedo * 0.1 + emission;
 
     a = mix(a, shaded, step(0.09, length(shipdata2.rgb))) + sunflare2;
     vec4 particlesData = texture(texParticlesResult, UV).rgba;

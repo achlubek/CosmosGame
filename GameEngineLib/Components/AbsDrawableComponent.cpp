@@ -26,7 +26,7 @@ void AbsDrawableComponent::draw(glm::dvec3 observerPosition, VulkanRenderStage* 
 
     auto modulepos = pos + m3_rot * relativePosition * 1.0;
     auto moduleort = parentTransform->getOrientation() * relativeOrientation * glm::angleAxis((double)3.1415 * 0.5, glm::dvec3(1.0, 0.0, 0.0));
-    model->draw(stage, set, modulepos, moduleort, scale, getID());
+    model->draw(stage, set, modulepos, moduleort, scale, getID(), emissionValue);
 }
 
 glm::dvec3 AbsDrawableComponent::getWorldTranslation()

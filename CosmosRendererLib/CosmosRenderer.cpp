@@ -165,6 +165,7 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, i
     combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
     combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
     combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
+    combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
 
     combineSet = combineLayout->generateDescriptorSet();
     combineSet->bindBuffer(0, cameraDataBuffer);
@@ -172,9 +173,10 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, i
     combineSet->bindImageViewSampler(2, starsRenderer->getStarsImage());
     combineSet->bindImageViewSampler(3, celestialAdditiveImage);
     combineSet->bindImageViewSampler(4, AbsGameContainer::getInstance()->getModelsRenderer()->getAlbedoRoughnessImage());
-    combineSet->bindImageViewSampler(5, AbsGameContainer::getInstance()->getModelsRenderer()->getNormalMetalnessImage());
-    combineSet->bindImageViewSampler(6, AbsGameContainer::getInstance()->getModelsRenderer()->getDistanceImage());
-    combineSet->bindImageViewSampler(7, AbsGameContainer::getInstance()->getParticlesRenderer()->getResultImage());
+    combineSet->bindImageViewSampler(5, AbsGameContainer::getInstance()->getModelsRenderer()->getEmissionImage());
+    combineSet->bindImageViewSampler(6, AbsGameContainer::getInstance()->getModelsRenderer()->getNormalMetalnessImage());
+    combineSet->bindImageViewSampler(7, AbsGameContainer::getInstance()->getModelsRenderer()->getDistanceImage());
+    combineSet->bindImageViewSampler(8, AbsGameContainer::getInstance()->getParticlesRenderer()->getResultImage());
 
 
     shadowMapsCollectionSet = shadowMapsCollectionLayout->generateDescriptorSet();

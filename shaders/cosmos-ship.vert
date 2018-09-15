@@ -33,6 +33,7 @@ layout(set = 1, binding = 0) buffer modelStorageBuffer {
     mat4 transformation;
     vec4 position;
     ivec4 id;
+    vec4 emissionvalue;
 } modelBuffer;
 
 void main() {

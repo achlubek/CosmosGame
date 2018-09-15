@@ -7,7 +7,7 @@
 			"pos": {
 				"x": 0.0,
 				"y": 0.0,
-				"z": 10.0
+				"z": 11.0
 			},
 			"rot": {
 				"x": 0.0,
@@ -16,22 +16,6 @@
 			},
 			"dirrot": 0.0,
 			"link": "forward",
-			"module": "Generix L-1.engine.ini"
-		},
-		{
-			"type": "engine",
-			"pos": {
-				"x": 0.0,
-				"y": 0.0,
-				"z": -12.0
-			},
-			"rot": {
-				"x": 0.0,
-				"y": 0.0,
-				"z": -1.0
-			},
-			"dirrot": 0.0,
-			"link": "backward",
 			"module": "Generix L-1.engine.ini"
 		},
 

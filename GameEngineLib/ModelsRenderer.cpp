@@ -25,6 +25,8 @@ ModelsRenderer::ModelsRenderer(VulkanToolkit* vulkan, int iwidth, int iheight)
 
     modelsAlbedoRoughnessImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA8unorm, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
 
+    modelsEmissionImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA16f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
+
     modelsNormalMetalnessImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA16f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
 
     modelsDistanceImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::R32f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
@@ -38,6 +40,7 @@ ModelsRenderer::ModelsRenderer(VulkanToolkit* vulkan, int iwidth, int iheight)
 
     modelsStage = vulkan->getVulkanRenderStageFactory()->build(width, height, { shipvert, shipfrag }, { modelsDataLayout, modelMRTLayout }, {
         modelsAlbedoRoughnessImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
+        modelsEmissionImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
         modelsNormalMetalnessImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
         modelsDistanceImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
         modelsIDImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
@@ -78,6 +81,11 @@ void ModelsRenderer::setRenderingScale(double irenderingScale)
 VulkanImage * ModelsRenderer::getAlbedoRoughnessImage()
 {
     return modelsAlbedoRoughnessImage;
+}
+
+VEngine::Renderer::VulkanImage * ModelsRenderer::getEmissionImage()
+{
+    return modelsEmissionImage;
 }
 
 VulkanImage * ModelsRenderer::getNormalMetalnessImage()

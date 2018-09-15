@@ -8,9 +8,10 @@ layout(location = 3) in vec3 inNormal;
 layout(location = 4) in vec4 inTangent;
 
 layout(location = 0) out vec4 outAlbedoRoughness;
-layout(location = 1) out vec4 outNormalMetalness;
-layout(location = 2) out float outDistance;
-layout(location = 3) out uint outId;
+layout(location = 1) out vec4 outEmission;
+layout(location = 2) out vec4 outNormalMetalness;
+layout(location = 3) out float outDistance;
+layout(location = 4) out uint outId;
 layout(set = 1, binding = 1) uniform sampler2D texAlbedo;
 layout(set = 1, binding = 2) uniform sampler2D texNormal;
 layout(set = 1, binding = 3) uniform sampler2D texRoughness;
@@ -22,6 +23,7 @@ layout(set = 1, binding = 0) buffer modelStorageBuffer {
     mat4 transformation;
     vec4 position;
     ivec4 id;
+    vec4 emissionvalue;
 } modelBuffer;
 
 #include rendererDataSet.glsl
@@ -95,5 +97,6 @@ void main() {
     outAlbedoRoughness = vec4(texture(texAlbedo, texuv).rgb, texture(texRoughness, texuv).r);
     outNormalMetalness = vec4(normalize(normal),texture(texMetalness, texuv).r);
     outDistance = length(inWorldPos);
+    outEmission = vec4(mix(texture(texEmissionIdle, texuv).rgb, texture(texEmissionPowered, texuv).rgb, modelBuffer.emissionvalue.x), 0.0);
     outId = uint(modelBuffer.id);
 }
