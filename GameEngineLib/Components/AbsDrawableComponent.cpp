@@ -67,11 +67,17 @@ glm::dquat AbsDrawableComponent::getRelativeOrientation()
     return relativeOrientation;
 }
 
+void AbsDrawableComponent::setEmissionPercentage(float percentage)
+{
+    emissionValue = percentage;
+}
+
 std::string AbsDrawableComponent::serialize()
 {
     std::stringstream s;
     s << serializeBase();
     s << "modelName=" << modelName << "\n";
+    s << "emissionValue=" << emissionValue << "\n";
     s << "relativePosition=" << relativePosition.x << " " << relativePosition.y << " " << relativePosition.z << "\n";
     s << "relativeOrientation=" << relativeOrientation.w << " " << relativeOrientation.x << " " << relativeOrientation.y << " " << relativeOrientation.z << "\n";
     return s.str();
@@ -84,5 +90,6 @@ AbsDrawableComponent * AbsDrawableComponent::deserialize(Model3dFactory * model3
     auto model = model3dFactory->build(modelName);
     auto component = new AbsDrawableComponent(model, modelName, reader.getdv3("relativePosition"), reader.getdquat("relativeOrientation"));
     component->deserializeBaseInPlace(serializedString);
+    component->setEmissionPercentage(reader.getd("emissionValue"));
     return component;
 }

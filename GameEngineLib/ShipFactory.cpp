@@ -42,6 +42,7 @@ GameObject * ShipFactory::build(std::string mediakey)
     for (auto& element : data["models"]) {
         auto model3d = model3dFactory->build(element);
         auto drawableComponent = new AbsDrawableComponent(model3d, element, glm::dvec3(0.0), glm::dquat(1.0, 0.0, 0.0, 0.0));
+        drawableComponent->setEmissionPercentage(1.0);
         ship->addComponent(drawableComponent);
     }
 

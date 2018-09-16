@@ -158,7 +158,7 @@ void main() {
     vec3 lightcolor = ClosestStarColor * 0.0001;
 
     vec3 shaded = shade_ray(albedo, normal, viewdir, roughness, metalness, lightdir, lightcolor);
-    shaded += albedo * 0.1 + emission;
+    shaded += albedo * 0.0 + emission;
 
     a = mix(a, shaded, step(0.09, length(shipdata2.rgb))) + sunflare2;
     vec4 particlesData = texture(texParticlesResult, UV).rgba;

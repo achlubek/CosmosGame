@@ -17,6 +17,8 @@ public:
     glm::dvec3 getRelativePosition();
     void setRelativeOrientation(glm::dquat relativeOrientation);
     glm::dquat getRelativeOrientation();    
+
+    void setEmissionPercentage(float percentage);
     
     virtual std::string serialize() override;
     static AbsDrawableComponent* deserialize(Model3dFactory* model3dFactory, std::string serializedString);
