@@ -177,7 +177,6 @@ vec3 optimizedWaveSources[32] = vec3[](
 
 //wavedx(vec3 uv, vec3 emitter, float speed, float phase, float timeshift)
 vec2 wavetadalala(vec3 position, vec3 direction, float speed, float frequency, float timeshift) {
-    direction = normalize(direction);
     float x = dot(direction, position) * frequency + timeshift * speed;
     float wave = exp(sin(x) - 1.0);
     float dx = wave * cos(x);
@@ -186,21 +185,22 @@ vec2 wavetadalala(vec3 position, vec3 direction, float speed, float frequency, f
 float getwavesHighPhase(vec3 position, int iterations, float dragmult, float timeshift, float seed){
     timeshift *= 100.0;
     float seedWaves = seed;
+    position *= 0.4 + aBitBetterNoise(position * 0.01)*0.02;
     float phase = 6.0;
     float speed = 2.0;
     float weight = 1.0;
     float w = 0.0;
     float ws = 0.0;
-    const float scaling = 0.5;
+    float scaling = 0.4;
     for(int i=0;i<iterations;i++){
         //vec3 p = normalize(vec3(oct(seedWaves += 1.0), oct(seedWaves += 1.0), oct(seedWaves += 1.0)) * 2.0 - 1.0);
         vec3 p = normalize(optimizedWaveSources[i]);
         vec2 res = wavetadalala(position, p, speed, phase * scaling, timeshift);
-        position -= p * (weight) * (res.y) * 0.248;
+        position -= p * (weight) * (res.y) * 0.148;
         w += res.x * weight;
         ws += weight;
-        weight = mix(weight, 0.0, 0.2);
-        phase *= 1.18;
+        weight = mix(weight, 0.0, 0.18);
+        phase *= 1.2;
         speed *= 1.07;
     }
     return w / ws;

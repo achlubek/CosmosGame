@@ -74,7 +74,7 @@ CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end
     float rayleightCoeff = exp(-0.1415 * (-rayStarDt * 0.5 + 0.5));//(1.0 / (1.0 + 12.1 * (  1.0 - (rayStarDt ))));
     float distmultiplier = distance(start, end);
     float shadowAccumulator = 0.0;
-    if(highQuality){
+    /*if(highQuality){
         float stepsizeShadows = 1.0 / 17.0;
         float iterShadows = stepsizeShadows * oct(UV * Time);
         for(int i=0;i<17;i++){
@@ -87,7 +87,7 @@ CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end
         //    vec3 normal = normalize(start - pass.body.position);
         //    float dt = 1.0 - (1.0 / (1.0 + 3.0 * max(0.0, dot(normal, starDir) * 0.8 + 0.2)));
         //    shadowAccumulator = dt;
-    } else {
+    } else {*/
         float stepsizeShadows = 1.0 / 17.0;
         float iterShadows = stepsizeShadows * oct(start);
         for(int i=0;i<17;i++){
@@ -98,7 +98,7 @@ CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end
             iterShadows += stepsizeShadows;
         }
         shadowAccumulator *= stepsizeShadows;
-    }
+    //}
     vec3 rayEnergy = vec3(ClosestStarColor);
     for(int i=0;i<steps;i++){
         vec3 pos = mix(start, end, iter);

@@ -111,6 +111,11 @@ vec3 flare(vec2 point, vec2 uv){
     return finalColor;
 }
 
+layout(set = 1, binding = 0) uniform sampler2D shadowMap1;
+layout(set = 1, binding = 1) uniform sampler2D shadowMap2;
+layout(set = 1, binding = 2) uniform sampler2D shadowMap3;
+
+
 void main() {
     vec4 celestial = texture(texCelestialAlpha, UV);
     vec3 dir = reconstructCameraSpaceDistance(gl_FragCoord.xy / Resolution, 1.0);
@@ -143,7 +148,7 @@ void main() {
 
     //sunflare = ((starhit > 0.0 && starhit < 9999999.0) ? 1.0 : 0.0) * ClosestStarColor * max(0.0, 1.0 - adddata.a) * (1.0 - step(0.09, length(shipdata2.rgb))) * sunFlareColorizer * Exposure * 21.8 * snois;
 
-    vec3 sunflare2 = flare(UV, projectedSunDir)* max(0.0, 1.0 - adddata2.a) * (1.0 - step(0.09, length(shipdata222.rgb))) * Exposure * (ClosestStarColor) * 0.14 * pow(max(0.0, -dot(dir, starDir)), 3.0);
+    vec3 sunflare2 = flare(UV, projectedSunDir) * (1000.0 / length(ClosestStarPosition)) * max(0.0, 1.0 - adddata2.a) * (1.0 - step(0.09, length(shipdata222.rgb))) * Exposure * (ClosestStarColor) * 0.14 * pow(max(0.0, -dot(dir, starDir)), 3.0);
 
     a += adddata.rgb;
     float shipdata3 = texture(texModelsDistance, UV).r;
@@ -163,5 +168,7 @@ void main() {
     a = mix(a, shaded, step(0.09, length(shipdata2.rgb))) + sunflare2;
     vec4 particlesData = texture(texParticlesResult, UV).rgba;
     a += particlesData.a == 0.0 ? vec3(0.0) : (particlesData.rgb);
+
     outColor = vec4(aces_tonemap(clamp(a, 0.0, 10000.0)), 1.0);
+
 }

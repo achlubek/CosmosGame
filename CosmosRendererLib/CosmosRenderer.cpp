@@ -271,7 +271,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     auto combinefrag = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Fragment, "cosmos-combine.frag.spv");
     
     combineStage = vulkan->getVulkanRenderStageFactory()->build(width, height,
-        { combinevert, combinefrag }, { combineLayout },
+        { combinevert, combinefrag }, { combineLayout, shadowMapsCollectionLayout },
         {
             AbsGameContainer::getInstance()->getOutputImage()->getAttachment(VulkanAttachmentBlending::None, true),
         });
@@ -535,7 +535,7 @@ void CosmosRenderer::draw(double time)
         measureTimeEnd("Celestial surface data for " + std::to_string(i));
 
 
-        if (i == renderables.size() - 1) {
+        /*if (i == renderables.size() - 1) {
             // for (int z = 0; z < shadowmapsDivisors.size(); z++) {
             int z = cascadeCounter;
             cascadeCounter++;
@@ -552,7 +552,7 @@ void CosmosRenderer::draw(double time)
             celestialShadowMapRenderStages[z]->submitNoSemaphores({});
             measureTimeEnd("Celestial shadow cascade " + std::to_string(z) + " data for " + std::to_string(i));
             // }
-        }
+        }*/
 
 
         if (renderables[i]->getRenderMethod() == CelestialRenderMethod::lightAtmosphere) {
@@ -590,7 +590,7 @@ void CosmosRenderer::draw(double time)
 
     measureTimeStart();
     combineStage->beginDrawing();
-    combineStage->setSets({ combineSet });
+    combineStage->setSets({ combineSet , shadowMapsCollectionSet });
     combineStage->drawMesh(vulkan->getObject3dInfoFactory()->getFullScreenQuad(), 1);
     combineStage->endDrawing();
     combineStage->submitNoSemaphores({});

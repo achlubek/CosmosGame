@@ -27,7 +27,7 @@ SOFTWARE.
 
 float achnoise(float x){
     float p = floor(x);
-    float fr = fract(x);
+    float fr = smoothstep(0.0, 1.0, fract(x));
     float L = p;
     float R = p + 1.0;
 
@@ -39,7 +39,7 @@ float achnoise(float x){
 
 float achnoise(vec2 x){
     vec2 p = floor(x);
-    vec2 fr = fract(x);
+    vec2 fr = smoothstep(0.0, 1.0, fract(x));
     vec2 LB = p;
     vec2 LT = p + vec2(0.0, 1.0);
     vec2 RB = p + vec2(1.0, 0.0);
@@ -59,7 +59,7 @@ float achnoise(vec2 x){
 }
 float achnoise(vec3 x){
     vec3 p = floor(x);
-    vec3 fr = fract(x);
+    vec3 fr = smoothstep(0.0, 1.0, fract(x));
     vec3 LBZ = p + vec3(0.0, 0.0, 0.0);
     vec3 LTZ = p + vec3(0.0, 1.0, 0.0);
     vec3 RBZ = p + vec3(1.0, 0.0, 0.0);
@@ -98,7 +98,7 @@ float achnoise(vec3 x){
 
 float achnoise(vec4 x){
     vec4 p = floor(x);
-    vec4 fr = fract(x);
+    vec4 fr = smoothstep(0.0, 1.0, fract(x));
     vec4 LBZU = p + vec4(0.0, 0.0, 0.0, 0.0);
     vec4 LTZU = p + vec4(0.0, 1.0, 0.0, 0.0);
     vec4 RBZU = p + vec4(1.0, 0.0, 0.0, 0.0);
