@@ -67,7 +67,12 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
     star->z = static_cast<int64_t>(static_cast<double>(galaxyradius) * c.y);
     star->y = static_cast<int64_t>((centerThickness) * (thickness * (drand2rn() * drand2rn() * drand2rn())));
     star->radius = static_cast<double>(rand_uint64(69570, 69570));
-    star->color = glm::vec3(0.5 + rand_normalized_double() * rand_normalized_double(), 0.5 + rand_normalized_double() * rand_normalized_double(), 0.5 + rand_normalized_double() * rand_normalized_double());
+    glm::dvec3 red = glm::dvec3(1.0, 0.0, 0.0);
+    glm::dvec3 yellow = glm::dvec3(1.0, 1.0, 0.9);
+    glm::dvec3 blue = glm::dvec3(0.0, 0.0, 1.0);
+    double randcolor = rand_normalized_double();
+    glm::dvec3 starcolor = glm::mix(glm::mix(red, yellow, glm::min(1.0, randcolor * 2.0)), blue, glm::max(0.0, (randcolor - 0.5) * 2.0));
+    star->color = starcolor;
     star->age = rand_normalized_double();
     star->spotsIntensity = rand_normalized_double();
     star->rotationSpeed = rand_normalized_double();
@@ -98,7 +103,7 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
             planet->atmosphereRadius = 0.0;
             planet->atmosphereAbsorbStrength = 0.0;
             planet->atmosphereAbsorbColor = glm::vec3(0.0);
-            planet->terrainMaxLevel = rand_normalized_double() * planet->radius * 0.02;
+            planet->terrainMaxLevel = rand_normalized_double() * planet->radius * 0.006;
             planet->fluidMaxLevel = 0.0;
             planet->habitableChance = 0.0;
             planet->preferredColor = glm::vec3(rand_normalized_double(), rand_normalized_double(), rand_normalized_double());
@@ -107,8 +112,8 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
             // earth like or venus/mars like
             planet->radius = static_cast<double>(rand_uint64(3371.0, 8371.0)); // ranges from mars to 1,5x earth
             moonsCount = rand_uint64(1, 4);
-            planet->atmosphereRadius = (planet->radius * 0.02);
-            planet->terrainMaxLevel =  planet->radius * 0.02;
+            planet->atmosphereRadius = (planet->radius * 0.015) * (0.5 + rand_normalized_double());
+            planet->terrainMaxLevel =  planet->radius * 0.006 * (0.3 + rand_normalized_double());
             float rand1 = rand_normalized_double();
             planet->atmosphereAbsorbStrength = 0.12;
             planet->atmosphereAbsorbColor = glm::vec3(rand_normalized_double() * rand_normalized_double() * rand_normalized_double(), sqrt(rand_normalized_double()), rand_normalized_double());
@@ -162,7 +167,7 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
             }
         }
 
-        planet->orbitSpeed = 1000000.0 * rand_normalized_double() / planet->hostDistance;
+        planet->orbitSpeed = 0;// 1000000.0 * rand_normalized_double() / planet->hostDistance;
         planet->orbitPlane = glm::normalize(glm::vec3(rand_normalized_double(), rand_normalized_double(), rand_normalized_double()) * 2.0f - 1.0f);
         planet->rotationSpeed = rand_normalized_double();
         planet->rotationPlane = glm::normalize(glm::dvec3((rand_normalized_double() * 0.3f) * 2.0f - 1.0f, 1.0f, (rand_normalized_double() * 0.3f) * 2.0f - 1.0f));
@@ -172,8 +177,8 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
 
             bool isAtmospheric = rand_normalized_double() > 0.8;
             moon->host = planet;
-            moon->radius = rand_uint64(planet->radius / 30, planet->radius / 15);
-            moon->terrainMaxLevel = moon->radius * 0.02;
+            moon->radius = rand_uint64(737.0, glm::min(0.3 * planet->radius, 6500.0));
+            moon->terrainMaxLevel = moon->radius * 0.01;
             if (isAtmospheric) {
                 moon->habitableChance = rand_normalized_double();
                 moon->fluidMaxLevel = moon->terrainMaxLevel - moon->terrainMaxLevel * sqrt(rand_normalized_double());
@@ -191,8 +196,8 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
                 moon->preferredColor = glm::vec3(rand_normalized_double(), rand_normalized_double(), rand_normalized_double());
             }
             moon->orbitPlane = glm::normalize(glm::vec3(rand_normalized_double(), rand_normalized_double(), rand_normalized_double()) * 2.0f - 1.0f);
-            moon->hostDistance = planet->radius * 5.0 * (((float)g) * 0.2 + 1.0);
-            moon->orbitSpeed = 1000000.0 * rand_normalized_double() / moon->hostDistance;
+            moon->hostDistance = planet->radius * 40.0 * (((float)g) * 0.2 + 1.0);
+            moon->orbitSpeed = 0;// 1000000.0 * rand_normalized_double() / moon->hostDistance;
             moon->rotationSpeed = rand_normalized_double();
             moon->rotationPlane = glm::normalize(glm::dvec3((rand_normalized_double() * 0.3f) * 2.0f - 1.0f, 1.0f, (rand_normalized_double() * 0.3f) * 2.0f - 1.0f));
             system->bodies.push_back(moon);

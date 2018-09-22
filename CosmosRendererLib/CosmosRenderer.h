@@ -5,13 +5,14 @@ class TimeProvider;
 class StarsRenderer;
 class Camera;
 class GalaxyContainer;
+class SubdividedMeshesProvider;
 class RenderedCelestialBody;
 #include "InvokeQueue.h" 
 
 class CosmosRenderer
 {
 public:
-    CosmosRenderer(VEngine::Renderer::VulkanToolkit* ivulkan, GalaxyContainer* galaxy, int iwidth, int iheight);
+    CosmosRenderer(VulkanToolkit* ivulkan, GalaxyContainer* galaxy, int iwidth, int iheight);
     ~CosmosRenderer();
 
     const double scale = 0.01;
@@ -37,6 +38,8 @@ private:
 
     StarsRenderer* starsRenderer;
 
+    SubdividedMeshesProvider* subdividedMeshesProvider;
+
     std::vector<glm::dvec3> raycastPoints = {};
 
     //Camera* internalCamera; 
@@ -48,71 +51,67 @@ private:
     int width{ 0 };
     int height{ 0 };
 
-    VEngine::Renderer::VulkanToolkit* vulkan{ nullptr };
+    VulkanToolkit* vulkan{ nullptr };
 
-    VEngine::Renderer::VulkanRenderStage* celestialStage{ nullptr };
-    VEngine::Renderer::VulkanDescriptorSetLayout* rendererDataLayout{ nullptr };
-    VEngine::Renderer::VulkanDescriptorSet* rendererDataSet{ nullptr };
+    VulkanRenderStage* celestialStage{ nullptr };
+    VulkanDescriptorSetLayout* rendererDataLayout{ nullptr };
+    VulkanDescriptorSet* rendererDataSet{ nullptr };
 
-    VEngine::Renderer::VulkanRenderStage* combineStage{ nullptr };
-    VEngine::Renderer::VulkanDescriptorSetLayout* combineLayout{ nullptr };
-    VEngine::Renderer::VulkanDescriptorSet* combineSet{ nullptr };
-
-
-    VEngine::Renderer::VulkanDescriptorSetLayout* celestialBodyDataSetLayout{ nullptr };
-    VEngine::Renderer::VulkanDescriptorSetLayout* celestialBodyRenderSetLayout{ nullptr };
-    VEngine::Renderer::VulkanComputeStage* celestialDataUpdateComputeStage;
-
-    VEngine::Renderer::VulkanDescriptorSetLayout* celestialBodyRaycastSharedSetLayout{ nullptr };
-    VEngine::Renderer::VulkanDescriptorSet* celestialBodyRaycastSharedSet{ nullptr };
-    VEngine::Renderer::VulkanDescriptorSetLayout* celestialBodyRaycastUniqueSetLayout{ nullptr };
-    VEngine::Renderer::VulkanComputeStage* celestialBodyRaycastComputeStage;
-
-    VEngine::Renderer::VulkanDescriptorSetLayout* celestialStarsBlitSetLayout{ nullptr };
-    VEngine::Renderer::VulkanDescriptorSet* celestiaStarsBlitSet{ nullptr };
-    VEngine::Renderer::VulkanComputeStage* celestialStarsBlitComputeStage;
+    VulkanRenderStage* combineStage{ nullptr };
+    VulkanDescriptorSetLayout* combineLayout{ nullptr };
+    VulkanDescriptorSet* combineSet{ nullptr };
 
 
-    VEngine::Renderer::VulkanDescriptorSetLayout* celestialBodySurfaceSetLayout{ nullptr };
-    VEngine::Renderer::VulkanRenderStage* celestialBodySurfaceRenderStage;
+    VulkanDescriptorSetLayout* celestialBodyDataSetLayout{ nullptr };
+    VulkanDescriptorSetLayout* celestialBodyRenderSetLayout{ nullptr };
+    VulkanComputeStage* celestialDataUpdateComputeStage;
 
-    VEngine::Renderer::VulkanDescriptorSetLayout* celestialBodyWaterSetLayout{ nullptr };
-    VEngine::Renderer::VulkanRenderStage* celestialBodyWaterRenderStage;
+    VulkanDescriptorSetLayout* celestialBodyRaycastSharedSetLayout{ nullptr };
+    VulkanDescriptorSet* celestialBodyRaycastSharedSet{ nullptr };
+    VulkanDescriptorSetLayout* celestialBodyRaycastUniqueSetLayout{ nullptr };
+    VulkanComputeStage* celestialBodyRaycastComputeStage;
 
-    VEngine::Renderer::VulkanDescriptorSetLayout* celestialShadowMapSetLayout{ nullptr };
-    VEngine::Renderer::VulkanDescriptorSetLayout* shadowMapDataSetLayout{ nullptr };
-    std::vector<VEngine::Renderer::VulkanRenderStage*> celestialShadowMapRenderStages = {};
+    VulkanDescriptorSetLayout* celestialStarsBlitSetLayout{ nullptr };
+    VulkanDescriptorSet* celestiaStarsBlitSet{ nullptr };
+    VulkanComputeStage* celestialStarsBlitComputeStage;
 
-    VEngine::Renderer::VulkanGenericBuffer* cameraDataBuffer;
-    VEngine::Renderer::VulkanGenericBuffer* raycastRequestsDataBuffer;
-    VEngine::Renderer::VulkanGenericBuffer* planetsDataBuffer;
-    VEngine::Renderer::VulkanGenericBuffer* moonsDataBuffer;
 
-    VEngine::Renderer::VulkanImage* celestialAlphaImage;
-    VEngine::Renderer::VulkanImage* celestialAdditiveImage;
+    VulkanDescriptorSetLayout* celestialBodySurfaceSetLayout{ nullptr };
+    VulkanRenderStage* celestialBodySurfaceRenderStage;
 
-    VEngine::Renderer::VulkanImage* surfaceRenderedAlbedoRoughnessImage;
-    VEngine::Renderer::VulkanImage* surfaceRenderedNormalMetalnessImage;
-    VEngine::Renderer::VulkanImage* surfaceRenderedDistanceImage;
-    VEngine::Renderer::VulkanImage* renderedDepthImage;
-    VEngine::Renderer::VulkanImage* waterRenderedNormalMetalnessImage;
-    VEngine::Renderer::VulkanImage* waterRenderedDistanceImage;
+    VulkanDescriptorSetLayout* celestialBodyWaterSetLayout{ nullptr };
+    VulkanRenderStage* celestialBodyWaterRenderStage;
 
-    std::vector<VEngine::Renderer::VulkanImage*> shadowmaps = {};
-    std::vector<VEngine::Renderer::VulkanGenericBuffer*> shadowmapsBuffers = {};
-    std::vector<VEngine::Renderer::VulkanDescriptorSet*> shadowmapsDataSets = {};
-    VEngine::Renderer::VulkanImage* shadowmapsDepthMap;
-    VEngine::Renderer::VulkanDescriptorSetLayout* shadowMapsCollectionLayout{ nullptr };
-    VEngine::Renderer::VulkanDescriptorSet* shadowMapsCollectionSet{ nullptr };
+    VulkanDescriptorSetLayout* celestialShadowMapSetLayout{ nullptr };
+    VulkanDescriptorSetLayout* shadowMapDataSetLayout{ nullptr };
+    std::vector<VulkanRenderStage*> celestialShadowMapRenderStages = {};
+
+    VulkanGenericBuffer* cameraDataBuffer;
+    VulkanGenericBuffer* raycastRequestsDataBuffer;
+    VulkanGenericBuffer* planetsDataBuffer;
+    VulkanGenericBuffer* moonsDataBuffer;
+
+    VulkanImage* celestialAlphaImage;
+    VulkanImage* celestialAdditiveImage;
+
+    VulkanImage* surfaceRenderedAlbedoRoughnessImage;
+    VulkanImage* surfaceRenderedNormalMetalnessImage;
+    VulkanImage* surfaceRenderedDistanceImage;
+    VulkanImage* renderedDepthImage;
+    VulkanImage* waterRenderedNormalMetalnessImage;
+    VulkanImage* waterRenderedDistanceImage;
+
+    std::vector<VulkanImage*> shadowmaps = {};
+    std::vector<VulkanGenericBuffer*> shadowmapsBuffers = {};
+    std::vector<VulkanDescriptorSet*> shadowmapsDataSets = {};
+    VulkanImage* shadowmapsDepthMap;
+    VulkanDescriptorSetLayout* shadowMapsCollectionLayout{ nullptr };
+    VulkanDescriptorSet* shadowMapsCollectionSet{ nullptr };
     std::vector<double> shadowmapsDivisors = {1.0, 5.0, 25.0};
     const int shadowMapWidth = 1024;
     const int shadowMapHeight = 1024;
     
-    VEngine::Renderer::Object3dInfo* cube3dInfo;
-
-    VEngine::Renderer::Object3dInfo* icosphereLow;
-    VEngine::Renderer::Object3dInfo* icosphereMedium;
-    VEngine::Renderer::Object3dInfo* icosphereHigh;
+    Object3dInfo* cube3dInfo;
 
 
     double exposure = 0.0003;
@@ -143,11 +142,5 @@ private:
     void measureTimeStart();
     void measureTimeEnd(std::string name);
 
-    std::vector<std::tuple<glm::vec3, VEngine::Renderer::Object3dInfo*>> patchesLowPoly = {};
-    std::vector<std::tuple<glm::vec3, VEngine::Renderer::Object3dInfo*>> patchesMediumPoly = {};
-    std::vector<std::tuple<glm::vec3, VEngine::Renderer::Object3dInfo*>> patchesHighPoly = {};
-
-    VEngine::Renderer::Object3dInfo* subdivide(VEngine::Renderer::Object3dInfo* info);
-    std::vector<VEngine::Renderer::Object3dInfo*> splitTriangles(VEngine::Renderer::Object3dInfo* info);
 };
 

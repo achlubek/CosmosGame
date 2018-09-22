@@ -158,6 +158,7 @@
     <ClInclude Include="RenderedCelestialBody.h" />
     <ClInclude Include="StarsRenderer.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="SubdividedMeshesProvider.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AbsCelestialObject.cpp" />
@@ -174,6 +175,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="SubdividedMeshesProvider.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

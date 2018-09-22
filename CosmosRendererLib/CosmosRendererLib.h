@@ -8,3 +8,4 @@
 #include "RenderedCelestialBody.h"
 #include "Star.h"
 #include "StarsRenderer.h"
+#include "SubdividedMeshesProvider.h"

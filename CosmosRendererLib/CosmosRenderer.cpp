@@ -4,38 +4,14 @@
 
 CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, int width, int height) :
     galaxy(galaxy), width(width), height(height),
-    vulkan(vulkan), renderablePlanets({}), renderableMoons({}), updatingSafetyQueue(InvokeQueue())
+    vulkan(vulkan), renderablePlanets({}), renderableMoons({}), updatingSafetyQueue(InvokeQueue()),
+    subdividedMeshesProvider(new SubdividedMeshesProvider(vulkan))
 {
     //  internalCamera = new Camera();
 
     cube3dInfo = vulkan->getObject3dInfoFactory()->build("cube1unitradius.raw");
 
-    auto wholeIcoMesh = vulkan->getObject3dInfoFactory()->build("icosphere_to_separate.raw");
-    auto splitMesh = splitTriangles(wholeIcoMesh);
-    for (int i = 0; i < splitMesh.size(); i++) {
-        auto vbo = splitMesh[i]->getVBO();
-        int g = 0;
-        glm::vec3 v1 = glm::normalize(glm::vec3(vbo[g], vbo[g + 1], vbo[g + 2]));
-        g += 12;
-        glm::vec3 v2 = glm::normalize(glm::vec3(vbo[g], vbo[g + 1], vbo[g + 2]));
-        g += 12;
-        glm::vec3 v3 = glm::normalize(glm::vec3(vbo[g], vbo[g + 1], vbo[g + 2]));
 
-        glm::vec3 dir = glm::normalize((v1 + v2 + v3) / glm::vec3(3.0));
-        auto low = subdivide(splitMesh[i]);
-        auto medium = subdivide(low);
-        auto high = subdivide(subdivide(medium));
-        patchesLowPoly.push_back({ dir, low });
-        patchesMediumPoly.push_back({ dir, medium });
-        patchesHighPoly.push_back({ dir, high });
-    }
-
-
-    icosphereLow = vulkan->getObject3dInfoFactory()->build("icosphere_mediumpoly_1unit.raw");
-
-    icosphereMedium = vulkan->getObject3dInfoFactory()->build("icosphere_mediumpoly_1unit.raw");
-
-    icosphereHigh = subdivide(icosphereMedium);// vulkan->getObject3dInfoFactory->build("icosphere_highpoly_1unit.raw");
 
     cameraDataBuffer = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeUniform, sizeof(float) * 1024);
     raycastRequestsDataBuffer = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeStorage, sizeof(float) * 1024 * 128);
@@ -523,10 +499,12 @@ void CosmosRenderer::draw(double time)
         double centerdist = glm::distance(position, observerCameraPosition);
 
         if (centerdist > radius * 3.0 || renderables[i]->getRenderMethod() == CelestialRenderMethod::thickAtmosphere) {
-            meshSequence.push_back(icosphereLow);
+            meshSequence.push_back(subdividedMeshesProvider->getIcosphere(SubdividedMeshQuality::Low));
             //celestialBodySurfaceRenderStage->drawMesh(icosphereLow, 1);
         }
         else {
+            meshSequence.push_back(subdividedMeshesProvider->getIcosphere(SubdividedMeshQuality::High));
+            /*
             for (int g = 0; g < patchesLowPoly.size(); g++) {
                 glm::dvec3 position1 = (rotmat * glm::dvec3(std::get<0>(patchesLowPoly[g]))) * radius + position;
                 double dist = glm::distance(observerCameraPosition, position1);
@@ -542,7 +520,7 @@ void CosmosRenderer::draw(double time)
                     meshSequence.push_back(std::get<1>(patchesLowPoly[g]));
                     //  celestialBodySurfaceRenderStage->drawMesh(std::get<1>(patchesLowPoly[g]), 1);
                 }
-            }
+            }*/
         }
 
         for (int g = 0; g < meshSequence.size(); g++) {
@@ -584,10 +562,10 @@ void CosmosRenderer::draw(double time)
             celestialBodyWaterRenderStage->setSets({ rendererDataSet, renderables[i]->renderWaterSet });
 
             if (centerdist < radius * 7.0) {
-                celestialBodyWaterRenderStage->drawMesh(icosphereMedium, 1);
+                celestialBodyWaterRenderStage->drawMesh(subdividedMeshesProvider->getIcosphere(SubdividedMeshQuality::Medium), 1);
             }
             else {
-                celestialBodyWaterRenderStage->drawMesh(icosphereLow, 1);
+                celestialBodyWaterRenderStage->drawMesh(subdividedMeshesProvider->getIcosphere(SubdividedMeshQuality::Low), 1);
             }
 
             //renderables[i]->drawWater(celestialBodyWaterRenderStage, rendererDataSet, i == (renderables.size() - 1) ? icosphereMedium : icosphereLow);
@@ -700,121 +678,6 @@ void CosmosRenderer::measureTimeEnd(std::string name)
     double end = glfwGetTime();
     printf("    \"%s\": %f,\n", name.c_str(), 1000.0 * (end - measurementStopwatch));
 #endif
-}
-
-Object3dInfo * CosmosRenderer::subdivide(Object3dInfo * info)
-{
-    std::vector<float> floats = {};
-    auto vbo = info->getVBO();
-    for (int i = 0; i < vbo.size();) {
-        glm::vec3 v1 = glm::normalize(glm::vec3(vbo[i], vbo[i + 1], vbo[i + 2]));
-        i += 12;
-        glm::vec3 v2 = glm::normalize(glm::vec3(vbo[i], vbo[i + 1], vbo[i + 2]));
-        i += 12;
-        glm::vec3 v3 = glm::normalize(glm::vec3(vbo[i], vbo[i + 1], vbo[i + 2]));
-        i += 12;
-        glm::vec3 tricenter = glm::normalize((v1 + v2 + v3) * glm::vec3(0.33333333));
-        glm::vec3 v1tov2 = glm::normalize((v1 + v2) * glm::vec3(0.5));
-        glm::vec3 v2tov3 = glm::normalize((v2 + v3) * glm::vec3(0.5));
-        glm::vec3 v3tov1 = glm::normalize((v1 + v3) * glm::vec3(0.5));
-
-        std::vector<glm::vec3> positions = {};
-        positions.push_back(v3tov1);
-        positions.push_back(v1);
-        positions.push_back(v1tov2);
-
-        positions.push_back(v1tov2);
-        positions.push_back(v2);
-        positions.push_back(v2tov3);
-
-        positions.push_back(v2tov3);
-        positions.push_back(v3);
-        positions.push_back(v3tov1);
-
-        positions.push_back(v1tov2);
-        positions.push_back(v2tov3);
-        positions.push_back(v3tov1);
-
-        for (int g = 0; g < positions.size(); g++) {
-            glm::vec3 v = positions[g];
-            // px py pz ux uy nx ny nz tx ty tz tw | px
-            // 0  1  2  3  4  5  6  7  8  9  10 11 | 12
-            floats.push_back(v.x);
-            floats.push_back(v.y);
-            floats.push_back(v.z);
-
-            floats.push_back(v.x);
-            floats.push_back(v.y);
-
-            floats.push_back(v.x);
-            floats.push_back(v.y);
-            floats.push_back(v.z);
-
-            floats.push_back(v.x);
-            floats.push_back(v.y);
-            floats.push_back(v.z);
-            floats.push_back(v.x);
-        }
-    }
-    return vulkan->getObject3dInfoFactory()->build(floats);
-}
-
-std::vector<Object3dInfo*> CosmosRenderer::splitTriangles(Object3dInfo * info)
-{
-    std::vector<Object3dInfo*> objs = {};
-
-    auto vbo = info->getVBO();
-    for (int i = 0; i < vbo.size();) {
-        glm::vec3 v1 = glm::normalize(glm::vec3(vbo[i], vbo[i + 1], vbo[i + 2]));
-        i += 12;
-        glm::vec3 v2 = glm::normalize(glm::vec3(vbo[i], vbo[i + 1], vbo[i + 2]));
-        i += 12;
-        glm::vec3 v3 = glm::normalize(glm::vec3(vbo[i], vbo[i + 1], vbo[i + 2]));
-        i += 12;
-
-        auto buffer = std::vector<float>{
-            v1.x,
-            v1.y,
-            v1.z,
-            v1.x,
-            v1.y,
-            v1.x,
-            v1.y,
-            v1.z,
-            v1.x,
-            v1.y,
-            v1.z,
-            v1.x,
-
-            v2.x,
-            v2.y,
-            v2.z,
-            v2.x,
-            v2.y,
-            v2.x,
-            v2.y,
-            v2.z,
-            v2.x,
-            v2.y,
-            v2.z,
-            v2.x,
-
-            v3.x,
-            v3.y,
-            v3.z,
-            v3.x,
-            v3.y,
-            v3.x,
-            v3.y,
-            v3.z,
-            v3.x,
-            v3.y,
-            v3.z,
-            v3.x
-        };
-        objs.push_back(vulkan->getObject3dInfoFactory()->build(buffer));
-    }
-    return objs;
 }
 
 GalaxyContainer * CosmosRenderer::getGalaxy()

@@ -91,11 +91,11 @@ FreeFlightGameStage::~FreeFlightGameStage()
 
 void FreeFlightGameStage::initializeNew()
 {
-    int targetStar = 3313;
-    int targetPlanet = 2;
+    int targetStar = 37;
+    int targetPlanet = 3;
     int targetMoon = 0;
     auto galaxy = getCosmosGameContainer()->getCosmosRenderer()->getGalaxy();
-    getCosmosGameContainer()->getCosmosRenderer()->setExposure(0.00002);
+    getCosmosGameContainer()->getCosmosRenderer()->setExposure(0.00006);
 
     auto targetBody = galaxy->getByPath(targetStar, targetPlanet, targetMoon);
     auto center = targetBody->getPosition(0);
@@ -275,7 +275,7 @@ void FreeFlightGameStage::onUpdateObject(GameObject * object, double elapsed)
             if (closestPlanetRenderable != nullptr) {
                 auto res = closestPlanetRenderable->getRaycastResults(1)[0];
                 starNameText->updateText("POINT: " + std::to_string(res.x) + "," + std::to_string(res.y) + "," + std::to_string(res.z) + ", DISTANCE: " + std::to_string(res.w * 100.0));
-                debugMarker->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(getViewCamera()->getCamera()->getPosition() + glm::dvec3(res.x, res.y, res.z));
+              //  debugMarker->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(getViewCamera()->getCamera()->getPosition() + glm::dvec3(res.x, res.y, res.z));
                 if (res.w < 0.0) {
                     physicsComponent->setLinearVelocity(dirToShip * res.w + airVelocity);
                 }

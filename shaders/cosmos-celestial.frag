@@ -22,22 +22,6 @@ layout(set = 2, binding = 2) uniform sampler2D shadowMap3;
 #include celestialCommons.glsl
 #include camera.glsl
 
-vec3 extra_cheap_atmosphere(float raylen, float sunraylen, float absorbstrength, vec3 absorbcolor, float sunraydot){
-    //sundir.y = max(sundir.y, -0.07);
-    sunraydot = max(0.0, sunraydot);
-    raylen *= absorbstrength * 0.004;
-    sunraylen *= absorbstrength * 0.004;
-    sunraylen = min(sunraylen, 1.8);
-    float raysundt = pow(abs(sunraydot), 2.0);
-    float sundt = pow(max(0.0, sunraydot), 32.0);
-    float mymie = sundt * raylen;
-    vec3 suncolor = mix(vec3(1.0), max(vec3(0.0), vec3(1.0) - absorbcolor), clamp(sunraylen, 0.0, 1.0)) / (1.0 + raylen);
-    vec3 bluesky= absorbcolor * suncolor;
-    vec3 bluesky2 = max(vec3(0.0), bluesky - absorbcolor * 0.08 * (raylen));
-    bluesky2 *= raylen * (0.24 + raysundt * 0.24);
-    return bluesky2 + mymie * suncolor;
-}
-
 void main() {
     RenderedCelestialBody body = getRenderedBody(celestialBuffer.celestialBody);
     vec3 dir = reconstructCameraSpaceDistance(gl_FragCoord.xy / Resolution, 1.0);
