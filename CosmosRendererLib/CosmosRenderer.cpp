@@ -535,7 +535,7 @@ void CosmosRenderer::draw(double time)
         measureTimeEnd("Celestial surface data for " + std::to_string(i));
 
 
-        /*if (i == renderables.size() - 1) {
+        if (i == renderables.size() - 1) {
             // for (int z = 0; z < shadowmapsDivisors.size(); z++) {
             int z = cascadeCounter;
             cascadeCounter++;
@@ -552,7 +552,7 @@ void CosmosRenderer::draw(double time)
             celestialShadowMapRenderStages[z]->submitNoSemaphores({});
             measureTimeEnd("Celestial shadow cascade " + std::to_string(z) + " data for " + std::to_string(i));
             // }
-        }*/
+        }
 
 
         if (renderables[i]->getRenderMethod() == CelestialRenderMethod::lightAtmosphere) {

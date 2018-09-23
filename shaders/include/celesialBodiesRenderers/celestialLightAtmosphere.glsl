@@ -89,7 +89,7 @@ CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end
         //    shadowAccumulator = dt;
     } else {*/
         float stepsizeShadows = 1.0 / 7.0;
-        float iterShadows = stepsizeShadows * oct(start);
+        float iterShadows = stepsizeShadows * oct(end);
         for(int i=0;i<7;i++){
             Ray ray = Ray(mix(start, end, iterShadows), normalize(ClosestStarPosition - mix(start, end, iterShadows)));
             float waterSphereShadow = rsi2(ray, pass.body.waterSphere).x;
@@ -232,7 +232,7 @@ vec3 renderWater(RenderPass pass, vec3 background, float depth){
     vec3 result = fresnel * reflectedAtmo;//fresnel * reflectedAtmo;// * (getStarTerrainShadowAtPoint(pass.body, pass.waterHitPos) * 0.7 + 0.3);
     result += flatdt * 10000.0 * distr * fresnel * getSunColorForRay(pass.body, Ray(pass.waterHitPos, reflected)) * pow(refldt, phongMult);
     //result *= getStarTerrainShadowAtPoint(pass.body, pass.waterHitPos, 0.001);
-    result += (1.0 - fresnel) * (background / (depth*depth * 10000.0 + 1.0)) / (depth*depth * 10000.0 + 1.0);
+    result += (1.0 - fresnel) * (background / (depth*depth * 60000.0 + 1.0)) / (depth*depth * 60000.0 + 1.0);
     //result += getAtmosphereLightForRay(pass, Ray(pass.surfaceHitPos, waternormal), 0.0).additionLight.xyz * dtup * 1.0;
     return scatterLight(pass.body, pass.ray.o, pass.waterHitPos, result);
 }
@@ -245,7 +245,7 @@ CelestialRenderResult renderCelestialBodyLightAtmosphere(RenderPass pass){
     vec3 ambienceMultiplier = pow(max(0.0, dot(flatnormal, normal)) * 0.9 + 0.1, 12.0) *  ClosestStarColor * 0.0004;
     vec3 dirToStar = normalize(ClosestStarPosition - pass.surfaceHitPos);
     float dt = max(0.0, dot(normal, dirToStar));
-    color *= getSunColorForRay(pass.body, Ray(pass.surfaceHitPos, dirToStar));
+    color *= getSunColorForRay(pass.body, Ray(pass.surfaceHitPos, dirToStar)) * 10.0;
     color *= dt;
     float roughness = 1.0;
     color *= getStarTerrainShadowAtPoint(pass.body, pass.surfaceHitPos, 1.0);

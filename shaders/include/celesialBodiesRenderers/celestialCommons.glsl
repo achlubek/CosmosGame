@@ -256,7 +256,7 @@ void updatePassHits(inout RenderPass pass){
     #ifndef SHADOW_MAP_COMPUTE_STAGE
             hit_Water = texture(waterRenderedDistanceImage, uv).r;//raymarchCelestialTerrain(pass.ray, hit_Surface > 0.0 && hit_Surface < DISTANCE_INFINITY ? hit_Surface : 0.0, heightMapImage, pass.body, 0.00001 );
     #endif
-    if(hit_Water < 10.22 && hit_Water > 0.0){
+    if(hit_Water < 1.22 && hit_Water > 0.0){
         float hit_Water_Spherical = rsi2(pass.ray, pass.body.waterSphere).x;
         hit_Water = raymarchCelestialWater(pass.ray, hit_Water_Spherical, pass.body, 0.000001);
         hit_Water = mix(hit_Water, hit_Water_Spherical, clamp(hit_Water_Spherical / 2.22, 0.0, 1.0)); //magic
