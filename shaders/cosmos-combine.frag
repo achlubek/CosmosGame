@@ -111,11 +111,6 @@ vec3 flare(vec2 point, vec2 uv){
     return finalColor;
 }
 
-layout(set = 1, binding = 0) uniform sampler2D shadowMap1;
-layout(set = 1, binding = 1) uniform sampler2D shadowMap2;
-layout(set = 1, binding = 2) uniform sampler2D shadowMap3;
-
-
 void main() {
     vec4 celestial = texture(texCelestialAlpha, UV);
     vec3 dir = reconstructCameraSpaceDistance(gl_FragCoord.xy / Resolution, 1.0);

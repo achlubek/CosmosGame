@@ -68,7 +68,7 @@ vec2 celestialGetCloudsRaycast(RenderedCelestialBody body, vec3 position){
 }
 
 float getStarTerrainShadowAtPoint(RenderedCelestialBody body, vec3 point, float tolerance){
-    return 1.0;
+    //return 1.0;
     Ray ray = Ray(point, normalize(ClosestStarPosition - point));
     float waterSphereShadow = rsi2(ray, body.waterSphere).x;
     float highCloudsHit = rsi2(ray, body.highCloudsSphere).y;

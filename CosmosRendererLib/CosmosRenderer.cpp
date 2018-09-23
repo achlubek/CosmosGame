@@ -216,7 +216,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     auto celestialsurfacevert = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Vertex, "cosmos-celestial-surface.vert.spv");
     auto celestialsurfacefrag = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Fragment, "cosmos-celestial-surface.frag.spv");
 
-    celestialBodySurfaceRenderStage = vulkan->getVulkanRenderStageFactory()->build(width, height, 
+    celestialBodySurfaceRenderStage = vulkan->getVulkanRenderStageFactory()->build(width, height,
         { celestialsurfacevert, celestialsurfacefrag }, { rendererDataLayout, celestialBodySurfaceSetLayout },
         {
             surfaceRenderedAlbedoRoughnessImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
@@ -257,7 +257,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
 
     auto celestialvert = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Vertex, "cosmos-celestial.vert.spv");
     auto celestialfrag = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Fragment, "cosmos-celestial.frag.spv");
-    
+
     celestialStage = vulkan->getVulkanRenderStageFactory()->build(width, height,
         { celestialvert, celestialfrag }, { rendererDataLayout, celestialBodyRenderSetLayout, shadowMapsCollectionLayout },
         {
@@ -269,9 +269,9 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
 
     auto combinevert = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Vertex, "cosmos-combine.vert.spv");
     auto combinefrag = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Fragment, "cosmos-combine.frag.spv");
-    
+
     combineStage = vulkan->getVulkanRenderStageFactory()->build(width, height,
-        { combinevert, combinefrag }, { combineLayout, shadowMapsCollectionLayout },
+        { combinevert, combinefrag }, { combineLayout },
         {
             AbsGameContainer::getInstance()->getOutputImage()->getAttachment(VulkanAttachmentBlending::None, true),
         });
@@ -382,7 +382,7 @@ void CosmosRenderer::updateCameraBuffer(Camera * camera, double time)
 
 
 }
- 
+
 void CosmosRenderer::draw(double time)
 {
     if (!readyForDrawing) return;
@@ -536,22 +536,22 @@ void CosmosRenderer::draw(double time)
 
 
         if (i == renderables.size() - 1) {
-            // for (int z = 0; z < shadowmapsDivisors.size(); z++) {
-            int z = cascadeCounter;
-            cascadeCounter++;
-            if (cascadeCounter >= shadowmapsDivisors.size()) {
-                cascadeCounter = 0;
-            }
-            measureTimeStart();
-            celestialShadowMapRenderStages[z]->beginDrawing();
-            celestialShadowMapRenderStages[z]->setSets({ rendererDataSet, renderables[i]->shadowMapSet, shadowmapsDataSets[z] });
-            for (int g = 0; g < meshSequence.size(); g++) {
-                celestialShadowMapRenderStages[z]->drawMesh(meshSequence[g], 1);
-            }
-            celestialShadowMapRenderStages[z]->endDrawing();
-            celestialShadowMapRenderStages[z]->submitNoSemaphores({});
-            measureTimeEnd("Celestial shadow cascade " + std::to_string(z) + " data for " + std::to_string(i));
-            // }
+            //for (int z = 0; z < shadowmapsDivisors.size(); z++) {
+                measureTimeStart();
+                int z = cascadeCounter;
+                cascadeCounter++;
+                if (cascadeCounter >= shadowmapsDivisors.size()) {
+                    cascadeCounter = 0;
+                }
+                celestialShadowMapRenderStages[z]->beginDrawing();
+                celestialShadowMapRenderStages[z]->setSets({ rendererDataSet, renderables[i]->shadowMapSet, shadowmapsDataSets[z] });
+                for (int g = 0; g < meshSequence.size(); g++) {
+                    celestialShadowMapRenderStages[z]->drawMesh(meshSequence[g], 1);
+                }
+                celestialShadowMapRenderStages[z]->endDrawing();
+                celestialShadowMapRenderStages[z]->submitNoSemaphores({});
+                measureTimeEnd("Celestial shadow cascade " + std::to_string(z) + " data for " + std::to_string(i));
+           // }
         }
 
 
@@ -590,7 +590,7 @@ void CosmosRenderer::draw(double time)
 
     measureTimeStart();
     combineStage->beginDrawing();
-    combineStage->setSets({ combineSet , shadowMapsCollectionSet });
+    combineStage->setSets({ combineSet });
     combineStage->drawMesh(vulkan->getObject3dInfoFactory()->getFullScreenQuad(), 1);
     combineStage->endDrawing();
     combineStage->submitNoSemaphores({});

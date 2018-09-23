@@ -7,7 +7,6 @@ float celestialLightAtmosphereGetHeightMap(RenderedCelestialBody body, vec3 dir)
 
 vec4 celestialLightAtmosphereGetColorRoughnessMap(RenderedCelestialBody body, float height, vec3 dir){
     vec3 baseColor = normalize(body.sufraceMainColor);
-    float polardir = abs(dot(dir, vec3(0.0, 1.0, 0.0)));
     dir *= 0.4 + 3.0 * oct(sin(body.seed ));
     vec3 colorrandomizer = baseColor * 0.5 + 0.5 * vec3(
         FBM4(vec4(dir * 20.0, body.seed), 10, 2.0, 0.5),

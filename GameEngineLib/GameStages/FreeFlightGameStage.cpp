@@ -106,8 +106,8 @@ void FreeFlightGameStage::initializeNew()
     testship->addTag(GameObjectTags::Ship);
     testship->addTag(GameObjectTags::ControllableVehicle);
 
-    testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(center + glm::dvec3(dist * 1.01563 * 0.70710, dist * -1.01563 * 0.70710, 0.0));
-    testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(velocity + 0.0 * targetBody->calculateOrbitVelocity(dist * 0.03) * glm::dvec3(1.0, 0.0, 0.0));
+    testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(center + glm::dvec3(dist * 1.03, 0.0, 0.0));
+    testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(velocity + 1000.0 * targetBody->calculateOrbitVelocity(dist * 0.03) * glm::dvec3(0.0, 1.0, 0.0));
     //testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(glm::dvec3(0.0));
 
     addObject(testship);
@@ -115,8 +115,8 @@ void FreeFlightGameStage::initializeNew()
     auto player = getCosmosGameContainer()->getPlayerFactory()->build();
     player->addTag(GameObjectTags::Player);
 
-    player->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(center + glm::dvec3(dist * 1.01563 * 0.70710, dist * -1.01563 * 0.70710, 0.0));
-    player->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(velocity + 0.0 * targetBody->calculateOrbitVelocity(dist * 0.03) * glm::dvec3(1.0, 0.0, 0.0));
+    player->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(center + glm::dvec3(dist * 1.03, 0.0, 0.0));
+    player->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(velocity + 1000.0 * targetBody->calculateOrbitVelocity(dist * 0.03) * glm::dvec3(0.0, 1.0, 0.0));
     //testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(glm::dvec3(0.0));
 
     player->addComponent(new FocusComponent());

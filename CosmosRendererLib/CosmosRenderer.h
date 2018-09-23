@@ -107,7 +107,7 @@ private:
     VulkanImage* shadowmapsDepthMap;
     VulkanDescriptorSetLayout* shadowMapsCollectionLayout{ nullptr };
     VulkanDescriptorSet* shadowMapsCollectionSet{ nullptr };
-    std::vector<double> shadowmapsDivisors = {1.0, 1.0, 1.0};
+    std::vector<double> shadowmapsDivisors = {1.0, 7.0, 45.0};
     const int shadowMapWidth = 1024;
     const int shadowMapHeight = 1024;
     

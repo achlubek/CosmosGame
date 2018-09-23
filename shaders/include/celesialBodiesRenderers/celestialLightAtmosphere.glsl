@@ -245,7 +245,7 @@ CelestialRenderResult renderCelestialBodyLightAtmosphere(RenderPass pass){
     vec3 ambienceMultiplier = pow(max(0.0, dot(flatnormal, normal)) * 0.9 + 0.1, 12.0) *  ClosestStarColor * 0.0004;
     vec3 dirToStar = normalize(ClosestStarPosition - pass.surfaceHitPos);
     float dt = max(0.0, dot(normal, dirToStar));
-    color *= getSunColorForRay(pass.body, Ray(pass.surfaceHitPos, dirToStar)) * 10.0;
+    color *= getSunColorForRay(pass.body, Ray(pass.surfaceHitPos, dirToStar));
     color *= dt;
     float roughness = 1.0;
     color *= getStarTerrainShadowAtPoint(pass.body, pass.surfaceHitPos, 1.0);
