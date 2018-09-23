@@ -191,20 +191,21 @@ vec3 celestialGetNormalRaycast(RenderedCelestialBody body, float dxrange, vec3 p
 }
 
 float getWaterHeightHiRes(RenderedCelestialBody body, vec3 dir){
-    //dir = body.rotationMatrix * dir;
-    float waterHeightHere = noise4d(vec4(dir * 14.0, Time * 0.01));
-    float wheight = 0.0002 + 0.0056 * waterHeightHere;
-    return (body.radius + body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir * body.radius * 150.01, 17, 1.8, Time * 0.01, 0.0)) * wheight;
+//    dir = body.rotationMatrix * dir;
+//    float waterHeightHere = noise4d(vec4(dir * 14.0, Time * 0.01));
+    float wheight = 0.002 + 0.056;// * waterHeightHere;
+    float b = FBM4(vec4(dir * body.radius * 250.01, Time * 0.1), 4, 3.0, 0.5) * wheight;
+    return (body.radius + body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir * body.radius * 150.01, 23, 1.8, Time * 0.01, 0.0)) * wheight * 0.1 - b * 0.02;
 }
 float getWaterHeightLowRes(RenderedCelestialBody body, vec3 dir){
-    dir = body.rotationMatrix * dir;
-    float waterHeightHere = noise4d(vec4(dir * 14.0, Time * 0.01));
-    float wheight = 0.0002 + 0.0056 * waterHeightHere;
-    return (body.radius + body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir * body.radius * 150.01, 6, 1.8, Time * 0.01, 0.0)) * wheight;
+    //dir = body.rotationMatrix * dir;
+    //float waterHeightHere = noise4d(vec4(dir * 14.0, Time * 0.01));
+    float wheight = 0.002 + 0.056;// * waterHeightHere;
+    return (body.radius + body.fluidMaxLevel) - (1.0 - getwavesHighPhase(dir * body.radius * 150.01, 15, 1.8, Time * 0.01, 0.0)) * wheight * 0.1;
 }
 
 vec3 celestialGetWaterNormal(RenderedCelestialBody body, float dxrange, vec3 dir){
-    dir = body.rotationMatrix * dir;
+    //dir = body.rotationMatrix * dir;
     vec3 tangdir = normalize(cross(dir, vec3(0.0, 1.0, 0.0)));
     vec3 bitangdir = normalize(cross(tangdir, dir));
     mat3 normrotmat1 = rotationMatrix(tangdir, dxrange);
@@ -215,8 +216,6 @@ vec3 celestialGetWaterNormal(RenderedCelestialBody body, float dxrange, vec3 dir
     vec3 p2 = dir2 * getWaterHeightHiRes(body, vec3(dir2));
     vec3 p3 = dir3 * getWaterHeightHiRes(body, vec3(dir3));
     vec3 n =  normalize(cross(normalize(p3 - p1), normalize(p2 - p1)));
-    n += tangdir * (FBM3(p1 * 3110.0 + 1212.0, 5, 2.5, 0.75) * 2.0 - 1.0) * 0.05;
-    n += bitangdir * (FBM3(p1 * 3110.0, 5, 2.5, 0.75) * 2.0 - 1.0) * 0.05;
     return normalize(n);
 
 }
@@ -226,17 +225,17 @@ vec3 celestialGetWaterNormalRaycast(RenderedCelestialBody body, float dxrange, v
 }
 
 float raymarchCelestialWater(Ray ray, float startDistance, RenderedCelestialBody body, float limit){
-    float maxheight = body.radius + body.fluidMaxLevel + 0.001;// + 0.0004;// + body.terrainMaxLevel;
+    float maxheight = body.radius + body.fluidMaxLevel + 0.01;// + 0.0004;// + body.terrainMaxLevel;
     vec3 center = body.position;
     vec3 p = ray.o + ray.d * startDistance;
-    for(int i=0;i<7;i++){
+    for(int i=0;i<17;i++){
         vec3 dir = normalize(p - center);
         float centerDistanceProbe = distance(p, center); // probe distance to planet center
         if(centerDistanceProbe > maxheight ) return -0.01;
         float centerDistanceSufrace = getWaterHeightLowRes(body, dir);
         float altitude = centerDistanceProbe - centerDistanceSufrace; // probe altitude
         if(altitude < limit) return distance(p, ray.o);
-        p += ray.d * max(limit, altitude*0.4);
+        p += ray.d * max(limit, altitude*0.7);
     }
     return distance(p, ray.o);
 }
@@ -258,9 +257,9 @@ void updatePassHits(inout RenderPass pass){
             hit_Water = texture(waterRenderedDistanceImage, uv).r;//raymarchCelestialTerrain(pass.ray, hit_Surface > 0.0 && hit_Surface < DISTANCE_INFINITY ? hit_Surface : 0.0, heightMapImage, pass.body, 0.00001 );
     #endif
     if(hit_Water < 10.22 && hit_Water > 0.0){
-        //float hit_Water_Spherical = rsi2(pass.ray, pass.body.waterSphere).x;
-    //    hit_Water = raymarchCelestialWater(pass.ray, hit_Water_Spherical, pass.body, 0.000001);
-    //    hit_Water = mix(hit_Water, hit_Water_Spherical, clamp(hit_Water_Spherical / 2.22, 0.0, 1.0)); //magic
+        float hit_Water_Spherical = rsi2(pass.ray, pass.body.waterSphere).x;
+        hit_Water = raymarchCelestialWater(pass.ray, hit_Water_Spherical, pass.body, 0.000001);
+        hit_Water = mix(hit_Water, hit_Water_Spherical, clamp(hit_Water_Spherical / 2.22, 0.0, 1.0)); //magic
     }
     vec2 hits_Atmosphere = rsi2(pass.ray, pass.body.atmosphereSphere);
     if(hit_Surface > 0.0 && hit_Surface < DISTANCE_INFINITY) {

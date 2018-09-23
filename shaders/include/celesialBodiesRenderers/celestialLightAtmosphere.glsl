@@ -41,7 +41,7 @@ vec3 scatterLight(RenderedCelestialBody body, vec3 observer, vec3 point, vec3 li
     float maxradius2 = pow(body.radius * 0.35, 1.0);
     float newpower = 0.0;
     primaryLength = pow(primaryLength, 1.0);
-    float mixer = clamp(primaryLength / maxradius, 0.0, 1.0);
+    float mixer = 1.0 - exp(-(primaryLength / maxradius));
     float mixer2 = clamp(primaryLength / maxradius2, 0.0, 1.0);
     return mix(light, colorized, mixer) * mix(newpower, 1.0, pow(1.0 - mixer2, 2.0));
 
@@ -88,9 +88,9 @@ CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end
         //    float dt = 1.0 - (1.0 / (1.0 + 3.0 * max(0.0, dot(normal, starDir) * 0.8 + 0.2)));
         //    shadowAccumulator = dt;
     } else {*/
-        float stepsizeShadows = 1.0 / 17.0;
+        float stepsizeShadows = 1.0 / 7.0;
         float iterShadows = stepsizeShadows * oct(start);
-        for(int i=0;i<17;i++){
+        for(int i=0;i<7;i++){
             Ray ray = Ray(mix(start, end, iterShadows), normalize(ClosestStarPosition - mix(start, end, iterShadows)));
             float waterSphereShadow = rsi2(ray, pass.body.waterSphere).x;
             //float highCloudsHit = rsi2(ray, pass.body.highCloudsSphere).y;
@@ -103,7 +103,7 @@ CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end
     for(int i=0;i<steps;i++){
         vec3 pos = mix(start, end, iter);
         float cdst = distance(pos, pass.body.position) - radius;
-        float heightmix = clamp(1.0 - cdst / atmoheight, 0.0, 1.0);
+        float heightmix = pow(clamp(1.0 - cdst / atmoheight, 0.0, 1.0), 2.0);
 
         vec3 endSecondary = pos + starDir * rsi2(Ray(pos, starDir), pass.body.atmosphereSphere).y;
         //rayEnergy = getSunColorForRay(pass.body, Ray(pos, starDir));
@@ -212,7 +212,7 @@ vec3 renderWater(RenderPass pass, vec3 background, float depth){
     vec3 dirToStar = normalize(ClosestStarPosition - pass.waterHitPos);
     vec3 flatnormal = normalize(pass.waterHitPos - pass.body.position);
     float flatdt = smoothstep(-0.1, 0.0, max(-0.1, dot(flatnormal, dirToStar)));
-    vec3 waternormal = celestialGetWaterNormalRaycast(pass.body,  0.0000288 * sqrt(pass.waterHit), pass.waterHitPos + vec3((sin(Time * 10.0) * 0.5 + 0.5) * 0.0000288 * sqrt(pass.waterHit)));
+    vec3 waternormal = celestialGetWaterNormalRaycast(pass.body,  0.00001288 * sqrt(pass.waterHit), pass.waterHitPos + vec3((sin(Time * 10.0) * 0.5 + 0.5) * 0.0000288 * sqrt(pass.waterHit)));
     float dtup = max(-0.1, dot(waternormal, flatnormal));
 
     waternormal = normalize(waternormal);

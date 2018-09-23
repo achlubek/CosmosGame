@@ -503,7 +503,7 @@ void CosmosRenderer::draw(double time)
             //celestialBodySurfaceRenderStage->drawMesh(icosphereLow, 1);
         }
         else {
-            meshSequence.push_back(subdividedMeshesProvider->getIcosphere(SubdividedMeshQuality::High));
+            meshSequence.push_back(subdividedMeshesProvider->getIcosphere(SubdividedMeshQuality::High)); // Pretty high performance hit here
             /*
             for (int g = 0; g < patchesLowPoly.size(); g++) {
                 glm::dvec3 position1 = (rotmat * glm::dvec3(std::get<0>(patchesLowPoly[g]))) * radius + position;
@@ -666,7 +666,7 @@ void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
 void CosmosRenderer::measureTimeStart()
 {
 #ifdef PERFORMANCE_DEBUG
-    vkDeviceWaitIdle(vulkan->device);
+    vulkan->waitDeviceIdle();
     measurementStopwatch = glfwGetTime();
 #endif
 }
@@ -674,7 +674,7 @@ void CosmosRenderer::measureTimeStart()
 void CosmosRenderer::measureTimeEnd(std::string name)
 {
 #ifdef PERFORMANCE_DEBUG
-    vkDeviceWaitIdle(vulkan->device);
+    vulkan->waitDeviceIdle();
     double end = glfwGetTime();
     printf("    \"%s\": %f,\n", name.c_str(), 1000.0 * (end - measurementStopwatch));
 #endif
