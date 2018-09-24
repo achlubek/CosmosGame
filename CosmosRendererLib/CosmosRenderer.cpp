@@ -20,7 +20,7 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, i
 
     celestialAlphaImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA16f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Storage | VulkanImageUsage::Sampled);
 
-    celestialAdditiveImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA16f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
+    celestialAdditiveImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA32f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
 
     //####################//
 
@@ -317,7 +317,8 @@ void CosmosRenderer::updateCameraBuffer(Camera * camera, double time)
 
     auto star = galaxy->getClosestStar();
     
-    AbsGameContainer::getInstance()->setCurrentSunDirection(star.getFromThisLookAtPointMatrix(time, observerCameraPosition));
+    auto fromStarToCameraMatrix = star.getFromThisLookAtPointMatrix(time, observerCameraPosition);
+    AbsGameContainer::getInstance()->setCurrentSunDirection(fromStarToCameraMatrix);
 
     glm::dvec3 closesStarRelPos = (star.getPosition(time) - observerCameraPosition) * scale;
 
@@ -341,6 +342,8 @@ void CosmosRenderer::updateCameraBuffer(Camera * camera, double time)
     bb.emplaceFloat32((float)height);
     bb.emplaceFloat32(exposure);
     bb.emplaceFloat32(0.0f);
+
+    bb.emplaceGeneric((unsigned char*)&fromStarToCameraMatrix, sizeof(fromStarToCameraMatrix));
 
     bb.emplaceFloat32(closesStarRelPos.x);
     bb.emplaceFloat32(closesStarRelPos.y);

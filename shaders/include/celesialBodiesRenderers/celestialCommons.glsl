@@ -377,7 +377,9 @@ CelestialRenderResult renderCelestialBody(RenderedCelestialBody body, Ray ray){
     //result.additionLight = vec4(0.0);
     //vec3 nrm = texture(surfaceRenderedAlbedoRoughnessImage, gl_FragCoord.xy / Resolution).rgb;
     //float ddd = texture(surfaceRenderedDistanceImage, gl_FragCoord.xy / Resolution).r;
-    result.additionLight.a = pass.isSurfaceHit || pass.isWaterHit ? 1.0 : 0.0;
+    result.additionLight.a = 0.0;
+    if(pass.isSurfaceHit) result.additionLight.a = length(pass.surfaceHitPos);
+    if(pass.isWaterHit) result.additionLight.a = min(result.additionLight.a, length(pass.waterHitPos));
     return result;
 }
 

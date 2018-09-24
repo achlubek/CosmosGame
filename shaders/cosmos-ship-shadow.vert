@@ -42,6 +42,7 @@ void main() {
     vec4 opo = (sunLightData.SunLightDirection_Zero)
         * vec4(WorldPos * 0.01, 1.0);
     opo.y *= -1.0;
+    opo.z *= -1.0;
     outDepth = opo.z * 0.5 + 0.5;
     gl_Position = opo;
 }

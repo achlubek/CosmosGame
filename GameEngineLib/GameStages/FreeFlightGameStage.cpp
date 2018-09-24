@@ -91,7 +91,7 @@ FreeFlightGameStage::~FreeFlightGameStage()
 
 void FreeFlightGameStage::initializeNew()
 {
-    int targetStar = 137;
+    int targetStar = 37;
     int targetPlanet = 3;
     int targetMoon = 0;
     auto galaxy = getCosmosGameContainer()->getCosmosRenderer()->getGalaxy();

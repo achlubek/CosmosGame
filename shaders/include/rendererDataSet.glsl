@@ -10,6 +10,7 @@ layout(set = 0, binding = 0) uniform UniformBufferObject1 {
     vec4 inFrustumConeBottomLeftToBottomRight;
     vec4 inFrustumConeBottomLeftToTopLeft;
     vec4 Resolution_Exposure_Zero;
+    mat4 FromStarToThisMatrix;
     vec4 ClosestStarPosition;
     vec4 ClosestStarColor;
     ivec4 ShadowMapCount;
@@ -34,3 +35,4 @@ float ShadowMapDivisors1 = hiFreq.ShadowMapDivisors1;
 float ShadowMapDivisors2 = hiFreq.ShadowMapDivisors2;
 float ShadowMapDivisors3 = hiFreq.ShadowMapDivisors3;
 float ShadowMapDivisors4 = hiFreq.ShadowMapDivisors4;
+mat4 FromStarToThisMatrix = hiFreq.FromStarToThisMatrix;

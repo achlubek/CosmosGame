@@ -4,6 +4,9 @@
 layout(location = 0) in vec2 UV;
 layout(location = 0) out vec4 outColor;
 
+#include rendererDataSet.glsl
+
+
 layout(set = 0, binding = 1) uniform sampler2D texCelestialAlpha;
 layout(set = 0, binding = 2) uniform sampler2D texStars;
 layout(set = 0, binding = 3) uniform sampler2D texCelestialAdditive;
@@ -14,7 +17,6 @@ layout(set = 0, binding = 7) uniform sampler2D texModelsDistance;
 layout(set = 0, binding = 8) uniform sampler2D texModelsDistanceShadow;
 layout(set = 0, binding = 9) uniform sampler2D texParticlesResult;
 
-#include rendererDataSet.glsl
 #include proceduralValueNoise.glsl
 #include sphereRaytracing.glsl
 
@@ -154,20 +156,34 @@ void main() {
     vec3 normal = normalize(shipdata2.rgb);
     float metalness = shipdata2.a;
     vec3 position = dir * shipdata3;
+    vec3 positionCelestial = dir * adddata.a;
     vec3 viewdir = dir;
     vec3 lightdir = -starDir;
     vec3 lightcolor = ClosestStarColor * 0.0001;
 
-    vec3 shaded = shade_ray(albedo, normal, viewdir, roughness, metalness, lightdir, lightcolor);
+    vec3 shadowModelsSpace = ((hiFreq.FromStarToThisMatrix) * vec4(position * 0.01, 1.0)).rgb;
+    shadowModelsSpace.y *= -1.0;
+    float readZ = texture(texModelsDistanceShadow, shadowModelsSpace.xy * 0.5 + 0.5).r;
+    float target = (-shadowModelsSpace.z * 0.5 + 0.5) - 0.0001;
+    float isShadow = smoothstep(-0.0001, 0.0001, target - readZ);
+
+
+    vec3 shadowCeleSpace = ((hiFreq.FromStarToThisMatrix) * vec4(positionCelestial * 0.01, 1.0)).rgb;
+    shadowCeleSpace.y *= -1.0;
+    float readZ2 = texture(texModelsDistanceShadow, shadowCeleSpace.xy * 0.5 + 0.5).r;
+    float target2 = (-shadowCeleSpace.z * 0.5 + 0.5) - 0.0001;
+    float isShadow2 = smoothstep(-0.0001, 0.0001, target2 - readZ2);
+
+    vec3 shaded = isShadow * vec3(1.0);//shade_ray(albedo, normal, viewdir, roughness, metalness, lightdir, lightcolor);
     shaded += albedo * 0.0 + emission;
 
-    a = mix(a, shaded, step(0.09, length(shipdata2.rgb))) + sunflare2;
+    a = mix(a * isShadow2, shaded, step(0.09, length(shipdata2.rgb))) + sunflare2;
     vec4 particlesData = texture(texParticlesResult, UV).rgba;
     a += particlesData.a == 0.0 ? vec3(0.0) : (particlesData.rgb);
 
     outColor = vec4(aces_tonemap(clamp(a, 0.0, 10000.0)), 1.0);
-/*
+
     if(UV.x< 0.4 && UV.y < 0.4){
-        outColor = vec4(1.0) * step(0.0001, texture(texModelsDistanceShadow, UV * 10.0 / 4.0).rrrr);
-    }*/
+        outColor = vec4(1.0) * texture(texModelsDistanceShadow, UV * 10.0 / 4.0).rrrr;
+    }
 }
