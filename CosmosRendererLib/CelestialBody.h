@@ -50,7 +50,7 @@ public:
     }
 
     glm::mat4 getFromParentLookAtThisMatrix(double at_time) {
-        auto parentPos = starhost->getPosition(at_time); 
+        auto parentPos = starhost->getPosition(at_time);
         auto thisPos = getPosition(at_time);
         auto direction = glm::normalize(thisPos - parentPos);
         return glm::lookAt(glm::dvec3(0.0), -direction, glm::dvec3(0.0, 1.0, 0.0));

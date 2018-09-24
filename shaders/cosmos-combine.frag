@@ -11,7 +11,8 @@ layout(set = 0, binding = 4) uniform sampler2D texModelsAlbedoRoughness;
 layout(set = 0, binding = 5) uniform sampler2D texModelsEmission;
 layout(set = 0, binding = 6) uniform sampler2D texModelsNormalMetalness;
 layout(set = 0, binding = 7) uniform sampler2D texModelsDistance;
-layout(set = 0, binding = 8) uniform sampler2D texParticlesResult;
+layout(set = 0, binding = 8) uniform sampler2D texModelsDistanceShadow;
+layout(set = 0, binding = 9) uniform sampler2D texParticlesResult;
 
 #include rendererDataSet.glsl
 #include proceduralValueNoise.glsl
@@ -165,5 +166,8 @@ void main() {
     a += particlesData.a == 0.0 ? vec3(0.0) : (particlesData.rgb);
 
     outColor = vec4(aces_tonemap(clamp(a, 0.0, 10000.0)), 1.0);
-
+/*
+    if(UV.x< 0.4 && UV.y < 0.4){
+        outColor = vec4(1.0) * step(0.0001, texture(texModelsDistanceShadow, UV * 10.0 / 4.0).rrrr);
+    }*/
 }

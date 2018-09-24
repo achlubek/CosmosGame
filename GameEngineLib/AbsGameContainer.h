@@ -36,6 +36,7 @@ public:
     ParticlesRenderer* getParticlesRenderer();
     void setShouldClose(bool close);
     DebugLogger* getLogger();
+    void setCurrentSunDirection(glm::mat4 mat);
 protected:
     virtual void onDrawingStart() = 0;
     virtual void onDraw() = 0;
@@ -55,6 +56,7 @@ private:
     GameStageCollection* stageCollection;
     ParticlesRenderer* particlesRenderer;
     DebugLogger* logger;
+    glm::mat4 currentSunDirection;
     bool shouldClose = false;
     int width, height;
 };

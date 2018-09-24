@@ -142,6 +142,7 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, i
     combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
     combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
     combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
+    combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
 
     combineSet = combineLayout->generateDescriptorSet();
     combineSet->bindBuffer(0, cameraDataBuffer);
@@ -152,7 +153,8 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, i
     combineSet->bindImageViewSampler(5, AbsGameContainer::getInstance()->getModelsRenderer()->getEmissionImage());
     combineSet->bindImageViewSampler(6, AbsGameContainer::getInstance()->getModelsRenderer()->getNormalMetalnessImage());
     combineSet->bindImageViewSampler(7, AbsGameContainer::getInstance()->getModelsRenderer()->getDistanceImage());
-    combineSet->bindImageViewSampler(8, AbsGameContainer::getInstance()->getParticlesRenderer()->getResultImage());
+    combineSet->bindImageViewSampler(8, AbsGameContainer::getInstance()->getModelsRenderer()->getShadowDistanceImage());
+    combineSet->bindImageViewSampler(9, AbsGameContainer::getInstance()->getParticlesRenderer()->getResultImage());
 
 
     shadowMapsCollectionSet = shadowMapsCollectionLayout->generateDescriptorSet();
@@ -314,6 +316,9 @@ void CosmosRenderer::updateCameraBuffer(Camera * camera, double time)
     auto cone = camera->getFrustumCone();
 
     auto star = galaxy->getClosestStar();
+    
+    AbsGameContainer::getInstance()->setCurrentSunDirection(star.getFromThisLookAtPointMatrix(time, observerCameraPosition));
+
     glm::dvec3 closesStarRelPos = (star.getPosition(time) - observerCameraPosition) * scale;
 
     bb.emplaceFloat32((float)time);

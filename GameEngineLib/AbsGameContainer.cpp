@@ -139,7 +139,7 @@ void AbsGameContainer::startGameLoops()
         lastTimeFloored = floored;
         lastTimeX = time;
 
-        modelsRenderer->updateCameraBuffer(currentStage->getViewCamera()->getCamera());
+        modelsRenderer->updateCameraBuffer(currentStage->getViewCamera()->getCamera(), currentSunDirection);
         modelsRenderer->draw(currentStage);
         currentStage->getUIRenderer()->draw();
 
@@ -193,4 +193,9 @@ void AbsGameContainer::setShouldClose(bool close)
 DebugLogger * AbsGameContainer::getLogger()
 {
     return logger;
+}
+
+void AbsGameContainer::setCurrentSunDirection(glm::mat4 mat)
+{
+    currentSunDirection = mat;
 }

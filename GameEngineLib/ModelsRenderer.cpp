@@ -17,11 +17,14 @@ ModelsRenderer::ModelsRenderer(VulkanToolkit* vulkan, int iwidth, int iheight)
 
     modelsDataLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
     modelsDataLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageAll);
+    modelsDataLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageAll);
 
     modelsDataBuffer = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeUniform, sizeof(float) * 1024);
+    sunlightDataBuffer = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeUniform, sizeof(float) * 1024);
 
     modelsDataSet = modelsDataLayout->generateDescriptorSet();
     modelsDataSet->bindBuffer(0, modelsDataBuffer);
+    modelsDataSet->bindBuffer(1, sunlightDataBuffer);
 
     modelsAlbedoRoughnessImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA8unorm, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
 
@@ -30,6 +33,8 @@ ModelsRenderer::ModelsRenderer(VulkanToolkit* vulkan, int iwidth, int iheight)
     modelsNormalMetalnessImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA16f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
 
     modelsDistanceImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::R32f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
+
+    modelsShadowDistanceImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::R32f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
 
     modelsIDImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::R32u, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
 
@@ -47,6 +52,14 @@ ModelsRenderer::ModelsRenderer(VulkanToolkit* vulkan, int iwidth, int iheight)
         modelsDepthImage->getAttachment(VulkanAttachmentBlending::None)
     });
 
+    auto shipvertshadow = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Vertex, "cosmos-ship-shadow.vert.spv");
+    auto shipfragshadow = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Fragment, "cosmos-ship-shadow.frag.spv");
+
+    modelsShadowStage = vulkan->getVulkanRenderStageFactory()->build(width, height, { shipvertshadow, shipfragshadow }, { modelsDataLayout, modelMRTLayout }, {
+        modelsShadowDistanceImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
+        modelsDepthImage->getAttachment(VulkanAttachmentBlending::None, true)
+    });
+
 }
 
 
@@ -61,10 +74,19 @@ ModelsRenderer::~ModelsRenderer()
     safedelete(modelsDataSet);
     safedelete(modelsDataLayout);
     safedelete(modelMRTLayout);
+    safedelete(sunlightDataBuffer);
+    safedelete(modelsDataBuffer);
 }
 
 void ModelsRenderer::draw(SceneProvider * scene)
 {
+    modelsShadowStage->beginDrawing();
+
+    scene->drawDrawableObjects(modelsShadowStage, modelsDataSet, renderingScale);
+
+    modelsShadowStage->endDrawing();
+    modelsShadowStage->submitNoSemaphores({});
+
     modelsStage->beginDrawing();
 
     scene->drawDrawableObjects(modelsStage, modelsDataSet, renderingScale);
@@ -98,12 +120,17 @@ VulkanImage * ModelsRenderer::getDistanceImage()
     return modelsDistanceImage;
 }
 
+VEngine::Renderer::VulkanImage * ModelsRenderer::getShadowDistanceImage()
+{
+    return modelsShadowDistanceImage;
+}
+
 VulkanDescriptorSetLayout * ModelsRenderer::getModelMRTLayout()
 {
     return modelMRTLayout;
 }
 
-void ModelsRenderer::updateCameraBuffer(Camera * camera)
+void ModelsRenderer::updateCameraBuffer(Camera * camera, glm::mat4 starLookAtThisMatrix)
 {
     VulkanBinaryBufferBuilder bb = VulkanBinaryBufferBuilder();
     double xpos, ypos;
@@ -139,4 +166,13 @@ void ModelsRenderer::updateCameraBuffer(Camera * camera)
     modelsDataBuffer->map(0, bb.buffer.size(), &data);
     memcpy(data, bb.getPointer(), bb.buffer.size());
     modelsDataBuffer->unmap();
+
+    VulkanBinaryBufferBuilder bb2 = VulkanBinaryBufferBuilder();
+    bb2.emplaceGeneric((unsigned char*)&starLookAtThisMatrix, sizeof(starLookAtThisMatrix));
+
+    void* data2;
+    sunlightDataBuffer->map(0, bb2.buffer.size(), &data2);
+    memcpy(data2, bb2.getPointer(), bb2.buffer.size());
+    sunlightDataBuffer->unmap();
+
 }

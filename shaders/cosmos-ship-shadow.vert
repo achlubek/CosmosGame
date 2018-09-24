@@ -10,11 +10,7 @@ layout(location = 1) in vec2 inTexCoord;
 layout(location = 2) in vec3 inNormal;
 layout(location = 3) in vec4 inTangent;
 
-layout(location = 0) out vec2 outTexCoord;
-layout(location = 1) out flat uint inInstanceId;
-layout(location = 2) out vec3 outWorldPos;
-layout(location = 3) out vec3 outNormal;
-layout(location = 4) out vec4 outTangent;
+layout(location = 0) out float outDepth;
 
 
 layout(set = 0, binding = 0) uniform UniformBufferObject1 {
@@ -43,13 +39,9 @@ layout(set = 1, binding = 0) buffer modelStorageBuffer {
 void main() {
     vec3 WorldPos = (modelBuffer.transformation
         * vec4(inPosition.xyz, 1.0)).rgb * 1.0 * modelBuffer.position.a + modelBuffer.position.rgb;
-    vec4 opo = (hiFreq.VPMatrix)
-        * vec4(WorldPos, 1.0);
-    vec3 Normal = inNormal;
-    outNormal = normalize((modelBuffer.transformation * vec4(Normal, 0.0)).xyz);
-    outTexCoord = inTexCoord;
-    outWorldPos = WorldPos;
-    outTangent = inTangent;
+    vec4 opo = (sunLightData.SunLightDirection_Zero)
+        * vec4(WorldPos * 0.01, 1.0);
     opo.y *= -1.0;
+    outDepth = opo.z * 0.5 + 0.5;
     gl_Position = opo;
 }
