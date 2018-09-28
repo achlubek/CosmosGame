@@ -72,6 +72,7 @@ void Model3d::draw(VulkanRenderStage * stage, VulkanDescriptorSet* celestialSet,
     dataBuffer->map(0, bb2.buffer.size(), &data);
     memcpy(data, bb2.getPointer(), bb2.buffer.size());
     dataBuffer->unmap();
-    stage->setSets({ celestialSet, descriptorSet });
+    stage->setSet(0, celestialSet);
+    stage->setSet(1, descriptorSet);
     stage->drawMesh(info3d, 1);
 }

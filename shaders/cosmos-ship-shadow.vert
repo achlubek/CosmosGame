@@ -36,11 +36,13 @@ layout(set = 1, binding = 0) buffer modelStorageBuffer {
     vec4 emissionvalue;
 } modelBuffer;
 
+#include shadowMapDataSet.glsl
+
 void main() {
     vec3 WorldPos = (modelBuffer.transformation
         * vec4(inPosition.xyz, 1.0)).rgb * 1.0 * modelBuffer.position.a + modelBuffer.position.rgb;
     vec4 opo = (sunLightData.SunLightDirection_Zero)
-        * vec4(WorldPos * 0.01, 1.0);
+        * vec4(WorldPos * 0.01 * Divisor, 1.0);
     opo.y *= -1.0;
     opo.z *= -1.0;
     outDepth = opo.z * 0.5 + 0.5;

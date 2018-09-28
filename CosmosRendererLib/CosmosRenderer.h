@@ -90,6 +90,7 @@ private:
     VulkanDescriptorSetLayout* celestialShadowMapSetLayout{ nullptr };
     VulkanDescriptorSetLayout* shadowMapDataSetLayout{ nullptr };
     std::vector<VulkanRenderStage*> celestialShadowMapRenderStages = {};
+    std::vector<VulkanRenderStage*> modelsShadowMapRenderStages = {};
 
     VulkanGenericBuffer* cameraDataBuffer;
     VulkanGenericBuffer* raycastRequestsDataBuffer;
@@ -123,6 +124,7 @@ private:
 
     VulkanDescriptorSetLayout* modelMRTLayout{ nullptr };
     VulkanRenderStage* modelsStage{ nullptr };
+    VulkanRenderStage* modelsShadowStage{ nullptr };
     VulkanDescriptorSetLayout* modelsDataLayout{ nullptr };
     VulkanDescriptorSet* modelsDataSet{ nullptr };
     VulkanGenericBuffer* modelsDataBuffer;
