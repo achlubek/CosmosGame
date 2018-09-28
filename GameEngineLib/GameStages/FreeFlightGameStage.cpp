@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "FreeFlightGameStage.h"
 
-FreeFlightGameStage::FreeFlightGameStage(AbsGameContainer* container)
+FreeFlightGameStage::FreeFlightGameStage(GameContainer* container)
     : AbsGameStage(container)
 {
     auto ui = getUIRenderer();

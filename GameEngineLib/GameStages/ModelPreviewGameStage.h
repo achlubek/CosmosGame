@@ -4,7 +4,7 @@ class GameContainer;
 class ModelPreviewGameStage : public AbsGameStage
 {
 public:
-    ModelPreviewGameStage(AbsGameContainer* container);
+    ModelPreviewGameStage(GameContainer* container);
     ~ModelPreviewGameStage();
     virtual void onDraw() override;
     virtual void onSwitchTo() override;

@@ -19,9 +19,9 @@ ParticleSystem * ParticleSystemFactory::build(std::string mediakey)
     
     INIReader reader = INIReader(media, mediakey);
 
-    auto texture = AbsGameContainer::getInstance()->getVulkanToolkit()->getVulkanImageFactory()->build(reader.gets("texture"));
+    auto texture = GameContainer::getInstance()->getVulkanToolkit()->getVulkanImageFactory()->build(reader.gets("texture"));
 
-    auto system = new ParticleSystem(AbsGameContainer::getInstance()->getVulkanToolkit(), texture, AbsGameContainer::getInstance()->getParticlesRenderer()->getParticleLayout(),
+    auto system = new ParticleSystem(GameContainer::getInstance()->getVulkanToolkit(), texture, GameContainer::getInstance()->getParticlesRenderer()->getParticleLayout(),
         reader.geti("max_count"),
         reader.getf("start_size"),
         reader.getf("start_transparency"),
@@ -31,7 +31,7 @@ ParticleSystem * ParticleSystemFactory::build(std::string mediakey)
         reader.getf("end_rotation_speed"),
         reader.getf("life_time")
     );
-    AbsGameContainer::getInstance()->getParticlesRenderer()->registerParticleSystem(system);
+    GameContainer::getInstance()->getParticlesRenderer()->registerParticleSystem(system);
     cache[mediakey] = system;
     return system;
 }

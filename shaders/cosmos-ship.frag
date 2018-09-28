@@ -99,4 +99,8 @@ void main() {
     outDistance = length(inWorldPos);
     outEmission = vec4(mix(texture(texEmissionIdle, texuv).rgb, texture(texEmissionPowered, texuv).rgb, modelBuffer.emissionvalue.x), 0.0);
     outId = uint(modelBuffer.id);
+    float C = 0.001;
+    float w = length(inWorldPos);
+    float Far = 10000.0;
+    gl_FragDepth = min(1.0, log(C*w + 1.0) / log(C*Far + 1.0));
 }

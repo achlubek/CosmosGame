@@ -1,5 +1,5 @@
 #pragma once
-#include "AbsGameContainer.h"
+#include "GameContainer.h"
 #include "BatteryDrainer.h"
 #include "Camera/AbsCameraViewStrategy.h"
 #include "Camera/Camera.h"
@@ -25,7 +25,6 @@
 #include "Components/FocusComponent.h"
 #include "StateMachines/AbsStateMachine.h"
 #include "StateMachines/PlayerMountState.h"
-#include "GameContainer.h"
 #include "GameControls.h"
 #include "GameEngineLib.h"
 #include "GameObject.h"
@@ -41,7 +40,6 @@
 #include "json.h"
 #include "Model3d.h"
 #include "Model3dFactory.h"
-#include "ModelsRenderer.h"
 #include "ModuleFactory.h"
 #include "OutputScreenRenderer.h"
 #include "Particles/ParticlesRenderer.h"

@@ -1,12 +1,12 @@
 #pragma once
-class AbsGameContainer;
+class GameContainer;
 class GameObject;
 class PointerDrivenCameraStrategy;
 #include "AbsGameStage.h"
 class CinematicAnimationGameStage : public AbsGameStage
 {
 public:
-    CinematicAnimationGameStage(AbsGameContainer* container, std::string mediaKey, std::string switchToStage);
+    CinematicAnimationGameStage(GameContainer* container, std::string mediaKey, std::string switchToStage);
     ~CinematicAnimationGameStage();
     virtual void onDraw() override;
     virtual void onSwitchTo() override;

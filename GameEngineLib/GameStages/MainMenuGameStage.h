@@ -1,11 +1,11 @@
 #pragma once
-class AbsGameContainer;
+class GameContainer;
 class GameObject;
 #include "AbsGameStage.h"
 class MainMenuGameStage : public AbsGameStage
 {
 public:
-    MainMenuGameStage(AbsGameContainer* container);
+    MainMenuGameStage(GameContainer* container);
     ~MainMenuGameStage();
     virtual void onDraw() override;
     virtual void onSwitchTo() override;

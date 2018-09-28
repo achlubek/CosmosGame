@@ -14,7 +14,7 @@ void CameraOrbitStrategy::update(double elapsed, CameraController * controller)
 {
     auto targetPos = controller->getTarget()->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->getPosition();
 
-    auto controls = AbsGameContainer::getInstance()->getControls();
+    auto controls = GameContainer::getInstance()->getControls();
     auto cursorpos = controls->getCursorPosition();
 
     glm::vec2 delta = cursorpos - lastCursorPos;

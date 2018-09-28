@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "CelestialBodyPreviewGameStage.h"
 
-CelestialBodyPreviewGameStage::CelestialBodyPreviewGameStage(AbsGameContainer* container, int64_t itargetStar, int64_t itargetPlanet, int64_t itargetMoon)
+CelestialBodyPreviewGameStage::CelestialBodyPreviewGameStage(GameContainer* container, int64_t itargetStar, int64_t itargetPlanet, int64_t itargetMoon)
     : AbsGameStage(container), targetStar(itargetStar), targetPlanet(itargetPlanet), targetMoon(itargetMoon)
 {
     INIReader* configreader = new INIReader(container->getVulkanToolkit()->getMedia(), "settings.ini");

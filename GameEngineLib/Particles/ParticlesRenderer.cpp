@@ -53,7 +53,7 @@ void ParticlesRenderer::draw()
     for (int i = 0; i < particleSystems.size(); i++) {
         if (particleSystems[i]->getCount() == 0) break;
         renderStage->setSets({ rendererDataSet, particleSystems[i]->getSet() });
-        renderStage->drawMesh(AbsGameContainer::getInstance()->getVulkanToolkit()->getObject3dInfoFactory()->getFullScreenQuad(), particleSystems[i]->getCount());
+        renderStage->drawMesh(GameContainer::getInstance()->getVulkanToolkit()->getObject3dInfoFactory()->getFullScreenQuad(), particleSystems[i]->getCount());
     }
     renderStage->endDrawing();
     renderStage->submitNoSemaphores({});
@@ -78,14 +78,14 @@ void ParticlesRenderer::updateCameraBuffer(Camera * camera)
 {
     VulkanBinaryBufferBuilder bb = VulkanBinaryBufferBuilder();
     double xpos, ypos;
-    auto cursor = AbsGameContainer::getInstance()->getVulkanToolkit()->getMouse()->getCursorPosition();
+    auto cursor = GameContainer::getInstance()->getVulkanToolkit()->getMouse()->getCursorPosition();
     xpos = std::get<0>(cursor);
     ypos = std::get<1>(cursor);
 
     glm::mat4 rpmatrix = camera->getRotationProjectionMatrix();
     auto cone = camera->getFrustumCone();
 
-    bb.emplaceFloat32((float)AbsGameContainer::getInstance()->getCurrentStage()->getTimeProvider()->getTime());
+    bb.emplaceFloat32((float)GameContainer::getInstance()->getCurrentStage()->getTimeProvider()->getTime());
     bb.emplaceFloat32(0.0f);
     bb.emplaceFloat32((float)xpos / (float)width);
     bb.emplaceFloat32((float)ypos / (float)height);

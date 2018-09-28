@@ -26,6 +26,8 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, i
 
     surfaceRenderedAlbedoRoughnessImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA8unorm, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
 
+    surfaceRenderedEmissionImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA8unorm, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
+
     surfaceRenderedNormalMetalnessImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA16f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
 
     surfaceRenderedDistanceImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::R32f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
@@ -37,6 +39,23 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, i
     waterRenderedNormalMetalnessImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA16f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
 
     waterRenderedDistanceImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::R32f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
+
+    //#########//
+
+    modelMRTLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
+    modelMRTLayout->addField(VulkanDescriptorSetFieldType::FieldTypeStorageBuffer, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
+    modelMRTLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
+    modelMRTLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
+    modelMRTLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
+    modelMRTLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
+    modelMRTLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
+    modelMRTLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
+
+    modelsDataLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
+    modelsDataLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageAll);
+
+    modelsDataSet = modelsDataLayout->generateDescriptorSet();
+    modelsDataSet->bindBuffer(0, cameraDataBuffer);
 
     //#########//
 
@@ -138,23 +157,12 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, i
     combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
     combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
     combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
-    combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
-    combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
-    combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
-    combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
-    combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
 
     combineSet = combineLayout->generateDescriptorSet();
     combineSet->bindBuffer(0, cameraDataBuffer);
     combineSet->bindImageViewSampler(1, celestialAlphaImage);
     combineSet->bindImageViewSampler(2, starsRenderer->getStarsImage());
     combineSet->bindImageViewSampler(3, celestialAdditiveImage);
-    combineSet->bindImageViewSampler(4, AbsGameContainer::getInstance()->getModelsRenderer()->getAlbedoRoughnessImage());
-    combineSet->bindImageViewSampler(5, AbsGameContainer::getInstance()->getModelsRenderer()->getEmissionImage());
-    combineSet->bindImageViewSampler(6, AbsGameContainer::getInstance()->getModelsRenderer()->getNormalMetalnessImage());
-    combineSet->bindImageViewSampler(7, AbsGameContainer::getInstance()->getModelsRenderer()->getDistanceImage());
-    combineSet->bindImageViewSampler(8, AbsGameContainer::getInstance()->getModelsRenderer()->getShadowDistanceImage());
-    combineSet->bindImageViewSampler(9, AbsGameContainer::getInstance()->getParticlesRenderer()->getResultImage());
 
 
     shadowMapsCollectionSet = shadowMapsCollectionLayout->generateDescriptorSet();
@@ -221,10 +229,11 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     celestialBodySurfaceRenderStage = vulkan->getVulkanRenderStageFactory()->build(width, height,
         { celestialsurfacevert, celestialsurfacefrag }, { rendererDataLayout, celestialBodySurfaceSetLayout },
         {
-            surfaceRenderedAlbedoRoughnessImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
-            surfaceRenderedNormalMetalnessImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
-            surfaceRenderedDistanceImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
-            renderedDepthImage->getAttachment(VulkanAttachmentBlending::None)
+            surfaceRenderedAlbedoRoughnessImage->getAttachment(VulkanAttachmentBlending::None, false,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
+            surfaceRenderedEmissionImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
+            surfaceRenderedNormalMetalnessImage->getAttachment(VulkanAttachmentBlending::None, false,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
+            surfaceRenderedDistanceImage->getAttachment(VulkanAttachmentBlending::None, false,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
+            renderedDepthImage->getAttachment(VulkanAttachmentBlending::None, false)
         }, VulkanCullMode::CullModeFront);
 
     //**********************//
@@ -236,8 +245,21 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
         { celestialwatervert, celestialwaterfrag }, { rendererDataLayout, celestialBodyWaterSetLayout },
         {
             waterRenderedNormalMetalnessImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
-            waterRenderedDistanceImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
-            renderedDepthImage->getAttachment(VulkanAttachmentBlending::None)
+            waterRenderedDistanceImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 0.0f } })
+          //  renderedDepthImage->getAttachment(VulkanAttachmentBlending::None)
+        }, VulkanCullMode::CullModeFront);
+
+    //**********************//
+
+    auto shipvert = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Vertex, "cosmos-ship.vert.spv");
+    auto shipfrag = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Fragment, "cosmos-ship.frag.spv");
+
+    modelsStage = vulkan->getVulkanRenderStageFactory()->build(width, height, { shipvert, shipfrag }, { modelsDataLayout, modelMRTLayout }, {
+        surfaceRenderedAlbedoRoughnessImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
+        surfaceRenderedEmissionImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
+        surfaceRenderedNormalMetalnessImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
+        surfaceRenderedDistanceImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
+        renderedDepthImage->getAttachment(VulkanAttachmentBlending::None)
         });
 
     //**********************//
@@ -275,7 +297,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     combineStage = vulkan->getVulkanRenderStageFactory()->build(width, height,
         { combinevert, combinefrag }, { combineLayout },
         {
-            AbsGameContainer::getInstance()->getOutputImage()->getAttachment(VulkanAttachmentBlending::None, true),
+            GameContainer::getInstance()->getOutputImage()->getAttachment(VulkanAttachmentBlending::None, true),
         });
     combineStage->setSets({ combineSet });
 
@@ -318,7 +340,7 @@ void CosmosRenderer::updateCameraBuffer(Camera * camera, double time)
     auto star = galaxy->getClosestStar();
     
     auto fromStarToCameraMatrix = star.getFromThisLookAtPointMatrix(time, observerCameraPosition);
-    AbsGameContainer::getInstance()->setCurrentSunDirection(fromStarToCameraMatrix);
+    GameContainer::getInstance()->setCurrentSunDirection(fromStarToCameraMatrix);
 
     glm::dvec3 closesStarRelPos = (star.getPosition(time) - observerCameraPosition) * scale;
 
@@ -391,9 +413,16 @@ void CosmosRenderer::updateCameraBuffer(Camera * camera, double time)
 
 }
 
-void CosmosRenderer::draw(double time)
+void CosmosRenderer::draw(SceneProvider* scene, double time)
 {
     if (!readyForDrawing) return;
+
+    modelsStage->beginDrawing();
+
+    scene->drawDrawableObjects(modelsStage, modelsDataSet, scale * 0.01);
+
+    modelsStage->endDrawing();
+    modelsStage->submitNoSemaphores({});
 
 #ifdef PERFORMANCE_DEBUG
     printf("{");
@@ -609,6 +638,11 @@ void CosmosRenderer::draw(double time)
 #endif
 }
 
+VulkanDescriptorSetLayout * CosmosRenderer::getModelMRTLayout()
+{
+    return modelMRTLayout;
+}
+
 void CosmosRenderer::onClosestStarChange(Star star)
 {
 }
@@ -725,6 +759,16 @@ void CosmosRenderer::setRaycastPoints(std::vector<glm::dvec3> points)
 std::vector<glm::dvec3> CosmosRenderer::getRaycastPoints()
 {
     return raycastPoints;
+}
+
+VulkanImage * CosmosRenderer::getOpaqueSurfaceDistanceImage()
+{
+    return surfaceRenderedDistanceImage;
+}
+
+void CosmosRenderer::bindParticlesResultImage()
+{
+    combineSet->bindImageViewSampler(4, GameContainer::getInstance()->getParticlesRenderer()->getResultImage());
 }
 
 RenderedCelestialBody * CosmosRenderer::getRenderableForCelestialBody(CelestialBody body)

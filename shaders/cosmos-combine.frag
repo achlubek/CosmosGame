@@ -10,12 +10,7 @@ layout(location = 0) out vec4 outColor;
 layout(set = 0, binding = 1) uniform sampler2D texCelestialAlpha;
 layout(set = 0, binding = 2) uniform sampler2D texStars;
 layout(set = 0, binding = 3) uniform sampler2D texCelestialAdditive;
-layout(set = 0, binding = 4) uniform sampler2D texModelsAlbedoRoughness;
-layout(set = 0, binding = 5) uniform sampler2D texModelsEmission;
-layout(set = 0, binding = 6) uniform sampler2D texModelsNormalMetalness;
-layout(set = 0, binding = 7) uniform sampler2D texModelsDistance;
-layout(set = 0, binding = 8) uniform sampler2D texModelsDistanceShadow;
-layout(set = 0, binding = 9) uniform sampler2D texParticlesResult;
+layout(set = 0, binding = 4) uniform sampler2D texParticlesResult;
 
 #include proceduralValueNoise.glsl
 #include sphereRaytracing.glsl
@@ -140,15 +135,15 @@ void main() {
 
     vec2 projectedSunDir = project(starDir);
     vec4 adddata2 = texture(texCelestialAdditive, clamp(projectedSunDir, 0.0, 1.0)).rgba;
-    vec4 shipdata222 = texture(texModelsNormalMetalness, clamp(projectedSunDir, 0.0, 1.0)).rgba;
-    vec4 shipdata1 = texture(texModelsAlbedoRoughness, UV).rgba;
-    vec4 shipdata2 = texture(texModelsNormalMetalness, UV).rgba;
+//    vec4 shipdata222 = texture(texModelsNormalMetalness, clamp(projectedSunDir, 0.0, 1.0)).rgba;
+//    vec4 shipdata1 = texture(texModelsAlbedoRoughness, UV).rgba;
+//    vec4 shipdata2 = texture(texModelsNormalMetalness, UV).rgba;
 
     //sunflare = ((starhit > 0.0 && starhit < 9999999.0) ? 1.0 : 0.0) * ClosestStarColor * max(0.0, 1.0 - adddata.a) * (1.0 - step(0.09, length(shipdata2.rgb))) * sunFlareColorizer * Exposure * 21.8 * snois;
 
-    vec3 sunflare2 = flare(UV, projectedSunDir) * (1000.0 / length(ClosestStarPosition)) * max(0.0, 1.0 - adddata2.a) * (1.0 - step(0.09, length(shipdata222.rgb))) * Exposure * (ClosestStarColor) * 0.14 * pow(max(0.0, -dot(dir, starDir)), 3.0);
+    vec3 sunflare2 = flare(UV, projectedSunDir) * (1000.0 / length(ClosestStarPosition)) * max(0.0, 1.0 - adddata2.a) * Exposure * (ClosestStarColor) * 0.14 * pow(max(0.0, -dot(dir, starDir)), 3.0);
 
-    a += adddata.rgb;
+    a += adddata.rgb;/*
     float shipdata3 = texture(texModelsDistance, UV).r;
     vec3 albedo = shipdata1.rgb;
     vec3 emission = texture(texModelsEmission, UV).rgb;
@@ -168,7 +163,7 @@ void main() {
     float isShadow = smoothstep(-0.0001, 0.0001, target - readZ);
 
 
-    vec3 shadowCeleSpace = ((hiFreq.FromStarToThisMatrix) * vec4(positionCelestial * 0.01, 1.0)).rgb;
+    vec3 shadowCeleSpace = ((hiFreq.FromStarToThisMatrix) * vec4(positionCelestial * 0.001, 1.0)).rgb;
     shadowCeleSpace.y *= -1.0;
     float readZ2 = texture(texModelsDistanceShadow, shadowCeleSpace.xy * 0.5 + 0.5).r;
     float target2 = (-shadowCeleSpace.z * 0.5 + 0.5) - 0.0001;
@@ -177,13 +172,10 @@ void main() {
     vec3 shaded = isShadow * vec3(1.0);//shade_ray(albedo, normal, viewdir, roughness, metalness, lightdir, lightcolor);
     shaded += albedo * 0.0 + emission;
 
-    a = mix(a * isShadow2, shaded, step(0.09, length(shipdata2.rgb))) + sunflare2;
+    a = mix(a * isShadow2, shaded, step(0.09, length(shipdata2.rgb))) + sunflare2;*/
     vec4 particlesData = texture(texParticlesResult, UV).rgba;
     a += particlesData.a == 0.0 ? vec3(0.0) : (particlesData.rgb);
 
     outColor = vec4(aces_tonemap(clamp(a, 0.0, 10000.0)), 1.0);
 
-    if(UV.x< 0.4 && UV.y < 0.4){
-        outColor = vec4(1.0) * texture(texModelsDistanceShadow, UV * 10.0 / 4.0).rrrr;
-    }
 }

@@ -7,7 +7,7 @@ class GameContainer;
 class CelestialBodyPreviewGameStage : public AbsGameStage
 {
 public:
-    CelestialBodyPreviewGameStage(AbsGameContainer* container, int64_t targetStar, int64_t targetPlanet, int64_t targetMoon);
+    CelestialBodyPreviewGameStage(GameContainer* container, int64_t targetStar, int64_t targetPlanet, int64_t targetMoon);
     ~CelestialBodyPreviewGameStage();
 private:
     AbsCelestialObject * targetBody;

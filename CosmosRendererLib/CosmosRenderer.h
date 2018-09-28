@@ -23,7 +23,12 @@ public:
     void unmapBuffers();
 
     void updateCameraBuffer(Camera* cam, double time);
-    void draw(double time);
+    void draw(SceneProvider* scene, double time);
+
+    VulkanImage* getOpaqueSurfaceDistanceImage();
+    void bindParticlesResultImage();
+
+    VulkanDescriptorSetLayout* getModelMRTLayout();
 
     GalaxyContainer* getGalaxy();
     double getExposure();
@@ -95,6 +100,7 @@ private:
     VulkanImage* celestialAdditiveImage;
 
     VulkanImage* surfaceRenderedAlbedoRoughnessImage;
+    VulkanImage* surfaceRenderedEmissionImage;
     VulkanImage* surfaceRenderedNormalMetalnessImage;
     VulkanImage* surfaceRenderedDistanceImage;
     VulkanImage* renderedDepthImage;
@@ -113,6 +119,16 @@ private:
     
     Object3dInfo* cube3dInfo;
 
+    /*models rendering*/
+
+    VulkanDescriptorSetLayout* modelMRTLayout{ nullptr };
+    VulkanRenderStage* modelsStage{ nullptr };
+    VulkanDescriptorSetLayout* modelsDataLayout{ nullptr };
+    VulkanDescriptorSet* modelsDataSet{ nullptr };
+    VulkanGenericBuffer* modelsDataBuffer;
+
+
+    /*end models rendering*/
 
     double exposure = 0.0003;
 

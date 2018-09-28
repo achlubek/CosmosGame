@@ -359,19 +359,13 @@ CelestialRenderResult renderCelestialBody(RenderedCelestialBody body, Ray ray){
     updatePassHits(pass);
     CelestialRenderResult result = emptyAtmosphereResult;
     if(body.renderMethod == CELESTIAL_RENDER_METHOD_NO_ATMOSPHERE){
-        if(pass.isSurfaceHit){
-            result = renderCelestialBodyNoAtmosphere(pass);
-        }
+        result = renderCelestialBodyNoAtmosphere(pass);
     }
     if(body.renderMethod == CELESTIAL_RENDER_METHOD_LIGHT_ATMOSPHERE){
-        if(pass.isAtmosphereHit){
-            result = renderCelestialBodyLightAtmosphere(pass);
-        }
+        result = renderCelestialBodyLightAtmosphere(pass);
     }
     if(body.renderMethod == CELESTIAL_RENDER_METHOD_THICK_ATMOSPHERE){
-        if(pass.isAtmosphereHit){
-            result = renderCelestialBodyThickAtmosphere(pass);
-        }
+        result = renderCelestialBodyThickAtmosphere(pass);
     }
     result = renderRings(pass, result);
     //result.additionLight = vec4(0.0);

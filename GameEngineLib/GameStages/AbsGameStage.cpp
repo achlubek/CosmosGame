@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "AbsGameStage.h"
 
-AbsGameStage::AbsGameStage(AbsGameContainer* icontainer)
+AbsGameStage::AbsGameStage(GameContainer* icontainer)
     : container(icontainer)
 {
     activeObjects = {};
@@ -106,7 +106,7 @@ UIRenderer * AbsGameStage::getUIRenderer()
     return ui;
 }
 
-AbsGameContainer * AbsGameStage::getGameContainer()
+GameContainer * AbsGameStage::getGameContainer()
 {
     return container;
 }

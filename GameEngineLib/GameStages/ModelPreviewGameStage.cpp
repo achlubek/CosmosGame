@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ModelPreviewGameStage.h"
 
-ModelPreviewGameStage::ModelPreviewGameStage(AbsGameContainer* container)
+ModelPreviewGameStage::ModelPreviewGameStage(GameContainer* container)
     : AbsGameStage(container)
 {
     int targetStar = 676;

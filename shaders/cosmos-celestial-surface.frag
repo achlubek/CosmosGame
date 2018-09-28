@@ -6,8 +6,9 @@ layout(location = 1) in flat uint inInstanceId;
 layout(location = 2) in vec3 inWorldPos;
 layout(location = 3) in vec3 inNormal;
 layout(location = 0) out vec4 outAlbedoRoughness;
-layout(location = 1) out vec4 outNormalMetalness;
-layout(location = 2) out float outDistance;
+layout(location = 1) out vec4 outEmission;
+layout(location = 2) out vec4 outNormalMetalness;
+layout(location = 3) out float outDistance;
 
 #include rendererDataSet.glsl
 #include sphereRaytracing.glsl
@@ -71,6 +72,7 @@ void main() {
     outAlbedoRoughness = texture(baseColorImage, xyzToPolar(Dir)).rgba;
     outNormalMetalness = vec4(inverse(body.rotationMatrix) * celestialGetNormal(body, 0.001, Dir).rgb, 0.0);
     outDistance = length(inWorldPos);
+    outEmission = vec4(0.0);
     float C = 0.001;
     float w = length(inWorldPos);
     float Far = 10000.0;

@@ -31,8 +31,8 @@ Model3d* Model3dFactory::build(std::string mediakey)
     auto emissionPoweredImage = reader.gets("emission_powered_image");
     auto scale = reader.getd("scale");
 
-    auto vulkan = AbsGameContainer::getInstance()->getVulkanToolkit();
-    auto modeldset = AbsGameContainer::getInstance()->getModelsRenderer()->getModelMRTLayout();
+    auto vulkan = GameContainer::getInstance()->getVulkanToolkit();
+    auto modeldset = GameContainer::getInstance()->getCosmosRenderer()->getModelMRTLayout();
 
     auto orientationCorrection = axes_vec3toquat(glm::dvec3(reader.getf("rotx"), reader.getf("roty"), reader.getf("rotz")));
     return new Model3d(vulkan, modeldset, info3d, albedoImage, normalImage, roughnessImage, metalnessImage, emissionIdleImage, emissionPoweredImage, orientationCorrection, scale);

@@ -5,7 +5,7 @@ class GameContainer;
 class FreeFlightGameStage : public AbsGameStage
 {
 public:
-    FreeFlightGameStage(AbsGameContainer* container);
+    FreeFlightGameStage(GameContainer* container);
     ~FreeFlightGameStage();
     virtual void onDraw() override;
     virtual void onSwitchTo() override;

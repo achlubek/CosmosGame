@@ -2,7 +2,7 @@
 #include "MainMenuGameStage.h"
 
 
-MainMenuGameStage::MainMenuGameStage(AbsGameContainer* container)
+MainMenuGameStage::MainMenuGameStage(GameContainer* container)
     : AbsGameStage(container)
 {
     auto ui = getUIRenderer();
@@ -16,15 +16,15 @@ MainMenuGameStage::MainMenuGameStage(AbsGameContainer* container)
     ui->addDrawable(quitButton);
 
     freeFlightButton->onMouseDown.add([&](int key) {
-        AbsGameContainer::getInstance()->setCurrentStage("freeflight");
+        GameContainer::getInstance()->setCurrentStage("freeflight");
     });
 
     editorButton->onMouseDown.add([&](int key) {
-        AbsGameContainer::getInstance()->setCurrentStage("preview");
+        GameContainer::getInstance()->setCurrentStage("preview");
     });
 
     quitButton->onMouseDown.add([&](int key) {
-        AbsGameContainer::getInstance()->setShouldClose(true);
+        GameContainer::getInstance()->setShouldClose(true);
     });
 }
 

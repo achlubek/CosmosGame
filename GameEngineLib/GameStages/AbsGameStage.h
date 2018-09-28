@@ -5,13 +5,13 @@
 class GameObject;
 class CameraController;
 class TimeProvider;
-class AbsGameContainer;
+class GameContainer;
 class ParticlesRenderer;
 
 class AbsGameStage : public SceneProvider
 {
 public:
-    AbsGameStage(AbsGameContainer* container);
+    AbsGameStage(GameContainer* container);
     virtual ~AbsGameStage();
 
     void addObject(GameObject* object);
@@ -27,7 +27,7 @@ public:
     TimeProvider* getTimeProvider();
     CameraController* getViewCamera();
     VEngine::UserInterface::UIRenderer* getUIRenderer();
-    AbsGameContainer* getGameContainer();
+    GameContainer* getGameContainer();
 
     virtual void onSwitchTo() = 0;
     virtual void onSwitchFrom() = 0;
@@ -42,7 +42,7 @@ protected:
 
 private:
     double timeScale = 1.0;
-    AbsGameContainer * container;
+    GameContainer * container;
     TimeProvider* timeProvider;
     std::vector<GameObject*> activeObjects;
     VEngine::UserInterface::UIRenderer* ui;

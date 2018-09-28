@@ -16,7 +16,7 @@ void CameraFirstPersonStrategy::update(double elapsed, CameraController * contro
     auto targetPos = physicsComponent->getPosition();
     auto targetOrientation = physicsComponent->getOrientation();
 
-    auto controls = AbsGameContainer::getInstance()->getControls();
+    auto controls = GameContainer::getInstance()->getControls();
     auto cursorpos = controls->getCursorPosition();
 
     glm::vec2 delta = cursorpos - lastCursorPos;

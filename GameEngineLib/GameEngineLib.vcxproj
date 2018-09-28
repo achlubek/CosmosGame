@@ -162,7 +162,6 @@
     <ClInclude Include="CinematicScenarioReader.h" />
     <ClInclude Include="Components\AbsComponent.h" />
     <ClInclude Include="Components\AbsDrawableComponent.h" />
-    <ClInclude Include="AbsGameContainer.h" />
     <ClInclude Include="GameStages\AbsGameStage.h" />
     <ClInclude Include="Camera\Camera.h" />
     <ClInclude Include="Camera\CameraChaseStrategy.h" />
@@ -201,7 +200,6 @@
     <ClInclude Include="Camera\PointerDrivenCameraStrategy.h" />
     <ClInclude Include="Model3d.h" />
     <ClInclude Include="Model3dFactory.h" />
-    <ClInclude Include="ModelsRenderer.h" />
     <ClInclude Include="Particles\stdafx.h" />
     <ClInclude Include="PlayerFactory.h" />
     <ClInclude Include="SceneProvider.h" />
@@ -225,7 +223,6 @@
     <ClCompile Include="CinematicScenarioReader.cpp" />
     <ClCompile Include="Components\AbsComponent.cpp" />
     <ClCompile Include="Components\AbsDrawableComponent.cpp" />
-    <ClCompile Include="AbsGameContainer.cpp" />
     <ClCompile Include="GameStages\AbsGameStage.cpp" />
     <ClCompile Include="Camera\Camera.cpp" />
     <ClCompile Include="Camera\CameraChaseStrategy.cpp" />
@@ -258,7 +255,6 @@
     <ClCompile Include="Camera\PointerDrivenCameraStrategy.cpp" />
     <ClCompile Include="Model3d.cpp" />
     <ClCompile Include="Model3dFactory.cpp" />
-    <ClCompile Include="ModelsRenderer.cpp" />
     <ClCompile Include="PlayerFactory.cpp" />
     <ClCompile Include="SceneProvider.cpp" />
     <ClCompile Include="ShipFactory.cpp" />

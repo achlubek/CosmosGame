@@ -2,7 +2,7 @@
 #include "CinematicAnimationGameStage.h"
 
 
-CinematicAnimationGameStage::CinematicAnimationGameStage(AbsGameContainer* container, std::string imediaKey, std::string iswitchToStage)
+CinematicAnimationGameStage::CinematicAnimationGameStage(GameContainer* container, std::string imediaKey, std::string iswitchToStage)
     : AbsGameStage(container), mediaKey(imediaKey), pointerDrivenCamera(new PointerDrivenCameraStrategy()), switchToStage(iswitchToStage)
 {
 
