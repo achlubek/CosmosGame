@@ -2,6 +2,7 @@
 #include "AbsCelestialObject.h"
 
 #include "Star.h"
+#include <string>
 
 enum CelestialRenderMethod {
     noAtmosphere = 1,
@@ -31,6 +32,7 @@ public:
     AbsCelestialObject* host{ nullptr };
     Star* starhost{ nullptr };
     uint64_t bodyId;
+    uint64_t relativeIndex;
 
     glm::dvec3 getPosition(double at_time) {
         double orbitLength = 2.0 * glm::pi<double>() * hostDistance * 1000.0;
@@ -71,6 +73,16 @@ public:
         if (atmosphereRadius == 0) return CelestialRenderMethod::noAtmosphere;
         else if (atmosphereRadius < 200) return CelestialRenderMethod::lightAtmosphere;
         else return CelestialRenderMethod::thickAtmosphere;
+    }
+
+    std::string getNameUniversalIdentifier() {
+        std::string bodyid = std::to_string(relativeIndex);
+        std::string starid = std::to_string(starhost->starId);
+        if (host != static_cast<AbsCelestialObject*>(starhost)) {
+            std::string planetid = std::to_string(static_cast<CelestialBody*>(host)->relativeIndex);
+            return starid + "-" + planetid + "-" + bodyid;
+        }
+        return starid + "-" + bodyid;
     }
 };
 

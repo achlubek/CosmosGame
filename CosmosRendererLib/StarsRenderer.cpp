@@ -46,7 +46,7 @@ StarsRenderer::~StarsRenderer()
     safedelete(starsImage);
 }
 
-void StarsRenderer::draw()
+void StarsRenderer::draw(std::vector<VkSemaphore> waitSemaphores)
 {
     if (doesNeedRecording) {
         starsStage->beginDrawing();
@@ -56,7 +56,7 @@ void StarsRenderer::draw()
         starsStage->endDrawing();
         doesNeedRecording = false;
     }
-    starsStage->submitNoSemaphores({});
+    starsStage->submit(waitSemaphores);
 }
 
 void StarsRenderer::recompile()
@@ -69,6 +69,11 @@ void StarsRenderer::recompile()
 VulkanImage * StarsRenderer::getStarsImage()
 {
     return starsImage;
+}
+
+VkSemaphore StarsRenderer::getSignalSemaphore()
+{
+    return starsStage->getSignalSemaphore();
 }
 
 void StarsRenderer::updateStarsBuffer()

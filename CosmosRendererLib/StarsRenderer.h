@@ -9,9 +9,10 @@ public:
         VulkanDescriptorSet* rendererDataSet,
         GalaxyContainer* galaxy);
     ~StarsRenderer();
-    void draw();
+    void draw(std::vector<VkSemaphore> waitSemaphores);
     void recompile();
     VulkanImage* getStarsImage();
+    VkSemaphore getSignalSemaphore();
 private:
     VulkanToolkit * vulkan;
     GalaxyContainer* galaxy;

@@ -67,11 +67,11 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, i
         auto buff = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeUniform, sizeof(float) * 1024);
         void* data;
         buff->map(0, sizeof(float) * 4, &data);
-        float invdivisor = 1.0 / (float)shadowmapsDivisors[i];
-        ((float*)(data))[0] = invdivisor;
-        ((float*)(data))[1] = invdivisor;
-        ((float*)(data))[2] = invdivisor;
-        ((float*)(data))[3] = invdivisor;
+        float divisor = (float)shadowmapsDivisors[i];
+        ((float*)(data))[0] = divisor;
+        ((float*)(data))[1] = divisor;
+        ((float*)(data))[2] = divisor;
+        ((float*)(data))[3] = divisor;
         buff->unmap();
 
         shadowmapsBuffers.push_back(buff);
@@ -418,10 +418,10 @@ void CosmosRenderer::draw(SceneProvider* scene, double time)
 
     modelsStage->beginDrawing();
     
-    scene->drawDrawableObjects(modelsStage, modelsDataSet, scale * 0.01);
+    scene->drawDrawableObjects(modelsStage, modelsDataSet, scale);
 
     modelsStage->endDrawing();
-    modelsStage->submitNoSemaphores({});
+    modelsStage->submit({});
 
 #ifdef PERFORMANCE_DEBUG
     printf("{");
@@ -434,7 +434,7 @@ void CosmosRenderer::draw(SceneProvider* scene, double time)
 
     measureTimeStart();
 
-    starsRenderer->draw();
+    starsRenderer->draw({ modelsStage->getSignalSemaphore() });
 
     measureTimeEnd("Stars galaxy draw");
 
@@ -448,7 +448,7 @@ void CosmosRenderer::draw(SceneProvider* scene, double time)
     }
     firstRecordingDone = true;
 
-    celestialStarsBlitComputeStage->submitNoSemaphores({  });
+    celestialStarsBlitComputeStage->submitNoSemaphores({ starsRenderer->getSignalSemaphore() });
 
     measureTimeEnd("Stars blit");
 

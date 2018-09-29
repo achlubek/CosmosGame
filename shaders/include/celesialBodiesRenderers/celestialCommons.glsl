@@ -74,25 +74,22 @@ float getStarTerrainShadowAtPoint(RenderedCelestialBody body, vec3 point, float 
     float highCloudsHit = rsi2(ray, body.highCloudsSphere).y;
     waterSphereShadow = hits(waterSphereShadow) ? 0.0 : 1.0;// smoothstep(-0.25, 0.0, dot(normalize(point - body.position), normalize(ClosestStarPosition - point)));
 
-    vec3 opo = (body.fromHostToThisMatrix) * (point / ShadowMapDivisors1);
-    opo.y *= -1.0;
+    vec3 opo = mat3(FromStarToThisMatrix) * (point / ShadowMapDivisors1);
     // dirty hacks
     float surfaceShadow = waterSphereShadow;
     if(tolerance > 0.0){
-        if(length(opo) < 0.94){
-            float depthTexture = 1.0 - textureBicubic(shadowMap1, opo.xy * 0.5 + 0.5).r;
+        if(length(opo.xy) < 0.94){
+            float depthTexture = textureBicubic(shadowMap1, opo.xy * 0.5 + 0.5).r;
             surfaceShadow = 1.0 - smoothstep(-0.001, 0.03, ((opo.z * 0.5 + 0.5) - depthTexture));
         } else {
-            opo = (body.fromHostToThisMatrix) * (point / ShadowMapDivisors2);
-            opo.y *= -1.0;
-            if(length(opo) < 0.98){
-                float depthTexture = 1.0 - textureBicubic(shadowMap2, opo.xy * 0.5 + 0.5).r;
+            opo = mat3(FromStarToThisMatrix) * (point / ShadowMapDivisors2);
+            if(length(opo.xy) < 0.98){
+                float depthTexture = textureBicubic(shadowMap2, opo.xy * 0.5 + 0.5).r;
                 surfaceShadow = 1.0 - smoothstep(-0.001, 0.03, ((opo.z * 0.5 + 0.5) - depthTexture));
             } else {
-                opo = (body.fromHostToThisMatrix) * (point / ShadowMapDivisors3);
-                opo.y *= -1.0;
-                if(length(opo) < 0.98){
-                    float depthTexture = 1.0 - textureBicubic(shadowMap3, opo.xy * 0.5 + 0.5).r;
+                opo = mat3(FromStarToThisMatrix) * (point / ShadowMapDivisors3);
+                if(length(opo.xy) < 0.98){
+                    float depthTexture = textureBicubic(shadowMap3, opo.xy * 0.5 + 0.5).r;
                     surfaceShadow = 1.0 - smoothstep(-0.001, 0.03, ((opo.z * 0.5 + 0.5) - depthTexture));
                 }
             }

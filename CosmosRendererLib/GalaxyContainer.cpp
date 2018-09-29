@@ -155,6 +155,7 @@ std::vector<CelestialBody> GalaxyContainer::loadPlanetsByStar(Star& star)
         planet.rotationPlane.x = asfloat(planetrow["rotation_plane_x"]);
         planet.rotationPlane.y = asfloat(planetrow["rotation_plane_y"]);
         planet.rotationPlane.z = asfloat(planetrow["rotation_plane_z"]);
+        planet.relativeIndex = i + 1;
         planets.push_back(planet);
     }
     return planets;
@@ -191,6 +192,7 @@ std::vector<CelestialBody> GalaxyContainer::loadMoonsByPlanet(CelestialBody& pla
         moon.rotationPlane.x = asfloat(moonrow["rotation_plane_x"]);
         moon.rotationPlane.y = asfloat(moonrow["rotation_plane_y"]);
         moon.rotationPlane.z = asfloat(moonrow["rotation_plane_z"]);
+        moon.relativeIndex = i + 1;
         moons.push_back(moon);
     }
     return moons;

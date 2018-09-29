@@ -27,9 +27,8 @@ layout(set = 1, binding = 0) buffer modelStorageBuffer {
 void main() {
     vec3 WorldPos = (modelBuffer.transformation
         * vec4(inPosition.xyz, 1.0)).rgb * 1.0 * modelBuffer.position.a + modelBuffer.position.rgb;
-    vec4 opo = vec4(mat3(FromStarToThisMatrix) * (WorldPos * Divisor), 1.0);
-    opo.y *= -1.0;
-    opo.z *= -1.0;
+    vec4 opo = vec4(mat3(FromStarToThisMatrix) * (WorldPos / Divisor), 1.0);
+    opo.z =clamp(opo.z, -0.999, 0.999);
     outDepth = opo.z * 0.5 + 0.5;
     gl_Position = opo;
 }
