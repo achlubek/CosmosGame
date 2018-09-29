@@ -20,14 +20,7 @@ CelestialBodyPreviewGameStage::CelestialBodyPreviewGameStage(GameContainer* cont
     // TODO : INTERPOLATOR
     getCosmosGameContainer()->getControls()->getRawKeyboard()->onKeyPress.add([&](int key) {
         if (key == GLFW_KEY_PAUSE) getCosmosGameContainer()->getCosmosRenderer()->recompileShaders(true);
-        if (key == GLFW_KEY_O) {
-            auto pointerdrivencamera = new PointerDrivenCameraStrategy();
-            getViewCamera()->setStrategy(pointerdrivencamera);
-            auto scenario = CinematicScenarioReader(getCosmosGameContainer()->getInterpolator(), getCosmosGameContainer()->getCosmosRenderer(), container->getVulkanToolkit()->getMedia(), pointerdrivencamera, getTimeProvider());
-            disableThings = true;
-            scenario.load("cinematic_scenario.txt", getTimeProvider()->getTime());
-            scenario.execute();
-        }
+
         if (key == GLFW_KEY_9 || key == GLFW_KEY_0) {
             getCosmosGameContainer()->getCosmosRenderer()->invokeOnDrawingThread([&, key]() {
                 star = getCosmosGameContainer()->getCosmosRenderer()->getGalaxy()->getAllStars()[targetStar - 1];
@@ -97,6 +90,26 @@ CelestialBodyPreviewGameStage::CelestialBodyPreviewGameStage(GameContainer* cont
         }
     });
 
+
+    getGameContainer()->getControls()->onKeyDown.add([&](std::string key) {
+        if (key == "time_scale_x1") {
+            setTimeScale(1.0);
+            getGameContainer()->getLogger()->log(LogSeverity::Normal, "Setting time scale to 1.0");
+        }
+        if (key == "time_scale_x10") {
+            setTimeScale(10000.0);
+            getGameContainer()->getLogger()->log(LogSeverity::Normal, "Setting time scale to 10000.0");
+        }
+        if (key == "time_scale_x100") {
+            setTimeScale(1000000.0);
+            getGameContainer()->getLogger()->log(LogSeverity::Normal, "Setting time scale to 1000000.0");
+        }
+        if (key == "time_scale_x1000") {
+            setTimeScale(1000000000.0);
+            getGameContainer()->getLogger()->log(LogSeverity::Normal, "Setting time scale to 1000000000.0");
+        }
+    });
+
     getViewCamera()->setFov(fov);
 }
 
@@ -124,18 +137,14 @@ void CelestialBodyPreviewGameStage::onDraw()
 
 void CelestialBodyPreviewGameStage::onUpdate(double elapsed)
 {
-    if (disableThings) {
-        getCosmosGameContainer()->getCosmosRenderer()->getGalaxy()->update(getViewCamera()->getCamera()->getPosition(), getTimeProvider()->getTime());
-        return;
 
-    }
     auto keyboard = getCosmosGameContainer()->getControls()->getRawKeyboard();
     center = targetBody->getPosition(getTimeProvider()->getTime());
 
     float orbitSpeed = elapsed * 2.0131;
     float panSpeed = elapsed * fov * 0.01f;
     float zoomSpeed = elapsed;
-
+    /*
     if (keyboard->getKeyStatus(GLFW_KEY_F1) == GLFW_PRESS) {
         timeScale = 0.001;
     }
@@ -147,7 +156,7 @@ void CelestialBodyPreviewGameStage::onUpdate(double elapsed)
     }
     if (keyboard->getKeyStatus(GLFW_KEY_F4) == GLFW_PRESS) {
         timeScale = 4.0;
-    }
+    }*/
 
 
     if (keyboard->getKeyStatus(GLFW_KEY_UP) == GLFW_PRESS) {

@@ -23,6 +23,7 @@ public:
     GameObject* getGameObjectById(unsigned long id);
 
     void setTimeScale(double timeScale);
+    double getTimeScale();
 
     TimeProvider* getTimeProvider();
     CameraController* getViewCamera();

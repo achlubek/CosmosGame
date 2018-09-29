@@ -97,7 +97,6 @@ void main() {
     outNormalMetalness = vec4(normalize(normal),texture(texMetalness, texuv).r);
     outDistance = length(inWorldPos);
     outEmission = vec4(mix(texture(texEmissionIdle, texuv).rgb, texture(texEmissionPowered, texuv).rgb, modelBuffer.emissionvalue.x), 0.0);
-    outId = uint(modelBuffer.id);
     float C = 0.001;
     float w = length(inWorldPos);
     float Far = 10000.0;

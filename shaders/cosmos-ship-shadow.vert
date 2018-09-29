@@ -13,21 +13,7 @@ layout(location = 3) in vec4 inTangent;
 layout(location = 0) out float outDepth;
 
 
-layout(set = 0, binding = 0) uniform UniformBufferObject1 {
-    float Time;
-    float Zero;
-    vec2 Mouse;
-    mat4 VPMatrix;
-    vec4 inCameraPos;
-    vec4 inFrustumConeLeftBottom;
-    vec4 inFrustumConeBottomLeftToBottomRight;
-    vec4 inFrustumConeBottomLeftToTopLeft;
-    vec4 Resolution_scale;
-} hiFreq;
-
-layout(set = 0, binding = 1) uniform sunLightDataBuffer {
-    mat4 SunLightDirection_Zero;
-} sunLightData;
+#include rendererDataSet.glsl
 
 layout(set = 1, binding = 0) buffer modelStorageBuffer {
     mat4 transformation;
@@ -41,8 +27,7 @@ layout(set = 1, binding = 0) buffer modelStorageBuffer {
 void main() {
     vec3 WorldPos = (modelBuffer.transformation
         * vec4(inPosition.xyz, 1.0)).rgb * 1.0 * modelBuffer.position.a + modelBuffer.position.rgb;
-    vec4 opo = (sunLightData.SunLightDirection_Zero)
-        * vec4(WorldPos * 0.01 * Divisor, 1.0);
+    vec4 opo = vec4(mat3(FromStarToThisMatrix) * (WorldPos * Divisor), 1.0);
     opo.y *= -1.0;
     opo.z *= -1.0;
     outDepth = opo.z * 0.5 + 0.5;

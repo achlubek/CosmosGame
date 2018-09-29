@@ -15,9 +15,7 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, i
 
     cameraDataBuffer = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeUniform, sizeof(float) * 1024);
     raycastRequestsDataBuffer = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeStorage, sizeof(float) * 1024 * 128);
-    planetsDataBuffer = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeStorage, sizeof(float) * 1024 * 128);
-    moonsDataBuffer = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeStorage, sizeof(float) * 1024 * 128);
-
+    
     celestialAlphaImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA16f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Storage | VulkanImageUsage::Sampled);
 
     celestialAdditiveImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA32f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
@@ -326,20 +324,6 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     firstRecordingDone = false;
 }
 
-void CosmosRenderer::mapBuffers()
-{
-    planetsDataBuffer->map(0, planetsDataBuffer->getSize(), &planetsDataBufferPointer);
-    moonsDataBuffer->map(0, moonsDataBuffer->getSize(), &moonsDataBufferPointer);
-    raycastRequestsDataBuffer->map(0, raycastRequestsDataBuffer->getSize(), &raycastRequestsDataBufferPointer);
-}
-
-void CosmosRenderer::unmapBuffers()
-{
-    planetsDataBuffer->unmap();
-    moonsDataBuffer->unmap();
-    raycastRequestsDataBuffer->unmap();
-}
-
 void CosmosRenderer::updateCameraBuffer(Camera * camera, double time)
 {
     observerCameraPosition = camera->getPosition();
@@ -607,7 +591,7 @@ void CosmosRenderer::draw(SceneProvider* scene, double time)
                 modelsShadowMapRenderStages[z]->beginDrawing();
                 modelsShadowMapRenderStages[z]->setSets({ rendererDataSet, renderables[i]->shadowMapSet, shadowmapsDataSets[z] });
 
-                scene->drawDrawableObjects(modelsShadowMapRenderStages[z], modelsDataSet, scale * 0.01);
+                scene->drawDrawableObjects(modelsShadowMapRenderStages[z], modelsDataSet, scale);
 
                 modelsShadowMapRenderStages[z]->endDrawing();
                 modelsShadowMapRenderStages[z]->submitNoSemaphores({});
@@ -778,7 +762,10 @@ void CosmosRenderer::setRaycastPoints(std::vector<glm::dvec3> points)
         bb.emplaceFloat32((point.z - observerCameraPosition.z) * scale);
         bb.emplaceFloat32(0.0f);
     }
-    memcpy(raycastRequestsDataBufferPointer, bb.getPointer(), bb.buffer.size());
+    void* data;
+    raycastRequestsDataBuffer->map(0, bb.buffer.size(), &data);
+    memcpy(data, bb.getPointer(), bb.buffer.size());
+    raycastRequestsDataBuffer->unmap();
 }
 
 std::vector<glm::dvec3> CosmosRenderer::getRaycastPoints()

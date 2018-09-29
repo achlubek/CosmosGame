@@ -1,6 +1,6 @@
 #pragma once
 enum class LogSeverity {
-    SeverityImportant = 0,
+    Important = 0,
     Normal = 1,
     Trivial = 2,
     Verbose = 3

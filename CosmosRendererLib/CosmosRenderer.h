@@ -19,9 +19,6 @@ public:
 
     void recompileShaders(bool deleteOld); 
 
-    void mapBuffers();
-    void unmapBuffers();
-
     void updateCameraBuffer(Camera* cam, double time);
     void draw(SceneProvider* scene, double time);
 
@@ -136,12 +133,7 @@ private:
 
     glm::dvec3 observerCameraPosition;
     double closestSurfaceDistance;
-
-    void* planetsDataBufferPointer;
-    void* moonsDataBufferPointer;
-    void* raycastRequestsDataBufferPointer;
-
-
+    
     void onClosestStarChange(Star star);
     void onClosestPlanetChange(CelestialBody planet);
 

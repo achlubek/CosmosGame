@@ -53,3 +53,8 @@
 #include "TimeProvider.h"
 #include "DebugLogger.h"
 #include "Serializer.h"
+
+#define LOG(a) GameContainer::getInstance()->getLogger()->log(LogSeverity::Normal, a);
+#define LOGERR(a) GameContainer::getInstance()->getLogger()->log(LogSeverity::Important, a);
+#define LOGINFO(a) GameContainer::getInstance()->getLogger()->log(LogSeverity::Trivial, a);
+#define LOGVERBOSE(a) GameContainer::getInstance()->getLogger()->log(LogSeverity::Trivial, a);

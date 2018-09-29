@@ -49,13 +49,13 @@ void AbsGameStage::updateObjects()
     double nowtime = timeProvider->getTime();
     double lastTime = timeProvider->getLastTime();
     // TODO hmm
-    //container->getParticlesRenderer()->update((nowtime - lastTime) * timescale);
+    //container->getParticlesRenderer()->update((nowtime - lastTime));
     for (int i = 0; i < activeObjects.size(); i++) {
-        onUpdateObject(activeObjects[i], (nowtime - lastTime) * timeScale);
-        activeObjects[i]->update((nowtime - lastTime) * timeScale);
+        onUpdateObject(activeObjects[i], (nowtime - lastTime));
+        activeObjects[i]->update((nowtime - lastTime));
     }
-    onUpdate((nowtime - lastTime) * timeScale);
-    viewCamera->update(nowtime - lastTime);
+    onUpdate((nowtime - lastTime));
+    viewCamera->update((nowtime - lastTime) / timeScale);
     lastTime = nowtime;
     timeProvider->synchronizeLastTime();
 }
@@ -89,6 +89,11 @@ GameObject * AbsGameStage::getGameObjectById(unsigned long id)
 void AbsGameStage::setTimeScale(double itimeScale)
 {
     timeScale = itimeScale;
+}
+
+double AbsGameStage::getTimeScale()
+{
+    return timeScale;
 }
 
 TimeProvider * AbsGameStage::getTimeProvider()

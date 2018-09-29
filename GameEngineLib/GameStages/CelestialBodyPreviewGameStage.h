@@ -30,9 +30,6 @@ private:
     int64_t targetPlanet = 0;
     int64_t targetMoon = 0;
 
-    double timeScale = 0.1;
-
-    bool disableThings = false;
 
     GameContainer * getCosmosGameContainer();
     virtual void onSwitchTo() override;

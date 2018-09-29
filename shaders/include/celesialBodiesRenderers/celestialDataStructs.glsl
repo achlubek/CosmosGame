@@ -54,7 +54,7 @@ RenderedCelestialBody getRenderedBody(CelestialBodyAlignedData aligned){
         Sphere(aligned.position_radius.xyz, aligned.position_radius.a + aligned.sufraceMainColor_atmosphereHeight.a * 0.20),
         aligned.seed_terrainMaxLevel_fluidMaxLevel_habitableChance.x, //seed
         aligned.sufraceMainColor_atmosphereHeight.xyz, // color
-        aligned.seed_terrainMaxLevel_fluidMaxLevel_habitableChance.y , //terrainMaxLevel
+        aligned.seed_terrainMaxLevel_fluidMaxLevel_habitableChance.y, //terrainMaxLevel
         aligned.seed_terrainMaxLevel_fluidMaxLevel_habitableChance.z, //fluidMaxLevel
         aligned.seed_terrainMaxLevel_fluidMaxLevel_habitableChance.w, //habitableChance
         aligned.atmosphereAbsorbColor_atmosphereAbsorbStrength.w,

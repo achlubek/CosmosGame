@@ -109,7 +109,6 @@ GameContainer * GameContainer::getInstance()
 
 void GameContainer::onDrawingStart()
 {
-    cosmosRenderer->mapBuffers();
     std::thread background1 = std::thread([&]() {
         while (true) {
             cosmosRenderer->getGalaxy()->update(getCurrentStage()->getViewCamera()->getCamera()->getPosition(), getCurrentStage()->getTimeProvider()->getTime());
@@ -190,7 +189,7 @@ void GameContainer::startGameLoops()
             printf("FPS %d\n", frames);
             frames = 0;
         }
-        currentStage->getTimeProvider()->update(time - lastTimeX);
+        currentStage->getTimeProvider()->update((time - lastTimeX) * currentStage->getTimeScale());
         currentStage->getViewCamera()->getCamera()->updateFrustumCone();
         getParticlesRenderer()->updateCameraBuffer(currentStage->getViewCamera()->getCamera());
         lastTimeFloored = floored;
