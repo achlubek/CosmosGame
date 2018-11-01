@@ -127,12 +127,15 @@ void FreeFlightGameStage::initializeNew()
     getViewCamera()->setStrategy(new CameraFirstPersonStrategy());
     getViewCamera()->setFov(66.0);
 
-    debugMarker = new GameObject();
-    auto model3d = getGameContainer()->getModel3dFactory()->build("debugrings.model3d.ini");
-    auto drawableComponent = new AbsDrawableComponent(model3d, "debugrings.model3d.ini", glm::dvec3(0.0), glm::dquat(1.0, 0.0, 0.0, 0.0));
-    debugMarker->addComponent(drawableComponent);
-    debugMarker->addComponent(new Transformation3DComponent(0.0, center));
-    addObject(debugMarker);
+  //  debugMarker = new GameObject();
+  //  auto model3d = getGameContainer()->getModel3dFactory()->build("debugrings.model3d.ini");
+  //  auto drawableComponent = new AbsDrawableComponent(model3d, "debugrings.model3d.ini", glm::dvec3(0.0), glm::dquat(1.0, 0.0, 0.0, 0.0));
+  //  debugMarker->addComponent(drawableComponent);
+  //  debugMarker->addComponent(new Transformation3DComponent(0.0, center));
+   // addObject(debugMarker);
+
+
+    getCosmosGameContainer()->getCosmosRenderer()->getGalaxy()->update(center, 0.0);
 }
 
 PlayerMountState * FreeFlightGameStage::getPlayerMountState()

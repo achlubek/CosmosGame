@@ -79,6 +79,7 @@ GameObject * ShipFactory::build(std::string mediakey)
     }
     ship->addComponent(new ThrustControllerComponent());
     ship->addComponent(new ShipManualControlsComponent());
+    ship->addComponent(new ShipAutopilotComponent());
 
     return ship;
 }

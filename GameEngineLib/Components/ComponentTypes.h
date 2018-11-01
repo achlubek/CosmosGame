@@ -7,5 +7,6 @@ enum ComponentTypes {
     Battery,
     SimpleDrawable,
     PlayerManualControls,
-    Focus
+    Focus,
+    ShipAutopilot
 };

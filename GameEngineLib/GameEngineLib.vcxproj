@@ -149,7 +149,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="DebugLogger.h" />
+    <ClInclude Include="PercentageDerivativeController.h" />
     <ClInclude Include="Serializer.h" />
+    <ClInclude Include="Components\ShipAutopilotComponent.h" />
     <ClInclude Include="StateMachines\PlayerMountState.h" />
     <ClInclude Include="StateMachines\AbsStateMachine.h" />
     <ClInclude Include="BatteryDrainer.h" />
@@ -204,6 +206,7 @@
     <ClInclude Include="PlayerFactory.h" />
     <ClInclude Include="SceneProvider.h" />
     <ClInclude Include="ShipFactory.h" />
+    <ClInclude Include="StateMachines\ShipOrientationControllerState.h" />
     <ClInclude Include="StateMachines\stdafx.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="TimeProvider.h" />
@@ -211,7 +214,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DebugLogger.cpp" />
+    <ClCompile Include="PercentageDerivativeController.cpp" />
     <ClCompile Include="Serializer.cpp" />
+    <ClCompile Include="Components\ShipAutopilotComponent.cpp" />
     <ClCompile Include="StateMachines\PlayerMountState.cpp" />
     <ClCompile Include="StateMachines\AbsStateMachine.cpp" />
     <ClCompile Include="BatteryDrainer.cpp" />
@@ -258,6 +263,7 @@
     <ClCompile Include="PlayerFactory.cpp" />
     <ClCompile Include="SceneProvider.cpp" />
     <ClCompile Include="ShipFactory.cpp" />
+    <ClCompile Include="StateMachines\ShipOrientationControllerState.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

@@ -112,8 +112,8 @@ private:
     VulkanDescriptorSetLayout* shadowMapsCollectionLayout{ nullptr };
     VulkanDescriptorSet* shadowMapsCollectionSet{ nullptr };
     std::vector<double> shadowmapsDivisors = {2.0, 17.0, 75.0};
-    const int shadowMapWidth = 4096;
-    const int shadowMapHeight = 4096;
+    const int shadowMapWidth = 2048;
+    const int shadowMapHeight = 2048;
     
     Object3dInfo* cube3dInfo;
 

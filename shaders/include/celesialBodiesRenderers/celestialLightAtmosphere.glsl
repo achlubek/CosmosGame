@@ -168,30 +168,39 @@ CelestialRenderResult renderAtmosphere(RenderPass pass){
     if(centerDistance < radius){
         return result;
     }
-    else if(centerDistance < atmoradius){
+    vec3 start = vec3(0.0);
+    vec3 end = vec3(0.0);
+    if(centerDistance < atmoradius){
         if(hitcount == 1){
-            result = renderAtmospherePath(pass, pass.ray.o, pass.atmosphereFarHitPos, 1.0, true);
-            vec4 hclouds = pass.isHighCloudsHit ? getHighClouds(pass.body, pass.highCloudsHitPos) : vec4(0.0);
-            result.alphaBlendedLight.rgba = alphaMix(result.alphaBlendedLight.rgba, hclouds);
+            start = pass.ray.o;
+            end = pass.atmosphereFarHitPos;
+            //vec4 hclouds = pass.isHighCloudsHit ? getHighClouds(pass.body, pass.highCloudsHitPos) : vec4(0.0);
+            //result.alphaBlendedLight.rgba = alphaMix(result.alphaBlendedLight.rgba, hclouds);
         }
         else if(hitcount == 2){
-            result = renderAtmospherePath(pass, pass.ray.o, planetHit, 1.0, true);
-            vec4 hclouds = pass.isHighCloudsHit && pass.highCloudsHit < pass.surfaceHit && pass.highCloudsHit < pass.waterHit ? getHighClouds(pass.body, pass.highCloudsHitPos) : vec4(0.0);
-            result.alphaBlendedLight.rgba = alphaMix(result.alphaBlendedLight.rgba, hclouds);
+            start = pass.ray.o;
+            end = planetHit;
+            //vec4 hclouds = pass.isHighCloudsHit && pass.highCloudsHit < pass.surfaceHit && pass.highCloudsHit < pass.waterHit ? getHighClouds(pass.body, pass.highCloudsHitPos) : vec4(0.0);
+            //result.alphaBlendedLight.rgba = alphaMix(result.alphaBlendedLight.rgba, hclouds);
         }
     } else {
         if(hitcount == 1){
-            result = renderAtmospherePath(pass, pass.atmosphereNearHitPos, pass.atmosphereFarHitPos, 1.0, true);
-            vec4 hclouds = pass.isHighCloudsHit ? getHighClouds(pass.body, pass.highCloudsHitPos) : vec4(0.0);
-            result.alphaBlendedLight.rgba = alphaMix(result.alphaBlendedLight.rgba, hclouds);
+            start = pass.atmosphereNearHitPos;
+            end = pass.atmosphereFarHitPos;
+            //vec4 hclouds = pass.isHighCloudsHit ? getHighClouds(pass.body, pass.highCloudsHitPos) : vec4(0.0);
+            //result.alphaBlendedLight.rgba = alphaMix(result.alphaBlendedLight.rgba, hclouds);
         }
         else if(hitcount == 2){
-            result = renderAtmospherePath(pass, pass.atmosphereNearHitPos, planetHit, 1.0, true);
-            vec4 hclouds = pass.isHighCloudsHit ? getHighClouds(pass.body, pass.highCloudsHitPos) : vec4(0.0);
-            result.alphaBlendedLight.rgba = alphaMix(result.alphaBlendedLight.rgba, hclouds);
+            start = pass.atmosphereNearHitPos;
+            end = planetHit;
+            //vec4 hclouds = pass.isHighCloudsHit ? getHighClouds(pass.body, pass.highCloudsHitPos) : vec4(0.0);
+            //result.alphaBlendedLight.rgba = alphaMix(result.alphaBlendedLight.rgba, hclouds);
             //result.alphaBlendedLight.a = 0.0;//max(hclouds.a, result.alphaBlendedLight.a);
         }
     }
+    result = renderAtmospherePath(pass, start, end, 1.0, true);
+    vec4 hclouds = pass.isHighCloudsHit && pass.highCloudsHit < pass.surfaceHit && pass.highCloudsHit < pass.waterHit ? getHighClouds(pass.body, pass.highCloudsHitPos) : vec4(0.0);
+    result.alphaBlendedLight.rgba = alphaMix(result.alphaBlendedLight.rgba, hclouds);
     return result;
 }
 
