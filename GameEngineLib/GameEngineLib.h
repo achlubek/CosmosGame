@@ -1,4 +1,11 @@
 #pragma once
+#include "AbsCommand.h"
+#include "AbsCommandHandler.h"
+#include "CommandBus.h"
+#include "AbsEvent.h"
+#include "AbsEventHandler.h"
+#include "EventBus.h"
+#include "GameObjectTags.h"
 #include "GameContainer.h"
 #include "BatteryDrainer.h"
 #include "Camera/AbsCameraViewStrategy.h"

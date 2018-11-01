@@ -141,7 +141,7 @@ void main() {
 
     //sunflare = ((starhit > 0.0 && starhit < 9999999.0) ? 1.0 : 0.0) * ClosestStarColor * max(0.0, 1.0 - adddata.a) * (1.0 - step(0.09, length(shipdata2.rgb))) * sunFlareColorizer * Exposure * 21.8 * snois;
 
-    vec3 sunflare2 = flare(UV, projectedSunDir) * (1000.0 / length(ClosestStarPosition)) * (1.0 - step(0.0, adddata2.a)) * Exposure * (ClosestStarColor) * 0.14 * pow(max(0.0, -dot(dir, starDir)), 3.0);
+    vec3 sunflare2 = flare(UV, projectedSunDir) * (1000.0 / length(ClosestStarPosition)) * (1.0 - step(0.01, adddata2.a)) * Exposure * (ClosestStarColor) * 0.14 * pow(max(0.0, -dot(dir, starDir)), 3.0);
 
     a += adddata.rgb;/*
     float shipdata3 = texture(texModelsDistance, UV).r;
@@ -174,8 +174,8 @@ void main() {
 
     a = mix(a * isShadow2, shaded, step(0.09, length(shipdata2.rgb))) + sunflare2;*/
     a += sunflare2;
-    vec4 particlesData = texture(texParticlesResult, UV).rgba;
-    a += particlesData.a == 0.0 ? vec3(0.0) : (particlesData.rgb);
+    //vec4 particlesData = texture(texParticlesResult, UV).rgba;
+//    a += particlesData.a == 0.0 ? vec3(0.0) : (particlesData.rgb);
 
     outColor = vec4(aces_tonemap(clamp(a, 0.0, 10000.0)), 1.0);
 

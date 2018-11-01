@@ -148,7 +148,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AbsCommand.h" />
+    <ClInclude Include="AbsCommandHandler.h" />
+    <ClInclude Include="AbsEvent.h" />
+    <ClInclude Include="AbsEventHandler.h" />
+    <ClInclude Include="CommandBus.h" />
     <ClInclude Include="DebugLogger.h" />
+    <ClInclude Include="EventBus.h" />
     <ClInclude Include="PercentageDerivativeController.h" />
     <ClInclude Include="Serializer.h" />
     <ClInclude Include="Components\ShipAutopilotComponent.h" />
@@ -213,7 +219,13 @@
     <ClInclude Include="Components\Transformation3DComponent.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AbsCommand.cpp" />
+    <ClCompile Include="AbsCommandHandler.cpp" />
+    <ClCompile Include="AbsEvent.cpp" />
+    <ClCompile Include="AbsEventHandler.cpp" />
+    <ClCompile Include="CommandBus.cpp" />
     <ClCompile Include="DebugLogger.cpp" />
+    <ClCompile Include="EventBus.cpp" />
     <ClCompile Include="PercentageDerivativeController.cpp" />
     <ClCompile Include="Serializer.cpp" />
     <ClCompile Include="Components\ShipAutopilotComponent.cpp" />

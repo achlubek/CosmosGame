@@ -35,16 +35,12 @@ void ShipManualControlsComponent::update(double elapsed)
         controls->readAxisValue("united_controller_manual_angular_yaw_axis"),
         controls->readAxisValue("united_controller_manual_angular_roll_axis")
     );
-    if (glm::length(linear_thrust_controls) > 0.001) {
-        thrustController->setLinearThrust(
-            linear_thrust_controls
-        );
-    }
-    if (glm::length(angular_thrust_controls) > 0.001) {
-        thrustController->setAngularThrust(
-            angular_thrust_controls
-        );
-    }
+    thrustController->setLinearThrust(
+        linear_thrust_controls
+    );
+    thrustController->setAngularThrust(
+        angular_thrust_controls
+    );
 }
 
 AbsComponent * ShipManualControlsComponent::clone()
