@@ -156,6 +156,7 @@
     <ClInclude Include="FrustumCone.h" />
     <ClInclude Include="GalaxyContainer.h" />
     <ClInclude Include="Model3d.h" />
+    <ClInclude Include="OutputScreenRenderer.h" />
     <ClInclude Include="SceneProvider.h" />
     <ClInclude Include="Star.h" />
     <ClInclude Include="RenderedCelestialBody.h" />
@@ -171,6 +172,7 @@
     <ClCompile Include="FrustumCone.cpp" />
     <ClCompile Include="GalaxyContainer.cpp" />
     <ClCompile Include="Model3d.cpp" />
+    <ClCompile Include="OutputScreenRenderer.cpp" />
     <ClCompile Include="SceneProvider.cpp" />
     <ClCompile Include="Star.cpp" />
     <ClCompile Include="RenderedCelestialBody.cpp" />

@@ -12,6 +12,11 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, i
     cube3dInfo = vulkan->getObject3dInfoFactory()->build("cube1unitradius.raw");
 
 
+    outputImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA16f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
+
+    uiOutputImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA16f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
+
+    outputScreenRenderer = new OutputScreenRenderer(vulkan, width, height, outputImage, uiOutputImage);
 
     cameraDataBuffer = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeUniform, sizeof(float) * 1024);
     raycastRequestsDataBuffer = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeStorage, sizeof(float) * 1024 * 128);
@@ -151,7 +156,6 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, i
 
     combineLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
     combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
-    combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
     combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
     combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
     combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
@@ -310,7 +314,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     combineStage = vulkan->getVulkanRenderStageFactory()->build(width, height,
         { combinevert, combinefrag }, { combineLayout },
         {
-            GameContainer::getInstance()->getOutputImage()->getAttachment(VulkanAttachmentBlending::None, true),
+            outputImage->getAttachment(VulkanAttachmentBlending::None, true),
         });
     combineStage->setSets({ combineSet });
 
@@ -339,7 +343,7 @@ void CosmosRenderer::updateCameraBuffer(Camera * camera, double time)
     auto star = galaxy->getClosestStar();
     
     auto fromStarToCameraMatrix = star.getFromThisLookAtPointMatrix(time, observerCameraPosition);
-    GameContainer::getInstance()->setCurrentSunDirection(fromStarToCameraMatrix);
+    //GameContainer::getInstance()->setCurrentSunDirection(fromStarToCameraMatrix);
 
     glm::dvec3 closesStarRelPos = (star.getPosition(time) - observerCameraPosition) * scale;
 
@@ -429,7 +433,7 @@ void CosmosRenderer::draw(SceneProvider* scene, double time)
     //galaxy->update(observerCameraPosition);
 
     measureTimeStart();
-    updatingSafetyQueue.executeAll();
+    internalCommandBus->processQueue();
     measureTimeEnd("Executing safety queue");
 
     measureTimeStart();
@@ -642,6 +646,8 @@ void CosmosRenderer::draw(SceneProvider* scene, double time)
     combineStage->submitNoSemaphores({});
     measureTimeEnd("Composite output");
 
+    outputScreenRenderer->draw();
+
 #ifdef PERFORMANCE_DEBUG
     printf("\"nextframe\":true},");
 #endif
@@ -658,16 +664,39 @@ void CosmosRenderer::onClosestStarChange(Star star)
 
 void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
 {
+    for (int i = 0; i < renderablePlanets.size(); i++) {
+        delete renderablePlanets[i];
+        renderablePlanets[i] = nullptr;
+    }
+    renderablePlanets.clear();
+    auto renderable = new RenderedCelestialBody(vulkan,
+        galaxy->getClosestPlanet(),
+        celestialBodyDataSetLayout,
+        celestialShadowMapSetLayout,
+        celestialBodyRenderSetLayout,
+        celestialBodySurfaceSetLayout,
+        celestialBodyWaterSetLayout,
+        celestialBodyRaycastUniqueSetLayout,
+        surfaceRenderedAlbedoRoughnessImage,
+        surfaceRenderedNormalMetalnessImage,
+        surfaceRenderedDistanceImage,
+        waterRenderedNormalMetalnessImage,
+        waterRenderedDistanceImage);
+    renderable->updateBuffer(observerCameraPosition, scale, 0.0);
+    renderablePlanets.push_back(renderable);
+    //renderable->updateData(celestialDataUpdateComputeStage);
 
-    updatingSafetyQueue.enqueue([&]() {
+    vulkan->waitDeviceIdle();
 
-        for (int i = 0; i < renderablePlanets.size(); i++) {
-            delete renderablePlanets[i];
-            renderablePlanets[i] = nullptr;
-        }
-        renderablePlanets.clear();
+    for (int i = 0; i < renderableMoons.size(); i++) {
+        delete renderableMoons[i];
+        renderableMoons[i] = nullptr;
+    }
+    renderableMoons.clear();
+    auto moons = galaxy->getClosestPlanetMoons();
+    for (int i = 0; i < moons.size(); i++) {
         auto renderable = new RenderedCelestialBody(vulkan,
-            galaxy->getClosestPlanet(),
+            moons[i],
             celestialBodyDataSetLayout,
             celestialShadowMapSetLayout,
             celestialBodyRenderSetLayout,
@@ -680,38 +709,11 @@ void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
             waterRenderedNormalMetalnessImage,
             waterRenderedDistanceImage);
         renderable->updateBuffer(observerCameraPosition, scale, 0.0);
-        renderablePlanets.push_back(renderable);
+        renderableMoons.push_back(renderable);
         //renderable->updateData(celestialDataUpdateComputeStage);
-
-        vulkan->waitDeviceIdle();
-
-        for (int i = 0; i < renderableMoons.size(); i++) {
-            delete renderableMoons[i];
-            renderableMoons[i] = nullptr;
-        }
-        renderableMoons.clear();
-        auto moons = galaxy->getClosestPlanetMoons();
-        for (int i = 0; i < moons.size(); i++) {
-            auto renderable = new RenderedCelestialBody(vulkan,
-                moons[i],
-                celestialBodyDataSetLayout,
-                celestialShadowMapSetLayout,
-                celestialBodyRenderSetLayout,
-                celestialBodySurfaceSetLayout,
-                celestialBodyWaterSetLayout,
-                celestialBodyRaycastUniqueSetLayout,
-                surfaceRenderedAlbedoRoughnessImage,
-                surfaceRenderedNormalMetalnessImage,
-                surfaceRenderedDistanceImage,
-                waterRenderedNormalMetalnessImage,
-                waterRenderedDistanceImage);
-            renderable->updateBuffer(observerCameraPosition, scale, 0.0);
-            renderableMoons.push_back(renderable);
-            //renderable->updateData(celestialDataUpdateComputeStage);
-        }
-        //  vkDeviceWaitIdle(vulkan->device);
-        //   vkDeviceWaitIdle(vulkan->device);
-    });//yay javascript
+    }
+    //  vkDeviceWaitIdle(vulkan->device);
+    //   vkDeviceWaitIdle(vulkan->device);
 }
 
 void CosmosRenderer::measureTimeStart()
@@ -743,10 +745,6 @@ void CosmosRenderer::setExposure(double value)
 {
     exposure = value;
 }
-void CosmosRenderer::invokeOnDrawingThread(std::function<void(void)> func)
-{
-    updatingSafetyQueue.enqueue(func);
-}
 
 void CosmosRenderer::setRaycastPoints(std::vector<glm::dvec3> points)
 {
@@ -776,11 +774,6 @@ std::vector<glm::dvec3> CosmosRenderer::getRaycastPoints()
 VulkanImage * CosmosRenderer::getOpaqueSurfaceDistanceImage()
 {
     return surfaceRenderedDistanceImage;
-}
-
-void CosmosRenderer::bindParticlesResultImage()
-{
-    combineSet->bindImageViewSampler(4, GameContainer::getInstance()->getParticlesRenderer()->getResultImage());
 }
 
 RenderedCelestialBody * CosmosRenderer::getRenderableForCelestialBody(CelestialBody body)

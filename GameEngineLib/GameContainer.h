@@ -67,9 +67,6 @@ private:
     static GameContainer* instance;
     AbsGameStage* currentStage{ nullptr };
     double fps{ 0 };
-    VulkanImage* outputImage;
-    VulkanImage* uiOutputImage;
-    OutputScreenRenderer* outputScreenRenderer;
     GameStageCollection* stageCollection;
     ParticlesRenderer* particlesRenderer;
     DebugLogger* logger;

@@ -12,3 +12,4 @@
 #include "Star.h"
 #include "StarsRenderer.h"
 #include "SubdividedMeshesProvider.h"
+#include "OutputScreenRenderer.h"

@@ -183,7 +183,6 @@
     <ClInclude Include="GameStages\MainMenuGameStage.h" />
     <ClInclude Include="GameStages\ModelPreviewGameStage.h" />
     <ClInclude Include="ModuleFactory.h" />
-    <ClInclude Include="OutputScreenRenderer.h" />
     <ClInclude Include="Camera\PointerDrivenCameraStrategy.h" />
     <ClInclude Include="Model3dFactory.h" />
     <ClInclude Include="PlayerFactory.h" />
@@ -223,7 +222,6 @@
     <ClCompile Include="Camera\ManualCameraStrategy.cpp" />
     <ClCompile Include="GameStages\MainMenuGameStage.cpp" />
     <ClCompile Include="ModuleFactory.cpp" />
-    <ClCompile Include="OutputScreenRenderer.cpp" />
     <ClCompile Include="Camera\PointerDrivenCameraStrategy.cpp" />
     <ClCompile Include="Model3dFactory.cpp" />
     <ClCompile Include="PlayerFactory.cpp" />

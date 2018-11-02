@@ -31,11 +31,6 @@ GameContainer::GameContainer()
 
     interpolator = new Interpolator();
 
-    outputImage = vulkanToolkit->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA16f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
-
-    uiOutputImage = vulkanToolkit->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA16f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
-
-    outputScreenRenderer = new OutputScreenRenderer(vulkanToolkit, width, height, outputImage, uiOutputImage);
 
 
     gameControls->onKeyDown.add([&](std::string key) {

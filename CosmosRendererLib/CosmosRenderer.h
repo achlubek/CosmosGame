@@ -8,6 +8,7 @@ class GalaxyContainer;
 class SubdividedMeshesProvider;
 class RenderedCelestialBody;
 class CommandBus;
+class OutputScreenRenderer;
 
 class CosmosRenderer
 {
@@ -23,14 +24,12 @@ public:
     void draw(SceneProvider* scene, double time);
 
     VulkanImage* getOpaqueSurfaceDistanceImage();
-    void bindParticlesResultImage();
 
     VulkanDescriptorSetLayout* getModelMRTLayout();
 
     GalaxyContainer* getGalaxy();
     double getExposure();
     void setExposure(double value);
-    void invokeOnDrawingThread(std::function<void(void)> func);
 
     void setRaycastPoints(std::vector<glm::dvec3> points);
     std::vector<glm::dvec3> getRaycastPoints();
@@ -126,6 +125,9 @@ private:
     VulkanDescriptorSet* modelsDataSet{ nullptr };
     VulkanGenericBuffer* modelsDataBuffer;
 
+    VulkanImage* outputImage;
+    VulkanImage* uiOutputImage;
+    OutputScreenRenderer* outputScreenRenderer;
 
     /*end models rendering*/
 

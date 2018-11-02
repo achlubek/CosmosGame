@@ -167,7 +167,6 @@ void RenderedCelestialBody::updateData(VulkanComputeStage * stage)
     if (!initialized) {
         return;
     }
-    LOG("Regenerating low frequency data for " + body.getNameUniversalIdentifier());
     stage->dispatch({ dataSet }, lowFreqWidth / 256, lowFreqHeight / 2, 1);
     needsUpdate = false;
 }

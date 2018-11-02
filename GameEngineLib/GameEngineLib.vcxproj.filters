@@ -30,9 +30,6 @@
     <ClInclude Include="TimeProvider.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="OutputScreenRenderer.h">
-      <Filter>Pliki nagłówkowe</Filter>
-    </ClInclude>
     <ClInclude Include="GameStageCollection.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
@@ -165,9 +162,6 @@
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
     <ClCompile Include="TimeProvider.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
-    <ClCompile Include="OutputScreenRenderer.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
     <ClCompile Include="GameStageCollection.cpp">

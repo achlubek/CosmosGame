@@ -22,71 +22,7 @@ CelestialBodyPreviewGameStage::CelestialBodyPreviewGameStage(GameContainer* cont
         if (key == GLFW_KEY_PAUSE) getCosmosGameContainer()->getCosmosRenderer()->recompileShaders(true);
 
         if (key == GLFW_KEY_9 || key == GLFW_KEY_0) {
-            getCosmosGameContainer()->getCosmosRenderer()->invokeOnDrawingThread([&, key]() {
-                star = getCosmosGameContainer()->getCosmosRenderer()->getGalaxy()->getAllStars()[targetStar - 1];
-                auto planet = getCosmosGameContainer()->getCosmosRenderer()->getGalaxy()->getClosestPlanet();
-                auto moon = getCosmosGameContainer()->getCosmosRenderer()->getGalaxy()->getClosestMoon();
-                /*traating limitors as 3d vector
-
-                xyz: {starsCount, closestStarPlanetsCount, closestPlanetMoonsCount}
-                allowed : ( {0,0,0} -> xyz >
-
-
-                */
-
-                int32_t x = getCosmosGameContainer()->getCosmosRenderer()->getGalaxy()->getAllStars().size();
-                int32_t y = getCosmosGameContainer()->getCosmosRenderer()->getGalaxy()->getClosestStarPlanets().size();
-                int32_t z = getCosmosGameContainer()->getCosmosRenderer()->getGalaxy()->getClosestPlanetMoons().size();
-
-                int32_t cx = targetStar;
-                int32_t cy = targetPlanet;
-                int32_t cz = targetMoon;
-
-
-                if (key == GLFW_KEY_0) {
-                    cz--;
-                }
-                if (key == GLFW_KEY_9) {
-                    cz++;
-                }
-
-                if (cz >= z) {
-                    cy++;
-                    cz = 0;
-                }
-
-                if (cz < 0) {
-                    cy--;
-                    cz = 100;
-                }
-
-                if (cy >= y) {
-                    cx++;
-                    cy = 0;
-                }
-
-                if (cy < 0) {
-                    cx--;
-                    cy = 100;
-                }
-
-
-
-                targetStar = cx;
-                targetPlanet = cy;
-                targetMoon = cz;
-                targetBody = getCosmosGameContainer()->getCosmosRenderer()->getGalaxy()->getByPath(targetStar, targetPlanet, targetMoon);
-                center = targetBody->getPosition(0.0);
-                dist = targetBody->radius;
-
-                //    printf("Velocity %f \n", targetBody.calculateOrbitVelocity(0.0001));
-                mindist = dist + 0.001;
-                dist *= 2.0;
-                printf("Limits\t%d,\t%d,\t%d\n", x, y, z);
-                printf("Value\t%d,\t%d,\t%d\n", cx, cy, cz);
-                mindist = dist + 0.001;
-                dist *= 2.0;
-            });
+            // well todo
         }
     });
 
