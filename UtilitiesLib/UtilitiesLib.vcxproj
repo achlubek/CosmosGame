@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -20,10 +20,10 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{1A8000FF-04F4-4D3A-B6FB-47E9342CE22B}</ProjectGuid>
+    <ProjectGuid>{D3180D84-75F1-4053-9621-4E92A9D63AD1}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>CosmosRendererLib</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <RootNamespace>UtilitiesLib</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -92,7 +92,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Code\glm-0.9.9-a1;C:\VulkanSDK\1.1.82.0\Include\vulkan;C:\Code\glfw-3.2.1\include;C:\Code\CosmosGame\SQLiteSupport;C:\Code\VEngineNative\VEngine;C:\Code\VEUserInterface\VEUserInterface;C:\Code\CosmosGame\UtilitiesLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Code\glm-0.9.9-a1;C:\Code\VEngineNative\VEngine;C:\VulkanSDK\1.1.82.0\Include\vulkan;C:\Code\glfw-3.2.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -148,40 +148,34 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AbsCelestialObject.h" />
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="CelestialBody.h" />
-    <ClInclude Include="CosmosRenderer.h" />
-    <ClInclude Include="CosmosRendererLib.h" />
-    <ClInclude Include="FrustumCone.h" />
-    <ClInclude Include="GalaxyContainer.h" />
-    <ClInclude Include="Model3d.h" />
-    <ClInclude Include="SceneProvider.h" />
-    <ClInclude Include="Star.h" />
-    <ClInclude Include="RenderedCelestialBody.h" />
-    <ClInclude Include="StarsRenderer.h" />
+    <ClInclude Include="AbsCommand.h" />
+    <ClInclude Include="AbsCommandHandler.h" />
+    <ClInclude Include="AbsEvent.h" />
+    <ClInclude Include="AbsEventHandler.h" />
+    <ClInclude Include="CommandBus.h" />
+    <ClInclude Include="DebugLogger.h" />
+    <ClInclude Include="EventBus.h" />
+    <ClInclude Include="INIReader.h" />
+    <ClInclude Include="PercentageDerivativeController.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="SubdividedMeshesProvider.h" />
+    <ClInclude Include="UtilitiesLib.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AbsCelestialObject.cpp" />
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="CelestialBody.cpp" />
-    <ClCompile Include="CosmosRenderer.cpp" />
-    <ClCompile Include="FrustumCone.cpp" />
-    <ClCompile Include="GalaxyContainer.cpp" />
-    <ClCompile Include="Model3d.cpp" />
-    <ClCompile Include="SceneProvider.cpp" />
-    <ClCompile Include="Star.cpp" />
-    <ClCompile Include="RenderedCelestialBody.cpp" />
-    <ClCompile Include="StarsRenderer.cpp" />
+    <ClCompile Include="AbsCommand.cpp" />
+    <ClCompile Include="AbsCommandHandler.cpp" />
+    <ClCompile Include="AbsEvent.cpp" />
+    <ClCompile Include="AbsEventHandler.cpp" />
+    <ClCompile Include="CommandBus.cpp" />
+    <ClCompile Include="DebugLogger.cpp" />
+    <ClCompile Include="EventBus.cpp" />
+    <ClCompile Include="INIReader.cpp" />
+    <ClCompile Include="PercentageDerivativeController.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="SubdividedMeshesProvider.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

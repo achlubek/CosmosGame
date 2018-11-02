@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "DebugLogger.h"
+using namespace std;
 
 
 DebugLogger::DebugLogger()

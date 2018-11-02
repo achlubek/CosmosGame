@@ -18,28 +18,16 @@
     <ClInclude Include="stdafx.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="CommandTerminal.h">
-      <Filter>Pliki nagłówkowe</Filter>
-    </ClInclude>
     <ClInclude Include="GameControls.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
     <ClInclude Include="GameObject.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="Model3d.h">
-      <Filter>Pliki nagłówkowe</Filter>
-    </ClInclude>
     <ClInclude Include="Model3dFactory.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="SceneProvider.h">
-      <Filter>Pliki nagłówkowe</Filter>
-    </ClInclude>
     <ClInclude Include="TimeProvider.h">
-      <Filter>Pliki nagłówkowe</Filter>
-    </ClInclude>
-    <ClInclude Include="Interpolator.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
     <ClInclude Include="OutputScreenRenderer.h">
@@ -51,13 +39,7 @@
     <ClInclude Include="json.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="INIReader.h">
-      <Filter>Pliki nagłówkowe</Filter>
-    </ClInclude>
     <ClInclude Include="Camera\AbsCameraViewStrategy.h">
-      <Filter>Pliki nagłówkowe</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera\Camera.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
     <ClInclude Include="Camera\CameraChaseStrategy.h">
@@ -69,31 +51,10 @@
     <ClInclude Include="Camera\CameraFirstPersonStrategy.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="Camera\CameraOrbitStrategy.h">
-      <Filter>Pliki nagłówkowe</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera\FrustumCone.h">
-      <Filter>Pliki nagłówkowe</Filter>
-    </ClInclude>
     <ClInclude Include="Camera\ManualCameraStrategy.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
     <ClInclude Include="Camera\PointerDrivenCameraStrategy.h">
-      <Filter>Pliki nagłówkowe</Filter>
-    </ClInclude>
-    <ClInclude Include="Particles\PointParticlesEmitter.h">
-      <Filter>Pliki nagłówkowe</Filter>
-    </ClInclude>
-    <ClInclude Include="Particles\ParticlesRenderer.h">
-      <Filter>Pliki nagłówkowe</Filter>
-    </ClInclude>
-    <ClInclude Include="Particles\ParticleSystem.h">
-      <Filter>Pliki nagłówkowe</Filter>
-    </ClInclude>
-    <ClInclude Include="Particles\ParticleSystemFactory.h">
-      <Filter>Pliki nagłówkowe</Filter>
-    </ClInclude>
-    <ClInclude Include="Particles\ParticleSystemsCollection.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
     <ClInclude Include="Components\AbsComponent.h">
@@ -129,9 +90,6 @@
     <ClInclude Include="BatteryDrainer.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="CinematicScenarioReader.h">
-      <Filter>Pliki nagłówkowe</Filter>
-    </ClInclude>
     <ClInclude Include="GameContainer.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
@@ -150,16 +108,10 @@
     <ClInclude Include="Camera\stdafx.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="Particles\stdafx.h">
-      <Filter>Pliki nagłówkowe</Filter>
-    </ClInclude>
     <ClInclude Include="GameStages\AbsGameStage.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
     <ClInclude Include="GameStages\CelestialBodyPreviewGameStage.h">
-      <Filter>Pliki nagłówkowe</Filter>
-    </ClInclude>
-    <ClInclude Include="GameStages\CinematicAnimationGameStage.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
     <ClInclude Include="GameStages\FreeFlightGameStage.h">
@@ -192,42 +144,15 @@
     <ClInclude Include="Serializer.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="DebugLogger.h">
-      <Filter>Pliki nagłówkowe</Filter>
-    </ClInclude>
     <ClInclude Include="Components\ShipAutopilotComponent.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
     <ClInclude Include="StateMachines\ShipOrientationControllerState.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="PercentageDerivativeController.h">
-      <Filter>Pliki nagłówkowe</Filter>
-    </ClInclude>
-    <ClInclude Include="CommandBus.h">
-      <Filter>Pliki nagłówkowe</Filter>
-    </ClInclude>
-    <ClInclude Include="AbsCommand.h">
-      <Filter>Pliki nagłówkowe</Filter>
-    </ClInclude>
-    <ClInclude Include="AbsCommandHandler.h">
-      <Filter>Pliki nagłówkowe</Filter>
-    </ClInclude>
-    <ClInclude Include="AbsEventHandler.h">
-      <Filter>Pliki nagłówkowe</Filter>
-    </ClInclude>
-    <ClInclude Include="EventBus.h">
-      <Filter>Pliki nagłówkowe</Filter>
-    </ClInclude>
-    <ClInclude Include="AbsEvent.h">
-      <Filter>Pliki nagłówkowe</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
-    <ClCompile Include="CommandTerminal.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
     <ClCompile Include="GameControls.cpp">
@@ -236,19 +161,10 @@
     <ClCompile Include="GameObject.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="Model3d.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
     <ClCompile Include="Model3dFactory.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="SceneProvider.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
     <ClCompile Include="TimeProvider.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
-    <ClCompile Include="Interpolator.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
     <ClCompile Include="OutputScreenRenderer.cpp">
@@ -257,13 +173,7 @@
     <ClCompile Include="GameStageCollection.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="INIReader.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
     <ClCompile Include="Camera\AbsCameraViewStrategy.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera\Camera.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
     <ClCompile Include="Camera\CameraChaseStrategy.cpp">
@@ -275,31 +185,10 @@
     <ClCompile Include="Camera\CameraFirstPersonStrategy.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="Camera\CameraOrbitStrategy.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera\FrustumCone.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
     <ClCompile Include="Camera\ManualCameraStrategy.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
     <ClCompile Include="Camera\PointerDrivenCameraStrategy.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
-    <ClCompile Include="Particles\ParticlesRenderer.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
-    <ClCompile Include="Particles\ParticleSystem.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
-    <ClCompile Include="Particles\ParticleSystemFactory.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
-    <ClCompile Include="Particles\ParticleSystemsCollection.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
-    <ClCompile Include="Particles\PointParticlesEmitter.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
     <ClCompile Include="Components\AbsComponent.cpp">
@@ -329,9 +218,6 @@
     <ClCompile Include="BatteryDrainer.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="CinematicScenarioReader.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
     <ClCompile Include="ModuleFactory.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
@@ -339,9 +225,6 @@
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
     <ClCompile Include="GameStages\CelestialBodyPreviewGameStage.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
-    <ClCompile Include="GameStages\CinematicAnimationGameStage.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
     <ClCompile Include="GameStages\MainMenuGameStage.cpp">
@@ -374,34 +257,10 @@
     <ClCompile Include="Serializer.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="DebugLogger.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
     <ClCompile Include="Components\ShipAutopilotComponent.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
     <ClCompile Include="StateMachines\ShipOrientationControllerState.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
-    <ClCompile Include="PercentageDerivativeController.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
-    <ClCompile Include="CommandBus.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
-    <ClCompile Include="AbsCommand.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
-    <ClCompile Include="AbsCommandHandler.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
-    <ClCompile Include="EventBus.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
-    <ClCompile Include="AbsEvent.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
-    <ClCompile Include="AbsEventHandler.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
   </ItemGroup>

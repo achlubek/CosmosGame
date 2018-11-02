@@ -7,7 +7,7 @@ class Camera;
 class GalaxyContainer;
 class SubdividedMeshesProvider;
 class RenderedCelestialBody;
-#include "InvokeQueue.h" 
+class CommandBus;
 
 class CosmosRenderer
 {
@@ -140,7 +140,7 @@ private:
     std::vector<RenderedCelestialBody*> renderablePlanets;
     std::vector<RenderedCelestialBody*> renderableMoons;
 
-    InvokeQueue updatingSafetyQueue;
+    CommandBus* internalCommandBus;
 
     volatile bool readyForDrawing = false;
     volatile bool firstRecordingDone = false;

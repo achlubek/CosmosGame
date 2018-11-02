@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.27130.2020
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CosmosRendererLib", "CosmosRendererLib\CosmosRendererLib.vcxproj", "{1A8000FF-04F4-4D3A-B6FB-47E9342CE22B}"
 	ProjectSection(ProjectDependencies) = postProject
-		{5767443A-4CD7-4E4D-B94F-CF8596EA63DF} = {5767443A-4CD7-4E4D-B94F-CF8596EA63DF}
+		{D3180D84-75F1-4053-9621-4E92A9D63AD1} = {D3180D84-75F1-4053-9621-4E92A9D63AD1}
 		{E68901DA-AB4F-4D1B-B721-479CA6F6F825} = {E68901DA-AB4F-4D1B-B721-479CA6F6F825}
 	EndProjectSection
 EndProject
@@ -35,6 +35,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTests", "UnitTests\Unit
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SQLiteSupport", "SQLiteSupport\SQLiteSupport.vcxproj", "{E68901DA-AB4F-4D1B-B721-479CA6F6F825}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UtilitiesLib", "UtilitiesLib\UtilitiesLib.vcxproj", "{D3180D84-75F1-4053-9621-4E92A9D63AD1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -100,6 +102,14 @@ Global
 		{E68901DA-AB4F-4D1B-B721-479CA6F6F825}.Release|x64.Build.0 = Release|x64
 		{E68901DA-AB4F-4D1B-B721-479CA6F6F825}.Release|x86.ActiveCfg = Release|Win32
 		{E68901DA-AB4F-4D1B-B721-479CA6F6F825}.Release|x86.Build.0 = Release|Win32
+		{D3180D84-75F1-4053-9621-4E92A9D63AD1}.Debug|x64.ActiveCfg = Debug|x64
+		{D3180D84-75F1-4053-9621-4E92A9D63AD1}.Debug|x64.Build.0 = Debug|x64
+		{D3180D84-75F1-4053-9621-4E92A9D63AD1}.Debug|x86.ActiveCfg = Debug|Win32
+		{D3180D84-75F1-4053-9621-4E92A9D63AD1}.Debug|x86.Build.0 = Debug|Win32
+		{D3180D84-75F1-4053-9621-4E92A9D63AD1}.Release|x64.ActiveCfg = Release|x64
+		{D3180D84-75F1-4053-9621-4E92A9D63AD1}.Release|x64.Build.0 = Release|x64
+		{D3180D84-75F1-4053-9621-4E92A9D63AD1}.Release|x86.ActiveCfg = Release|Win32
+		{D3180D84-75F1-4053-9621-4E92A9D63AD1}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

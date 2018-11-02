@@ -4,7 +4,7 @@
 
 CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, int width, int height) :
     galaxy(galaxy), width(width), height(height),
-    vulkan(vulkan), renderablePlanets({}), renderableMoons({}), updatingSafetyQueue(InvokeQueue()),
+    vulkan(vulkan), renderablePlanets({}), renderableMoons({}), internalCommandBus(new CommandBus()),
     subdividedMeshesProvider(new SubdividedMeshesProvider(vulkan))
 {
     //  internalCamera = new Camera();
