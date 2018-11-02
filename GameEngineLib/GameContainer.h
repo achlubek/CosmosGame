@@ -5,7 +5,6 @@ class CosmosRenderer;
 class GameControls; 
 class SQLiteDatabase;
 class Model3dFactory;
-class ParticleSystemFactory;
 class ModuleFactory;
 class ShipFactory;
 class PlayerFactory;
@@ -20,7 +19,6 @@ class Interpolator;
 class AbsGameStage;
 class OutputScreenRenderer;
 class GameStageCollection;
-class ParticlesRenderer;
 class DebugLogger;
 
 class GameContainer
@@ -34,7 +32,6 @@ public:
     ShipFactory* getShipFactory();
     PlayerFactory* getPlayerFactory();
     CosmosRenderer* getCosmosRenderer();
-    ParticleSystemFactory* getParticleSystemFactory();
     Serializer* getSerializer();
     VulkanToolkit* getVulkanToolkit();
     SQLiteDatabase* getDatabase();
@@ -48,9 +45,6 @@ public:
     void startGameLoops();
     double getFramesPerSecond();
     double getFrameLength();
-    VulkanImage* getOutputImage();
-    VulkanImage* getUiOutputImage();
-    ParticlesRenderer* getParticlesRenderer();
     void setShouldClose(bool close);
     DebugLogger* getLogger();
     void setCurrentSunDirection(glm::mat4 mat);
@@ -68,7 +62,6 @@ private:
     AbsGameStage* currentStage{ nullptr };
     double fps{ 0 };
     GameStageCollection* stageCollection;
-    ParticlesRenderer* particlesRenderer;
     DebugLogger* logger;
     glm::mat4 currentSunDirection;
     bool shouldClose = false;
@@ -77,7 +70,6 @@ private:
     GalaxyGenerator* galaxyGenerator;
     CosmosRenderer* cosmosRenderer;
     ModuleFactory* moduleFactory;
-    ParticleSystemFactory* particleSystemFactory;
     ShipFactory* shipFactory;
     PlayerFactory* playerFactory;
     Serializer * serializer;

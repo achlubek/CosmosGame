@@ -29,10 +29,6 @@ GameContainer::GameContainer()
 
     database = new SQLiteDatabase("gamedata.db");
 
-    interpolator = new Interpolator();
-
-
-
     gameControls->onKeyDown.add([&](std::string key) {
         if (currentStage != nullptr) {
             currentStage->onKeyDown(key);
@@ -53,14 +49,7 @@ GameContainer::GameContainer()
     cosmosRenderer = new CosmosRenderer(vulkanToolkit, galaxy, getResolution().x, getResolution().y);
     cosmosRenderer->setExposure(0.0001);
     
-    particlesRenderer = new ParticlesRenderer(getVulkanToolkit(),
-        width, height, cosmosRenderer->getOpaqueSurfaceDistanceImage());
-    cosmosRenderer->bindParticlesResultImage();
-    
-    getParticlesRenderer()->setRenderingScale(1.0);
-
-    particleSystemFactory = new ParticleSystemFactory(vulkanToolkit->getMedia());
-    moduleFactory = new ModuleFactory(getModel3dFactory(), particleSystemFactory, vulkanToolkit->getMedia());
+    moduleFactory = new ModuleFactory(getModel3dFactory(), vulkanToolkit->getMedia());
     shipFactory = new ShipFactory(getModel3dFactory(), moduleFactory, vulkanToolkit->getMedia());
     playerFactory = new PlayerFactory();
     serializer = new Serializer(this);
@@ -87,11 +76,6 @@ CosmosRenderer * GameContainer::getCosmosRenderer()
     return cosmosRenderer;
 }
 
-ParticleSystemFactory * GameContainer::getParticleSystemFactory()
-{
-    return particleSystemFactory;
-}
-
 Serializer * GameContainer::getSerializer()
 {
     return serializer;
@@ -104,16 +88,19 @@ GameContainer * GameContainer::getInstance()
 
 void GameContainer::onDrawingStart()
 {
-    std::thread background1 = std::thread([&]() {
+    /*std::thread background1 = std::thread([&]() {
         while (true) {
             cosmosRenderer->getGalaxy()->update(getCurrentStage()->getViewCamera()->getCamera()->getPosition(), getCurrentStage()->getTimeProvider()->getTime());
         }
     });
-    background1.detach();
+    background1.detach();*/
 }
 
 void GameContainer::onDraw()
 {
+    //temporary
+    cosmosRenderer->getGalaxy()->update(getCurrentStage()->getViewCamera()->getCamera()->getPosition(), getCurrentStage()->getTimeProvider()->getTime());
+
     cosmosRenderer->updateCameraBuffer(getCurrentStage()->getViewCamera()->getCamera(), getCurrentStage()->getTimeProvider()->getTime());
     cosmosRenderer->draw(getCurrentStage(), getCurrentStage()->getTimeProvider()->getTime());
 }
@@ -186,22 +173,16 @@ void GameContainer::startGameLoops()
         }
         currentStage->getTimeProvider()->update((time - lastTimeX) * currentStage->getTimeScale());
         currentStage->getViewCamera()->getCamera()->updateFrustumCone();
-        getParticlesRenderer()->updateCameraBuffer(currentStage->getViewCamera()->getCamera());
         lastTimeFloored = floored;
         lastTimeX = time;
 
         currentStage->getUIRenderer()->draw();
 
-        getParticlesRenderer()->draw();
         onDraw();
 
         currentStage->onDraw();
 
-        outputScreenRenderer->draw();
-
         currentStage->updateObjects();
-
-        interpolator->update(currentStage->getTimeProvider()->getTime());
 
         vulkanToolkit->poolEvents();
     }
@@ -216,21 +197,6 @@ double GameContainer::getFrameLength()
 {
     if (fps == 0.0) return 0.0;
     return 1.0 / fps;
-}
-
-VulkanImage * GameContainer::getOutputImage()
-{
-    return outputImage;
-}
-
-VulkanImage * GameContainer::getUiOutputImage()
-{
-    return uiOutputImage;
-}
-
-ParticlesRenderer * GameContainer::getParticlesRenderer()
-{
-    return particlesRenderer;
 }
 
 void GameContainer::setShouldClose(bool close)

@@ -1,12 +1,11 @@
 #pragma once
 
-#include "../SceneProvider.h"
+#include "SceneProvider.h"
 #include "../GameObjectTags.h"
 class GameObject;
 class CameraController;
 class TimeProvider;
 class GameContainer;
-class ParticlesRenderer;
 
 class AbsGameStage : public SceneProvider
 {

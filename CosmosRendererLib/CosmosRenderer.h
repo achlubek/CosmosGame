@@ -27,6 +27,8 @@ public:
 
     VulkanDescriptorSetLayout* getModelMRTLayout();
 
+    VulkanImage* getUiOutputImage();
+
     GalaxyContainer* getGalaxy();
     double getExposure();
     void setExposure(double value);

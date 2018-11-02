@@ -1,9 +1,6 @@
 #pragma once
 #include "AbsDrawableComponent.h" 
-class PointParticlesEmitter;
 class BatteryDrainer;
-class ParticleSystem;
-class ParticleSystemFactory;
 class Model3dFactory;
 enum ThrustGroup {
     forward = 0,
@@ -23,7 +20,7 @@ enum ThrustGroup {
 class ThrustGeneratorComponent : public AbsDrawableComponent
 {
 public:
-    ThrustGeneratorComponent(Model3d* model, std::string modelName, glm::dvec3 relativePosition, glm::dquat relativeOrientation, double maxthrust, double maxwattage, ParticleSystem* particleSystem, std::string particleSystemName);
+    ThrustGeneratorComponent(Model3d* model, std::string modelName, glm::dvec3 relativePosition, glm::dquat relativeOrientation, double maxthrust, double maxwattage);
     ~ThrustGeneratorComponent();    
     
     virtual void update(double elapsed) override;
@@ -34,12 +31,10 @@ public:
     ThrustGroup functionalityGroup;
 
     virtual std::string serialize() override;
-    static ThrustGeneratorComponent* deserialize(Model3dFactory* model3dFactory, ParticleSystemFactory* particleSystemFactory, std::string serializedString);
+    static ThrustGeneratorComponent* deserialize(Model3dFactory* model3dFactory, std::string serializedString);
 
 private:
     BatteryDrainer * drainer;
-    PointParticlesEmitter* particleGenerator;
-    std::string particleSystemName;
     double powerPercentage{ 0 };
     double maxThrust;
     double maxWattage;

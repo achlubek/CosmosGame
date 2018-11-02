@@ -26,31 +26,6 @@ FreeFlightGameStage::FreeFlightGameStage(GameContainer* container)
     velocityText = new UIText(ui, 0.01, 0.028 * 6.0, UIColor(1.0, 1.0, 1.0, 1.0), "Sansation_Regular.ttf", 23, "Hmm");
     ui->addDrawable(velocityText);
 
-    // a test
-    //auto testspawnpos = cosmosRenderer->galaxy->getAllStars()[666].getPosition(0);
-    //auto testspawnradius = cosmosRenderer->galaxy->getAllStars()[666].radius;
-    //cosmosRenderer->galaxy->update(testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->getPosition());
-
-    auto galaxy = getCosmosGameContainer()->getCosmosRenderer()->getGalaxy();
-
-  //  galaxy->onClosestStarChange.add([&](Star star) {
- //       getCosmosGameContainer()->getCosmosRenderer()->invokeOnDrawingThread([=]() {
-      //      starNameText->updateText("Star: " + std::to_string(star.starId));
-   //     });
-   // });
-
-    galaxy->onClosestPlanetChange.add([&](CelestialBody body) {
-        getCosmosGameContainer()->getCosmosRenderer()->invokeOnDrawingThread([=]() {
-         //   planetNameText->updateText("Planet: " + std::to_string(body.));
-        });
-    });
-
-    getCosmosGameContainer()->getCosmosRenderer()->getGalaxy()->onClosestMoonChange.add([&](CelestialBody body) {
-        getCosmosGameContainer()->getCosmosRenderer()->invokeOnDrawingThread([=]() {
-         //   moonNameText->updateText("Moon: " + name);
-        });
-    });
-
     getCosmosGameContainer()->getControls()->onKeyDown.add([&](std::string key) {
         if (key == "recompile_shaders") getCosmosGameContainer()->getCosmosRenderer()->recompileShaders(true);
     });
@@ -71,8 +46,6 @@ FreeFlightGameStage::FreeFlightGameStage(GameContainer* container)
     });
 
     playerMountState = new PlayerMountState();
-
-    //initializeNew();
 }
 
 

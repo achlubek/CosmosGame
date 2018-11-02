@@ -8,7 +8,7 @@ AbsGameStage::AbsGameStage(GameContainer* icontainer)
 
     timeProvider = new TimeProvider();
 
-    ui = new UIRenderer(container->getVulkanToolkit(), container->getControls()->getRawMouse(), container->getUiOutputImage(), container->getResolution().x, container->getResolution().y);
+    ui = new UIRenderer(container->getVulkanToolkit(), container->getControls()->getRawMouse(), container->getCosmosRenderer()->getUiOutputImage(), container->getResolution().x, container->getResolution().y);
 
     viewCamera = new CameraController();
 
@@ -49,7 +49,6 @@ void AbsGameStage::updateObjects()
     double nowtime = timeProvider->getTime();
     double lastTime = timeProvider->getLastTime();
     // TODO hmm
-    //container->getParticlesRenderer()->update((nowtime - lastTime));
     for (int i = 0; i < activeObjects.size(); i++) {
         onUpdateObject(activeObjects[i], (nowtime - lastTime));
         activeObjects[i]->update((nowtime - lastTime));

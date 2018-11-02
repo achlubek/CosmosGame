@@ -202,7 +202,7 @@ AbsComponent * Serializer::deserializeComponent(SQLiteDatabase* db, unsigned lon
         return Transformation3DComponent::deserialize(dataStr);
     }
     else if (type == ComponentTypes::ThrustGenerator) {
-        return ThrustGeneratorComponent::deserialize(container->getModel3dFactory(), container->getParticleSystemFactory(), dataStr);
+        return ThrustGeneratorComponent::deserialize(container->getModel3dFactory(), dataStr);
     }
     else if (type == ComponentTypes::ThrustController) {
         return ThrustControllerComponent::deserialize(dataStr);

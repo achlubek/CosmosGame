@@ -447,7 +447,7 @@ void CosmosRenderer::draw(SceneProvider* scene, double time)
     measureTimeStart();
     if (!firstRecordingDone) {
         celestialStarsBlitComputeStage->beginRecording();
-        celestialStarsBlitComputeStage->dispatch({ celestiaStarsBlitSet }, width / 256 + 1, height / 2, 1);
+        celestialStarsBlitComputeStage->dispatch({ celestiaStarsBlitSet }, width / 32 + 1, height / 2, 1);
         celestialStarsBlitComputeStage->endRecording();
     }
     firstRecordingDone = true;
@@ -482,9 +482,9 @@ void CosmosRenderer::draw(SceneProvider* scene, double time)
         }
 
         for (int a = 0; a < renderables.size() - 1; a++) {
-            renderables[a]->resizeDataImages(256, 256, 256, 256);
+            renderables[a]->resizeDataImages(128, 128, 128, 128);
         }
-        renderables[renderables.size() - 1]->resizeDataImages(2048, 2048, 1024, 1024);
+        renderables[renderables.size() - 1]->resizeDataImages(1024, 1024, 1024, 1024);
 
     }
 
@@ -574,7 +574,7 @@ void CosmosRenderer::draw(SceneProvider* scene, double time)
 
         measureTimeEnd("Celestial surface data for " + std::to_string(i));
 
-
+        /*
         if (i == renderables.size() - 1) {
             for (int z = 0; z < shadowmapsDivisors.size(); z++) {
                 measureTimeStart();
@@ -603,7 +603,7 @@ void CosmosRenderer::draw(SceneProvider* scene, double time)
                 measureTimeEnd("Celestial shadow cascade " + std::to_string(z) + " data for " + std::to_string(i));
             }
         }
-
+        */
 
         if (renderables[i]->getRenderMethod() == CelestialRenderMethod::lightAtmosphere) {
             measureTimeStart();
@@ -658,6 +658,11 @@ VulkanDescriptorSetLayout * CosmosRenderer::getModelMRTLayout()
     return modelMRTLayout;
 }
 
+VulkanImage * CosmosRenderer::getUiOutputImage()
+{
+    return uiOutputImage;
+}
+
 void CosmosRenderer::onClosestStarChange(Star star)
 {
     for (int i = 0; i < renderablePlanets.size(); i++) {
@@ -666,11 +671,6 @@ void CosmosRenderer::onClosestStarChange(Star star)
     }
     renderablePlanets.clear();
 
-    for (int i = 0; i < renderableMoons.size(); i++) {
-        delete renderableMoons[i];
-        renderableMoons[i] = nullptr;
-    }
-    renderableMoons.clear();
 
     for (auto planet : galaxy->getClosestStarPlanets()) {
         
@@ -690,25 +690,7 @@ void CosmosRenderer::onClosestStarChange(Star star)
         renderable->updateBuffer(observerCameraPosition, scale, 0.0);
         renderablePlanets.push_back(renderable);
         //renderable->updateData(celestialDataUpdateComputeStage);
-        auto moons = galaxy->loadMoonsByPlanet(renderable->body);
-        for (int i = 0; i < moons.size(); i++) {
-            auto renderable = new RenderedCelestialBody(vulkan,
-                moons[i],
-                celestialBodyDataSetLayout,
-                celestialShadowMapSetLayout,
-                celestialBodyRenderSetLayout,
-                celestialBodySurfaceSetLayout,
-                celestialBodyWaterSetLayout,
-                celestialBodyRaycastUniqueSetLayout,
-                surfaceRenderedAlbedoRoughnessImage,
-                surfaceRenderedNormalMetalnessImage,
-                surfaceRenderedDistanceImage,
-                waterRenderedNormalMetalnessImage,
-                waterRenderedDistanceImage);
-            renderable->updateBuffer(observerCameraPosition, scale, 0.0);
-            renderableMoons.push_back(renderable);
             //renderable->updateData(celestialDataUpdateComputeStage);
-        }
     }
     
     //  vkDeviceWaitIdle(vulkan->device);
@@ -717,6 +699,29 @@ void CosmosRenderer::onClosestStarChange(Star star)
 
 void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
 {
+    for (int i = 0; i < renderableMoons.size(); i++) {
+        delete renderableMoons[i];
+        renderableMoons[i] = nullptr;
+    }
+    renderableMoons.clear();
+    auto moons = galaxy->getClosestPlanetMoons();
+    for (int i = 0; i < moons.size(); i++) {
+        auto renderable = new RenderedCelestialBody(vulkan,
+            moons[i],
+            celestialBodyDataSetLayout,
+            celestialShadowMapSetLayout,
+            celestialBodyRenderSetLayout,
+            celestialBodySurfaceSetLayout,
+            celestialBodyWaterSetLayout,
+            celestialBodyRaycastUniqueSetLayout,
+            surfaceRenderedAlbedoRoughnessImage,
+            surfaceRenderedNormalMetalnessImage,
+            surfaceRenderedDistanceImage,
+            waterRenderedNormalMetalnessImage,
+            waterRenderedDistanceImage);
+        renderable->updateBuffer(observerCameraPosition, scale, 0.0);
+        renderableMoons.push_back(renderable);
+    }
 }
 
 void CosmosRenderer::measureTimeStart()

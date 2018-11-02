@@ -3,13 +3,11 @@
 
 
 ThrustGeneratorComponent::ThrustGeneratorComponent(Model3d* model, std::string modelName, glm::dvec3 relativePosition, glm::dquat relativeOrientation, 
-    double maxthrust, double maxwattage, ParticleSystem* particleSystem, std::string particleSystemName)
+    double maxthrust, double maxwattage)
     : AbsDrawableComponent(ComponentTypes::ThrustGenerator, model, modelName, relativePosition, relativeOrientation),
     maxThrust(maxthrust), 
     maxWattage(maxwattage),
-    drainer(new BatteryDrainer(maxwattage)), 
-    particleGenerator(new PointParticlesEmitter(particleSystem)),
-    particleSystemName(particleSystemName)
+    drainer(new BatteryDrainer(maxwattage))
 {
     
 }
@@ -32,16 +30,12 @@ void ThrustGeneratorComponent::update(double elapsed)
     auto thrustDirection = getThrustVector();
     glm::dvec3 force = -thrustDirection * maxThrust * realPower;
 
-    particleGenerator->updateProperties(transform->getPosition() + getWorldTranslation(), transform->getLinearVelocity(), glm::mat3_cast(transform->getOrientation()) * thrustDirection, 10.0 + realPower * 50.0, 0.6, 0.2);
-    particleGenerator->setParticlesPerSecond(realPower * 100.0);
-    particleGenerator->update(elapsed);
-
     transform->applyImpulse(relativePosition, force);
 }
 
 ThrustGeneratorComponent * ThrustGeneratorComponent::clone()
 {
-    return new ThrustGeneratorComponent(model, modelName, relativePosition, relativeOrientation, maxThrust, drainer->getMaximumWattage(), particleGenerator->getSystem(), particleSystemName);
+    return new ThrustGeneratorComponent(model, modelName, relativePosition, relativeOrientation, maxThrust, drainer->getMaximumWattage());
 }
 
 void ThrustGeneratorComponent::setPowerPercentage(double p)
@@ -70,20 +64,17 @@ std::string ThrustGeneratorComponent::serialize()
     s << "relativeOrientation=" << relativeOrientation.w << " " << relativeOrientation.x << " " << relativeOrientation.y << " " << relativeOrientation.z << "\n";
     s << "maxThrust=" << maxThrust << "\n";
     s << "maxWattage=" << maxWattage << "\n";
-    s << "particleSystemName=" << particleSystemName << "\n";
     s << "functionalityGroup=" << static_cast<int>(functionalityGroup) << "\n";
     return s.str();
 }
 
-ThrustGeneratorComponent * ThrustGeneratorComponent::deserialize(Model3dFactory * model3dFactory, ParticleSystemFactory * particleSystemFactory, std::string serializedString)
+ThrustGeneratorComponent * ThrustGeneratorComponent::deserialize(Model3dFactory * model3dFactory, std::string serializedString)
 {
     INIReader reader = INIReader(serializedString);
     auto modelName = reader.gets("modelName");
-    auto particleSystemName = reader.gets("particleSystemName");
     auto model = model3dFactory->build(modelName);
-    auto particleSystem = particleSystemFactory->build(particleSystemName);
     auto component = new ThrustGeneratorComponent(model, modelName, reader.getdv3("relativePosition"), reader.getdquat("relativeOrientation"), 
-        reader.getd("maxThrust"), reader.getd("maxWattage"), particleSystem, particleSystemName);
+        reader.getd("maxThrust"), reader.getd("maxWattage"));
     component->deserializeBaseInPlace(serializedString);
     component->functionalityGroup = static_cast<ThrustGroup>(reader.geti("functionalityGroup"));
     return component;
