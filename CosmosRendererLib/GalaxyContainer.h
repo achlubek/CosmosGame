@@ -25,6 +25,8 @@ public:
     EventHandler<CelestialBody> onClosestPlanetChange;
     EventHandler<CelestialBody> onClosestMoonChange;
     void setBodyUpdates(bool enable);
+    std::vector<CelestialBody> loadPlanetsByStar(Star& star);
+    std::vector<CelestialBody> loadMoonsByPlanet(CelestialBody& planet);
 private:
     SQLiteDatabase* database;
     std::vector<Star> allStars;
@@ -35,8 +37,6 @@ private:
     std::vector<CelestialBody> closestStarPlanets;
     std::vector<CelestialBody> closestPlanetMoons;
 
-    std::vector<CelestialBody> loadPlanetsByStar(Star& star);
-    std::vector<CelestialBody> loadMoonsByPlanet(CelestialBody& planet);
     void updateClosestStar(glm::dvec3 observerPosition, double time);
     void updateClosestPlanet(glm::dvec3 observerPosition, double time);
     void updateClosestMoon(glm::dvec3 observerPosition, double time);

@@ -114,7 +114,7 @@ void main() {
 
     vec3 stars = texture(texStars, UV).rgb ;//texture(texStars, UV);
     //stars.rgb /= max(0.0001, stars.a);
-    vec3 a = mix(stars, celestial.rgb, 0.0);
+    vec3 a = mix(stars, celestial.rgb, celestial.a);
     vec4 adddata = texture(texCelestialAdditive, UV).rgba;
 
     vec3 starDir = normalize(-ClosestStarPosition + vec3(0.000001));
@@ -172,7 +172,7 @@ void main() {
     shaded += albedo * 0.0 + emission;
 
     a = mix(a * isShadow2, shaded, step(0.09, length(shipdata2.rgb))) + sunflare2;*/
-    a += max(vec3(0.0), sunflare2);
+    //a += max(vec3(0.0), sunflare2);
     //vec4 particlesData = texture(texParticlesResult, UV).rgba;
 //    a += particlesData.a == 0.0 ? vec3(0.0) : (particlesData.rgb);
 

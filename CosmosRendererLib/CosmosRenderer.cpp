@@ -660,43 +660,22 @@ VulkanDescriptorSetLayout * CosmosRenderer::getModelMRTLayout()
 
 void CosmosRenderer::onClosestStarChange(Star star)
 {
-}
-
-void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
-{
     for (int i = 0; i < renderablePlanets.size(); i++) {
         delete renderablePlanets[i];
         renderablePlanets[i] = nullptr;
     }
     renderablePlanets.clear();
-    auto renderable = new RenderedCelestialBody(vulkan,
-        galaxy->getClosestPlanet(),
-        celestialBodyDataSetLayout,
-        celestialShadowMapSetLayout,
-        celestialBodyRenderSetLayout,
-        celestialBodySurfaceSetLayout,
-        celestialBodyWaterSetLayout,
-        celestialBodyRaycastUniqueSetLayout,
-        surfaceRenderedAlbedoRoughnessImage,
-        surfaceRenderedNormalMetalnessImage,
-        surfaceRenderedDistanceImage,
-        waterRenderedNormalMetalnessImage,
-        waterRenderedDistanceImage);
-    renderable->updateBuffer(observerCameraPosition, scale, 0.0);
-    renderablePlanets.push_back(renderable);
-    //renderable->updateData(celestialDataUpdateComputeStage);
-
-    vulkan->waitDeviceIdle();
 
     for (int i = 0; i < renderableMoons.size(); i++) {
         delete renderableMoons[i];
         renderableMoons[i] = nullptr;
     }
     renderableMoons.clear();
-    auto moons = galaxy->getClosestPlanetMoons();
-    for (int i = 0; i < moons.size(); i++) {
+
+    for (auto planet : galaxy->getClosestStarPlanets()) {
+        
         auto renderable = new RenderedCelestialBody(vulkan,
-            moons[i],
+            planet,
             celestialBodyDataSetLayout,
             celestialShadowMapSetLayout,
             celestialBodyRenderSetLayout,
@@ -709,11 +688,35 @@ void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
             waterRenderedNormalMetalnessImage,
             waterRenderedDistanceImage);
         renderable->updateBuffer(observerCameraPosition, scale, 0.0);
-        renderableMoons.push_back(renderable);
+        renderablePlanets.push_back(renderable);
         //renderable->updateData(celestialDataUpdateComputeStage);
+        auto moons = galaxy->loadMoonsByPlanet(renderable->body);
+        for (int i = 0; i < moons.size(); i++) {
+            auto renderable = new RenderedCelestialBody(vulkan,
+                moons[i],
+                celestialBodyDataSetLayout,
+                celestialShadowMapSetLayout,
+                celestialBodyRenderSetLayout,
+                celestialBodySurfaceSetLayout,
+                celestialBodyWaterSetLayout,
+                celestialBodyRaycastUniqueSetLayout,
+                surfaceRenderedAlbedoRoughnessImage,
+                surfaceRenderedNormalMetalnessImage,
+                surfaceRenderedDistanceImage,
+                waterRenderedNormalMetalnessImage,
+                waterRenderedDistanceImage);
+            renderable->updateBuffer(observerCameraPosition, scale, 0.0);
+            renderableMoons.push_back(renderable);
+            //renderable->updateData(celestialDataUpdateComputeStage);
+        }
     }
+    
     //  vkDeviceWaitIdle(vulkan->device);
     //   vkDeviceWaitIdle(vulkan->device);
+}
+
+void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
+{
 }
 
 void CosmosRenderer::measureTimeStart()

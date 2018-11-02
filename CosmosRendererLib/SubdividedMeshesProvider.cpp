@@ -25,7 +25,7 @@ SubdividedMeshesProvider::SubdividedMeshesProvider(VulkanToolkit* vulkan)
     }
 
 
-    icosphereLow = vulkan->getObject3dInfoFactory()->build("icosphere_mediumpoly_1unit.raw");
+    icosphereLow = vulkan->getObject3dInfoFactory()->build("icosphere_lowpoly_1unit.raw");
 
     icosphereMedium = vulkan->getObject3dInfoFactory()->build("icosphere_mediumpoly_1unit.raw");
 
