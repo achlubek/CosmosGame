@@ -51,7 +51,7 @@ void StarsRenderer::draw(std::vector<VkSemaphore> waitSemaphores)
     if (doesNeedRecording) {
         starsStage->beginDrawing();
 
-        starsStage->drawMesh(cube3dInfo, galaxy->getStarsCount());
+        starsStage->drawMesh(cube3dInfo, static_cast<uint32_t>(galaxy->getStarsCount()));
 
         starsStage->endDrawing();
         doesNeedRecording = false;

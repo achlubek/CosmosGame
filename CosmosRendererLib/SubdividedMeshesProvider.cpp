@@ -79,10 +79,10 @@ VEngine::Renderer::Object3dInfo* SubdividedMeshesProvider::subdivide(VEngine::Re
         i += 12;
         glm::vec3 v3 = glm::normalize(glm::vec3(vbo[i], vbo[i + 1], vbo[i + 2]));
         i += 12;
-        glm::vec3 tricenter = glm::normalize((v1 + v2 + v3) * glm::vec3(0.33333333));
-        glm::vec3 v1tov2 = glm::normalize((v1 + v2) * glm::vec3(0.5));
-        glm::vec3 v2tov3 = glm::normalize((v2 + v3) * glm::vec3(0.5));
-        glm::vec3 v3tov1 = glm::normalize((v1 + v3) * glm::vec3(0.5));
+        glm::vec3 tricenter = glm::normalize((v1 + v2 + v3) * glm::vec3(0.33333333f));
+        glm::vec3 v1tov2 = glm::normalize((v1 + v2) * glm::vec3(0.5f));
+        glm::vec3 v2tov3 = glm::normalize((v2 + v3) * glm::vec3(0.5f));
+        glm::vec3 v3tov1 = glm::normalize((v1 + v3) * glm::vec3(0.5f));
 
         std::vector<glm::vec3> positions = {};
         positions.push_back(v3tov1);

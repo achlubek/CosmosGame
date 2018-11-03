@@ -219,6 +219,9 @@ AbsComponent * Serializer::deserializeComponent(SQLiteDatabase* db, unsigned lon
     else if (type == ComponentTypes::PlayerManualControls) {
         return PlayerManualControlsComponent::deserialize(dataStr);
     }
+    else if (type == ComponentTypes::ShipAutopilot) {
+        return ShipAutopilotComponent::deserialize(dataStr);
+    }
     else if (type == ComponentTypes::Focus) {
         return FocusComponent::deserialize(dataStr);
     }

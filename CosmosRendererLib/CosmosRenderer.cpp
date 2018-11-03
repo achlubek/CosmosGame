@@ -503,7 +503,7 @@ void CosmosRenderer::draw(SceneProvider* scene, double time)
     if (raycastPoints.size() > 0) {
         celestialBodyRaycastComputeStage->beginRecording();
         for (int a = 0; a < renderables.size(); a++) {
-            renderables[a]->updateRaycasts(raycastPoints.size(), celestialBodyRaycastSharedSet, celestialBodyRaycastComputeStage);
+            renderables[a]->updateRaycasts(static_cast<uint32_t>(raycastPoints.size()), celestialBodyRaycastSharedSet, celestialBodyRaycastComputeStage);
         }
         celestialBodyRaycastComputeStage->endRecording();
         celestialBodyRaycastComputeStage->submitNoSemaphores({});
@@ -758,10 +758,10 @@ void CosmosRenderer::setRaycastPoints(std::vector<glm::dvec3> points)
 {
     raycastPoints = points;
     auto bb = VulkanBinaryBufferBuilder();
-    bb.emplaceInt32(raycastPoints.size());
-    bb.emplaceInt32(raycastPoints.size());
-    bb.emplaceInt32(raycastPoints.size());
-    bb.emplaceInt32(raycastPoints.size());
+    bb.emplaceInt32(static_cast<int32_t>(raycastPoints.size()));
+    bb.emplaceInt32(static_cast<int32_t>(raycastPoints.size()));
+    bb.emplaceInt32(static_cast<int32_t>(raycastPoints.size()));
+    bb.emplaceInt32(static_cast<int32_t>(raycastPoints.size()));
     for (auto point : raycastPoints) {
         bb.emplaceFloat32((point.x - observerCameraPosition.x) * scale);
         bb.emplaceFloat32((point.y - observerCameraPosition.y) * scale);

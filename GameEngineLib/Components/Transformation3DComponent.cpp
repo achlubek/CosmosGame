@@ -3,6 +3,15 @@
  
 void Transformation3DComponent::update(double elapsed)
 {
+    auto time = GameContainer::getInstance()->getCurrentStage()->getTimeProvider()->getTime();
+    while (elapsed > 0.01) {
+        auto gravityAcceleration = GameContainer::getInstance()->getCosmosRenderer()->getGalaxy()->getGravity(position, time);
+        linearVelocity += gravityAcceleration * 0.01;
+        position = predictPosition(0.01 * timeScale);
+        orientation = predictOrientation(0.01);
+        elapsed -= 0.01;
+    }
+    auto gravityAcceleration = GameContainer::getInstance()->getCosmosRenderer()->getGalaxy()->getGravity(position, time);
     linearVelocity += gravityAcceleration * elapsed;
     position = predictPosition(elapsed * timeScale);
     orientation = predictOrientation(elapsed);
@@ -11,7 +20,6 @@ void Transformation3DComponent::update(double elapsed)
 Transformation3DComponent * Transformation3DComponent::clone()
 {
     auto res = new Transformation3DComponent(mass, position, orientation, linearVelocity, angularVelocity);
-    res->gravityAcceleration = gravityAcceleration;
     res->timeScale = timeScale;
     return res;
 }
@@ -130,11 +138,6 @@ void Transformation3DComponent::applyAbsoluteImpulse(glm::dvec3 relativePos, glm
                                                               // it just didnt fit....
 }
 
-void Transformation3DComponent::applyGravity(glm::dvec3 force)
-{
-    gravityAcceleration = force;
-}
-
 glm::dvec3 Transformation3DComponent::modelSpaceToWorld(glm::dvec3 v)
 {
     glm::dmat3 shipmat = glm::mat3_cast(orientation);
@@ -154,7 +157,6 @@ std::string Transformation3DComponent::serialize()
     s << "position=" << position.x << " " << position.y << " " << position.z << "\n";
     s << "orientation=" << orientation.w << " " << orientation.x << " " << orientation.y << " " << orientation.z << "\n";
     s << "linearVelocity=" << linearVelocity.x << " " << linearVelocity.y << " " << linearVelocity.z << "\n";
-    s << "gravityAcceleration=" << gravityAcceleration.x << " " << gravityAcceleration.y << " " << gravityAcceleration.z << "\n";
     s << "angularVelocity=" << angularVelocity.x << " " << angularVelocity.y << " " << angularVelocity.z << "\n";
     s << "timeScale=" << timeScale << "\n";
     s << "mass=" << mass << "\n";
@@ -171,7 +173,6 @@ Transformation3DComponent * Transformation3DComponent::deserialize(std::string s
         reader.getdv3("linearVelocity"),
         reader.getdv3("angularVelocity")
     );
-    component->applyGravity(reader.getdv3("gravityAcceleration"));
     component->setTimeScale(reader.getd("timeScale"));
     component->deserializeBaseInPlace(serializedString);
     return component;

@@ -52,7 +52,7 @@ void INIReader::splitBySpaces(vector<string>& output, string src)
 
 float INIReader::getf(string key)
 {
-    return atof(data[key].c_str());
+    return std::stof(data[key].c_str());
 }
 
 double INIReader::getd(std::string key)
@@ -115,7 +115,7 @@ void INIReader::readString(string str)
     data = {};
     allKeys = {};
     stringstream sskey, ssval;
-    int len = str.size();
+    size_t len = str.size();
     bool skipspaces = true;
     bool valuereading = false;
     for (int i = 0; i < len; i++) {

@@ -27,7 +27,7 @@ private:
     std::string metalness_image;
     std::string emission_idle_image;
     std::string emission_powered_image;
-    float modelScale;
+    double modelScale;
 
     VulkanGenericBuffer* dataBuffer;
     VulkanImage* albedoImage;

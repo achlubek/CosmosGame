@@ -221,11 +221,8 @@ void FreeFlightGameStage::onUpdateObject(GameObject * object, double elapsed)
     // some stuff for drawings
     if (nullptr != physicsComponent) {
         //physicsComponent->setTimeScale(0.001);
-        auto g = cosmosRenderer->getGalaxy()->getGravity(physicsComponent->getPosition(), getTimeProvider()->getTime());
-        physicsComponent->applyGravity(g);
         if (object->hasComponent(ComponentTypes::Focus)) {
             cosmosRenderer->setRaycastPoints({ physicsComponent->getPosition() });
-            gravityFluxText->updateText(std::to_string(glm::length(g)));
             auto relativeVel = cosmosRenderer->getGalaxy()->getClosestCelestialBody().getRelativeLinearVelocity(physicsComponent->getLinearVelocity() * 0.001, getTimeProvider()->getTime());
             velocityText->updateText("Relative velocity M/S: " + std::to_string(1000.0 * glm::length(relativeVel)));
             auto body = cosmosRenderer->getGalaxy()->getClosestCelestialBody();

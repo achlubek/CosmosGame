@@ -26,7 +26,6 @@ public:
     void setAngularVelocity(glm::dvec3 v);
     void applyImpulse(glm::dvec3 relativePos, glm::dvec3 force);
     void applyAbsoluteImpulse(glm::dvec3 relativePos, glm::dvec3 force);
-    void applyGravity(glm::dvec3 force);
     glm::dvec3 modelSpaceToWorld(glm::dvec3 v);
     void setTimeScale(double scale);
 
@@ -39,7 +38,6 @@ private:
     glm::dvec3 position = glm::dvec3(0.0);
     glm::dquat orientation = glm::dquat(1.0, 0.0, 0.0, 0.0);
     glm::dvec3 linearVelocity = glm::dvec3(0.0);
-    glm::dvec3 gravityAcceleration = glm::dvec3(0.0);
     glm::dvec3 angularVelocity = glm::dvec3(0.0);
     double timeScale = 0.001;
     double mass;

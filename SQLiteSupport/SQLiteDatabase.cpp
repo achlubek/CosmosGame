@@ -20,7 +20,7 @@ static int callback(void *data, int argc, char **argv, char **azColName) {
     std::vector<std::map<std::string, std::string>> * res = static_cast<std::vector<std::map<std::string, std::string>>*>(data);
     res->push_back({});
     for (i = 0; i<argc; i++) {
-        int g = res->size() - 1;
+        int g = static_cast<int>(res->size()) - 1;
         (*res)[g].emplace(azColName[i], argv[i] ? argv[i] : "NULL");
     }
     return 0;

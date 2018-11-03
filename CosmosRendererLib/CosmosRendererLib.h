@@ -1,15 +1,20 @@
 #pragma once
 
-#include "AbsCelestialObject.h"
+// universal utilities:
 #include "Camera.h"
-#include "CelestialBody.h"
-#include "CosmosRenderer.h"
 #include "FrustumCone.h"
+
+// represents galaxy world:
+#include "AbsCelestialObject.h"
+#include "CelestialBody.h"
 #include "GalaxyContainer.h"
+#include "Star.h"
+
+// depends on vulkan:
+#include "CosmosRenderer.h"
 #include "Model3d.h"
 #include "RenderedCelestialBody.h"
 #include "SceneProvider.h"
-#include "Star.h"
 #include "StarsRenderer.h"
 #include "SubdividedMeshesProvider.h"
 #include "OutputScreenRenderer.h"
