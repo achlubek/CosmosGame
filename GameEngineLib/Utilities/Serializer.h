@@ -1,6 +1,6 @@
 #pragma once
 #include "Components/ComponentTypes.h"
-#include "GameObjectTags.h"
+#include "../Core/GameObjectTags.h"
 class Serializer
 {
 public:

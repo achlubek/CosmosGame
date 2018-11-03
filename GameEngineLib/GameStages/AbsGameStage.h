@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SceneProvider.h"
-#include "../GameObjectTags.h"
+#include "../Core/GameObjectTags.h"
 class GameObject;
 class CameraController;
 class TimeProvider;

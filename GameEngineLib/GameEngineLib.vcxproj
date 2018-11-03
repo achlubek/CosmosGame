@@ -148,15 +148,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Serializer.h" />
+    <ClInclude Include="Core\stdafx.h" />
+    <ClInclude Include="Factories\stdafx.h" />
+    <ClInclude Include="Utilities\Serializer.h" />
     <ClInclude Include="Components\ShipAutopilotComponent.h" />
     <ClInclude Include="StateMachines\PlayerMountState.h" />
     <ClInclude Include="StateMachines\AbsStateMachine.h" />
-    <ClInclude Include="BatteryDrainer.h" />
+    <ClInclude Include="Utilities\BatteryDrainer.h" />
     <ClInclude Include="Camera\AbsCameraViewStrategy.h" />
     <ClInclude Include="Camera\stdafx.h" />
     <ClInclude Include="Components\FocusComponent.h" />
-    <ClInclude Include="GameObjectTags.h" />
+    <ClInclude Include="Core\GameObjectTags.h" />
     <ClInclude Include="GameStages\CelestialBodyPreviewGameStage.h" />
     <ClInclude Include="Components\AbsComponent.h" />
     <ClInclude Include="Components\AbsDrawableComponent.h" />
@@ -172,36 +174,37 @@
     <ClInclude Include="Components\ThrustControllerComponent.h" />
     <ClInclude Include="Components\ThrustGeneratorComponent.h" />
     <ClInclude Include="GameStages\FreeFlightGameStage.h" />
-    <ClInclude Include="GameContainer.h" />
-    <ClInclude Include="GameControls.h" />
+    <ClInclude Include="Core\GameContainer.h" />
+    <ClInclude Include="Core\GameControls.h" />
     <ClInclude Include="GameEngineLib.h" />
-    <ClInclude Include="GameObject.h" />
-    <ClInclude Include="GameStageCollection.h" />
+    <ClInclude Include="Core\GameObject.h" />
+    <ClInclude Include="Core\GameStageCollection.h" />
     <ClInclude Include="GameStages\stdafx.h" />
     <ClInclude Include="json.h" />
     <ClInclude Include="Camera\ManualCameraStrategy.h" />
     <ClInclude Include="GameStages\MainMenuGameStage.h" />
     <ClInclude Include="GameStages\ModelPreviewGameStage.h" />
-    <ClInclude Include="ModuleFactory.h" />
+    <ClInclude Include="Factories\ModuleFactory.h" />
     <ClInclude Include="Camera\PointerDrivenCameraStrategy.h" />
-    <ClInclude Include="Model3dFactory.h" />
-    <ClInclude Include="PlayerFactory.h" />
-    <ClInclude Include="ShipFactory.h" />
+    <ClInclude Include="Factories\Model3dFactory.h" />
+    <ClInclude Include="Factories\PlayerFactory.h" />
+    <ClInclude Include="Factories\ShipFactory.h" />
     <ClInclude Include="StateMachines\ShipOrientationControllerState.h" />
     <ClInclude Include="StateMachines\stdafx.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="TimeProvider.h" />
+    <ClInclude Include="Core\TimeProvider.h" />
     <ClInclude Include="Components\Transformation3DComponent.h" />
+    <ClInclude Include="Utilities\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Serializer.cpp" />
+    <ClCompile Include="Utilities\Serializer.cpp" />
     <ClCompile Include="Components\ShipAutopilotComponent.cpp" />
     <ClCompile Include="StateMachines\PlayerMountState.cpp" />
     <ClCompile Include="StateMachines\AbsStateMachine.cpp" />
-    <ClCompile Include="BatteryDrainer.cpp" />
+    <ClCompile Include="Utilities\BatteryDrainer.cpp" />
     <ClCompile Include="Camera\AbsCameraViewStrategy.cpp" />
     <ClCompile Include="Components\FocusComponent.cpp" />
-    <ClCompile Include="GameContainer.cpp" />
+    <ClCompile Include="Core\GameContainer.cpp" />
     <ClCompile Include="GameStages\CelestialBodyPreviewGameStage.cpp" />
     <ClCompile Include="Components\AbsComponent.cpp" />
     <ClCompile Include="Components\AbsDrawableComponent.cpp" />
@@ -214,18 +217,18 @@
     <ClCompile Include="Components\ShipManualControlsComponent.cpp" />
     <ClCompile Include="Components\ThrustControllerComponent.cpp" />
     <ClCompile Include="Components\ThrustGeneratorComponent.cpp" />
-    <ClCompile Include="GameControls.cpp" />
-    <ClCompile Include="GameObject.cpp" />
-    <ClCompile Include="GameStageCollection.cpp" />
+    <ClCompile Include="Core\GameControls.cpp" />
+    <ClCompile Include="Core\GameObject.cpp" />
+    <ClCompile Include="Core\GameStageCollection.cpp" />
     <ClCompile Include="GameStages\FreeFlightGameStage.cpp" />
     <ClCompile Include="GameStages\ModelPreviewGameStage.cpp" />
     <ClCompile Include="Camera\ManualCameraStrategy.cpp" />
     <ClCompile Include="GameStages\MainMenuGameStage.cpp" />
-    <ClCompile Include="ModuleFactory.cpp" />
+    <ClCompile Include="Factories\ModuleFactory.cpp" />
     <ClCompile Include="Camera\PointerDrivenCameraStrategy.cpp" />
-    <ClCompile Include="Model3dFactory.cpp" />
-    <ClCompile Include="PlayerFactory.cpp" />
-    <ClCompile Include="ShipFactory.cpp" />
+    <ClCompile Include="Factories\Model3dFactory.cpp" />
+    <ClCompile Include="Factories\PlayerFactory.cpp" />
+    <ClCompile Include="Factories\ShipFactory.cpp" />
     <ClCompile Include="StateMachines\ShipOrientationControllerState.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -233,7 +236,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="TimeProvider.cpp" />
+    <ClCompile Include="Core\TimeProvider.cpp" />
     <ClCompile Include="Components\Transformation3DComponent.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ShipFactory.h"
+#include "../json.h"
 
 using json = nlohmann::json;
 
