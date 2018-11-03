@@ -10,6 +10,7 @@ public:
         VulkanDescriptorSetLayout* celestialBodyRaycastUniqueSetLayout,
         VulkanImage* surfaceRenderedAlbedoRoughnessImage,
         VulkanImage* surfaceRenderedNormalMetalnessImage,
+        VulkanImage* surfaceRenderedEmissionImage,
         VulkanImage* surfaceRenderedDistanceImage,
         VulkanImage* waterRenderedNormalMetalnessImage,
         VulkanImage* waterRenderedDistanceImage);
@@ -55,6 +56,7 @@ private:
     
     VulkanImage* surfaceRenderedAlbedoRoughnessImage;
     VulkanImage* surfaceRenderedNormalMetalnessImage;
+    VulkanImage* surfaceRenderedEmissionImage;
     VulkanImage* surfaceRenderedDistanceImage;
     VulkanImage* waterRenderedNormalMetalnessImage;
     VulkanImage* waterRenderedDistanceImage;

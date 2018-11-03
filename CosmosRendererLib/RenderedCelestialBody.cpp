@@ -14,12 +14,14 @@ RenderedCelestialBody::RenderedCelestialBody(
     VulkanDescriptorSetLayout* celestialBodyRaycastUniqueSetLayout,
     VulkanImage* surfaceRenderedAlbedoRoughnessImage,
     VulkanImage* surfaceRenderedNormalMetalnessImage,
+    VulkanImage* surfaceRenderedEmissionImage,
     VulkanImage* surfaceRenderedDistanceImage,
     VulkanImage* waterRenderedNormalMetalnessImage,
     VulkanImage* waterRenderedDistanceImage)
     : toolkit(toolkit), body(body),
     surfaceRenderedAlbedoRoughnessImage(surfaceRenderedAlbedoRoughnessImage),
     surfaceRenderedNormalMetalnessImage(surfaceRenderedNormalMetalnessImage),
+    surfaceRenderedEmissionImage(surfaceRenderedEmissionImage),
     surfaceRenderedDistanceImage(surfaceRenderedDistanceImage),
     waterRenderedNormalMetalnessImage(waterRenderedNormalMetalnessImage),
     waterRenderedDistanceImage(waterRenderedDistanceImage)
@@ -95,9 +97,10 @@ void RenderedCelestialBody::resizeDataImages(int ilowFreqWidth, int ilowFreqHeig
     renderSet->bindImageViewSampler(4, shadowMapImage);
     renderSet->bindImageViewSampler(5, surfaceRenderedAlbedoRoughnessImage);
     renderSet->bindImageViewSampler(6, surfaceRenderedNormalMetalnessImage);
-    renderSet->bindImageViewSampler(7, surfaceRenderedDistanceImage);
-    renderSet->bindImageViewSampler(8, waterRenderedNormalMetalnessImage);
-    renderSet->bindImageViewSampler(9, waterRenderedDistanceImage);
+    renderSet->bindImageViewSampler(7, surfaceRenderedEmissionImage);
+    renderSet->bindImageViewSampler(8, surfaceRenderedDistanceImage);
+    renderSet->bindImageViewSampler(9, waterRenderedNormalMetalnessImage);
+    renderSet->bindImageViewSampler(10, waterRenderedDistanceImage);
 
     renderSurfaceSet->bindBuffer(0, dataBuffer);
     renderSurfaceSet->bindImageViewSampler(1, heightMapImage);

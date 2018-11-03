@@ -137,6 +137,7 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, i
     celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
     celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
     celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
+    celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
 
     celestialBodySurfaceSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
     celestialBodySurfaceSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
@@ -684,6 +685,7 @@ void CosmosRenderer::onClosestStarChange(Star star)
             celestialBodyRaycastUniqueSetLayout,
             surfaceRenderedAlbedoRoughnessImage,
             surfaceRenderedNormalMetalnessImage,
+            surfaceRenderedEmissionImage,
             surfaceRenderedDistanceImage,
             waterRenderedNormalMetalnessImage,
             waterRenderedDistanceImage);
@@ -716,6 +718,7 @@ void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
             celestialBodyRaycastUniqueSetLayout,
             surfaceRenderedAlbedoRoughnessImage,
             surfaceRenderedNormalMetalnessImage,
+            surfaceRenderedEmissionImage,
             surfaceRenderedDistanceImage,
             waterRenderedNormalMetalnessImage,
             waterRenderedDistanceImage);

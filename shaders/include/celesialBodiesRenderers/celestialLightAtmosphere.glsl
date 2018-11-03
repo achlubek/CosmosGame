@@ -264,6 +264,7 @@ CelestialRenderResult renderCelestialBodyLightAtmosphere(RenderPass pass){
     //dt = max(dt * smoothstep(-0.1, 0.0, flatdt), flatdt * 0.5);
     CelestialRenderResult atmo = renderAtmosphere(pass);
 
+    vec3 emission = texture(surfaceRenderedEmissionImage, tempuv).rgb;
 
     if(pass.isSurfaceHit && pass.isWaterHit){
         vec3 surface = vec3(0.0);
@@ -294,6 +295,7 @@ CelestialRenderResult renderCelestialBodyLightAtmosphere(RenderPass pass){
         vec3 surface = color;
         atmo.alphaBlendedLight = vec4(mix(surface, atmo.alphaBlendedLight.rgb, atmo.alphaBlendedLight.a), 1.0);
     }
+    atmo.alphaBlendedLight.rgb += emission;
 //    atmo.alphaBlendedLight = rings;
     atmo.alphaBlendedLight.a = clamp(atmo.alphaBlendedLight.a, 0.0, 1.0);
 
