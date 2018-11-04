@@ -66,7 +66,7 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
     star->x = static_cast<int64_t>(static_cast<double>(galaxyradius) * c.x);
     star->z = static_cast<int64_t>(static_cast<double>(galaxyradius) * c.y);
     star->y = static_cast<int64_t>((centerThickness) * (thickness * (drand2rn() * drand2rn() * drand2rn())));
-    star->radius = static_cast<double>(rand_uint64(69570, 69570));
+    star->radius = static_cast<double>(rand_uint64(19570, 169570));
     glm::dvec3 red = glm::dvec3(1.0, 0.0, 0.0);
     glm::dvec3 yellow = glm::dvec3(1.0, 1.0, 0.9);
     glm::dvec3 blue = glm::dvec3(0.0, 0.0, 1.0);
@@ -113,37 +113,32 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
             planet->radius = static_cast<double>(rand_uint64(3371.0, 8371.0)); // ranges from mars to 1,5x earth
             moonsCount = rand_uint64(1, 4);
             planet->atmosphereRadius = (planet->radius * 0.015) * (0.5 + rand_normalized_double());
-            planet->terrainMaxLevel =  planet->radius * 0.006 * (0.3 + rand_normalized_double());
+            planet->terrainMaxLevel = planet->radius * 0.012 * (0.3 + rand_normalized_double());
             float rand1 = rand_normalized_double();
-            planet->atmosphereAbsorbStrength = 0.12;
-            planet->atmosphereAbsorbColor = glm::vec3(rand_normalized_double() * rand_normalized_double() * rand_normalized_double(), sqrt(rand_normalized_double()), rand_normalized_double());
-            planet->fluidMaxLevel = planet->terrainMaxLevel - sqrt(rand_normalized_double()) * planet->terrainMaxLevel;
-            planet->habitableChance = rand_normalized_double();
-            planet->preferredColor = planet->atmosphereAbsorbColor * 0.5f + 0.5f * glm::vec3(rand_normalized_double(), rand_normalized_double(), rand_normalized_double());
-            /*
+            
             if (rand1 < 0.5) {
                 // oxygen etc, blue marbles
-                planet->atmosphereAbsorbStrength = 0.12;
-                planet->atmosphereAbsorbColor = glm::vec3(0.24, 0.58, 1.0);
-                planet->fluidMaxLevel = rand_normalized_double() * planet->terrainMaxLevel;
-                planet->habitableChance = 1.0;
-                planet->preferredColor = glm::vec3(0.2 + rand_normalized_double() * 0.2, 0.7 + rand_normalized_double() * 0.3, 0.2 + rand_normalized_double() * 0.2);
+                planet->atmosphereAbsorbStrength = 0.22 * rand_normalized_double();
+                planet->atmosphereAbsorbColor = glm::vec3(rand_normalized_double() * rand_normalized_double() * rand_normalized_double(), sqrt(rand_normalized_double()), rand_normalized_double());
+                planet->fluidMaxLevel = planet->terrainMaxLevel - sqrt(rand_normalized_double()) * planet->terrainMaxLevel;
+                planet->habitableChance = rand_normalized_double();
+                planet->preferredColor = planet->atmosphereAbsorbColor * 0.5f + 0.5f * glm::vec3(rand_normalized_double(), rand_normalized_double(), rand_normalized_double());
             }
             else {
                 // some mars like
-                planet->atmosphereAbsorbStrength = 0.12;
-                planet->atmosphereAbsorbColor = glm::vec3(0.8 + rand_normalized_double()* 0.2, 0.3 + rand_normalized_double()* 0.2, 0.1 + rand_normalized_double()* 0.1);
-                planet->fluidMaxLevel = rand_normalized_double() * planet->terrainMaxLevel;
-                planet->habitableChance = 0.5;
-                planet->preferredColor = glm::vec3(0.8 + rand_normalized_double() * 0.2, 0.4 + rand_normalized_double() * 0.3, 0.1 + rand_normalized_double() * 0.2);
-            }*/
+                planet->atmosphereAbsorbStrength = 0.1 * rand_normalized_double();
+                planet->atmosphereAbsorbColor = glm::vec3(0.2 + rand_normalized_double()* 0.8, 0.1 + rand_normalized_double()* 0.9, 0.7 + rand_normalized_double()* 0.3);
+                planet->fluidMaxLevel = 0.0;
+                planet->habitableChance = rand_normalized_double() * rand_normalized_double() * rand_normalized_double();
+                planet->preferredColor = glm::vec3(0.1 + rand_normalized_double() * 0.9, 0.1 + rand_normalized_double() * 0.9, 0.1 + rand_normalized_double() * 0.9);
+            }
         }
         else {
             // gaseous giants and small rocky shits
             float rand1 = rand_normalized_double();
             if (rand1 < 0.8) {
                 // gaseous giant
-                planet->radius = rand_uint64(25360.2, 69910.1); // ranges from uranus to jupiter
+                planet->radius = static_cast<double>(rand_uint64(25360.2, 69910.1)); // ranges from uranus to jupiter
                 moonsCount = rand_uint64(5, 16);
                 planet->atmosphereRadius = (rand_normalized_double() + 2.0) * (planet->radius * 0.1);
                 planet->atmosphereAbsorbStrength = 0.7 + 0.3 * rand_normalized_double();
@@ -155,7 +150,7 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
             }
             else {
                 // rocky
-                planet->radius = rand_uint64(2440.0, 5440.0); // ranges from mercury to roughly 2x mercury
+                planet->radius = static_cast<double>(rand_uint64(2440.0, 5440.0)); // ranges from mercury to roughly 2x mercury
                 moonsCount = rand_uint64(1, 2);
                 planet->atmosphereRadius = 0.0;
                 planet->atmosphereAbsorbStrength = 0.0;
@@ -177,7 +172,7 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
 
             bool isAtmospheric = rand_normalized_double() > 0.8;
             moon->host = planet;
-            moon->radius = rand_uint64(737.0, glm::min(0.3 * planet->radius, 6500.0));
+            moon->radius = static_cast<double>(rand_uint64(440.0, 5240.0)); // something small to ganymede diameter, might be overkill
             moon->terrainMaxLevel = moon->radius * 0.01;
             if (isAtmospheric) {
                 moon->habitableChance = rand_normalized_double();

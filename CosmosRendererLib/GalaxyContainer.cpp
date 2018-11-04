@@ -37,12 +37,12 @@ CelestialBody GalaxyContainer::getClosestCelestialBody()
     return closestCelestialBody;
 }
 
-std::vector<CelestialBody>& GalaxyContainer::getClosestStarPlanets()
+std::vector<CelestialBody> GalaxyContainer::getClosestStarPlanets()
 {
     return closestStarPlanets;
 }
 
-std::vector<CelestialBody>& GalaxyContainer::getClosestPlanetMoons()
+std::vector<CelestialBody> GalaxyContainer::getClosestPlanetMoons()
 {
     return closestPlanetMoons;
 }
@@ -50,6 +50,7 @@ std::vector<CelestialBody>& GalaxyContainer::getClosestPlanetMoons()
 glm::dvec3 GalaxyContainer::getGravity(glm::dvec3 observerPosition, double atTime)
 {
     auto flux = glm::dvec3(0.0);
+    if (!readyForGravityCalculations) return flux;
    // flux += closestStar.getGravity(observerPosition, atTime);
     flux += closestPlanet.getGravity(observerPosition, atTime);
     auto moons = getClosestPlanetMoons();
@@ -103,7 +104,6 @@ void GalaxyContainer::loadFromDatabase(SQLiteDatabase * db)
 
 void GalaxyContainer::update(glm::dvec3 observerPosition, double time)
 {
-    if (disableBodyUpdates) return;
     updateClosestStar(observerPosition, time);
     if (lastStarId != closestStar.starId) {
         lastStarId = closestStar.starId;
@@ -122,6 +122,7 @@ void GalaxyContainer::update(glm::dvec3 observerPosition, double time)
         onClosestMoonChange.invoke(closestMoon);
     }
     updateClosestCelestialBody(observerPosition, time);
+    readyForGravityCalculations = true;
 }
 
 std::vector<CelestialBody> GalaxyContainer::loadPlanetsByStar(Star& star)
@@ -220,6 +221,7 @@ void GalaxyContainer::updateClosestStar(glm::dvec3 observerPosition, double time
 void GalaxyContainer::updateClosestPlanet(glm::dvec3 observerPosition, double time)
 {
     CelestialBody result;
+    bool found = false;
     double closestDistance = 99999999999999.0;
     for (int s = 0; s < closestStarPlanets.size(); s++) {
         auto planet = closestStarPlanets[s];
@@ -231,14 +233,18 @@ void GalaxyContainer::updateClosestPlanet(glm::dvec3 observerPosition, double ti
         if (dst < closestDistance) {
             closestDistance = dst;
             result = planet;
+            found = true;
         }
     }
-    closestPlanet = result;
+    if (found) {
+        closestPlanet = result;
+    }
 }
 
 void GalaxyContainer::updateClosestMoon(glm::dvec3 observerPosition, double time)
 {
     CelestialBody result;
+    bool found = false;
     double closestDistance = 99999999999999.0;
     for (int s = 0; s < closestPlanetMoons.size(); s++) {
         auto moon = closestPlanetMoons[s];
@@ -250,14 +256,18 @@ void GalaxyContainer::updateClosestMoon(glm::dvec3 observerPosition, double time
         if (dst < closestDistance) {
             closestDistance = dst;
             result = moon;
+            found = true;
         }
     }
-    closestMoon = result;
+    if (found) {
+        closestMoon = result;
+    }
 }
 
 void GalaxyContainer::updateClosestCelestialBody(glm::dvec3 observerPosition, double time)
 {
     CelestialBody result;
+    bool found = false;
     double closestDistance = 99999999999999.0;
     for (int s = 0; s < closestStarPlanets.size(); s++) {
         auto planet = closestStarPlanets[s];
@@ -269,6 +279,7 @@ void GalaxyContainer::updateClosestCelestialBody(glm::dvec3 observerPosition, do
         if (dst < closestDistance) {
             closestDistance = dst;
             result = planet;
+            found = true;
         }
     }
     for (int s = 0; s < closestPlanetMoons.size(); s++) {
@@ -281,9 +292,12 @@ void GalaxyContainer::updateClosestCelestialBody(glm::dvec3 observerPosition, do
         if (dst < closestDistance) {
             closestDistance = dst;
             result = moon;
+            found = true;
         }
     }
-    closestCelestialBody = result;
+    if (found) {
+        closestCelestialBody = result;
+    }
 }
 
 AbsCelestialObject * GalaxyContainer::getByPath(int starId, int planetId, int moonId)
@@ -302,9 +316,4 @@ AbsCelestialObject * GalaxyContainer::getByPath(int starId, int planetId, int mo
     *moon = moonCelestialTarget;
     moon->host = planet;
     return moon;
-}
-
-void GalaxyContainer::setBodyUpdates(bool enable)
-{
-    disableBodyUpdates = enable;
 }

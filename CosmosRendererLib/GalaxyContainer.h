@@ -12,8 +12,8 @@ public:
     CelestialBody getClosestPlanet();
     CelestialBody getClosestMoon();
     CelestialBody getClosestCelestialBody();
-    std::vector<CelestialBody>& getClosestStarPlanets();
-    std::vector<CelestialBody>& getClosestPlanetMoons();
+    std::vector<CelestialBody> getClosestStarPlanets();
+    std::vector<CelestialBody> getClosestPlanetMoons();
     glm::dvec3 getGravity(glm::dvec3 observerPosition, double atTime);
     size_t getStarsCount();
     void loadFromDatabase(SQLiteDatabase* db);
@@ -24,7 +24,7 @@ public:
     EventHandler<Star> onClosestStarChange;
     EventHandler<CelestialBody> onClosestPlanetChange;
     EventHandler<CelestialBody> onClosestMoonChange;
-    void setBodyUpdates(bool enable);
+
     std::vector<CelestialBody> loadPlanetsByStar(Star& star);
     std::vector<CelestialBody> loadMoonsByPlanet(CelestialBody& planet);
 private:
@@ -34,8 +34,8 @@ private:
     CelestialBody closestPlanet;
     CelestialBody closestMoon;
     CelestialBody closestCelestialBody;
-    std::vector<CelestialBody> closestStarPlanets;
-    std::vector<CelestialBody> closestPlanetMoons;
+    std::vector<CelestialBody> closestStarPlanets = {};
+    std::vector<CelestialBody> closestPlanetMoons = {};
 
     void updateClosestStar(glm::dvec3 observerPosition, double time);
     void updateClosestPlanet(glm::dvec3 observerPosition, double time);
@@ -44,6 +44,6 @@ private:
     uint64_t lastStarId = 0;
     uint64_t lastPlanetId = 0;
     uint64_t lastMoonId = 0;
-    bool disableBodyUpdates = false;
+    bool readyForGravityCalculations = false;
 };
 
