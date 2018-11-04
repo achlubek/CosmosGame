@@ -13,7 +13,7 @@ class OutputScreenRenderer;
 class CosmosRenderer
 {
 public:
-    CosmosRenderer(VulkanToolkit* ivulkan, GalaxyContainer* galaxy, int iwidth, int iheight);
+    CosmosRenderer(VulkanToolkit* ivulkan, EventBus * eventBus, GalaxyContainer* galaxy, int iwidth, int iheight);
     ~CosmosRenderer();
 
     const double scale = 0.01;
@@ -36,7 +36,13 @@ public:
     void setRaycastPoints(std::vector<glm::dvec3> points);
     std::vector<glm::dvec3> getRaycastPoints();
     RenderedCelestialBody* getRenderableForCelestialBody(CelestialBody body);
+
+    void onClosestStarChange(Star star);
+    void onClosestPlanetChange(CelestialBody planet);
+    void onClosestMoonChange(CelestialBody moon);
 private:
+    EventBus * eventBus;
+
     GalaxyContainer* galaxy;
 
     StarsRenderer* starsRenderer;
@@ -138,13 +144,9 @@ private:
     glm::dvec3 observerCameraPosition;
     double closestSurfaceDistance;
     
-    void onClosestStarChange(Star star);
-    void onClosestPlanetChange(CelestialBody planet);
 
     std::vector<RenderedCelestialBody*> renderablePlanets;
     std::vector<RenderedCelestialBody*> renderableMoons;
-
-    CommandBus* internalCommandBus;
 
     volatile bool readyForDrawing = false;
     volatile bool firstRecordingDone = false;

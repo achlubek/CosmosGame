@@ -2,10 +2,11 @@
 #include "Star.h"
 #include "CelestialBody.h"
 class SQLiteDatabase;
+class EventBus;
 class GalaxyContainer
 {
 public:
-    GalaxyContainer();
+    GalaxyContainer(EventBus* eventBus);
     ~GalaxyContainer();
     std::vector<Star>& getAllStars();
     Star getClosestStar();
@@ -20,14 +21,11 @@ public:
     void update(glm::dvec3 observerPosition, double time);
 
     AbsCelestialObject* getByPath(int starId, int planetId = 0, int moonId = 0);
-
-    EventHandler<Star> onClosestStarChange;
-    EventHandler<CelestialBody> onClosestPlanetChange;
-    EventHandler<CelestialBody> onClosestMoonChange;
-
+    
     std::vector<CelestialBody> loadPlanetsByStar(Star& star);
     std::vector<CelestialBody> loadMoonsByPlanet(CelestialBody& planet);
 private:
+    EventBus * eventBus;
     SQLiteDatabase* database;
     std::vector<Star> allStars;
     Star closestStar;

@@ -23,7 +23,7 @@ void Camera::createProjectionPerspective(float ifov, float aspectRatio, float ne
     fov = ifov;
     updateFocalLength();
     farPlane = farpl;
-    projectionMatrix = perspectiveRH(deg2rad(fov), aspectRatio, nearpl, farpl);
+    projectionMatrix = perspectiveRH(glm::radians(fov), aspectRatio, nearpl, farpl);
 }
 
 void Camera::createProjectionOrthogonal(float minx, float miny, float minz, float maxx, float maxy, float maxz)

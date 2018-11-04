@@ -20,9 +20,9 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{D3180D84-75F1-4053-9621-4E92A9D63AD1}</ProjectGuid>
+    <ProjectGuid>{15058661-512A-4508-A39D-F2D3DA77C43B}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>UtilitiesLib</RootNamespace>
+    <RootNamespace>GalaxyLib</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -92,7 +92,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Code\glm-0.9.9-a1;C:\Code\VEngineNative\VEngine;C:\VulkanSDK\1.1.82.0\Include\vulkan;C:\Code\glfw-3.2.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Code\glm-0.9.9-a1;C:\Code\CosmosGame\SQLiteSupport;C:\Code\CosmosGame\UtilitiesLib;C:\Code\VEngineNative\VEngine;C:\VulkanSDK\1.1.82.0\Include\vulkan;C:\Code\glfw-3.2.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -148,32 +148,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AbsCommand.h" />
-    <ClInclude Include="AbsCommandHandler.h" />
-    <ClInclude Include="AbsEvent.h" />
-    <ClInclude Include="AbsEventHandler.h" />
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="CommandBus.h" />
-    <ClInclude Include="DebugLogger.h" />
-    <ClInclude Include="EventBus.h" />
-    <ClInclude Include="FrustumCone.h" />
-    <ClInclude Include="INIReader.h" />
-    <ClInclude Include="PercentageDerivativeController.h" />
+    <ClInclude Include="AbsCelestialObject.h" />
+    <ClInclude Include="CelestialBody.h" />
+    <ClInclude Include="Events\OnClosestMoonChangeEvent.h" />
+    <ClInclude Include="Events\OnClosestPlanetChangeEvent.h" />
+    <ClInclude Include="Events\stdafx.h" />
+    <ClInclude Include="GalaxyContainer.h" />
+    <ClInclude Include="GalaxyLib.h" />
+    <ClInclude Include="Events\OnClosestStarChangeEvent.h" />
+    <ClInclude Include="Star.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="UtilitiesLib.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AbsCommand.cpp" />
-    <ClCompile Include="AbsCommandHandler.cpp" />
-    <ClCompile Include="AbsEvent.cpp" />
-    <ClCompile Include="AbsEventHandler.cpp" />
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="CommandBus.cpp" />
-    <ClCompile Include="DebugLogger.cpp" />
-    <ClCompile Include="EventBus.cpp" />
-    <ClCompile Include="FrustumCone.cpp" />
-    <ClCompile Include="INIReader.cpp" />
-    <ClCompile Include="PercentageDerivativeController.cpp" />
+    <ClCompile Include="AbsCelestialObject.cpp" />
+    <ClCompile Include="CelestialBody.cpp" />
+    <ClCompile Include="Events\OnClosestMoonChangeEvent.cpp" />
+    <ClCompile Include="Events\OnClosestPlanetChangeEvent.cpp" />
+    <ClCompile Include="GalaxyContainer.cpp" />
+    <ClCompile Include="Events\OnClosestStarChangeEvent.cpp" />
+    <ClCompile Include="Star.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

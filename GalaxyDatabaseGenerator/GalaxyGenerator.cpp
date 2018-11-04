@@ -1,9 +1,6 @@
 #include "stdafx.h"
 #include "GalaxyGenerator.h"
 
-#include <random>
-#include <limits>
-
 GalaxyGenerator::GalaxyGenerator()
 {
     eng = std::mt19937_64(rd());

@@ -1,10 +1,9 @@
 #include "stdafx.h"
 #include "GalaxyContainer.h"
 
-GalaxyContainer::GalaxyContainer()
-{
-    onClosestStarChange = EventHandler<Star>();
-    onClosestPlanetChange = EventHandler<CelestialBody>();
+GalaxyContainer::GalaxyContainer(EventBus* eventBus)
+    : eventBus(eventBus)
+{ 
 }
 
 
@@ -51,7 +50,7 @@ glm::dvec3 GalaxyContainer::getGravity(glm::dvec3 observerPosition, double atTim
 {
     auto flux = glm::dvec3(0.0);
     if (!readyForGravityCalculations) return flux;
-   // flux += closestStar.getGravity(observerPosition, atTime);
+   // flux += closestStar.getGravity(observerPosition, atTime); // TODO this disturbs the orbit too much for unknown reason (possibly too low orbital speed of planets)
     flux += closestPlanet.getGravity(observerPosition, atTime);
     auto moons = getClosestPlanetMoons();
     for (int i = 0; i < moons.size(); i++) {
@@ -108,18 +107,18 @@ void GalaxyContainer::update(glm::dvec3 observerPosition, double time)
     if (lastStarId != closestStar.starId) {
         lastStarId = closestStar.starId;
         closestStarPlanets = loadPlanetsByStar(closestStar);
-        onClosestStarChange.invoke(closestStar);
+        eventBus->enqueue(new OnClosestStarChangeEvent(closestStar));
     }
     updateClosestPlanet(observerPosition, time);
     if (lastPlanetId != closestPlanet.bodyId) {
         lastPlanetId = closestPlanet.bodyId;
         closestPlanetMoons = loadMoonsByPlanet(closestPlanet);
-        onClosestPlanetChange.invoke(closestPlanet);
+        eventBus->enqueue(new OnClosestPlanetChangeEvent(closestPlanet));
     }
     updateClosestMoon(observerPosition, time);
     if (lastMoonId != closestMoon.bodyId) {
         lastMoonId = closestMoon.bodyId;
-        onClosestMoonChange.invoke(closestMoon);
+        eventBus->enqueue(new OnClosestMoonChangeEvent(closestMoon));
     }
     updateClosestCelestialBody(observerPosition, time);
     readyForGravityCalculations = true;

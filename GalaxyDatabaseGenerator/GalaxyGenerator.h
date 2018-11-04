@@ -1,10 +1,4 @@
 #pragma once
-#include <random>
-#include <limits>
-#include <glm\glm.hpp>
-#include "Star.h"
-#include "CelestialBody.h"
- 
 
 struct GeneratedStarSystemInfo {
     Star* star;

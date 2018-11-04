@@ -9,3 +9,5 @@
 #include "EventBus.h"
 #include "INIReader.h"
 #include "PercentageDerivativeController.h"
+#include "Camera.h"
+#include "FrustumCone.h"

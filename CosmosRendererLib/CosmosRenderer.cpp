@@ -2,9 +2,9 @@
 #include "CosmosRenderer.h"
 
 
-CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, int width, int height) :
+CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, EventBus * eventBus, GalaxyContainer* galaxy, int width, int height) :
     galaxy(galaxy), width(width), height(height),
-    vulkan(vulkan), renderablePlanets({}), renderableMoons({}), internalCommandBus(new CommandBus()),
+    vulkan(vulkan), renderablePlanets({}), renderableMoons({}), eventBus(eventBus),
     subdividedMeshesProvider(new SubdividedMeshesProvider(vulkan))
 {
     //  internalCamera = new Camera();
@@ -179,9 +179,9 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, GalaxyContainer* galaxy, i
 
     recompileShaders(false);
 
-    galaxy->onClosestStarChange.add([&](Star star) { onClosestStarChange(star); });
-    galaxy->onClosestPlanetChange.add([&](CelestialBody planet) { onClosestPlanetChange(planet); });
-
+    eventBus->registerHandler(new OnClosestStarChangeEventHandler(this));
+    eventBus->registerHandler(new OnClosestPlanetChangeEventHandler(this));
+    eventBus->registerHandler(new OnClosestMoonChangeEventHandler(this));
 
     readyForDrawing = true;
 }
@@ -331,6 +331,8 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
 
 void CosmosRenderer::updateCameraBuffer(Camera * camera, double time)
 {
+    eventBus->processQueue();
+
     observerCameraPosition = camera->getPosition();
     VulkanBinaryBufferBuilder bb = VulkanBinaryBufferBuilder();
     double xpos, ypos;
@@ -432,10 +434,6 @@ void CosmosRenderer::draw(SceneProvider* scene, double time)
     printf("{");
 #endif
     //galaxy->update(observerCameraPosition);
-
-    measureTimeStart();
-    internalCommandBus->processQueue();
-    measureTimeEnd("Executing safety queue");
 
     measureTimeStart();
 
@@ -725,6 +723,10 @@ void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
         renderable->updateBuffer(observerCameraPosition, scale, 0.0);
         renderableMoons.push_back(renderable);
     }
+}
+
+void CosmosRenderer::onClosestMoonChange(CelestialBody moon)
+{
 }
 
 void CosmosRenderer::measureTimeStart()

@@ -41,12 +41,14 @@ GameContainer::GameContainer()
         }
     });
     auto galaxydb = new SQLiteDatabase("galaxy.db");
-    auto galaxy = new GalaxyContainer();
+    auto eventBus = new EventBus();
+
+    auto galaxy = new GalaxyContainer(eventBus);
     galaxy->loadFromDatabase(galaxydb);
 
     auto vulkanToolkit = getVulkanToolkit();
 
-    cosmosRenderer = new CosmosRenderer(vulkanToolkit, galaxy, getResolution().x, getResolution().y);
+    cosmosRenderer = new CosmosRenderer(vulkanToolkit, eventBus, galaxy, getResolution().x, getResolution().y);
     cosmosRenderer->setExposure(0.0001);
     
     moduleFactory = new ModuleFactory(getModel3dFactory(), vulkanToolkit->getMedia());
