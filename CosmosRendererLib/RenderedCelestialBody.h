@@ -4,22 +4,18 @@ class RenderedCelestialBody
 {
 public:
     RenderedCelestialBody(VulkanToolkit* toolkit, CelestialBody body, 
-        VulkanDescriptorSetLayout* dataSetLayout, VulkanDescriptorSetLayout* shadowMapSetLayout, VulkanDescriptorSetLayout* renderSetLayout,
+        VulkanDescriptorSetLayout* dataSetLayout, VulkanDescriptorSetLayout* renderSetLayout,
         VulkanDescriptorSetLayout* celestialBodySurfaceSetLayout,
-        VulkanDescriptorSetLayout* celestialBodyWaterSetLayout,
         VulkanDescriptorSetLayout* celestialBodyRaycastUniqueSetLayout,
         VulkanImage* surfaceRenderedAlbedoRoughnessImage,
         VulkanImage* surfaceRenderedNormalMetalnessImage,
         VulkanImage* surfaceRenderedEmissionImage,
-        VulkanImage* surfaceRenderedDistanceImage,
-        VulkanImage* waterRenderedNormalMetalnessImage,
-        VulkanImage* waterRenderedDistanceImage);
+        VulkanImage* surfaceRenderedDistanceImage);
     ~RenderedCelestialBody();
     void updateRaycasts(uint32_t raycastPointsCount, VulkanDescriptorSet* celestialBodyRaycastSharedSet, VulkanComputeStage* stage);
     void updateData(VulkanComputeStage* stage);
-    void draw(VulkanRenderStage* stage, VulkanDescriptorSet* rendererDataSet, VulkanDescriptorSet* shadowMapsCollectionSet, Object3dInfo* info3d);
+    void draw(VulkanRenderStage* stage, VulkanDescriptorSet* rendererDataSet, Object3dInfo* info3d);
     void drawSurface(VulkanRenderStage* stage, VulkanDescriptorSet* rendererDataSet, Object3dInfo* info3d);
-    void drawWater(VulkanRenderStage* stage, VulkanDescriptorSet* rendererDataSet, Object3dInfo* info3d);
     void updateBuffer(glm::dvec3 observerPosition, double scale, double time);
     double getDistance(glm::dvec3 position, double at_time);
     void resizeDataImages(int lowFreqWidth, int lowFreqHeight, int hiFreqWidth, int hiFreqHeight);
@@ -29,8 +25,6 @@ public:
     std::vector<glm::dvec4> getRaycastResults(int32_t count);
 
     VulkanDescriptorSet* renderSurfaceSet;
-    VulkanDescriptorSet* shadowMapSet;
-    VulkanDescriptorSet* renderWaterSet;
     CelestialBody body;
 private:
 
@@ -43,23 +37,17 @@ private:
     bool initialized = false;
     bool needsUpdate = true;
 
-    int shadowMapWidthOffset = 0;
-
     VulkanToolkit * toolkit;
 
 
     VulkanImage* heightMapImage = nullptr;
     VulkanImage* baseColorImage = nullptr;
     VulkanImage* cloudsImage = nullptr;
-
-    VulkanImage* shadowMapImage = nullptr;    
     
     VulkanImage* surfaceRenderedAlbedoRoughnessImage;
     VulkanImage* surfaceRenderedNormalMetalnessImage;
     VulkanImage* surfaceRenderedEmissionImage;
     VulkanImage* surfaceRenderedDistanceImage;
-    VulkanImage* waterRenderedNormalMetalnessImage;
-    VulkanImage* waterRenderedDistanceImage;
 
     VulkanGenericBuffer* dataBuffer;
 

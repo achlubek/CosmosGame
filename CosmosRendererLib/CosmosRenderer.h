@@ -84,17 +84,8 @@ private:
     VulkanDescriptorSet* celestiaStarsBlitSet{ nullptr };
     VulkanComputeStage* celestialStarsBlitComputeStage;
 
-
     VulkanDescriptorSetLayout* celestialBodySurfaceSetLayout{ nullptr };
     VulkanRenderStage* celestialBodySurfaceRenderStage;
-
-    VulkanDescriptorSetLayout* celestialBodyWaterSetLayout{ nullptr };
-    VulkanRenderStage* celestialBodyWaterRenderStage;
-
-    VulkanDescriptorSetLayout* celestialShadowMapSetLayout{ nullptr };
-    VulkanDescriptorSetLayout* shadowMapDataSetLayout{ nullptr };
-    std::vector<VulkanRenderStage*> celestialShadowMapRenderStages = {};
-    std::vector<VulkanRenderStage*> modelsShadowMapRenderStages = {};
 
     VulkanGenericBuffer* cameraDataBuffer;
     VulkanGenericBuffer* raycastRequestsDataBuffer;
@@ -108,19 +99,8 @@ private:
     VulkanImage* surfaceRenderedEmissionImage;
     VulkanImage* surfaceRenderedNormalMetalnessImage;
     VulkanImage* surfaceRenderedDistanceImage;
-    VulkanImage* renderedDepthImage;
-    VulkanImage* waterRenderedNormalMetalnessImage;
-    VulkanImage* waterRenderedDistanceImage;
 
-    std::vector<VulkanImage*> shadowmaps = {};
-    std::vector<VulkanGenericBuffer*> shadowmapsBuffers = {};
-    std::vector<VulkanDescriptorSet*> shadowmapsDataSets = {};
-    VulkanImage* shadowmapsDepthMap;
-    VulkanDescriptorSetLayout* shadowMapsCollectionLayout{ nullptr };
-    VulkanDescriptorSet* shadowMapsCollectionSet{ nullptr };
-    std::vector<double> shadowmapsDivisors = {2.0, 17.0, 75.0};
-    const int shadowMapWidth = 2048;
-    const int shadowMapHeight = 2048;
+    VulkanImage* renderedDepthImage;
     
     Object3dInfo* cube3dInfo;
 
@@ -128,7 +108,6 @@ private:
 
     VulkanDescriptorSetLayout* modelMRTLayout{ nullptr };
     VulkanRenderStage* modelsStage{ nullptr };
-    VulkanRenderStage* modelsShadowStage{ nullptr };
     VulkanDescriptorSetLayout* modelsDataLayout{ nullptr };
     VulkanDescriptorSet* modelsDataSet{ nullptr };
     VulkanGenericBuffer* modelsDataBuffer;
@@ -142,17 +121,13 @@ private:
     double exposure = 0.0003;
 
     glm::dvec3 observerCameraPosition;
-    double closestSurfaceDistance;
     
-
     std::vector<RenderedCelestialBody*> renderablePlanets;
     std::vector<RenderedCelestialBody*> renderableMoons;
 
     volatile bool readyForDrawing = false;
     volatile bool firstRecordingDone = false;
-
-    int cascadeCounter = 0;
-
+    
 //#define PERFORMANCE_DEBUG
     double measurementStopwatch = 0.0;
     void measureTimeStart();

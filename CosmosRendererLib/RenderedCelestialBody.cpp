@@ -7,39 +7,29 @@ RenderedCelestialBody::RenderedCelestialBody(
     VulkanToolkit* toolkit,
     CelestialBody body,
     VulkanDescriptorSetLayout* dataSetLayout,
-    VulkanDescriptorSetLayout* shadowMapSetLayout,
     VulkanDescriptorSetLayout* renderSetLayout,
     VulkanDescriptorSetLayout* celestialBodySurfaceSetLayout,
-    VulkanDescriptorSetLayout* celestialBodyWaterSetLayout,
     VulkanDescriptorSetLayout* celestialBodyRaycastUniqueSetLayout,
     VulkanImage* surfaceRenderedAlbedoRoughnessImage,
     VulkanImage* surfaceRenderedNormalMetalnessImage,
     VulkanImage* surfaceRenderedEmissionImage,
-    VulkanImage* surfaceRenderedDistanceImage,
-    VulkanImage* waterRenderedNormalMetalnessImage,
-    VulkanImage* waterRenderedDistanceImage)
+    VulkanImage* surfaceRenderedDistanceImage)
     : toolkit(toolkit), body(body),
     surfaceRenderedAlbedoRoughnessImage(surfaceRenderedAlbedoRoughnessImage),
     surfaceRenderedNormalMetalnessImage(surfaceRenderedNormalMetalnessImage),
     surfaceRenderedEmissionImage(surfaceRenderedEmissionImage),
-    surfaceRenderedDistanceImage(surfaceRenderedDistanceImage),
-    waterRenderedNormalMetalnessImage(waterRenderedNormalMetalnessImage),
-    waterRenderedDistanceImage(waterRenderedDistanceImage)
+    surfaceRenderedDistanceImage(surfaceRenderedDistanceImage)
 {
     
     dataBuffer = toolkit->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeUniform, 65535);
     raycastResultsBuffer = toolkit->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeStorage, sizeof(float) * 1024 * 128);
 
     dataSet = dataSetLayout->generateDescriptorSet();
-    
-    shadowMapSet = shadowMapSetLayout->generateDescriptorSet();
 
     renderSet = renderSetLayout->generateDescriptorSet();
 
     renderSurfaceSet = celestialBodySurfaceSetLayout->generateDescriptorSet();
-
-    renderWaterSet = celestialBodyWaterSetLayout->generateDescriptorSet();
-
+    
     celestialBodyRaycastUniqueSet = celestialBodyRaycastUniqueSetLayout->generateDescriptorSet();
 }
 
@@ -64,17 +54,6 @@ void RenderedCelestialBody::resizeDataImages(int ilowFreqWidth, int ilowFreqHeig
         needsUpdate = true;
     }
 
-    if (hiFreqWidth != ihiFreqWidth || hiFreqHeight != ihiFreqHeight) {
-        hiFreqWidth = ihiFreqWidth;
-        hiFreqHeight = ihiFreqHeight;
-
-        safedelete(shadowMapImage);
-
-        shadowMapImage = toolkit->getVulkanImageFactory()->build(hiFreqWidth, hiFreqHeight, VulkanImageFormat::RG16f, VulkanImageUsage::Storage | VulkanImageUsage::Sampled);
-
-        shadowMapWidthOffset = 0;
-    }    
-    
     dataSet->bindBuffer(0, dataBuffer);
     dataSet->bindImageStorage(1, heightMapImage);
     dataSet->bindImageStorage(2, baseColorImage);
@@ -85,29 +64,20 @@ void RenderedCelestialBody::resizeDataImages(int ilowFreqWidth, int ilowFreqHeig
     celestialBodyRaycastUniqueSet->bindImageViewSampler(2, baseColorImage);
     celestialBodyRaycastUniqueSet->bindImageViewSampler(3, cloudsImage);
     celestialBodyRaycastUniqueSet->bindBuffer(4, raycastResultsBuffer);
-    
-
-    shadowMapSet->bindBuffer(0, dataBuffer);
-    shadowMapSet->bindImageViewSampler(1, heightMapImage);
 
     renderSet->bindBuffer(0, dataBuffer);
     renderSet->bindImageViewSampler(1, heightMapImage);
     renderSet->bindImageViewSampler(2, baseColorImage);
     renderSet->bindImageViewSampler(3, cloudsImage);
-    renderSet->bindImageViewSampler(4, shadowMapImage);
     renderSet->bindImageViewSampler(5, surfaceRenderedAlbedoRoughnessImage);
     renderSet->bindImageViewSampler(6, surfaceRenderedNormalMetalnessImage);
     renderSet->bindImageViewSampler(7, surfaceRenderedEmissionImage);
     renderSet->bindImageViewSampler(8, surfaceRenderedDistanceImage);
-    renderSet->bindImageViewSampler(9, waterRenderedNormalMetalnessImage);
-    renderSet->bindImageViewSampler(10, waterRenderedDistanceImage);
 
     renderSurfaceSet->bindBuffer(0, dataBuffer);
     renderSurfaceSet->bindImageViewSampler(1, heightMapImage);
     renderSurfaceSet->bindImageViewSampler(2, baseColorImage);
-
-    renderWaterSet->bindBuffer(0, dataBuffer);
-    
+        
     initialized = true;
 }
 
@@ -118,7 +88,6 @@ RenderedCelestialBody::~RenderedCelestialBody()
     safedelete(dataBuffer);
     safedelete(raycastResultsBuffer);
 
-    safedelete(shadowMapImage);
     safedelete(cloudsImage);
     safedelete(baseColorImage);
     safedelete(heightMapImage);
@@ -170,16 +139,16 @@ void RenderedCelestialBody::updateData(VulkanComputeStage * stage)
     if (!initialized) {
         return;
     }
-    stage->dispatch({ dataSet }, lowFreqWidth / 256, lowFreqHeight / 2, 1);
+    stage->dispatch({ dataSet }, lowFreqWidth / 128, lowFreqHeight / 2, 1);
     needsUpdate = false;
 }
 
-void RenderedCelestialBody::draw(VulkanRenderStage * stage, VulkanDescriptorSet* rendererDataSet, VulkanDescriptorSet* shadowMapsCollectionSet, Object3dInfo * info3d)
+void RenderedCelestialBody::draw(VulkanRenderStage * stage, VulkanDescriptorSet* rendererDataSet, Object3dInfo * info3d)
 {
     if (!initialized) {
         return;
     }
-    stage->setSets({ rendererDataSet, renderSet, shadowMapsCollectionSet });
+    stage->setSets({ rendererDataSet, renderSet });
     stage->drawMesh(info3d, 1);
 }
 
@@ -192,15 +161,6 @@ void RenderedCelestialBody::drawSurface(VulkanRenderStage * stage, VulkanDescrip
     stage->drawMesh(info3d, 1);
 }
 
-void RenderedCelestialBody::drawWater(VulkanRenderStage * stage, VulkanDescriptorSet* rendererDataSet, Object3dInfo * info3d)
-{
-    if (!initialized) {
-        return;
-    }
-    stage->setSets({ rendererDataSet, renderWaterSet });
-    stage->drawMesh(info3d, 1);
-}
-
 void RenderedCelestialBody::updateBuffer(glm::dvec3 observerPosition, double scale, double time)
 {
     VulkanBinaryBufferBuilder bb = VulkanBinaryBufferBuilder();
@@ -210,7 +170,7 @@ void RenderedCelestialBody::updateBuffer(glm::dvec3 observerPosition, double sca
     bb.emplaceFloat32(0.0f);
     bb.emplaceFloat32((float)hiFreqWidth);
     bb.emplaceFloat32((float)hiFreqHeight);
-    bb.emplaceFloat32((float)shadowMapWidthOffset);
+    bb.emplaceFloat32(0.0f);
     bb.emplaceFloat32(0.0f);
 
     auto bodyPosition = body.getPosition(time) - observerPosition;

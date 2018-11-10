@@ -38,12 +38,6 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, EventBus * eventBus, Galax
 
     renderedDepthImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::Depth32f, VulkanImageUsage::Depth);
 
-    //#######//
-
-    waterRenderedNormalMetalnessImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA16f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
-
-    waterRenderedDistanceImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::R32f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
-
     //#########//
 
     modelMRTLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
@@ -61,32 +55,6 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, EventBus * eventBus, Galax
     modelsDataSet = modelsDataLayout->generateDescriptorSet();
     modelsDataSet->bindBuffer(0, cameraDataBuffer);
 
-    //#########//
-
-    shadowmapsDepthMap = vulkan->getVulkanImageFactory()->build(shadowMapWidth, shadowMapHeight, VulkanImageFormat::Depth32f, VulkanImageUsage::Depth);
-
-    shadowMapDataSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
-    shadowMapDataSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
-
-    for (int i = 0; i < shadowmapsDivisors.size(); i++) {
-        shadowmaps.push_back(vulkan->getVulkanImageFactory()->build(shadowMapWidth, shadowMapHeight, VulkanImageFormat::R32f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled));
-        auto buff = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeUniform, sizeof(float) * 1024);
-        void* data;
-        buff->map(0, sizeof(float) * 4, &data);
-        float divisor = (float)shadowmapsDivisors[i];
-        ((float*)(data))[0] = divisor;
-        ((float*)(data))[1] = divisor;
-        ((float*)(data))[2] = divisor;
-        ((float*)(data))[3] = divisor;
-        buff->unmap();
-
-        shadowmapsBuffers.push_back(buff);
-
-        auto dataSet = shadowMapDataSetLayout->generateDescriptorSet();
-        dataSet->bindBuffer(0, buff);
-        shadowmapsDataSets.push_back(dataSet);
-
-    }
 
     //####################//
 
@@ -95,12 +63,6 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, EventBus * eventBus, Galax
 
     rendererDataSet = rendererDataLayout->generateDescriptorSet();
     rendererDataSet->bindBuffer(0, cameraDataBuffer);
-
-
-    shadowMapsCollectionLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
-    for (int i = 0; i < shadowmapsDivisors.size(); i++) {
-        shadowMapsCollectionLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
-    }
 
     celestialBodyRaycastSharedSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
     celestialBodyRaycastSharedSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageCompute);
@@ -139,14 +101,6 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, EventBus * eventBus, Galax
     celestialBodySurfaceSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
     celestialBodySurfaceSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
 
-    celestialBodyWaterSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
-    celestialBodyWaterSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
-
-    celestialShadowMapSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
-    celestialShadowMapSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
-    celestialShadowMapSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
-
-
     starsRenderer = new StarsRenderer(vulkan, width, height, scale, rendererDataLayout, rendererDataSet, galaxy);
 
 
@@ -161,13 +115,7 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, EventBus * eventBus, Galax
     combineSet->bindImageViewSampler(1, celestialAlphaImage);
     combineSet->bindImageViewSampler(2, starsRenderer->getStarsImage());
     combineSet->bindImageViewSampler(3, celestialAdditiveImage);
-
-
-    shadowMapsCollectionSet = shadowMapsCollectionLayout->generateDescriptorSet();
-    for (int i = 0; i < shadowmapsDivisors.size(); i++) {
-        shadowMapsCollectionSet->bindImageViewSampler(i, shadowmaps[i]);
-    }
-
+    
     celestiaStarsBlitSet = celestialStarsBlitSetLayout->generateDescriptorSet();
     celestiaStarsBlitSet->bindImageViewSampler(0, starsRenderer->getStarsImage());
     celestiaStarsBlitSet->bindImageStorage(1, celestialAlphaImage);
@@ -193,40 +141,11 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     if (deleteOld) {
         vulkan->waitDeviceIdle();
         safedelete(celestialBodySurfaceRenderStage);
-        safedelete(celestialBodyWaterRenderStage);
         safedelete(celestialStage);
         safedelete(combineStage);
-        for (int i = 0; i < shadowmapsDivisors.size(); i++) {
-            safedelete(celestialShadowMapRenderStages[i]);
-        }
-        celestialShadowMapRenderStages.clear();
     }
     vulkan->waitDeviceIdle();
-
-
-    //**********************//
-
-    auto celestialshadowmapvert = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Vertex, "cosmos-celestial-shadowmap.vert.spv");
-    auto celestialshadowmapfrag = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Fragment, "cosmos-celestial-shadowmap.frag.spv");
-    auto shipvertshadow = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Vertex, "cosmos-ship-shadow.vert.spv");
-    auto shipfragshadow = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Fragment, "cosmos-ship-shadow.frag.spv");
-
-    for (int i = 0; i < shadowmapsDivisors.size(); i++) {
-        auto celestialShadowMapRenderStage = vulkan->getVulkanRenderStageFactory()->build(shadowMapWidth, shadowMapHeight,
-            { celestialshadowmapvert, celestialshadowmapfrag }, { rendererDataLayout, celestialShadowMapSetLayout, shadowMapDataSetLayout },
-            {
-                shadowmaps[i]->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
-                shadowmapsDepthMap->getAttachment(VulkanAttachmentBlending::None)
-            });
-        celestialShadowMapRenderStages.push_back(celestialShadowMapRenderStage);
-
-        auto shadowModelsStage = vulkan->getVulkanRenderStageFactory()->build(shadowMapWidth, shadowMapHeight, { shipvertshadow, shipfragshadow }, { modelsDataLayout, modelMRTLayout, shadowMapDataSetLayout }, {
-            shadowmaps[i]->getAttachment(VulkanAttachmentBlending::None, false,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
-            shadowmapsDepthMap->getAttachment(VulkanAttachmentBlending::None, false)
-            });
-        modelsShadowMapRenderStages.push_back(shadowModelsStage);
-    }
-
+    
     //**********************//
 
     auto celestialsurfacevert = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Vertex, "cosmos-celestial-surface.vert.spv");
@@ -240,19 +159,6 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
             surfaceRenderedNormalMetalnessImage->getAttachment(VulkanAttachmentBlending::None, false,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
             surfaceRenderedDistanceImage->getAttachment(VulkanAttachmentBlending::None, false,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
             renderedDepthImage->getAttachment(VulkanAttachmentBlending::None, false)
-        }, VulkanCullMode::CullModeFront);
-
-    //**********************//
-
-    auto celestialwatervert = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Vertex, "cosmos-celestial-water.vert.spv");
-    auto celestialwaterfrag = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Fragment, "cosmos-celestial-water.frag.spv");
-
-    celestialBodyWaterRenderStage = vulkan->getVulkanRenderStageFactory()->build(width, height,
-        { celestialwatervert, celestialwaterfrag }, { rendererDataLayout, celestialBodyWaterSetLayout },
-        {
-            waterRenderedNormalMetalnessImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
-            waterRenderedDistanceImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 0.0f } })
-          //  renderedDepthImage->getAttachment(VulkanAttachmentBlending::None)
         }, VulkanCullMode::CullModeFront);
 
     //**********************//
@@ -285,7 +191,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     auto celestialfrag = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Fragment, "cosmos-celestial.frag.spv");
 
     celestialStage = vulkan->getVulkanRenderStageFactory()->build(width, height,
-        { celestialvert, celestialfrag }, { rendererDataLayout, celestialBodyRenderSetLayout, shadowMapsCollectionLayout },
+        { celestialvert, celestialfrag }, { rendererDataLayout, celestialBodyRenderSetLayout },
         {
             celestialAlphaImage->getAttachment(VulkanAttachmentBlending::Alpha, false),
             celestialAdditiveImage->getAttachment(VulkanAttachmentBlending::Additive, true, { { 0.0f, 0.0f, 0.0f, 0.0f } })
@@ -382,19 +288,6 @@ void CosmosRenderer::updateCameraBuffer(Camera * camera, double time)
     bb.emplaceFloat32(star.color.b * lux);
     bb.emplaceFloat32(0.0f);
 
-
-    bb.emplaceInt32(shadowmapsDivisors.size());
-    bb.emplaceInt32(shadowmapsDivisors.size());
-    bb.emplaceInt32(shadowmapsDivisors.size());
-    bb.emplaceInt32(shadowmapsDivisors.size());
-
-    for (int i = 0; i < shadowmapsDivisors.size(); i++) {
-        bb.emplaceFloat32(shadowmapsDivisors[i]);
-    }
-    for (int i = 0; i < 3 - (shadowmapsDivisors.size() % 4); i++) {
-        bb.emplaceFloat32(0.0f);
-    }
-
     void* data;
     cameraDataBuffer->map(0, bb.buffer.size(), &data);
     memcpy(data, bb.getPointer(), bb.buffer.size());
@@ -468,9 +361,7 @@ void CosmosRenderer::draw(SceneProvider* scene, double time)
     celestialBodyDataUpdater->update(renderables);
 
     measureTimeEnd("Preparing for celestial");
-
-    measureTimeStart();
-
+     /*
     if (raycastPoints.size() > 0) {
         celestialBodyRaycastComputeStage->beginRecording();
         for (int a = 0; a < renderables.size(); a++) {
@@ -479,24 +370,11 @@ void CosmosRenderer::draw(SceneProvider* scene, double time)
         celestialBodyRaycastComputeStage->endRecording();
         celestialBodyRaycastComputeStage->submitNoSemaphores({});
     }
-
+    */
     for (int a = 0; a < renderables.size(); a++) {
         renderables[a]->updateBuffer(observerCameraPosition, scale, time);
-    }
-    measureTimeEnd("Celestial hi freq update");
-    /*
-    if (renderables.size() > 0) {
-        celestialShadowMapComputeStage->beginRecording();
-        //for (int a = 0; a < renderables.size(); a++) {
-        if (shadowMapRoundRobinCounter >= renderables.size() - 1) shadowMapRoundRobinCounter = 0;
-        renderables[shadowMapRoundRobinCounter]->updateShadows(celestialShadowMapComputeStage, rendererDataSet);
-        shadowMapRoundRobinCounter++;
-        //}
+    } 
 
-        renderables[renderables.size() - 1]->updateShadows(celestialShadowMapComputeStage, rendererDataSet);
-        celestialShadowMapComputeStage->endRecording();
-        celestialShadowMapComputeStage->submitNoSemaphores({  });
-    }*/
     for (int i = 0; i < renderables.size(); i++) {
         measureTimeStart();
         std::vector<Object3dInfo*> meshSequence = {};
@@ -511,97 +389,25 @@ void CosmosRenderer::draw(SceneProvider* scene, double time)
 
         if (centerdist > radius * 3.0 || renderables[i]->getRenderMethod() == CelestialRenderMethod::thickAtmosphere) {
             meshSequence.push_back(subdividedMeshesProvider->getIcosphere(SubdividedMeshQuality::Low));
-            //celestialBodySurfaceRenderStage->drawMesh(icosphereLow, 1);
         }
         else {
-            meshSequence.push_back(subdividedMeshesProvider->getIcosphere(SubdividedMeshQuality::High)); // Pretty high performance hit here
-            /*
-            for (int g = 0; g < patchesLowPoly.size(); g++) {
-                glm::dvec3 position1 = (rotmat * glm::dvec3(std::get<0>(patchesLowPoly[g]))) * radius + position;
-                double dist = glm::distance(observerCameraPosition, position1);
-                if (dist < radius * 0.2) {
-                    meshSequence.push_back(std::get<1>(patchesHighPoly[g]));
-                    //  celestialBodySurfaceRenderStage->drawMesh(std::get<1>(patchesHighPoly[g]), 1);
-                }
-                else if (dist < radius * 3.6) {
-                    meshSequence.push_back(std::get<1>(patchesMediumPoly[g]));
-                    //  celestialBodySurfaceRenderStage->drawMesh(std::get<1>(patchesMediumPoly[g]), 1);
-                }
-                else {
-                    meshSequence.push_back(std::get<1>(patchesLowPoly[g]));
-                    //  celestialBodySurfaceRenderStage->drawMesh(std::get<1>(patchesLowPoly[g]), 1);
-                }
-            }*/
+            meshSequence.push_back(subdividedMeshesProvider->getIcosphere(SubdividedMeshQuality::High));
         }
 
         for (int g = 0; g < meshSequence.size(); g++) {
             celestialBodySurfaceRenderStage->drawMesh(meshSequence[g], 1);
         }
 
-        //renderables[i]->drawSurface(celestialBodySurfaceRenderStage, rendererDataSet, i == (renderables.size() - 1) ? icosphereHigh : icosphereLow);
-
         celestialBodySurfaceRenderStage->endDrawing();
         celestialBodySurfaceRenderStage->submitNoSemaphores({  });
 
         measureTimeEnd("Celestial surface data for " + std::to_string(i));
-
-        /*
-        if (i == renderables.size() - 1) {
-            for (int z = 0; z < shadowmapsDivisors.size(); z++) {
-                measureTimeStart();
-            //    int z = cascadeCounter;
-           //     cascadeCounter++;
-            //    if (cascadeCounter >= shadowmapsDivisors.size()) {
-            //        cascadeCounter = 0;
-            //    }
-                celestialShadowMapRenderStages[z]->beginDrawing();
-                celestialShadowMapRenderStages[z]->setSets({ rendererDataSet, renderables[i]->shadowMapSet, shadowmapsDataSets[z] });
-                for (int g = 0; g < meshSequence.size(); g++) {
-                    celestialShadowMapRenderStages[z]->drawMesh(meshSequence[g], 1);
-                }
-                celestialShadowMapRenderStages[z]->endDrawing();
-                celestialShadowMapRenderStages[z]->submitNoSemaphores({});
-
-
-                modelsShadowMapRenderStages[z]->beginDrawing();
-                modelsShadowMapRenderStages[z]->setSets({ rendererDataSet, renderables[i]->shadowMapSet, shadowmapsDataSets[z] });
-
-                scene->drawDrawableObjects(modelsShadowMapRenderStages[z], modelsDataSet, scale);
-
-                modelsShadowMapRenderStages[z]->endDrawing();
-                modelsShadowMapRenderStages[z]->submitNoSemaphores({});
-
-                measureTimeEnd("Celestial shadow cascade " + std::to_string(z) + " data for " + std::to_string(i));
-            }
-        }
-        */
-
-        if (renderables[i]->getRenderMethod() == CelestialRenderMethod::lightAtmosphere) {
-            measureTimeStart();
-            celestialBodyWaterRenderStage->beginDrawing();
-
-            celestialBodyWaterRenderStage->setSets({ rendererDataSet, renderables[i]->renderWaterSet });
-
-            if (centerdist < radius * 7.0) {
-                celestialBodyWaterRenderStage->drawMesh(subdividedMeshesProvider->getIcosphere(SubdividedMeshQuality::Medium), 1);
-            }
-            else {
-                celestialBodyWaterRenderStage->drawMesh(subdividedMeshesProvider->getIcosphere(SubdividedMeshQuality::Low), 1);
-            }
-
-            //renderables[i]->drawWater(celestialBodyWaterRenderStage, rendererDataSet, i == (renderables.size() - 1) ? icosphereMedium : icosphereLow);
-
-            celestialBodyWaterRenderStage->endDrawing();
-            celestialBodyWaterRenderStage->submitNoSemaphores({  });
-
-            measureTimeEnd("Celestial water data for " + std::to_string(i));
-        }
-
+        
         measureTimeStart();
 
         celestialStage->beginDrawing();
 
-        renderables[i]->draw(celestialStage, rendererDataSet, shadowMapsCollectionSet, cube3dInfo);
+        renderables[i]->draw(celestialStage, rendererDataSet, cube3dInfo);
 
         celestialStage->endDrawing();
         celestialStage->submitNoSemaphores({ });
@@ -648,17 +454,13 @@ void CosmosRenderer::onClosestStarChange(Star star)
         auto renderable = new RenderedCelestialBody(vulkan,
             planet,
             celestialBodyDataUpdater->getBodyDataSetLayout(),
-            celestialShadowMapSetLayout,
             celestialBodyRenderSetLayout,
             celestialBodySurfaceSetLayout,
-            celestialBodyWaterSetLayout,
             celestialBodyRaycastUniqueSetLayout,
             surfaceRenderedAlbedoRoughnessImage,
             surfaceRenderedNormalMetalnessImage,
             surfaceRenderedEmissionImage,
-            surfaceRenderedDistanceImage,
-            waterRenderedNormalMetalnessImage,
-            waterRenderedDistanceImage);
+            surfaceRenderedDistanceImage);
         renderable->updateBuffer(observerCameraPosition, scale, 0.0);
         renderablePlanets.push_back(renderable);
         //renderable->updateData(celestialDataUpdateComputeStage);
@@ -681,17 +483,13 @@ void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
         auto renderable = new RenderedCelestialBody(vulkan,
             moons[i],
             celestialBodyDataUpdater->getBodyDataSetLayout(),
-            celestialShadowMapSetLayout,
             celestialBodyRenderSetLayout,
             celestialBodySurfaceSetLayout,
-            celestialBodyWaterSetLayout,
             celestialBodyRaycastUniqueSetLayout,
             surfaceRenderedAlbedoRoughnessImage,
             surfaceRenderedNormalMetalnessImage,
             surfaceRenderedEmissionImage,
-            surfaceRenderedDistanceImage,
-            waterRenderedNormalMetalnessImage,
-            waterRenderedDistanceImage);
+            surfaceRenderedDistanceImage);
         renderable->updateBuffer(observerCameraPosition, scale, 0.0);
         renderableMoons.push_back(renderable);
     }
