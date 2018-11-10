@@ -148,6 +148,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CelestialBodyDataUpdater.h" />
     <ClInclude Include="CosmosRenderer.h" />
     <ClInclude Include="CosmosRendererLib.h" />
     <ClInclude Include="EventHandlers\OnClosestMoonChangeEventHandler.h" />
@@ -163,6 +164,7 @@
     <ClInclude Include="SubdividedMeshesProvider.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CelestialBodyDataUpdater.cpp" />
     <ClCompile Include="CosmosRenderer.cpp" />
     <ClCompile Include="EventHandlers\OnClosestMoonChangeEventHandler.cpp" />
     <ClCompile Include="EventHandlers\OnClosestPlanetChangeEventHandler.cpp" />

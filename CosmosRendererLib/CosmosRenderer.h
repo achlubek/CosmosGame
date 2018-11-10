@@ -9,6 +9,7 @@ class SubdividedMeshesProvider;
 class RenderedCelestialBody;
 class CommandBus;
 class OutputScreenRenderer;
+class CelestialBodyDataUpdater;
 
 class CosmosRenderer
 {
@@ -62,6 +63,8 @@ private:
 
     VulkanToolkit* vulkan{ nullptr };
 
+    CelestialBodyDataUpdater* celestialBodyDataUpdater{ nullptr };
+
     VulkanRenderStage* celestialStage{ nullptr };
     VulkanDescriptorSetLayout* rendererDataLayout{ nullptr };
     VulkanDescriptorSet* rendererDataSet{ nullptr };
@@ -70,10 +73,7 @@ private:
     VulkanDescriptorSetLayout* combineLayout{ nullptr };
     VulkanDescriptorSet* combineSet{ nullptr };
 
-
-    VulkanDescriptorSetLayout* celestialBodyDataSetLayout{ nullptr };
     VulkanDescriptorSetLayout* celestialBodyRenderSetLayout{ nullptr };
-    VulkanComputeStage* celestialDataUpdateComputeStage;
 
     VulkanDescriptorSetLayout* celestialBodyRaycastSharedSetLayout{ nullptr };
     VulkanDescriptorSet* celestialBodyRaycastSharedSet{ nullptr };

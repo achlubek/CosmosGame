@@ -92,7 +92,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Code\glm-0.9.9-a1;C:\Code\CosmosGame\GalaxyLib;C:\Code\CosmosGame\SQLiteSupport;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Code\glm-0.9.9-a1;C:\Code\VEngineNative\VEngine;C:\VulkanSDK\1.1.82.0\Include\vulkan;C:\Code\glfw-3.2.1\include;C:\Code\CosmosGame\GalaxyLib;C:\Code\CosmosGame\SQLiteSupport;C:\Code\CosmosGame\UtilitiesLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

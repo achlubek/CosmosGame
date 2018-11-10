@@ -9,8 +9,9 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, EventBus * eventBus, Galax
 {
     //  internalCamera = new Camera();
 
-    cube3dInfo = vulkan->getObject3dInfoFactory()->build("cube1unitradius.raw");
+    celestialBodyDataUpdater = new CelestialBodyDataUpdater(vulkan);
 
+    cube3dInfo = vulkan->getObject3dInfoFactory()->build("cube1unitradius.raw");
 
     outputImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA16f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
 
@@ -115,13 +116,7 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, EventBus * eventBus, Galax
     celestialBodyRaycastUniqueSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageCompute);
     celestialBodyRaycastUniqueSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageCompute);
     celestialBodyRaycastUniqueSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeStorageBuffer, VulkanDescriptorSetFieldStage::FieldStageCompute);
-
-    celestialBodyDataSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
-    celestialBodyDataSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageCompute);
-    celestialBodyDataSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeStorageImage, VulkanDescriptorSetFieldStage::FieldStageCompute);
-    celestialBodyDataSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeStorageImage, VulkanDescriptorSetFieldStage::FieldStageCompute);
-    celestialBodyDataSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeStorageImage, VulkanDescriptorSetFieldStage::FieldStageCompute);
-
+    
     celestialStarsBlitSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
     celestialStarsBlitSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageCompute);
     celestialStarsBlitSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeStorageImage, VulkanDescriptorSetFieldStage::FieldStageCompute);
@@ -275,17 +270,6 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
 
     //**********************//
 
-
-
-
-    
-
-    //**********************//
-    auto celestialdatacompute = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Compute, "celestial-updatedata.comp.spv");
-
-    celestialDataUpdateComputeStage = vulkan->getVulkanComputeStageFactory()->build(celestialdatacompute, { celestialBodyDataSetLayout });
-
-    //**********************//
     auto celestialdataraycast = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Compute, "celestial-raycast.comp.spv");
 
     celestialBodyRaycastComputeStage = vulkan->getVulkanComputeStageFactory()->build(celestialdataraycast, { celestialBodyRaycastSharedSetLayout, celestialBodyRaycastUniqueSetLayout });
@@ -479,25 +463,13 @@ void CosmosRenderer::draw(SceneProvider* scene, double time)
                 }
             }
         }
-
-        for (int a = 0; a < renderables.size() - 1; a++) {
-            renderables[a]->resizeDataImages(128, 128, 128, 128);
-        }
-        renderables[renderables.size() - 1]->resizeDataImages(1024, 1024, 1024, 1024);
-
     }
+
+    celestialBodyDataUpdater->update(renderables);
 
     measureTimeEnd("Preparing for celestial");
 
     measureTimeStart();
-    celestialDataUpdateComputeStage->beginRecording();
-    for (int a = 0; a < renderables.size(); a++) {
-        if (renderables[a]->needsDataUpdate()) {
-            renderables[a]->updateData(celestialDataUpdateComputeStage);
-        }
-    }
-    celestialDataUpdateComputeStage->endRecording();
-    celestialDataUpdateComputeStage->submitNoSemaphores({});
 
     if (raycastPoints.size() > 0) {
         celestialBodyRaycastComputeStage->beginRecording();
@@ -675,7 +647,7 @@ void CosmosRenderer::onClosestStarChange(Star star)
         
         auto renderable = new RenderedCelestialBody(vulkan,
             planet,
-            celestialBodyDataSetLayout,
+            celestialBodyDataUpdater->getBodyDataSetLayout(),
             celestialShadowMapSetLayout,
             celestialBodyRenderSetLayout,
             celestialBodySurfaceSetLayout,
@@ -708,7 +680,7 @@ void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
     for (int i = 0; i < moons.size(); i++) {
         auto renderable = new RenderedCelestialBody(vulkan,
             moons[i],
-            celestialBodyDataSetLayout,
+            celestialBodyDataUpdater->getBodyDataSetLayout(),
             celestialShadowMapSetLayout,
             celestialBodyRenderSetLayout,
             celestialBodySurfaceSetLayout,

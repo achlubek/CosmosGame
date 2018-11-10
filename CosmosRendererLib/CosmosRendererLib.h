@@ -7,6 +7,7 @@
 #include "StarsRenderer.h"
 #include "SubdividedMeshesProvider.h"
 #include "OutputScreenRenderer.h"
+#include "CelestialBodyDataUpdater.h"
 
 #include "EventHandlers/OnClosestStarChangeEventHandler.h"
 #include "EventHandlers/OnClosestPlanetChangeEventHandler.h"
