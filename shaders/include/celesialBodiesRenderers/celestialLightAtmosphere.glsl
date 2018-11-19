@@ -69,7 +69,7 @@ CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end
     #ifdef SHADOW_MAP_COMPUTE_STAGE
     vec2 UV = vec2(0.0);
     #endif
-    float iter = 0.0;// + stepsize * fract(oct(UV * 100.0) + Time * 0.01);
+    float iter = stepsize * fract(oct(UV * 100.0) + Time * 0.01);
     float radius = pass.body.radius;
     float atmoheight = pass.body.atmosphereHeight;
     vec3 starDir = normalize(ClosestStarPosition - start);
@@ -116,11 +116,11 @@ CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end
         vec3 primaryColor = scatterLight(pass.body, pos, endSecondary, rayEnergy);
         vec3 scattered = primaryColor * mieCoeff * 0.2 + (pass.body.atmosphereAbsorbColor * primaryColor) * rayleightCoeff * 1.0;
         vec3 secondaryColor = scatterLight(pass.body, start, pos, scattered);
-        float clouds = smoothstep(0.01, 0.02, getHighCloudsRaw(pass.body, pos) * heightmix * heightmix2);
-        alphacolor += primaryColor * (1.0 - coverage) * clouds;
+        float clouds = smoothstep(0.01, 0.011, getHighCloudsRaw(pass.body, pos) * heightmix * heightmix2);
+        alphacolor += primaryColor * (1.0 - coverage) * clouds * (0.1 + heightmix2 * 0.9);
         coverage = min(1.0, coverage + clouds);
         //rayEnergy -= max(vec3(0.0), primaryColor * 0.01);
-        color += scattered * heightmix;
+        color += scattered * heightmix * (1.0 - coverage);
         iter += stepsize;
     }
     color *= distmultiplier * stepsize * pow(shadowAccumulator, 2.0);

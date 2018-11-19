@@ -30,7 +30,7 @@ void CelestialBodyDataUpdater::update(std::vector<RenderedCelestialBody*> render
     for (int a = 0; a < renderables.size() - 1; a++) {
         renderables[a]->resizeDataImages(128, 128, 128, 128);
     }
-    renderables[renderables.size() - 1]->resizeDataImages(1024, 1024, 1024, 1024);
+    renderables[renderables.size() - 1]->resizeDataImages(2048, 2048, 2048, 2048);
 
     celestialDataUpdateComputeStage->beginRecording();
     for (int a = 0; a < renderables.size(); a++) {

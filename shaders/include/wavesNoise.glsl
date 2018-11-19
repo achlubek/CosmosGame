@@ -55,7 +55,7 @@ float getwaves(float position, float dragmult, float timeshift, float seed){
     float weight = 1.0;
     float w = 0.0;
     float ws = 0.0;
-    for(int i=0;i<20;i++){
+    for(int i=0;i<35;i++){
         float p = (oct(seedWaves += 1.0) * 2.0 - 1.0) * 300.0;
         float res = wave(position, p, speed, phase, 0.0 + timeshift);
         float res2 = wave(position, p, speed, phase, 0.006 + timeshift);
@@ -78,7 +78,7 @@ float getwaves(vec2 position, float dragmult, float timeshift, float seed){
     float weight = 1.0;
     float w = 0.0;
     float ws = 0.0;
-    for(int i=0;i<20;i++){
+    for(int i=0;i<35;i++){
         vec2 p = (vec2(oct(seedWaves += 1.0), oct(seedWaves += 1.0)) * 2.0 - 1.0) * 300.0;
         float res = wave(position, p, speed, phase, 0.0 + timeshift);
         float res2 = wave(position, p, speed, phase, 0.006 + timeshift);
@@ -101,7 +101,7 @@ float getwaves(vec3 position, float dragmult, float timeshift, float seed){
     float weight = 1.0;
     float w = 0.0;
     float ws = 0.0;
-    for(int i=0;i<20;i++){
+    for(int i=0;i<35;i++){
         vec3 p = (vec3(oct(seedWaves += 1.0), oct(seedWaves += 1.0), oct(seedWaves += 1.0)) * 2.0 - 1.0) * 300.0;
         float res = wave(position, p, speed, phase, 0.0 + timeshift);
         float res2 = wave(position, p, speed, phase, 0.006 + timeshift);
@@ -124,7 +124,7 @@ float getwaves(vec4 position, float dragmult, float timeshift, float seed){
     float weight = 1.0;
     float w = 0.0;
     float ws = 0.0;
-    for(int i=0;i<20;i++){
+    for(int i=0;i<35;i++){
         vec4 p = (vec4(oct(seedWaves += 1.0), oct(seedWaves += 1.0), oct(seedWaves += 1.0), oct(seedWaves += 1.0)) * 2.0 - 1.0) * 300.0;
         float res = wave(position, p, speed, phase, 0.0 + timeshift);
         float res2 = wave(position, p, speed, phase, 0.006 + timeshift);
