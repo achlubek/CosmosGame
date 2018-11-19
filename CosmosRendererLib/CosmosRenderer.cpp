@@ -76,7 +76,6 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, EventBus * eventBus, Galax
     celestialBodyRaycastUniqueSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageCompute);
     celestialBodyRaycastUniqueSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageCompute);
     celestialBodyRaycastUniqueSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageCompute);
-    celestialBodyRaycastUniqueSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageCompute);
     celestialBodyRaycastUniqueSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeStorageBuffer, VulkanDescriptorSetFieldStage::FieldStageCompute);
     
     celestialStarsBlitSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
@@ -85,7 +84,6 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, EventBus * eventBus, Galax
 
     celestialBodyRenderSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
     celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
-    celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
     celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
     celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
     celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);

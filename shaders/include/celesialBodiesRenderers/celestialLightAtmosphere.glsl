@@ -52,6 +52,11 @@ vec3 getSunColorForRay(RenderedCelestialBody body, Ray ray){
     return scatterLight(body, ray.o, ray.o + ray.d * primaryLength, ClosestStarColor);// / (1.0 + primaryLength);
 }
 
+float getHighCloudsRaw(RenderedCelestialBody body, vec3 p){
+    float density = clamp(celestialGetCloudsRaycast(body, p).r * 1.0, 0.0, 1.0);
+    return density;
+}
+
 CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end, float mieMultiplier, bool highQuality){
     //vec3 noonColor = (1.0 - pass.body.atmosphereAbsorbColor) * ClosestStarColor * 0.02;
     //vec3 sunsetColor = (pass.body.atmosphereAbsorbColor) * ClosestStarColor;
@@ -104,12 +109,16 @@ CelestialRenderResult renderAtmospherePath(RenderPass pass, vec3 start, vec3 end
         vec3 pos = mix(start, end, iter);
         float cdst = distance(pos, pass.body.position) - radius;
         float heightmix = pow(clamp(1.0 - cdst / atmoheight, 0.0, 1.0), 2.0);
+        float heightmix2 = pow(clamp( cdst / atmoheight, 0.0, 1.0), 2.0);
 
         vec3 endSecondary = pos + starDir * rsi2(Ray(pos, starDir), pass.body.atmosphereSphere).y;
         //rayEnergy = getSunColorForRay(pass.body, Ray(pos, starDir));
         vec3 primaryColor = scatterLight(pass.body, pos, endSecondary, rayEnergy);
         vec3 scattered = primaryColor * mieCoeff * 0.2 + (pass.body.atmosphereAbsorbColor * primaryColor) * rayleightCoeff * 1.0;
         vec3 secondaryColor = scatterLight(pass.body, start, pos, scattered);
+        float clouds = smoothstep(0.01, 0.02, getHighCloudsRaw(pass.body, pos) * heightmix * heightmix2);
+        alphacolor += primaryColor * (1.0 - coverage) * clouds;
+        coverage = min(1.0, coverage + clouds);
         //rayEnergy -= max(vec3(0.0), primaryColor * 0.01);
         color += scattered * heightmix;
         iter += stepsize;
@@ -137,6 +146,7 @@ vec4 getHighClouds(RenderedCelestialBody body, vec3 position){
     //if(distance(vec3(0.0), body.position) < body.atmosphereRadius) color *= 0.5;
     return vec4(shadow * color * 1.0, highClouds * 1.0);
 }
+
 CelestialRenderResult renderAtmosphere(RenderPass pass){
     float centerDistance = distance(pass.ray.o, pass.body.position);
     float radius = pass.body.radius;// - pass.body.terrainMaxLevel;
@@ -199,8 +209,8 @@ CelestialRenderResult renderAtmosphere(RenderPass pass){
         }
     }
     result = renderAtmospherePath(pass, start, end, 1.0, true);
-    vec4 hclouds = pass.isHighCloudsHit && pass.highCloudsHit < pass.surfaceHit && pass.highCloudsHit < pass.waterHit ? getHighClouds(pass.body, pass.highCloudsHitPos) : vec4(0.0);
-    result.alphaBlendedLight.rgba = alphaMix(result.alphaBlendedLight.rgba, hclouds);
+    //vec4 hclouds = pass.isHighCloudsHit && pass.highCloudsHit < pass.surfaceHit && pass.highCloudsHit < pass.waterHit ? getHighClouds(pass.body, pass.highCloudsHitPos) : vec4(0.0);
+    //result.alphaBlendedLight.rgba = alphaMix(result.alphaBlendedLight.rgba, hclouds);
     return result;
 }
 
@@ -274,7 +284,7 @@ CelestialRenderResult renderCelestialBodyLightAtmosphere(RenderPass pass){
         float waterAtDir = getWaterHeightHiRes(pass.body, realWaterDir);
         vec3 posSurface = pass.body.position + realSurfaceDir * heightAtDir;
         vec3 posWater = pass.body.position + realWaterDir * waterAtDir;
-        float realDistanceSurface = distance(pass.ray.o, posSurface);//pass.surfaceHit;//texture(surfaceRenderedDistanceImage, tempuv).r;//distance(pass.ray.o, posSurface);
+        float realDistanceSurface = texture(surfaceRenderedDistanceImage, tempuv).r;//distance(pass.ray.o, posSurface);
         float realDistanceWater = distance(pass.ray.o, posWater);//pass.waterHit;//texture(waterRenderedDistanceImage, tempuv).r;
         //float realDistanceSurface = texture(surfaceRenderedDistanceImage, tempuv).r;//distance(pass.ray.o, posSurface);
         //float realDistanceWater = texture(waterRenderedDistanceImage, tempuv).r;
