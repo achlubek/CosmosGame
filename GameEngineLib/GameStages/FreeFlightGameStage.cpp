@@ -65,8 +65,8 @@ FreeFlightGameStage::~FreeFlightGameStage()
 void FreeFlightGameStage::initializeNew()
 {
     int targetStar = 221;
-    int targetPlanet = 2;
-    int targetMoon = 0;
+    int targetPlanet = 3;
+    int targetMoon = 1;
     auto galaxy = getCosmosGameContainer()->getCosmosRenderer()->getGalaxy();
     getCosmosGameContainer()->getCosmosRenderer()->setExposure(0.00006);
 
@@ -223,9 +223,9 @@ void FreeFlightGameStage::onUpdateObject(GameObject * object, double elapsed)
         //physicsComponent->setTimeScale(0.001);
         if (object->hasComponent(ComponentTypes::Focus)) {
             cosmosRenderer->setRaycastPoints({ physicsComponent->getPosition() });
-            auto relativeVel = cosmosRenderer->getGalaxy()->getClosestCelestialBody().getRelativeLinearVelocity(physicsComponent->getLinearVelocity() * 0.001, getTimeProvider()->getTime());
-            velocityText->updateText("Relative velocity M/S: " + std::to_string(1000.0 * glm::length(relativeVel)));
             auto body = cosmosRenderer->getGalaxy()->getClosestCelestialBody();
+            auto relativeVel = body.getRelativeLinearVelocity(physicsComponent->getLinearVelocity() * 0.001, getTimeProvider()->getTime());
+            velocityText->updateText("Relative velocity M/S: " + std::to_string(1000.0 * glm::length(relativeVel)));
             auto position = body.getPosition(getTimeProvider()->getTime());
             auto waterLevel = body.radius + body.fluidMaxLevel;
             auto atmoLevel = body.radius + body.atmosphereRadius;
@@ -246,14 +246,14 @@ void FreeFlightGameStage::onUpdateObject(GameObject * object, double elapsed)
                 auto relativeVel = physicsComponent->getLinearVelocity() - airVelocity * 1000.0;
                 physicsComponent->applyAbsoluteImpulse(glm::dvec3(0.0), relativeVel * elapsed * -1000.0);
             }
-            auto closestPlanetRenderable = cosmosRenderer->getRenderableForCelestialBody(cosmosRenderer->getGalaxy()->getClosestPlanet());
-            if (closestPlanetRenderable != nullptr) {
-                auto res = closestPlanetRenderable->getRaycastResults(1)[0];
+            auto closestRenderable = cosmosRenderer->getRenderableForCelestialBody(body);
+            if (closestRenderable != nullptr) {
+                auto res = closestRenderable->getRaycastResults(1)[0];
                 starNameText->updateText("POINT: " + std::to_string(res.x) + "," + std::to_string(res.y) + "," + std::to_string(res.z) + ", DISTANCE: " + std::to_string(res.w * 100.0));
               //  debugMarker->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(getViewCamera()->getCamera()->getPosition() + glm::dvec3(res.x, res.y, res.z));
                 if (res.w < 0.0) {
                     // bounce
-                    physicsComponent->setLinearVelocity(glm::mix(glm::reflect(physicsComponent->getLinearVelocity(), dirToShip), airVelocity * 1000.0, 0.1));
+                    physicsComponent->setLinearVelocity(glm::mix(glm::reflect(physicsComponent->getLinearVelocity(), dirToShip), airVelocity * 1000.0, 0.5));
                 }
             }
         }

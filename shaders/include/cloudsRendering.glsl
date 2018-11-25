@@ -42,35 +42,20 @@ float clouds(vec3 p, float seed){
 vec2 getLowAndHighClouds(vec3 dir, float seed){
     dir *= 0.5;
     dir *= 0.5 + 2.0 * oct(sin(seed + 12.01223));
-    float low = 1.0 - clouds(dir, seed);
-    float c = cloud(vec4(dir, 1.0));
-    vec3 wind = (vec3(
-        getwaves(dir * 0.5, 5.0, 0.0, 0.0),
-        getwaves(dir * 0.5, 5.0, 0.0, 100.0),
-        getwaves(dir * 0.5, 5.0, 0.0, 200.0)
-        ) * 2.0 - 1.0) * 5.0;
-    float high = smoothstep(0.02, 0.5 + 0.5 * ( abs(dir.y)), getwaves(dir * 0.3  + wind, 3.0, 0.0, 0.0) * getwaves(dir * 2.0  + wind * 2.87 , 5.0, 0.0, 0.0) * getwaves(dir * 7.0 + wind * 0.6, -15.0, 0.0, 0.0));
-    high *= mix(1.0, aBitBetterNoise(vec4(dir * 1517.2 * 1200.0 * (aBitBetterNoise(vec4(dir * 11.2 , 1.0)) + 0.0), 1.0)), abs(high - 0.5));
-    high *= smoothstep(0.2, 0.6, aBitBetterNoise(vec4(dir * 3.0, 1.0)));
-    high *= FBM4(vec4(dir, seed * 123.0), 6, 3.0, 0.66);
-    high *= 0.5 + seed * 0.5;
-    float scale = 0.04 + 0.2 * aBitBetterNoise(vec4(dir * 3.2 - 10.0, 1.0));
-    float experimental = getwaves(scale * (dir * 10.0 + wind * 5.0), 13.0, 13.0, 3.0) * getwaves(scale * (dir * 3.0 + wind * 5.0), 13.0, 13.0, 3.0)
-     + getwaves(scale * (dir * 40.0 + wind * 5.0), 13.0, 13.0, 3.0) * 0.1;
-    float threshold = 0.00015 + 0.2 * aBitBetterNoise(vec4(dir * 3.2 , 1.0)) + 0.3 * oct(sin(seed));
-    float range = 0.1* aBitBetterNoise(vec4(dir * 3.2 + 10.0 , 1.0)) + 0.3 * oct(sin(seed + 12.0));
-    vec2 a = vec2(smoothstep(threshold, threshold + range, experimental), low);
 
-    wind = vec3(
+    vec3 wind = vec3(
         getwaves(dir * 1.0, 5.0, 0.0, 0.0),
         getwaves(dir * 1.0, 5.0, 0.0, 100.0),
         getwaves(dir * 1.0, 5.0, 0.0, 200.0)
         ) * 2.0 - 1.0;
-    scale = 0.3 + 1.0 * aBitBetterNoise(vec4(dir * 3.2 - 10.0, 1.0));
-    experimental = getwaves(scale * (dir * 10.0 + wind * 5.0), 13.0, 13.0, 3.0) * getwaves(scale * (dir * 3.0 + wind * 5.0), 13.0, 13.0, 3.0)
+    float scale = 0.3 + 1.0 * aBitBetterNoise(vec4(dir * 3.2 - 10.0, 1.0));
+    float experimental = getwaves(scale * (dir * 10.0 + wind * 5.0), 13.0, 13.0, 3.0) * getwaves(scale * (dir * 3.0 + wind * 5.0), 13.0, 13.0, 3.0)
      + getwaves(scale * (dir * 40.0 + wind * 5.0), 13.0, 13.0, 3.0) * 0.1;
-    threshold = 0.0015 + 0.2 * aBitBetterNoise(vec4(dir * 3.2 , 1.0)) + 0.3 * oct(sin(seed));
-    range = 0.3* aBitBetterNoise(vec4(dir * 3.2 + 10.0 , 1.0)) + 0.3 * oct(sin(seed + 12.0));
-    vec2 b = vec2(smoothstep(threshold, threshold + range, experimental), low);
-    return (max(a,b) * FBM4(vec4(dir * 200.0, seed * 83.0), 8, 3.0, 0.66));
+    float threshold = 0.0015 + 0.2 * aBitBetterNoise(vec4(dir * 3.2 , 1.0)) + 0.3 * oct(sin(seed));
+    float range = 0.3* aBitBetterNoise(vec4(dir * 3.2 + 10.0 , 1.0)) + 0.3 * oct(sin(seed + 12.0));
+    vec2 thickClouds = vec2(smoothstep(threshold, threshold + range, experimental), experimental);
+
+    float rare = FBM4(vec4(dir, seed), 8, 2.0, 6.0);
+    rare = FBM4(vec4(dir, seed) + rare, 8, 2.0, 6.0);
+    return vec2(rare, 0.0);
 }

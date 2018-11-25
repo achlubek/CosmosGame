@@ -346,6 +346,29 @@ CelestialRenderResult renderRings(RenderPass pass, CelestialRenderResult current
     return currentResult;
 }
 
+float ringsShadow(RenderPass pass, Ray ray){
+    if(oct(pass.body.seed) < 0.95) return 0.0;
+    vec3 planepoint = pass.body.position;
+    vec3 planenormal = normalize(vec3(oct(pass.body.seed) * 2.0 - 1.0, 5.0, oct(pass.body.seed + 100.0) * 2.0 - 1.0));
+    float hit = intersectPlane(ray.o, ray.d, planepoint, planenormal);
+    if(hit <= 0.0 || hit > 99999.0) return 0.0;
+    vec3 pos = ray.o + ray.d * hit;
+    float centerDistance = distance(pos, planepoint);
+    float start =  mix(1.2, 7.0, oct(pass.body.seed + 10.0));
+    float stop = start + mix(0.5, 2.5, oct(pass.body.seed + 20.0));
+    float frequency = 0.1 + 2.0 * oct(pass.body.seed + 30.0) / pass.body.radius;
+    float begin = pass.body.radius * start;
+    float end = pass.body.radius * stop;
+    float falloffBegin = 5.1 + 8.4 * oct(pass.body.seed + 40.0);
+    float falloffEnd = 5.1 + 8.4 * oct(pass.body.seed + 50.0);
+    float coverage = smoothstep(begin, begin + falloffBegin, centerDistance) * (1.0 - smoothstep(end, end + falloffEnd, centerDistance));
+
+    centerDistance += FBM3(pos - planepoint, 6, 2.0, 0.66);
+    float coverageFlunctuations = FBM1(frequency * centerDistance, 6, 2.0, 0.66);
+
+    return coverage * coverageFlunctuations * 2.0;
+}
+
 #include celestialNoAtmosphere.glsl
 #include celestialLightAtmosphere.glsl
 #include celestialThickAtmosphere.glsl
