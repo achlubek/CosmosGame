@@ -76,6 +76,7 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, EventBus * eventBus, Galax
     celestialBodyRaycastUniqueSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageCompute);
     celestialBodyRaycastUniqueSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageCompute);
     celestialBodyRaycastUniqueSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageCompute);
+    celestialBodyRaycastUniqueSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageCompute);
     celestialBodyRaycastUniqueSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeStorageBuffer, VulkanDescriptorSetFieldStage::FieldStageCompute);
     
     celestialStarsBlitSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
@@ -359,7 +360,11 @@ void CosmosRenderer::draw(SceneProvider* scene, double time)
     celestialBodyDataUpdater->update(renderables);
 
     measureTimeEnd("Preparing for celestial");
-     /*
+    
+    for (int a = 0; a < renderables.size(); a++) {
+        renderables[a]->updateBuffer(observerCameraPosition, scale, time);
+    }
+
     if (raycastPoints.size() > 0) {
         celestialBodyRaycastComputeStage->beginRecording();
         for (int a = 0; a < renderables.size(); a++) {
@@ -368,10 +373,6 @@ void CosmosRenderer::draw(SceneProvider* scene, double time)
         celestialBodyRaycastComputeStage->endRecording();
         celestialBodyRaycastComputeStage->submitNoSemaphores({});
     }
-    */
-    for (int a = 0; a < renderables.size(); a++) {
-        renderables[a]->updateBuffer(observerCameraPosition, scale, time);
-    } 
 
     for (int i = 0; i < renderables.size(); i++) {
         measureTimeStart();

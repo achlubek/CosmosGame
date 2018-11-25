@@ -52,7 +52,7 @@ FreeFlightGameStage::FreeFlightGameStage(GameContainer* container)
 FreeFlightGameStage::~FreeFlightGameStage()
 {
     safedelete(playerMountState);
-    getUIRenderer()->removeAllDrawables();
+    getUIRenderer()->removeAllDrawables(); //TODO doesnt seem like good idea
     safedelete(fpsText);
     safedelete(gravityFluxText);
     safedelete(starNameText);
@@ -65,7 +65,7 @@ FreeFlightGameStage::~FreeFlightGameStage()
 void FreeFlightGameStage::initializeNew()
 {
     int targetStar = 221;
-    int targetPlanet = 3;
+    int targetPlanet = 2;
     int targetMoon = 0;
     auto galaxy = getCosmosGameContainer()->getCosmosRenderer()->getGalaxy();
     getCosmosGameContainer()->getCosmosRenderer()->setExposure(0.00006);
@@ -235,14 +235,16 @@ void FreeFlightGameStage::onUpdateObject(GameObject * object, double elapsed)
             altitudeText->updateText("Altitude KM: " + std::to_string(dist));
             auto airVelocity = body.getSurfaceVelocityAtPoint(physicsComponent->getPosition(), getTimeProvider()->getTime());
             if (dist < 0.0) {
-             //   physicsComponent->setLinearVelocity(glm::mix(physicsComponent->getLinearVelocity(), airVelocity * 1000.0, elapsed * 2.0 * min(1.0, -dist * 1000.0)));
-              //  physicsComponent->setLinearVelocity(physicsComponent->getLinearVelocity() + dirToShip * elapsed * 10.0 * min(1.0, -dist * 1000.0));
-                //physicsComponent->applyAbsoluteImpulse(glm::dvec3(0.0), -physicsComponent->getLinearVelocity() * min(1.0, -dist * 1000.0) * 15000000.0 * elapsed);
-                // physicsComponent->applyAbsoluteImpulse(glm::dvec3(0.0), dirToShip * 5000000.0 * min(1.0, -dist * 1000.0) * elapsed);
+                // if hit water
+                physicsComponent->setLinearVelocity(glm::mix(physicsComponent->getLinearVelocity(), airVelocity * 1000.0, elapsed * 2.0 * min(1.0, -dist * 1000.0)));
+                physicsComponent->setLinearVelocity(physicsComponent->getLinearVelocity() + dirToShip * elapsed * 10.0 * min(1.0, -dist * 1000.0));
+                physicsComponent->applyAbsoluteImpulse(glm::dvec3(0.0), -physicsComponent->getLinearVelocity() * min(1.0, -dist * 1000.0) * 15000000.0 * elapsed);
+                physicsComponent->applyAbsoluteImpulse(glm::dvec3(0.0), dirToShip * 5000000.0 * min(1.0, -dist * 1000.0) * elapsed);
             }
             if (distatm < 0.0) {
-            //    auto relativeVel = physicsComponent->getLinearVelocity() - airVelocity * 1000.0;
-             //   physicsComponent->applyAbsoluteImpulse(glm::dvec3(0.0), relativeVel * elapsed * -1000.0);
+                // super simplified air drag
+                auto relativeVel = physicsComponent->getLinearVelocity() - airVelocity * 1000.0;
+                physicsComponent->applyAbsoluteImpulse(glm::dvec3(0.0), relativeVel * elapsed * -1000.0);
             }
             auto closestPlanetRenderable = cosmosRenderer->getRenderableForCelestialBody(cosmosRenderer->getGalaxy()->getClosestPlanet());
             if (closestPlanetRenderable != nullptr) {
@@ -250,7 +252,8 @@ void FreeFlightGameStage::onUpdateObject(GameObject * object, double elapsed)
                 starNameText->updateText("POINT: " + std::to_string(res.x) + "," + std::to_string(res.y) + "," + std::to_string(res.z) + ", DISTANCE: " + std::to_string(res.w * 100.0));
               //  debugMarker->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(getViewCamera()->getCamera()->getPosition() + glm::dvec3(res.x, res.y, res.z));
                 if (res.w < 0.0) {
-                    physicsComponent->setLinearVelocity(dirToShip * res.w + airVelocity);
+                    // bounce
+                    physicsComponent->setLinearVelocity(glm::mix(glm::reflect(physicsComponent->getLinearVelocity(), dirToShip), airVelocity * 1000.0, 0.1));
                 }
             }
         }

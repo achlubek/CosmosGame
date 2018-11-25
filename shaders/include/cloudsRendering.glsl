@@ -72,5 +72,5 @@ vec2 getLowAndHighClouds(vec3 dir, float seed){
     threshold = 0.0015 + 0.2 * aBitBetterNoise(vec4(dir * 3.2 , 1.0)) + 0.3 * oct(sin(seed));
     range = 0.3* aBitBetterNoise(vec4(dir * 3.2 + 10.0 , 1.0)) + 0.3 * oct(sin(seed + 12.0));
     vec2 b = vec2(smoothstep(threshold, threshold + range, experimental), low);
-    return sqrt(max(a,b) * FBM4(vec4(dir * 100.0, seed * 83.0), 8, 2.0, 0.66));
+    return (max(a,b) * FBM4(vec4(dir * 200.0, seed * 83.0), 8, 3.0, 0.66));
 }

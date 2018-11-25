@@ -59,10 +59,8 @@ float textureShadowBlurBox(sampler2D tex, vec2 uv, int pixels){
 
 
 vec2 celestialGetCloudsForDirection(RenderedCelestialBody body, vec3 direction){
-    vec3 dir = body.rotationMatrix * direction;
-    float n = FBM3(dir * 200.0, 4, 3.0, 0.66);
     vec2 prerendered = textureBicubic(cloudsImage, xyzToPolar(body.rotationMatrix * direction)).rg;
-    return prerendered * n;
+    return prerendered;
 }
 
 vec2 celestialGetCloudsRaycast(RenderedCelestialBody body, vec3 position){
