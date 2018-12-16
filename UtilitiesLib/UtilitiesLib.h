@@ -2,8 +2,8 @@
 
 #include "AbsCommand.h"
 #include "AbsCommandHandler.h"
-#include "AbsEvent.h"
-#include "AbsEventHandler.h"
+#include "IEvent.h"
+#include "IEventHandler.h"
 #include "CommandBus.h"
 #include "DebugLogger.h"
 #include "EventBus.h"

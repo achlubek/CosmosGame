@@ -150,6 +150,7 @@
   <ItemGroup>
     <ClInclude Include="Core\stdafx.h" />
     <ClInclude Include="Factories\stdafx.h" />
+    <ClInclude Include="Core\IGlobalService.h" />
     <ClInclude Include="Utilities\Serializer.h" />
     <ClInclude Include="Components\ShipAutopilotComponent.h" />
     <ClInclude Include="StateMachines\PlayerMountState.h" />
@@ -197,6 +198,7 @@
     <ClInclude Include="Utilities\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Core\IGlobalService.cpp" />
     <ClCompile Include="Utilities\Serializer.cpp" />
     <ClCompile Include="Components\ShipAutopilotComponent.cpp" />
     <ClCompile Include="StateMachines\PlayerMountState.cpp" />

@@ -1,6 +1,6 @@
 #pragma once
 #include "../CelestialBody.h"
-class OnClosestPlanetChangeEvent : public AbsEvent
+class OnClosestPlanetChangeEvent : public IEvent
 {
 public:
     OnClosestPlanetChangeEvent(CelestialBody planet);

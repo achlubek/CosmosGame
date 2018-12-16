@@ -1,6 +1,6 @@
 #pragma once
 #include "../Star.h"
-class OnClosestStarChangeEvent : public AbsEvent
+class OnClosestStarChangeEvent : public IEvent
 {
 public:
     OnClosestStarChangeEvent(Star star);

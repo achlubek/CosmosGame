@@ -16,7 +16,7 @@ std::string OnClosestMoonChangeEventHandler::getSupportedName()
     return "OnClosestMoonChangeEvent";
 }
 
-void OnClosestMoonChangeEventHandler::handle(AbsEvent * event)
+void OnClosestMoonChangeEventHandler::handle(IEvent * event)
 {
     auto castEvent = static_cast<OnClosestMoonChangeEvent*>(event);
     cosmosRenderer->onClosestMoonChange(castEvent->moon);

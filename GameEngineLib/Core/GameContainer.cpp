@@ -4,6 +4,7 @@
 GameContainer* GameContainer::instance = nullptr;
 
 GameContainer::GameContainer()
+    : globalServices({})
 {
 
     logger = new DebugLogger();
@@ -26,10 +27,10 @@ GameContainer::GameContainer()
     gameControls = new GameControls(vulkanToolkit->getKeyboard(), vulkanToolkit->getMouse(), vulkanToolkit->getMedia(), "controls.ini");
 
     model3dFactory = new Model3dFactory(vulkanToolkit->getMedia());
-
+    
     database = new SQLiteDatabase("gamedata.db");
 
-    gameControls->onKeyDown.add([&](std::string key) {
+    gameControls->onKeyDown.add([&](std::string key) { // todo refactor into event bus
         if (currentStage != nullptr) {
             currentStage->onKeyDown(key);
         }

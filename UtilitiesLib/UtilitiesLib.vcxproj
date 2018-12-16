@@ -150,8 +150,8 @@
   <ItemGroup>
     <ClInclude Include="AbsCommand.h" />
     <ClInclude Include="AbsCommandHandler.h" />
-    <ClInclude Include="AbsEvent.h" />
-    <ClInclude Include="AbsEventHandler.h" />
+    <ClInclude Include="IEvent.h" />
+    <ClInclude Include="IEventHandler.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CommandBus.h" />
     <ClInclude Include="DebugLogger.h" />
@@ -165,8 +165,8 @@
   <ItemGroup>
     <ClCompile Include="AbsCommand.cpp" />
     <ClCompile Include="AbsCommandHandler.cpp" />
-    <ClCompile Include="AbsEvent.cpp" />
-    <ClCompile Include="AbsEventHandler.cpp" />
+    <ClCompile Include="IEvent.cpp" />
+    <ClCompile Include="IEventHandler.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CommandBus.cpp" />
     <ClCompile Include="DebugLogger.cpp" />

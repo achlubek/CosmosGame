@@ -7,6 +7,10 @@ out gl_PerVertex {
 
 #include uiBuffer.glsl
 
+layout(set = 0, binding = 1) uniform cubo {
+    float[] data;
+} customBuffer;
+
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec2 inTexCoord;
 

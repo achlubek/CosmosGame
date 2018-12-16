@@ -20,6 +20,7 @@ class AbsGameStage;
 class OutputScreenRenderer;
 class GameStageCollection;
 class DebugLogger;
+class IGlobalService;
 
 class GameContainer
 {
@@ -66,6 +67,7 @@ private:
     glm::mat4 currentSunDirection;
     bool shouldClose = false;
     int width, height;
+    std::vector<IGlobalService*> globalServices;
 
     GalaxyGenerator* galaxyGenerator;
     CosmosRenderer* cosmosRenderer;

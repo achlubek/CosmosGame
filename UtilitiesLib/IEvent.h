@@ -1,9 +1,7 @@
 #pragma once
-class AbsEvent
+class IEvent
 {
 public:
-    AbsEvent();
-    virtual ~AbsEvent();
     virtual std::string getName() = 0;
 };
 

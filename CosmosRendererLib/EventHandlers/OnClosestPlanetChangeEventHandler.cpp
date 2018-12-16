@@ -16,7 +16,7 @@ std::string OnClosestPlanetChangeEventHandler::getSupportedName()
     return "OnClosestPlanetChangeEvent";
 }
 
-void OnClosestPlanetChangeEventHandler::handle(AbsEvent * event)
+void OnClosestPlanetChangeEventHandler::handle(IEvent * event)
 {
     auto castEvent = static_cast<OnClosestPlanetChangeEvent*>(event);
     cosmosRenderer->onClosestPlanetChange(castEvent->planet);

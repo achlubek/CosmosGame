@@ -11,12 +11,12 @@ EventBus::~EventBus()
 {
 }
 
-void EventBus::registerHandler(AbsEventHandler * handler)
+void EventBus::registerHandler(IEventHandler * handler)
 {
     handlers.push_back(handler);
 }
 
-void EventBus::enqueue(AbsEvent* event)
+void EventBus::enqueue(IEvent* event)
 {
     events.emplace(event);
 }
@@ -31,7 +31,7 @@ void EventBus::processQueue()
     }
 }
 
-void EventBus::processSingleEvent(AbsEvent* event)
+void EventBus::processSingleEvent(IEvent* event)
 {
     for (const auto &handler : handlers) {
         if (handler->getSupportedName() == event->getName()) {

@@ -16,7 +16,7 @@ std::string OnClosestStarChangeEventHandler::getSupportedName()
     return "OnClosestStarChangeEvent";
 }
 
-void OnClosestStarChangeEventHandler::handle(AbsEvent * event)
+void OnClosestStarChangeEventHandler::handle(IEvent * event)
 {
     auto castEvent = static_cast<OnClosestStarChangeEvent*>(event);
     cosmosRenderer->onClosestStarChange(castEvent->star);

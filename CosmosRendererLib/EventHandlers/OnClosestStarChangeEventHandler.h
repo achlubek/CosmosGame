@@ -1,12 +1,12 @@
 #pragma once
-class OnClosestStarChangeEventHandler : public AbsEventHandler
+class OnClosestStarChangeEventHandler : public IEventHandler
 {
 public:
     OnClosestStarChangeEventHandler(CosmosRenderer* cosmosRenderer);
     ~OnClosestStarChangeEventHandler();
 
     virtual std::string getSupportedName() override;
-    virtual void handle(AbsEvent * event) override;
+    virtual void handle(IEvent * event) override;
 
 private:
     CosmosRenderer * cosmosRenderer;

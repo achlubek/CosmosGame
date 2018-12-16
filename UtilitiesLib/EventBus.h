@@ -1,18 +1,18 @@
 #pragma once
-class AbsEvent;
-class AbsEventHandler;
+class IEvent;
+class IEventHandler;
 
 class EventBus
 {
 public:
     EventBus();
     ~EventBus();
-    void registerHandler(AbsEventHandler* handler);
-    void enqueue(AbsEvent* event);
+    void registerHandler(IEventHandler* handler);
+    void enqueue(IEvent* event);
     void processQueue();
 private:
-    void processSingleEvent(AbsEvent* event);
-    std::vector<AbsEventHandler*> handlers = {};
-    std::queue<AbsEvent*> events = {};
+    void processSingleEvent(IEvent* event);
+    std::vector<IEventHandler*> handlers = {};
+    std::queue<IEvent*> events = {};
 };
 

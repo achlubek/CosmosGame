@@ -14,7 +14,7 @@ MainMenuGameStage::MainMenuGameStage(GameContainer* container)
 
     quitButton = new UIText(ui, 0.01, 0.28, UIColor(1.0, 1.0, 1.0, 1.0), "coolvetica.ttf", 33, "Quit game");
     ui->addDrawable(quitButton);
-
+    /*
     freeFlightButton->onMouseDown.add([&](int key) {
         GameContainer::getInstance()->setCurrentStage("freeflight");
     });
@@ -25,7 +25,7 @@ MainMenuGameStage::MainMenuGameStage(GameContainer* container)
 
     quitButton->onMouseDown.add([&](int key) {
         GameContainer::getInstance()->setShouldClose(true);
-    });
+    });*/
 }
 
 
