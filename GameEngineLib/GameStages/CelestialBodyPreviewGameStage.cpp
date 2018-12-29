@@ -4,7 +4,7 @@
 CelestialBodyPreviewGameStage::CelestialBodyPreviewGameStage(GameContainer* container, int64_t itargetStar, int64_t itargetPlanet, int64_t itargetMoon)
     : AbsGameStage(container), targetStar(itargetStar), targetPlanet(itargetPlanet), targetMoon(itargetMoon)
 {
-    INIReader* configreader = new INIReader(container->getVulkanToolkit()->getMedia(), "settings.ini");
+    INIReader* configreader = new INIReader(container->getToolkit()->getMedia(), "settings.ini");
 
     getViewCamera()->setStrategy(new ManualCameraStrategy());
     targetBody = getCosmosGameContainer()->getCosmosRenderer()->getGalaxy()->getByPath(targetStar, targetPlanet, targetMoon);
@@ -18,15 +18,15 @@ CelestialBodyPreviewGameStage::CelestialBodyPreviewGameStage(GameContainer* cont
     getCosmosGameContainer()->getCosmosRenderer()->getGalaxy()->update(center, 0.0);
 
     // TODO : INTERPOLATOR
-    getCosmosGameContainer()->getControls()->getRawKeyboard()->onKeyPress.add([&](int key) {
+    /*getCosmosGameContainer()->getControls()->getRawKeyboard()->onKeyPress.add([&](int key) {
         if (key == GLFW_KEY_PAUSE) getCosmosGameContainer()->getCosmosRenderer()->recompileShaders(true);
 
         if (key == GLFW_KEY_9 || key == GLFW_KEY_0) {
             // well todo
         }
     });
-
-
+    */
+    /*
     getGameContainer()->getControls()->onKeyDown.add([&](std::string key) {
         if (key == "time_scale_x1") {
             setTimeScale(1.0);
@@ -44,7 +44,7 @@ CelestialBodyPreviewGameStage::CelestialBodyPreviewGameStage(GameContainer* cont
             setTimeScale(1000000000.0);
             getGameContainer()->getLogger()->log(LogSeverity::Normal, "Setting time scale to 1000000000.0");
         }
-    });
+    });*/
 
     getViewCamera()->setFov(fov);
 }
@@ -74,7 +74,7 @@ void CelestialBodyPreviewGameStage::onDraw()
 void CelestialBodyPreviewGameStage::onUpdate(double elapsed)
 {
 
-    auto keyboard = getCosmosGameContainer()->getControls()->getRawKeyboard();
+    auto keyboard = getCosmosGameContainer()->getControls();
     center = targetBody->getPosition(getTimeProvider()->getTime());
 
     float orbitSpeed = elapsed * 2.0131;
@@ -94,7 +94,7 @@ void CelestialBodyPreviewGameStage::onUpdate(double elapsed)
         timeScale = 4.0;
     }*/
 
-
+    /*
     if (keyboard->getKeyStatus(GLFW_KEY_UP) == GLFW_PRESS) {
         xrot -= orbitSpeed;
     }
@@ -152,7 +152,7 @@ void CelestialBodyPreviewGameStage::onUpdate(double elapsed)
         e += e * 0.5;
         e = glm::clamp(e, 0.0000001, 10.0);
         getCosmosGameContainer()->getCosmosRenderer()->setExposure(e);
-    }
+    }*/
 
 
     auto rotxmat = glm::angleAxis(xrot, glm::dvec3(1.0, 0.0, 0.0));

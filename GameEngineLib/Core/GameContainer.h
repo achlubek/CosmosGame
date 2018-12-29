@@ -34,7 +34,7 @@ public:
     PlayerFactory* getPlayerFactory();
     CosmosRenderer* getCosmosRenderer();
     Serializer* getSerializer();
-    VulkanToolkit* getVulkanToolkit();
+    ToolkitInterface* getToolkit();
     SQLiteDatabase* getDatabase();
     Model3dFactory* getModel3dFactory();
     GameControls* getControls();
@@ -54,7 +54,7 @@ private:
     void onDrawingStart();
 
 
-    VulkanToolkit* vulkanToolkit;
+    ToolkitInterface* toolkit;
     GameControls* gameControls;
     SQLiteDatabase* database;
     Model3dFactory* model3dFactory;

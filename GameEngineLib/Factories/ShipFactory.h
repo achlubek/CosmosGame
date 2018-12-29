@@ -5,12 +5,12 @@ class GameObject;
 class ShipFactory
 {
 public:
-    ShipFactory(Model3dFactory* model3dFactory, ModuleFactory* moduleFactory, VEngine::FileSystem::Media* media);
+    ShipFactory(Model3dFactory* model3dFactory, ModuleFactory* moduleFactory, VEngine::FileSystem::MediaInterface* media);
     ~ShipFactory();
 
     GameObject* build(std::string mediakey);
 private:
-    VEngine::FileSystem::Media* media;
+    VEngine::FileSystem::MediaInterface* media;
     Model3dFactory * model3dFactory;
     ModuleFactory* moduleFactory;
 };

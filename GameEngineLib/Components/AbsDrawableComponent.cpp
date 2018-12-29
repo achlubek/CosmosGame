@@ -17,7 +17,7 @@ bool AbsDrawableComponent::isDrawable()
     return true;
 }
 
-void AbsDrawableComponent::draw(glm::dvec3 observerPosition, VulkanRenderStage* stage, VulkanDescriptorSet* set, double scale)
+void AbsDrawableComponent::draw(glm::dvec3 observerPosition, RenderStageInterface* stage, DescriptorSetInterface* set, double scale)
 {
     Transformation3DComponent* parentTransform = owner->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D);
 

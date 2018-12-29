@@ -2,7 +2,7 @@
 #include "Model3dFactory.h"
 
 
-Model3dFactory::Model3dFactory(Media * media)
+Model3dFactory::Model3dFactory(MediaInterface * media)
     : media(media)
 {
 }
@@ -31,9 +31,9 @@ Model3d* Model3dFactory::build(std::string mediakey)
     auto emissionPoweredImage = reader.gets("emission_powered_image");
     auto scale = reader.getd("scale");
 
-    auto vulkan = GameContainer::getInstance()->getVulkanToolkit();
+    auto toolkit = GameContainer::getInstance()->getToolkit();
     auto modeldset = GameContainer::getInstance()->getCosmosRenderer()->getModelMRTLayout();
 
     auto orientationCorrection = axes_vec3toquat(glm::dvec3(reader.getf("rotx"), reader.getf("roty"), reader.getf("rotz")));
-    return new Model3d(vulkan, modeldset, info3d, albedoImage, normalImage, roughnessImage, metalnessImage, emissionIdleImage, emissionPoweredImage, orientationCorrection, scale);
+    return new Model3d(toolkit, modeldset, info3d, albedoImage, normalImage, roughnessImage, metalnessImage, emissionIdleImage, emissionPoweredImage, orientationCorrection, scale);
 }

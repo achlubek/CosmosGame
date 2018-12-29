@@ -25,7 +25,7 @@ FreeFlightGameStage::FreeFlightGameStage(GameContainer* container)
 
     velocityText = new UIText(ui, 0.01, 0.028 * 6.0, UIColor(1.0, 1.0, 1.0, 1.0), "Sansation_Regular.ttf", 23, "Hmm");
     ui->addDrawable(velocityText);
-
+    /*
     getCosmosGameContainer()->getControls()->onKeyDown.add([&](std::string key) {
         if (key == "recompile_shaders") getCosmosGameContainer()->getCosmosRenderer()->recompileShaders(true);
     });
@@ -43,7 +43,7 @@ FreeFlightGameStage::FreeFlightGameStage(GameContainer* container)
         if (key == "time_scale_x1000") {
             setTimeScale(1000.0);
         }
-    });
+    });*/
 
     playerMountState = new PlayerMountState();
 }

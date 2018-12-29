@@ -68,7 +68,7 @@ GeneratedStarSystemInfo* GalaxyGenerator::generateStar(int64_t galaxyradius, int
     glm::dvec3 yellow = glm::dvec3(1.0, 1.0, 0.9);
     glm::dvec3 blue = glm::dvec3(0.0, 0.0, 1.0);
     double randcolor = rand_normalized_double();
-    glm::dvec3 starcolor = glm::mix(glm::mix(red, yellow, min(1.0, randcolor * 2.0)), blue, max(0.0, (randcolor - 0.5) * 2.0));
+    glm::dvec3 starcolor = glm::mix(glm::mix(red, yellow, glm::min(1.0, randcolor * 2.0)), blue, glm::max(0.0, (randcolor - 0.5) * 2.0));
     star->color = starcolor;
     star->age = rand_normalized_double();
     star->spotsIntensity = rand_normalized_double();

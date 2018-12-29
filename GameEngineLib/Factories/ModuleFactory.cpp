@@ -2,7 +2,7 @@
 #include "ModuleFactory.h"
 
 
-ModuleFactory::ModuleFactory(Model3dFactory* model3dFactory, Media * media)
+ModuleFactory::ModuleFactory(Model3dFactory* model3dFactory, MediaInterface * media)
     : model3dFactory(model3dFactory),
     media(media)
 {

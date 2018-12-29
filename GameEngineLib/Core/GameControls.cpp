@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "GameControls.h"
 
-GameControls::GameControls(Keyboard* ikeyboard, Mouse* imouse, Media* media, std::string inifile)
-    : keyboard(ikeyboard), mouse(imouse), media(media)
+GameControls::GameControls(KeyboardInterface* keyboard, MouseInterface* mouse, MediaInterface* media, EventBus* ieventBus, std::string inifile)
+    : keyboard(keyboard), mouse(mouse), media(media), eventBus(ieventBus)
 {
     INIReader reader = INIReader(media, inifile);
     INIReader keynamemap = INIReader(media, "keys_name_value_map.ini");
@@ -28,15 +28,13 @@ GameControls::GameControls(Keyboard* ikeyboard, Mouse* imouse, Media* media, std
             }
             keysAxisBinds[key] = ControlKeyAxis(binds, keepval);
         }
-    }
-    onKeyDown = EventHandler<std::string>();
-    onKeyUp = EventHandler<std::string>();    
+    }   
     
-    keyboard->onKeyPress.add([&](int key) {
+    keyboard->setOnKeyPressHandler([&](int key) {
         for (const auto &p : simpleKeyBinds)
         {
             if (p.second == key) {
-                onKeyDown.invoke(p.first);
+                eventBus->enqueue(new OnKeyPressEvent(p.first));
             }
         }
         for (auto &p : keysAxisBinds) {
@@ -44,16 +42,32 @@ GameControls::GameControls(Keyboard* ikeyboard, Mouse* imouse, Media* media, std
         }
     });
 
-    keyboard->onKeyRelease.add([&](int key) {
+    keyboard->setOnKeyReleaseHandler([&](int key) {
         for (const auto &p : simpleKeyBinds)
         {
             if (p.second == key) {
-                onKeyUp.invoke(p.first);
+                eventBus->enqueue(new OnKeyReleaseEvent(p.first));
             }
         }
         for (auto &p : keysAxisBinds) {
             p.second.onKeyUp(key);
         }
+    });
+
+    keyboard->setOnKeyRepeatHandler([&](int key) {
+    });
+
+    keyboard->setOnCharHandler([&](unsigned int key) {
+    });
+
+
+    mouse->setOnMouseDownHandler([&](int key) {
+    });
+
+    mouse->setOnMouseUpHandler([&](int key) {
+    });
+
+    mouse->setOnMouseScrollHandler([&](double x, double y) {
     });
 }
 
@@ -64,7 +78,7 @@ GameControls::~GameControls()
 
 bool GameControls::isKeyDown(std::string name)
 {
-    return keyboard->getKeyStatus(simpleKeyBinds[name]) == GLFW_PRESS;
+    return keyboard->isKeyDown(simpleKeyBinds[name]);
 }
 
 double GameControls::readAxisValue(std::string name)
@@ -77,14 +91,3 @@ glm::ivec2 GameControls::getCursorPosition()
     auto tup = mouse->getCursorPosition();
     return glm::ivec2(get<0>(tup), get<1>(tup));
 }
-
-Keyboard * GameControls::getRawKeyboard()
-{
-    return keyboard;
-}
-
-Mouse * GameControls::getRawMouse()
-{
-    return mouse;
-}
- 

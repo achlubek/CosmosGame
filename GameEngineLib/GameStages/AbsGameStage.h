@@ -38,7 +38,7 @@ public:
 protected:
     virtual void onUpdate(double elapsed) = 0;
     virtual void onUpdateObject(GameObject* object, double elapsed) = 0;
-    virtual void drawDrawableObjects(VEngine::Renderer::VulkanRenderStage* stage, VEngine::Renderer::VulkanDescriptorSet* set, double scale) override;
+    virtual void drawDrawableObjects(VEngine::Renderer::RenderStageInterface* stage, VEngine::Renderer::DescriptorSetInterface* set, double scale) override;
 
 private:
     double timeScale = 1.0;

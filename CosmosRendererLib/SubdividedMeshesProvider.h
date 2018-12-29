@@ -10,7 +10,7 @@ enum class SubdividedMeshQuality
 class SubdividedMeshesProvider
 {
 public:
-    SubdividedMeshesProvider(ToolkitInterface* vulkan);
+    SubdividedMeshesProvider(ToolkitInterface* toolkit);
     ~SubdividedMeshesProvider();
 
     std::vector<std::tuple<glm::vec3, Object3dInfoInterface*>>& getPatches(SubdividedMeshQuality quality);

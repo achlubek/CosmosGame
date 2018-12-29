@@ -7,6 +7,9 @@
 #include "Camera/ManualCameraStrategy.h"
 #include "Camera/PointerDrivenCameraStrategy.h"
 
+#include "Events/OnKeyPressEvent.h"
+#include "Events/OnKeyReleaseEvent.h"
+
 #include "Core/IGlobalService.h"
 #include "Core/GameContainer.h"
 #include "Core/GameControls.h"

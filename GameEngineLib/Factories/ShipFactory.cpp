@@ -5,7 +5,7 @@
 using json = nlohmann::json;
 
 
-ShipFactory::ShipFactory(Model3dFactory* imodel3dFactory, ModuleFactory* imoduleFactory, Media* media)
+ShipFactory::ShipFactory(Model3dFactory* imodel3dFactory, ModuleFactory* imoduleFactory, MediaInterface* media)
     : model3dFactory(imodel3dFactory), moduleFactory(imoduleFactory), media(media)
 {
 }

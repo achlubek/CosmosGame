@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
 #include "SubdividedMeshesProvider.h"
 
-SubdividedMeshesProvider::SubdividedMeshesProvider(ToolkitInterface* vulkan)
+SubdividedMeshesProvider::SubdividedMeshesProvider(ToolkitInterface* toolkit)
     : toolkit(toolkit)
 {
     auto wholeIcoMesh = toolkit->getObject3dInfoFactory()->build("icosphere_to_separate.raw");

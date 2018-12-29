@@ -8,7 +8,7 @@ AbsGameStage::AbsGameStage(GameContainer* icontainer)
 
     timeProvider = new TimeProvider();
 
-    ui = new UIRenderer(container->getVulkanToolkit(), container->getCosmosRenderer()->getUiOutputImage(), container->getResolution().x, container->getResolution().y);
+    ui = new UIRenderer(container->getToolkit(), container->getCosmosRenderer()->getUiOutputImage(), container->getResolution().x, container->getResolution().y);
 
     viewCamera = new CameraController();
 
@@ -115,7 +115,7 @@ GameContainer * AbsGameStage::getGameContainer()
     return container;
 }
 
-void AbsGameStage::drawDrawableObjects(VulkanRenderStage* stage, VulkanDescriptorSet* set, double scale)
+void AbsGameStage::drawDrawableObjects(RenderStageInterface* stage, DescriptorSetInterface* set, double scale)
 {
     auto observerPosition = viewCamera->getCamera()->getPosition();
     for (int i = 0; i < activeObjects.size(); i++) {

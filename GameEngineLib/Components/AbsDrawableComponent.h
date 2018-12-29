@@ -8,7 +8,7 @@ public:
     AbsDrawableComponent(ComponentTypes type, Model3d* model, std::string modelName, glm::dvec3 relativePosition, glm::dquat relativeOrientation);
     virtual ~AbsDrawableComponent() {};
     virtual bool isDrawable() override;
-    void draw(glm::dvec3 observerPosition, VulkanRenderStage* stage, VulkanDescriptorSet* set, double scale);
+    void draw(glm::dvec3 observerPosition, RenderStageInterface* stage, DescriptorSetInterface* set, double scale);
     glm::dvec3 getWorldTranslation();
     virtual void update(double elapsed) override;
     virtual AbsDrawableComponent * clone() override;

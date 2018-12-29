@@ -39,7 +39,7 @@ void INIReader::splitBySpaces(vector<string>& output, string src)
         if (src[i] == ' ') {
             output.push_back(src.substr(d, i - d));
             d = i;
-            while (src[i++] == ' ')  d++;
+            while (src[i++] == ' ') d++;
         }
         else {
             i++;

@@ -151,6 +151,8 @@
     <ClInclude Include="Core\stdafx.h" />
     <ClInclude Include="Factories\stdafx.h" />
     <ClInclude Include="Core\IGlobalService.h" />
+    <ClInclude Include="Events\OnKeyPressEvent.h" />
+    <ClInclude Include="Events\OnKeyReleaseEvent.h" />
     <ClInclude Include="Utilities\Serializer.h" />
     <ClInclude Include="Components\ShipAutopilotComponent.h" />
     <ClInclude Include="StateMachines\PlayerMountState.h" />
@@ -199,6 +201,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core\IGlobalService.cpp" />
+    <ClCompile Include="Events\OnKeyPressEvent.cpp" />
+    <ClCompile Include="Events\OnKeyReleaseEvent.cpp" />
     <ClCompile Include="Utilities\Serializer.cpp" />
     <ClCompile Include="Components\ShipAutopilotComponent.cpp" />
     <ClCompile Include="StateMachines\PlayerMountState.cpp" />
