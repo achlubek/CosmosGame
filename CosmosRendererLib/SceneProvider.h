@@ -2,6 +2,6 @@
 class SceneProvider
 {
 public:
-    virtual void drawDrawableObjects(VEngine::Renderer::VulkanRenderStage* stage, VEngine::Renderer::VulkanDescriptorSet* set, double scale) = 0;
+    virtual void drawDrawableObjects(VEngine::Renderer::RenderStageInterface* stage, VEngine::Renderer::DescriptorSetInterface* set, double scale) = 0;
 };
 

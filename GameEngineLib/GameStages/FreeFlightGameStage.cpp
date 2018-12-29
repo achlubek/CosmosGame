@@ -64,9 +64,9 @@ FreeFlightGameStage::~FreeFlightGameStage()
 
 void FreeFlightGameStage::initializeNew()
 {
-    int targetStar = 221;
+    int targetStar = 8191;
     int targetPlanet = 3;
-    int targetMoon = 1;
+    int targetMoon = 0;
     auto galaxy = getCosmosGameContainer()->getCosmosRenderer()->getGalaxy();
     getCosmosGameContainer()->getCosmosRenderer()->setExposure(0.00006);
 
@@ -79,7 +79,7 @@ void FreeFlightGameStage::initializeNew()
     testship->addTag(GameObjectTags::Ship);
     testship->addTag(GameObjectTags::ControllableVehicle);
 
-    testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(center - glm::dvec3(dist * 1.03, 0.0, 0.0));
+    testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(center - glm::dvec3(dist * 1.403, 0.0, 0.0));
     testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(velocity + 1000.0 * targetBody->calculateOrbitVelocity(dist * 0.03) * glm::dvec3(0.0, 1.0, 0.0));
     //testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(glm::dvec3(0.0));
 
@@ -88,7 +88,7 @@ void FreeFlightGameStage::initializeNew()
     auto player = getCosmosGameContainer()->getPlayerFactory()->build();
     player->addTag(GameObjectTags::Player);
 
-    player->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(center + glm::dvec3(dist * 1.03, 0.0, 0.0));
+    player->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(center + glm::dvec3(dist * 1.403, 0.0, 0.0));
     player->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(velocity + 1000.0 * targetBody->calculateOrbitVelocity(dist * 0.03) * glm::dvec3(0.0, 1.0, 0.0));
     //testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(glm::dvec3(0.0));
 

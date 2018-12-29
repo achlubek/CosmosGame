@@ -1,10 +1,10 @@
 ﻿#include "stdafx.h"
 #include "SubdividedMeshesProvider.h"
 
-SubdividedMeshesProvider::SubdividedMeshesProvider(VulkanToolkit* vulkan)
-    : vulkan(vulkan)
+SubdividedMeshesProvider::SubdividedMeshesProvider(ToolkitInterface* vulkan)
+    : toolkit(toolkit)
 {
-    auto wholeIcoMesh = vulkan->getObject3dInfoFactory()->build("icosphere_to_separate.raw");
+    auto wholeIcoMesh = toolkit->getObject3dInfoFactory()->build("icosphere_to_separate.raw");
     auto splitMesh = splitTriangles(wholeIcoMesh);
     for (int i = 0; i < splitMesh.size(); i++) {
         auto vbo = splitMesh[i]->getVBO();
@@ -25,9 +25,9 @@ SubdividedMeshesProvider::SubdividedMeshesProvider(VulkanToolkit* vulkan)
     }
 
 
-    icosphereLow = vulkan->getObject3dInfoFactory()->build("icosphere_lowpoly_1unit.raw");
+    icosphereLow = toolkit->getObject3dInfoFactory()->build("icosphere_lowpoly_1unit.raw");
 
-    icosphereMedium = vulkan->getObject3dInfoFactory()->build("icosphere_mediumpoly_1unit.raw");
+    icosphereMedium = toolkit->getObject3dInfoFactory()->build("icosphere_mediumpoly_1unit.raw");
 
     icosphereHigh = subdivide(icosphereMedium);// vulkan->getObject3dInfoFactory->build("icosphere_highpoly_1unit.raw");
 }
@@ -36,7 +36,7 @@ SubdividedMeshesProvider::~SubdividedMeshesProvider()
 {
 }
 
-std::vector<std::tuple<glm::vec3, Object3dInfo*>>& SubdividedMeshesProvider::getPatches(SubdividedMeshQuality quality)
+std::vector<std::tuple<glm::vec3, Object3dInfoInterface*>>& SubdividedMeshesProvider::getPatches(SubdividedMeshQuality quality)
 {
     if (quality == SubdividedMeshQuality::Low)
     {
@@ -52,7 +52,7 @@ std::vector<std::tuple<glm::vec3, Object3dInfo*>>& SubdividedMeshesProvider::get
     }
 }
 
-Object3dInfo * SubdividedMeshesProvider::getIcosphere(SubdividedMeshQuality quality)
+Object3dInfoInterface * SubdividedMeshesProvider::getIcosphere(SubdividedMeshQuality quality)
 {
     if (quality == SubdividedMeshQuality::Low)
     {
@@ -68,7 +68,7 @@ Object3dInfo * SubdividedMeshesProvider::getIcosphere(SubdividedMeshQuality qual
     }
 }
 
-VEngine::Renderer::Object3dInfo* SubdividedMeshesProvider::subdivide(VEngine::Renderer::Object3dInfo* info)
+VEngine::Renderer::Object3dInfoInterface* SubdividedMeshesProvider::subdivide(VEngine::Renderer::Object3dInfoInterface* info)
 {
     std::vector<float> floats = {};
     auto vbo = info->getVBO();
@@ -122,13 +122,13 @@ VEngine::Renderer::Object3dInfo* SubdividedMeshesProvider::subdivide(VEngine::Re
             floats.push_back(v.x);
         }
     }
-    return vulkan->getObject3dInfoFactory()->build(floats);
+    return toolkit->getObject3dInfoFactory()->build(floats);
 }
 
-std::vector<VEngine::Renderer::Object3dInfo*> SubdividedMeshesProvider::splitTriangles(
-    VEngine::Renderer::Object3dInfo* info)
+std::vector<VEngine::Renderer::Object3dInfoInterface*> SubdividedMeshesProvider::splitTriangles(
+    VEngine::Renderer::Object3dInfoInterface* info)
 {
-    std::vector<Object3dInfo*> objs = {};
+    std::vector<Object3dInfoInterface*> objs = {};
 
     auto vbo = info->getVBO();
     for (int i = 0; i < vbo.size();) {
@@ -179,7 +179,7 @@ std::vector<VEngine::Renderer::Object3dInfo*> SubdividedMeshesProvider::splitTri
             v3.z,
             v3.x
         };
-        objs.push_back(vulkan->getObject3dInfoFactory()->build(buffer));
+        objs.push_back(toolkit->getObject3dInfoFactory()->build(buffer));
     }
     return objs;
 }

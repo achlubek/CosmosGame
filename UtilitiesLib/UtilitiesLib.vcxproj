@@ -150,6 +150,7 @@
   <ItemGroup>
     <ClInclude Include="AbsCommand.h" />
     <ClInclude Include="AbsCommandHandler.h" />
+    <ClInclude Include="BinaryBufferBuilder.h" />
     <ClInclude Include="IEvent.h" />
     <ClInclude Include="IEventHandler.h" />
     <ClInclude Include="Camera.h" />
@@ -165,6 +166,7 @@
   <ItemGroup>
     <ClCompile Include="AbsCommand.cpp" />
     <ClCompile Include="AbsCommandHandler.cpp" />
+    <ClCompile Include="BinaryBufferBuilder.cpp" />
     <ClCompile Include="IEvent.cpp" />
     <ClCompile Include="IEventHandler.cpp" />
     <ClCompile Include="Camera.cpp" />

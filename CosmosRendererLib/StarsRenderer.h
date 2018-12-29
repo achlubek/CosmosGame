@@ -3,33 +3,33 @@ class GalaxyContainer;
 class StarsRenderer
 {
 public:
-    StarsRenderer(VulkanToolkit* vulkan, 
+    StarsRenderer(ToolkitInterface* toolkit, 
         int width, int height, double scale,
-        VulkanDescriptorSetLayout* rendererDataSetLayout,
-        VulkanDescriptorSet* rendererDataSet,
+        DescriptorSetLayoutInterface* rendererDataSetLayout,
+        DescriptorSetInterface* rendererDataSet,
         GalaxyContainer* galaxy);
     ~StarsRenderer();
-    void draw(std::vector<VkSemaphore> waitSemaphores);
+    void draw(std::vector<SemaphoreInterface*> waitSemaphores);
     void recompile();
-    VulkanImage* getStarsImage();
-    VkSemaphore getSignalSemaphore();
+    ImageInterface* getStarsImage();
+    SemaphoreInterface* getSignalSemaphore();
 private:
-    VulkanToolkit * vulkan;
+    ToolkitInterface * toolkit;
     GalaxyContainer* galaxy;
-    VulkanDescriptorSetLayout* rendererDataSetLayout;
-    VulkanDescriptorSet* rendererDataSet;
+    DescriptorSetLayoutInterface* rendererDataSetLayout;
+    DescriptorSetInterface* rendererDataSet;
 
     int width;
     int height;
     double scale;
     bool doesNeedRecording;
 
-    VulkanDescriptorSetLayout* starsDataLayout{ nullptr };
-    VulkanDescriptorSet* starsDataSet{ nullptr };
-    VulkanRenderStage* starsStage{ nullptr };
-    VulkanImage* starsImage;
-    VulkanGenericBuffer* starsDataBuffer;
-    Object3dInfo* cube3dInfo;
+    DescriptorSetLayoutInterface* starsDataLayout{ nullptr };
+    DescriptorSetInterface* starsDataSet{ nullptr };
+    RenderStageInterface* starsStage{ nullptr };
+    ImageInterface* starsImage;
+    GenericBufferInterface* starsDataBuffer;
+    Object3dInfoInterface* cube3dInfo;
 
     void updateStarsBuffer();
     void createRenderStage();

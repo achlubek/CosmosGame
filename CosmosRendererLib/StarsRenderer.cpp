@@ -2,12 +2,12 @@
 #include "StarsRenderer.h"
 
 
-StarsRenderer::StarsRenderer(VulkanToolkit* vulkan, 
+StarsRenderer::StarsRenderer(ToolkitInterface* toolkit, 
     int width, int height, double scale,
-    VulkanDescriptorSetLayout* rendererDataSetLayout,
-    VulkanDescriptorSet* rendererDataSet, 
+    DescriptorSetLayoutInterface* rendererDataSetLayout,
+    DescriptorSetInterface* rendererDataSet,
     GalaxyContainer* galaxy)
-    : vulkan(vulkan), 
+    : toolkit(toolkit),
     width(width), 
     height(height), 
     scale(scale), 
@@ -15,19 +15,19 @@ StarsRenderer::StarsRenderer(VulkanToolkit* vulkan,
     rendererDataSet(rendererDataSet),
     galaxy(galaxy)
 {
-    starsImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA16f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Storage | VulkanImageUsage::Sampled);
+    starsImage = toolkit->getImageFactory()->build(width, height, VEngineImageFormat::RGBA16f, VEngineImageUsage::ColorAttachment | VEngineImageUsage::Storage | VEngineImageUsage::Sampled);
 
-    starsDataBuffer = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeStorage, 1024 * 1024 * 128);
+    starsDataBuffer = toolkit->getBufferFactory()->build(VEngineBufferType::BufferTypeStorage, 1024 * 1024 * 128);
 
-    starsDataLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
-    starsDataLayout->addField(VulkanDescriptorSetFieldType::FieldTypeStorageBuffer, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
+    starsDataLayout = toolkit->getDescriptorSetLayoutFactory()->build();
+    starsDataLayout->addField(VEngineDescriptorSetFieldType::FieldTypeStorageBuffer, VEngineDescriptorSetFieldStage::FieldStageAllGraphics);
     
     starsDataSet = starsDataLayout->generateDescriptorSet();
     starsDataSet->bindBuffer(0, starsDataBuffer);
 
     createRenderStage();
 
-    cube3dInfo = vulkan->getObject3dInfoFactory()->build("cube1unitradius.raw");
+    cube3dInfo = toolkit->getObject3dInfoFactory()->build("cube1unitradius.raw");
 
     updateStarsBuffer();
 
@@ -46,7 +46,7 @@ StarsRenderer::~StarsRenderer()
     safedelete(starsImage);
 }
 
-void StarsRenderer::draw(std::vector<VkSemaphore> waitSemaphores)
+void StarsRenderer::draw(std::vector<SemaphoreInterface*> waitSemaphores)
 {
     if (doesNeedRecording) {
         starsStage->beginDrawing();
@@ -66,19 +66,19 @@ void StarsRenderer::recompile()
     doesNeedRecording = true;
 }
 
-VulkanImage * StarsRenderer::getStarsImage()
+ImageInterface * StarsRenderer::getStarsImage()
 {
     return starsImage;
 }
 
-VkSemaphore StarsRenderer::getSignalSemaphore()
+SemaphoreInterface * StarsRenderer::getSignalSemaphore()
 {
     return starsStage->getSignalSemaphore();
 }
 
 void StarsRenderer::updateStarsBuffer()
 {
-    VulkanBinaryBufferBuilder starsBB = VulkanBinaryBufferBuilder();
+    BinaryBufferBuilder starsBB = BinaryBufferBuilder();
     auto stars = galaxy->getAllStars();
 
     for (int s = 0; s < stars.size(); s++) {
@@ -104,12 +104,12 @@ void StarsRenderer::updateStarsBuffer()
 
 void StarsRenderer::createRenderStage()
 {
-    auto starsvert = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Vertex, "cosmos-stars.vert.spv");
-    auto starsfrag = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Fragment, "cosmos-stars.frag.spv");
+    auto starsvert = toolkit->getShaderFactory()->build(VEngineShaderModuleType::Vertex, "cosmos-stars.vert.spv");
+    auto starsfrag = toolkit->getShaderFactory()->build(VEngineShaderModuleType::Fragment, "cosmos-stars.frag.spv");
 
-    starsStage = vulkan->getVulkanRenderStageFactory()->build(width, height, { starsvert, starsfrag }, { rendererDataSetLayout, starsDataLayout },
+    starsStage = toolkit->getRenderStageFactory()->build(width, height, { starsvert, starsfrag }, { rendererDataSetLayout, starsDataLayout },
     {
-        starsImage->getAttachment(VulkanAttachmentBlending::Additive, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } })
-    }, VulkanCullMode::CullModeBack);
+        starsImage->getAttachment(VEngineAttachmentBlending::Additive, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } })
+    }, VEngineCullMode::CullModeBack);
     starsStage->setSets({ rendererDataSet, starsDataSet });
 }

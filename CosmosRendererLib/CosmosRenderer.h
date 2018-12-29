@@ -14,7 +14,7 @@ class CelestialBodyDataUpdater;
 class CosmosRenderer
 {
 public:
-    CosmosRenderer(VulkanToolkit* ivulkan, EventBus * eventBus, GalaxyContainer* galaxy, int iwidth, int iheight);
+    CosmosRenderer(ToolkitInterface* toolkit, EventBus * eventBus, GalaxyContainer* galaxy, int iwidth, int iheight);
     ~CosmosRenderer();
 
     const double scale = 0.01;
@@ -24,11 +24,11 @@ public:
     void updateCameraBuffer(Camera* cam, double time);
     void draw(SceneProvider* scene, double time);
 
-    VulkanImage* getOpaqueSurfaceDistanceImage();
+    ImageInterface* getOpaqueSurfaceDistanceImage();
 
-    VulkanDescriptorSetLayout* getModelMRTLayout();
+    DescriptorSetLayoutInterface* getModelMRTLayout();
 
-    VulkanImage* getUiOutputImage();
+    ImageInterface* getUiOutputImage();
 
     GalaxyContainer* getGalaxy();
     double getExposure();
@@ -61,59 +61,59 @@ private:
     int width{ 0 };
     int height{ 0 };
 
-    VulkanToolkit* vulkan{ nullptr };
+    ToolkitInterface* toolkit{ nullptr };
 
     CelestialBodyDataUpdater* celestialBodyDataUpdater{ nullptr };
 
-    VulkanRenderStage* celestialStage{ nullptr };
-    VulkanDescriptorSetLayout* rendererDataLayout{ nullptr };
-    VulkanDescriptorSet* rendererDataSet{ nullptr };
+    RenderStageInterface* celestialStage{ nullptr };
+    DescriptorSetLayoutInterface* rendererDataLayout{ nullptr };
+    DescriptorSetInterface* rendererDataSet{ nullptr };
 
-    VulkanRenderStage* combineStage{ nullptr };
-    VulkanDescriptorSetLayout* combineLayout{ nullptr };
-    VulkanDescriptorSet* combineSet{ nullptr };
+    RenderStageInterface* combineStage{ nullptr };
+    DescriptorSetLayoutInterface* combineLayout{ nullptr };
+    DescriptorSetInterface* combineSet{ nullptr };
 
-    VulkanDescriptorSetLayout* celestialBodyRenderSetLayout{ nullptr };
+    DescriptorSetLayoutInterface* celestialBodyRenderSetLayout{ nullptr };
 
-    VulkanDescriptorSetLayout* celestialBodyRaycastSharedSetLayout{ nullptr };
-    VulkanDescriptorSet* celestialBodyRaycastSharedSet{ nullptr };
-    VulkanDescriptorSetLayout* celestialBodyRaycastUniqueSetLayout{ nullptr };
-    VulkanComputeStage* celestialBodyRaycastComputeStage;
+    DescriptorSetLayoutInterface* celestialBodyRaycastSharedSetLayout{ nullptr };
+    DescriptorSetInterface* celestialBodyRaycastSharedSet{ nullptr };
+    DescriptorSetLayoutInterface* celestialBodyRaycastUniqueSetLayout{ nullptr };
+    ComputeStageInterface* celestialBodyRaycastComputeStage;
 
-    VulkanDescriptorSetLayout* celestialStarsBlitSetLayout{ nullptr };
-    VulkanDescriptorSet* celestiaStarsBlitSet{ nullptr };
-    VulkanComputeStage* celestialStarsBlitComputeStage;
+    DescriptorSetLayoutInterface* celestialStarsBlitSetLayout{ nullptr };
+    DescriptorSetInterface* celestiaStarsBlitSet{ nullptr };
+    ComputeStageInterface* celestialStarsBlitComputeStage;
 
-    VulkanDescriptorSetLayout* celestialBodySurfaceSetLayout{ nullptr };
-    VulkanRenderStage* celestialBodySurfaceRenderStage;
+    DescriptorSetLayoutInterface* celestialBodySurfaceSetLayout{ nullptr };
+    RenderStageInterface* celestialBodySurfaceRenderStage;
 
-    VulkanGenericBuffer* cameraDataBuffer;
-    VulkanGenericBuffer* raycastRequestsDataBuffer;
-    VulkanGenericBuffer* planetsDataBuffer;
-    VulkanGenericBuffer* moonsDataBuffer;
+    GenericBufferInterface* cameraDataBuffer;
+    GenericBufferInterface* raycastRequestsDataBuffer;
+    GenericBufferInterface* planetsDataBuffer;
+    GenericBufferInterface* moonsDataBuffer;
 
-    VulkanImage* celestialAlphaImage;
-    VulkanImage* celestialAdditiveImage;
+    ImageInterface* celestialAlphaImage;
+    ImageInterface* celestialAdditiveImage;
 
-    VulkanImage* surfaceRenderedAlbedoRoughnessImage;
-    VulkanImage* surfaceRenderedEmissionImage;
-    VulkanImage* surfaceRenderedNormalMetalnessImage;
-    VulkanImage* surfaceRenderedDistanceImage;
+    ImageInterface* surfaceRenderedAlbedoRoughnessImage;
+    ImageInterface* surfaceRenderedEmissionImage;
+    ImageInterface* surfaceRenderedNormalMetalnessImage;
+    ImageInterface* surfaceRenderedDistanceImage;
 
-    VulkanImage* renderedDepthImage;
+    ImageInterface* renderedDepthImage;
     
-    Object3dInfo* cube3dInfo;
+    Object3dInfoInterface* cube3dInfo;
 
     /*models rendering*/
 
-    VulkanDescriptorSetLayout* modelMRTLayout{ nullptr };
-    VulkanRenderStage* modelsStage{ nullptr };
-    VulkanDescriptorSetLayout* modelsDataLayout{ nullptr };
-    VulkanDescriptorSet* modelsDataSet{ nullptr };
-    VulkanGenericBuffer* modelsDataBuffer;
+    DescriptorSetLayoutInterface* modelMRTLayout{ nullptr };
+    RenderStageInterface* modelsStage{ nullptr };
+    DescriptorSetLayoutInterface* modelsDataLayout{ nullptr };
+    DescriptorSetInterface* modelsDataSet{ nullptr };
+    GenericBufferInterface* modelsDataBuffer;
 
-    VulkanImage* outputImage;
-    VulkanImage* uiOutputImage;
+    ImageInterface* outputImage;
+    ImageInterface* uiOutputImage;
     OutputScreenRenderer* outputScreenRenderer;
 
     /*end models rendering*/

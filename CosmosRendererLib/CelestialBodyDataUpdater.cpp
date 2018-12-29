@@ -2,17 +2,17 @@
 #include "CelestialBodyDataUpdater.h"
 
 
-CelestialBodyDataUpdater::CelestialBodyDataUpdater(VulkanToolkit* vulkan)
+CelestialBodyDataUpdater::CelestialBodyDataUpdater(ToolkitInterface* toolkit)
 {
-    celestialBodyDataSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
-    celestialBodyDataSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageCompute);
-    celestialBodyDataSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeStorageImage, VulkanDescriptorSetFieldStage::FieldStageCompute);
-    celestialBodyDataSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeStorageImage, VulkanDescriptorSetFieldStage::FieldStageCompute);
-    celestialBodyDataSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeStorageImage, VulkanDescriptorSetFieldStage::FieldStageCompute);
+    celestialBodyDataSetLayout = toolkit->getDescriptorSetLayoutFactory()->build();
+    celestialBodyDataSetLayout->addField(VEngineDescriptorSetFieldType::FieldTypeUniformBuffer, VEngineDescriptorSetFieldStage::FieldStageCompute);
+    celestialBodyDataSetLayout->addField(VEngineDescriptorSetFieldType::FieldTypeStorageImage, VEngineDescriptorSetFieldStage::FieldStageCompute);
+    celestialBodyDataSetLayout->addField(VEngineDescriptorSetFieldType::FieldTypeStorageImage, VEngineDescriptorSetFieldStage::FieldStageCompute);
+    celestialBodyDataSetLayout->addField(VEngineDescriptorSetFieldType::FieldTypeStorageImage, VEngineDescriptorSetFieldStage::FieldStageCompute);
 
-    auto celestialdatacompute = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Compute, "celestial-updatedata.comp.spv");
+    auto celestialdatacompute = toolkit->getShaderFactory()->build(VEngineShaderModuleType::Compute, "celestial-updatedata.comp.spv");
 
-    celestialDataUpdateComputeStage = vulkan->getVulkanComputeStageFactory()->build(celestialdatacompute, { celestialBodyDataSetLayout });
+    celestialDataUpdateComputeStage = toolkit->getComputeStageFactory()->build(celestialdatacompute, { celestialBodyDataSetLayout });
 }
 
 
@@ -20,7 +20,7 @@ CelestialBodyDataUpdater::~CelestialBodyDataUpdater()
 {
 }
 
-VulkanDescriptorSetLayout * CelestialBodyDataUpdater::getBodyDataSetLayout()
+DescriptorSetLayoutInterface * CelestialBodyDataUpdater::getBodyDataSetLayout()
 {
     return celestialBodyDataSetLayout;
 }

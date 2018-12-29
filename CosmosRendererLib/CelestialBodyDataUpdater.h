@@ -2,13 +2,13 @@
 class CelestialBodyDataUpdater
 {
 public:
-    CelestialBodyDataUpdater(VulkanToolkit* vulkan);
+    CelestialBodyDataUpdater(ToolkitInterface* toolkit);
     ~CelestialBodyDataUpdater();
-    VulkanDescriptorSetLayout * getBodyDataSetLayout();
+    DescriptorSetLayoutInterface * getBodyDataSetLayout();
     void update(std::vector<RenderedCelestialBody*> renderables);
 
 private:
-    VulkanDescriptorSetLayout * celestialBodyDataSetLayout{ nullptr };
-    VulkanComputeStage* celestialDataUpdateComputeStage;
+    DescriptorSetLayoutInterface * celestialBodyDataSetLayout{ nullptr };
+    ComputeStageInterface* celestialDataUpdateComputeStage;
 };
 

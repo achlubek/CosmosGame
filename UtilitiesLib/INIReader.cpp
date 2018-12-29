@@ -1,7 +1,7 @@
 #include "stdafx.h"
 using namespace std;
 
-INIReader::INIReader(Media* media, string mediakey)
+INIReader::INIReader(MediaInterface* media, string mediakey)
 {
     readString(media->readString(mediakey));
 }

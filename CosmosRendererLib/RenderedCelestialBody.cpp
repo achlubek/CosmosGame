@@ -4,16 +4,16 @@
 
 
 RenderedCelestialBody::RenderedCelestialBody(
-    VulkanToolkit* toolkit,
+    ToolkitInterface* toolkit,
     CelestialBody body,
-    VulkanDescriptorSetLayout* dataSetLayout,
-    VulkanDescriptorSetLayout* renderSetLayout,
-    VulkanDescriptorSetLayout* celestialBodySurfaceSetLayout,
-    VulkanDescriptorSetLayout* celestialBodyRaycastUniqueSetLayout,
-    VulkanImage* surfaceRenderedAlbedoRoughnessImage,
-    VulkanImage* surfaceRenderedNormalMetalnessImage,
-    VulkanImage* surfaceRenderedEmissionImage,
-    VulkanImage* surfaceRenderedDistanceImage)
+    DescriptorSetLayoutInterface* dataSetLayout,
+    DescriptorSetLayoutInterface* renderSetLayout,
+    DescriptorSetLayoutInterface* celestialBodySurfaceSetLayout,
+    DescriptorSetLayoutInterface* celestialBodyRaycastUniqueSetLayout,
+    ImageInterface* surfaceRenderedAlbedoRoughnessImage,
+    ImageInterface* surfaceRenderedNormalMetalnessImage,
+    ImageInterface* surfaceRenderedEmissionImage,
+    ImageInterface* surfaceRenderedDistanceImage)
     : toolkit(toolkit), body(body),
     surfaceRenderedAlbedoRoughnessImage(surfaceRenderedAlbedoRoughnessImage),
     surfaceRenderedNormalMetalnessImage(surfaceRenderedNormalMetalnessImage),
@@ -21,8 +21,8 @@ RenderedCelestialBody::RenderedCelestialBody(
     surfaceRenderedDistanceImage(surfaceRenderedDistanceImage)
 {
     
-    dataBuffer = toolkit->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeUniform, 65535);
-    raycastResultsBuffer = toolkit->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeStorage, sizeof(float) * 1024 * 128);
+    dataBuffer = toolkit->getBufferFactory()->build(VEngineBufferType::BufferTypeUniform, 65535);
+    raycastResultsBuffer = toolkit->getBufferFactory()->build(VEngineBufferType::BufferTypeStorage, sizeof(float) * 1024 * 128);
 
     dataSet = dataSetLayout->generateDescriptorSet();
 
@@ -45,11 +45,11 @@ void RenderedCelestialBody::resizeDataImages(int ilowFreqWidth, int ilowFreqHeig
         safedelete(baseColorImage);
         safedelete(heightMapImage);
 
-        heightMapImage = toolkit->getVulkanImageFactory()->build(lowFreqWidth, lowFreqHeight, VulkanImageFormat::R32f, VulkanImageUsage::Storage | VulkanImageUsage::Sampled);
+        heightMapImage = toolkit->getImageFactory()->build(lowFreqWidth, lowFreqHeight, VEngineImageFormat::R32f, VEngineImageUsage::Storage | VEngineImageUsage::Sampled);
 
-        baseColorImage = toolkit->getVulkanImageFactory()->build(lowFreqWidth, lowFreqHeight, VulkanImageFormat::RGBA16f, VulkanImageUsage::Storage | VulkanImageUsage::Sampled);
+        baseColorImage = toolkit->getImageFactory()->build(lowFreqWidth, lowFreqHeight, VEngineImageFormat::RGBA16f, VEngineImageUsage::Storage | VEngineImageUsage::Sampled);
 
-        cloudsImage = toolkit->getVulkanImageFactory()->build(lowFreqWidth, lowFreqHeight, VulkanImageFormat::RG8unorm, VulkanImageUsage::Storage | VulkanImageUsage::Sampled);
+        cloudsImage = toolkit->getImageFactory()->build(lowFreqWidth, lowFreqHeight, VEngineImageFormat::RG8unorm, VEngineImageUsage::Storage | VEngineImageUsage::Sampled);
 
         needsUpdate = true;
     }
@@ -94,7 +94,7 @@ RenderedCelestialBody::~RenderedCelestialBody()
     safedelete(celestialBodyRaycastUniqueSet);
 }
 
-void RenderedCelestialBody::updateRaycasts(uint32_t raycastPointsCount, VulkanDescriptorSet * celestialBodyRaycastSharedSet, VulkanComputeStage * stage)
+void RenderedCelestialBody::updateRaycasts(uint32_t raycastPointsCount, DescriptorSetInterface * celestialBodyRaycastSharedSet, ComputeStageInterface * stage)
 {
     if (!initialized) {
         return;
@@ -134,7 +134,7 @@ std::vector<glm::dvec4> RenderedCelestialBody::getRaycastResults(int32_t count)
     return points;
 }
 
-void RenderedCelestialBody::updateData(VulkanComputeStage * stage)
+void RenderedCelestialBody::updateData(ComputeStageInterface * stage)
 {
     if (!initialized) {
         return;
@@ -143,7 +143,7 @@ void RenderedCelestialBody::updateData(VulkanComputeStage * stage)
     needsUpdate = false;
 }
 
-void RenderedCelestialBody::draw(VulkanRenderStage * stage, VulkanDescriptorSet* rendererDataSet, Object3dInfo * info3d)
+void RenderedCelestialBody::draw(RenderStageInterface * stage, DescriptorSetInterface* rendererDataSet, Object3dInfoInterface * info3d)
 {
     if (!initialized) {
         return;
@@ -152,7 +152,7 @@ void RenderedCelestialBody::draw(VulkanRenderStage * stage, VulkanDescriptorSet*
     stage->drawMesh(info3d, 1);
 }
 
-void RenderedCelestialBody::drawSurface(VulkanRenderStage * stage, VulkanDescriptorSet* rendererDataSet, Object3dInfo * info3d)
+void RenderedCelestialBody::drawSurface(RenderStageInterface * stage, DescriptorSetInterface* rendererDataSet, Object3dInfoInterface * info3d)
 {
     if (!initialized) {
         return;
@@ -163,7 +163,7 @@ void RenderedCelestialBody::drawSurface(VulkanRenderStage * stage, VulkanDescrip
 
 void RenderedCelestialBody::updateBuffer(glm::dvec3 observerPosition, double scale, double time)
 {
-    VulkanBinaryBufferBuilder bb = VulkanBinaryBufferBuilder();
+    BinaryBufferBuilder bb = BinaryBufferBuilder();
     bb.emplaceFloat32((float)time);
     bb.emplaceFloat32((float)lowFreqWidth);
     bb.emplaceFloat32((float)lowFreqHeight);

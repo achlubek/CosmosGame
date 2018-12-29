@@ -2,55 +2,55 @@
 #include "CosmosRenderer.h"
 
 
-CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, EventBus * eventBus, GalaxyContainer* galaxy, int width, int height) :
+CosmosRenderer::CosmosRenderer(ToolkitInterface* toolkit, EventBus * eventBus, GalaxyContainer* galaxy, int width, int height) :
     galaxy(galaxy), width(width), height(height),
-    vulkan(vulkan), renderablePlanets({}), renderableMoons({}), eventBus(eventBus),
-    subdividedMeshesProvider(new SubdividedMeshesProvider(vulkan))
+    toolkit(toolkit), renderablePlanets({}), renderableMoons({}), eventBus(eventBus),
+    subdividedMeshesProvider(new SubdividedMeshesProvider(toolkit))
 {
     //  internalCamera = new Camera();
 
-    celestialBodyDataUpdater = new CelestialBodyDataUpdater(vulkan);
+    celestialBodyDataUpdater = new CelestialBodyDataUpdater(toolkit);
 
-    cube3dInfo = vulkan->getObject3dInfoFactory()->build("cube1unitradius.raw");
+    cube3dInfo = toolkit->getObject3dInfoFactory()->build("cube1unitradius.raw");
 
-    outputImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA16f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
+    outputImage = toolkit->getImageFactory()->build(width, height, VEngineImageFormat::RGBA16f, VEngineImageUsage::ColorAttachment | VEngineImageUsage::Sampled);
 
-    uiOutputImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA16f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
+    uiOutputImage = toolkit->getImageFactory()->build(width, height, VEngineImageFormat::RGBA16f, VEngineImageUsage::ColorAttachment | VEngineImageUsage::Sampled);
 
-    outputScreenRenderer = new OutputScreenRenderer(vulkan, width, height, outputImage, uiOutputImage);
+    outputScreenRenderer = new OutputScreenRenderer(toolkit, width, height, outputImage, uiOutputImage);
 
-    cameraDataBuffer = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeUniform, sizeof(float) * 1024);
-    raycastRequestsDataBuffer = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeStorage, sizeof(float) * 1024 * 128);
+    cameraDataBuffer = toolkit->getBufferFactory()->build(VEngineBufferType::BufferTypeUniform, sizeof(float) * 1024);
+    raycastRequestsDataBuffer = toolkit->getBufferFactory()->build(VEngineBufferType::BufferTypeStorage, sizeof(float) * 1024 * 128);
     
-    celestialAlphaImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA16f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Storage | VulkanImageUsage::Sampled);
+    celestialAlphaImage = toolkit->getImageFactory()->build(width, height, VEngineImageFormat::RGBA16f, VEngineImageUsage::ColorAttachment | VEngineImageUsage::Storage | VEngineImageUsage::Sampled);
 
-    celestialAdditiveImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA32f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
+    celestialAdditiveImage = toolkit->getImageFactory()->build(width, height, VEngineImageFormat::RGBA32f, VEngineImageUsage::ColorAttachment | VEngineImageUsage::Sampled);
 
     //####################//
 
-    surfaceRenderedAlbedoRoughnessImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA8unorm, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
+    surfaceRenderedAlbedoRoughnessImage = toolkit->getImageFactory()->build(width, height, VEngineImageFormat::RGBA8unorm, VEngineImageUsage::ColorAttachment | VEngineImageUsage::Sampled);
 
-    surfaceRenderedEmissionImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA8unorm, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
+    surfaceRenderedEmissionImage = toolkit->getImageFactory()->build(width, height, VEngineImageFormat::RGBA8unorm, VEngineImageUsage::ColorAttachment | VEngineImageUsage::Sampled);
 
-    surfaceRenderedNormalMetalnessImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::RGBA16f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
+    surfaceRenderedNormalMetalnessImage = toolkit->getImageFactory()->build(width, height, VEngineImageFormat::RGBA16f, VEngineImageUsage::ColorAttachment | VEngineImageUsage::Sampled);
 
-    surfaceRenderedDistanceImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::R32f, VulkanImageUsage::ColorAttachment | VulkanImageUsage::Sampled);
+    surfaceRenderedDistanceImage = toolkit->getImageFactory()->build(width, height, VEngineImageFormat::R32f, VEngineImageUsage::ColorAttachment | VEngineImageUsage::Sampled);
 
-    renderedDepthImage = vulkan->getVulkanImageFactory()->build(width, height, VulkanImageFormat::Depth32f, VulkanImageUsage::Depth);
+    renderedDepthImage = toolkit->getImageFactory()->build(width, height, VEngineImageFormat::Depth32f, VEngineImageUsage::Depth);
 
     //#########//
 
-    modelMRTLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
-    modelMRTLayout->addField(VulkanDescriptorSetFieldType::FieldTypeStorageBuffer, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
-    modelMRTLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
-    modelMRTLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
-    modelMRTLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
-    modelMRTLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
-    modelMRTLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
-    modelMRTLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
+    modelMRTLayout = toolkit->getDescriptorSetLayoutFactory()->build();
+    modelMRTLayout->addField(VEngineDescriptorSetFieldType::FieldTypeStorageBuffer, VEngineDescriptorSetFieldStage::FieldStageAllGraphics);
+    modelMRTLayout->addField(VEngineDescriptorSetFieldType::FieldTypeSampler, VEngineDescriptorSetFieldStage::FieldStageAllGraphics);
+    modelMRTLayout->addField(VEngineDescriptorSetFieldType::FieldTypeSampler, VEngineDescriptorSetFieldStage::FieldStageAllGraphics);
+    modelMRTLayout->addField(VEngineDescriptorSetFieldType::FieldTypeSampler, VEngineDescriptorSetFieldStage::FieldStageAllGraphics);
+    modelMRTLayout->addField(VEngineDescriptorSetFieldType::FieldTypeSampler, VEngineDescriptorSetFieldStage::FieldStageAllGraphics);
+    modelMRTLayout->addField(VEngineDescriptorSetFieldType::FieldTypeSampler, VEngineDescriptorSetFieldStage::FieldStageAllGraphics);
+    modelMRTLayout->addField(VEngineDescriptorSetFieldType::FieldTypeSampler, VEngineDescriptorSetFieldStage::FieldStageAllGraphics);
 
-    modelsDataLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
-    modelsDataLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageAll);
+    modelsDataLayout = toolkit->getDescriptorSetLayoutFactory()->build();
+    modelsDataLayout->addField(VEngineDescriptorSetFieldType::FieldTypeUniformBuffer, VEngineDescriptorSetFieldStage::FieldStageAll);
 
     modelsDataSet = modelsDataLayout->generateDescriptorSet();
     modelsDataSet->bindBuffer(0, cameraDataBuffer);
@@ -58,56 +58,56 @@ CosmosRenderer::CosmosRenderer(VulkanToolkit* vulkan, EventBus * eventBus, Galax
 
     //####################//
 
-    rendererDataLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
-    rendererDataLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageAll);
+    rendererDataLayout = toolkit->getDescriptorSetLayoutFactory()->build();
+    rendererDataLayout->addField(VEngineDescriptorSetFieldType::FieldTypeUniformBuffer, VEngineDescriptorSetFieldStage::FieldStageAll);
 
     rendererDataSet = rendererDataLayout->generateDescriptorSet();
     rendererDataSet->bindBuffer(0, cameraDataBuffer);
 
-    celestialBodyRaycastSharedSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
-    celestialBodyRaycastSharedSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageCompute);
-    celestialBodyRaycastSharedSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeStorageBuffer, VulkanDescriptorSetFieldStage::FieldStageCompute);
+    celestialBodyRaycastSharedSetLayout = toolkit->getDescriptorSetLayoutFactory()->build();
+    celestialBodyRaycastSharedSetLayout->addField(VEngineDescriptorSetFieldType::FieldTypeUniformBuffer, VEngineDescriptorSetFieldStage::FieldStageCompute);
+    celestialBodyRaycastSharedSetLayout->addField(VEngineDescriptorSetFieldType::FieldTypeStorageBuffer, VEngineDescriptorSetFieldStage::FieldStageCompute);
 
     celestialBodyRaycastSharedSet = celestialBodyRaycastSharedSetLayout->generateDescriptorSet();
     celestialBodyRaycastSharedSet->bindBuffer(0, cameraDataBuffer);
     celestialBodyRaycastSharedSet->bindBuffer(1, raycastRequestsDataBuffer);
 
-    celestialBodyRaycastUniqueSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
-    celestialBodyRaycastUniqueSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageCompute);
-    celestialBodyRaycastUniqueSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageCompute);
-    celestialBodyRaycastUniqueSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageCompute);
-    celestialBodyRaycastUniqueSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageCompute);
-    celestialBodyRaycastUniqueSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeStorageBuffer, VulkanDescriptorSetFieldStage::FieldStageCompute);
+    celestialBodyRaycastUniqueSetLayout = toolkit->getDescriptorSetLayoutFactory()->build();
+    celestialBodyRaycastUniqueSetLayout->addField(VEngineDescriptorSetFieldType::FieldTypeUniformBuffer, VEngineDescriptorSetFieldStage::FieldStageCompute);
+    celestialBodyRaycastUniqueSetLayout->addField(VEngineDescriptorSetFieldType::FieldTypeSampler, VEngineDescriptorSetFieldStage::FieldStageCompute);
+    celestialBodyRaycastUniqueSetLayout->addField(VEngineDescriptorSetFieldType::FieldTypeSampler, VEngineDescriptorSetFieldStage::FieldStageCompute);
+    celestialBodyRaycastUniqueSetLayout->addField(VEngineDescriptorSetFieldType::FieldTypeSampler, VEngineDescriptorSetFieldStage::FieldStageCompute);
+    celestialBodyRaycastUniqueSetLayout->addField(VEngineDescriptorSetFieldType::FieldTypeStorageBuffer, VEngineDescriptorSetFieldStage::FieldStageCompute);
     
-    celestialStarsBlitSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
-    celestialStarsBlitSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageCompute);
-    celestialStarsBlitSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeStorageImage, VulkanDescriptorSetFieldStage::FieldStageCompute);
+    celestialStarsBlitSetLayout = toolkit->getDescriptorSetLayoutFactory()->build();
+    celestialStarsBlitSetLayout->addField(VEngineDescriptorSetFieldType::FieldTypeSampler, VEngineDescriptorSetFieldStage::FieldStageCompute);
+    celestialStarsBlitSetLayout->addField(VEngineDescriptorSetFieldType::FieldTypeStorageImage, VEngineDescriptorSetFieldStage::FieldStageCompute);
 
-    celestialBodyRenderSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
-    celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
-    celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
-    celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
-    celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
-    celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
-    celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
-    celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
-    celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
-    celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
-    celestialBodyRenderSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
+    celestialBodyRenderSetLayout = toolkit->getDescriptorSetLayoutFactory()->build();
+    celestialBodyRenderSetLayout->addField(VEngineDescriptorSetFieldType::FieldTypeUniformBuffer, VEngineDescriptorSetFieldStage::FieldStageAllGraphics);
+    celestialBodyRenderSetLayout->addField(VEngineDescriptorSetFieldType::FieldTypeSampler, VEngineDescriptorSetFieldStage::FieldStageFragment);
+    celestialBodyRenderSetLayout->addField(VEngineDescriptorSetFieldType::FieldTypeSampler, VEngineDescriptorSetFieldStage::FieldStageFragment);
+    celestialBodyRenderSetLayout->addField(VEngineDescriptorSetFieldType::FieldTypeSampler, VEngineDescriptorSetFieldStage::FieldStageFragment);
+    celestialBodyRenderSetLayout->addField(VEngineDescriptorSetFieldType::FieldTypeSampler, VEngineDescriptorSetFieldStage::FieldStageFragment);
+    celestialBodyRenderSetLayout->addField(VEngineDescriptorSetFieldType::FieldTypeSampler, VEngineDescriptorSetFieldStage::FieldStageFragment);
+    celestialBodyRenderSetLayout->addField(VEngineDescriptorSetFieldType::FieldTypeSampler, VEngineDescriptorSetFieldStage::FieldStageFragment);
+    celestialBodyRenderSetLayout->addField(VEngineDescriptorSetFieldType::FieldTypeSampler, VEngineDescriptorSetFieldStage::FieldStageFragment);
+    celestialBodyRenderSetLayout->addField(VEngineDescriptorSetFieldType::FieldTypeSampler, VEngineDescriptorSetFieldStage::FieldStageFragment);
+    celestialBodyRenderSetLayout->addField(VEngineDescriptorSetFieldType::FieldTypeSampler, VEngineDescriptorSetFieldStage::FieldStageFragment);
 
-    celestialBodySurfaceSetLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
-    celestialBodySurfaceSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
-    celestialBodySurfaceSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
-    celestialBodySurfaceSetLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
+    celestialBodySurfaceSetLayout = toolkit->getDescriptorSetLayoutFactory()->build();
+    celestialBodySurfaceSetLayout->addField(VEngineDescriptorSetFieldType::FieldTypeUniformBuffer, VEngineDescriptorSetFieldStage::FieldStageAllGraphics);
+    celestialBodySurfaceSetLayout->addField(VEngineDescriptorSetFieldType::FieldTypeSampler, VEngineDescriptorSetFieldStage::FieldStageAllGraphics);
+    celestialBodySurfaceSetLayout->addField(VEngineDescriptorSetFieldType::FieldTypeSampler, VEngineDescriptorSetFieldStage::FieldStageAllGraphics);
 
-    starsRenderer = new StarsRenderer(vulkan, width, height, scale, rendererDataLayout, rendererDataSet, galaxy);
+    starsRenderer = new StarsRenderer(toolkit, width, height, scale, rendererDataLayout, rendererDataSet, galaxy);
 
 
-    combineLayout = vulkan->getVulkanDescriptorSetLayoutFactory()->build();
-    combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeUniformBuffer, VulkanDescriptorSetFieldStage::FieldStageAllGraphics);
-    combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
-    combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
-    combineLayout->addField(VulkanDescriptorSetFieldType::FieldTypeSampler, VulkanDescriptorSetFieldStage::FieldStageFragment);
+    combineLayout = toolkit->getDescriptorSetLayoutFactory()->build();
+    combineLayout->addField(VEngineDescriptorSetFieldType::FieldTypeUniformBuffer, VEngineDescriptorSetFieldStage::FieldStageAllGraphics);
+    combineLayout->addField(VEngineDescriptorSetFieldType::FieldTypeSampler, VEngineDescriptorSetFieldStage::FieldStageFragment);
+    combineLayout->addField(VEngineDescriptorSetFieldType::FieldTypeSampler, VEngineDescriptorSetFieldStage::FieldStageFragment);
+    combineLayout->addField(VEngineDescriptorSetFieldType::FieldTypeSampler, VEngineDescriptorSetFieldStage::FieldStageFragment);
 
     combineSet = combineLayout->generateDescriptorSet();
     combineSet->bindBuffer(0, cameraDataBuffer);
@@ -138,73 +138,73 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
 {
     readyForDrawing = false;
     if (deleteOld) {
-        vulkan->waitDeviceIdle();
+        toolkit->waitDeviceIdle();
         safedelete(celestialBodySurfaceRenderStage);
         safedelete(celestialStage);
         safedelete(combineStage);
     }
-    vulkan->waitDeviceIdle();
+    toolkit->waitDeviceIdle();
     
     //**********************//
 
-    auto celestialsurfacevert = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Vertex, "cosmos-celestial-surface.vert.spv");
-    auto celestialsurfacefrag = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Fragment, "cosmos-celestial-surface.frag.spv");
+    auto celestialsurfacevert = toolkit->getShaderFactory()->build(VEngineShaderModuleType::Vertex, "cosmos-celestial-surface.vert.spv");
+    auto celestialsurfacefrag = toolkit->getShaderFactory()->build(VEngineShaderModuleType::Fragment, "cosmos-celestial-surface.frag.spv");
 
-    celestialBodySurfaceRenderStage = vulkan->getVulkanRenderStageFactory()->build(width, height,
+    celestialBodySurfaceRenderStage = toolkit->getRenderStageFactory()->build(width, height,
         { celestialsurfacevert, celestialsurfacefrag }, { rendererDataLayout, celestialBodySurfaceSetLayout },
         {
-            surfaceRenderedAlbedoRoughnessImage->getAttachment(VulkanAttachmentBlending::None, false,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
-            surfaceRenderedEmissionImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
-            surfaceRenderedNormalMetalnessImage->getAttachment(VulkanAttachmentBlending::None, false,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
-            surfaceRenderedDistanceImage->getAttachment(VulkanAttachmentBlending::None, false,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
-            renderedDepthImage->getAttachment(VulkanAttachmentBlending::None, false)
-        }, VulkanCullMode::CullModeFront);
+            surfaceRenderedAlbedoRoughnessImage->getAttachment(VEngineAttachmentBlending::None, false,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
+            surfaceRenderedEmissionImage->getAttachment(VEngineAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
+            surfaceRenderedNormalMetalnessImage->getAttachment(VEngineAttachmentBlending::None, false,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
+            surfaceRenderedDistanceImage->getAttachment(VEngineAttachmentBlending::None, false,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
+            renderedDepthImage->getAttachment(VEngineAttachmentBlending::None, false)
+        }, VEngineCullMode::CullModeFront);
 
     //**********************//
 
-    auto shipvert = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Vertex, "cosmos-ship.vert.spv");
-    auto shipfrag = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Fragment, "cosmos-ship.frag.spv");
+    auto shipvert = toolkit->getShaderFactory()->build(VEngineShaderModuleType::Vertex, "cosmos-ship.vert.spv");
+    auto shipfrag = toolkit->getShaderFactory()->build(VEngineShaderModuleType::Fragment, "cosmos-ship.frag.spv");
 
-    modelsStage = vulkan->getVulkanRenderStageFactory()->build(width, height, { shipvert, shipfrag }, { modelsDataLayout, modelMRTLayout }, {
-        surfaceRenderedAlbedoRoughnessImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
-        surfaceRenderedEmissionImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
-        surfaceRenderedNormalMetalnessImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
-        surfaceRenderedDistanceImage->getAttachment(VulkanAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
-        renderedDepthImage->getAttachment(VulkanAttachmentBlending::None)
+    modelsStage = toolkit->getRenderStageFactory()->build(width, height, { shipvert, shipfrag }, { modelsDataLayout, modelMRTLayout }, {
+        surfaceRenderedAlbedoRoughnessImage->getAttachment(VEngineAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
+        surfaceRenderedEmissionImage->getAttachment(VEngineAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
+        surfaceRenderedNormalMetalnessImage->getAttachment(VEngineAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
+        surfaceRenderedDistanceImage->getAttachment(VEngineAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
+        renderedDepthImage->getAttachment(VEngineAttachmentBlending::None)
         });
 
     //**********************//
 
-    auto celestialdataraycast = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Compute, "celestial-raycast.comp.spv");
+    auto celestialdataraycast = toolkit->getShaderFactory()->build(VEngineShaderModuleType::Compute, "celestial-raycast.comp.spv");
 
-    celestialBodyRaycastComputeStage = vulkan->getVulkanComputeStageFactory()->build(celestialdataraycast, { celestialBodyRaycastSharedSetLayout, celestialBodyRaycastUniqueSetLayout });
-
-    //**********************//
-    auto celestialblitcompute = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Compute, "celestial-blit-stars.comp.spv");
-
-    celestialStarsBlitComputeStage = vulkan->getVulkanComputeStageFactory()->build(celestialblitcompute, { celestialStarsBlitSetLayout });
+    celestialBodyRaycastComputeStage = toolkit->getComputeStageFactory()->build(celestialdataraycast, { celestialBodyRaycastSharedSetLayout, celestialBodyRaycastUniqueSetLayout });
 
     //**********************//
+    auto celestialblitcompute = toolkit->getShaderFactory()->build(VEngineShaderModuleType::Compute, "celestial-blit-stars.comp.spv");
 
-    auto celestialvert = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Vertex, "cosmos-celestial.vert.spv");
-    auto celestialfrag = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Fragment, "cosmos-celestial.frag.spv");
+    celestialStarsBlitComputeStage = toolkit->getComputeStageFactory()->build(celestialblitcompute, { celestialStarsBlitSetLayout });
 
-    celestialStage = vulkan->getVulkanRenderStageFactory()->build(width, height,
+    //**********************//
+
+    auto celestialvert = toolkit->getShaderFactory()->build(VEngineShaderModuleType::Vertex, "cosmos-celestial.vert.spv");
+    auto celestialfrag = toolkit->getShaderFactory()->build(VEngineShaderModuleType::Fragment, "cosmos-celestial.frag.spv");
+
+    celestialStage = toolkit->getRenderStageFactory()->build(width, height,
         { celestialvert, celestialfrag }, { rendererDataLayout, celestialBodyRenderSetLayout },
         {
-            celestialAlphaImage->getAttachment(VulkanAttachmentBlending::Alpha, false),
-            celestialAdditiveImage->getAttachment(VulkanAttachmentBlending::Additive, true, { { 0.0f, 0.0f, 0.0f, 0.0f } })
-        }, VulkanCullMode::CullModeBack);
+            celestialAlphaImage->getAttachment(VEngineAttachmentBlending::Alpha, false),
+            celestialAdditiveImage->getAttachment(VEngineAttachmentBlending::Additive, true, { { 0.0f, 0.0f, 0.0f, 0.0f } })
+        }, VEngineCullMode::CullModeBack);
 
     //**********************//
 
-    auto combinevert = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Vertex, "cosmos-combine.vert.spv");
-    auto combinefrag = vulkan->getVulkanShaderFactory()->build(VulkanShaderModuleType::Fragment, "cosmos-combine.frag.spv");
+    auto combinevert = toolkit->getShaderFactory()->build(VEngineShaderModuleType::Vertex, "cosmos-combine.vert.spv");
+    auto combinefrag = toolkit->getShaderFactory()->build(VEngineShaderModuleType::Fragment, "cosmos-combine.frag.spv");
 
-    combineStage = vulkan->getVulkanRenderStageFactory()->build(width, height,
+    combineStage = toolkit->getRenderStageFactory()->build(width, height,
         { combinevert, combinefrag }, { combineLayout },
         {
-            outputImage->getAttachment(VulkanAttachmentBlending::None, true),
+            outputImage->getAttachment(VEngineAttachmentBlending::None, true),
         });
     combineStage->setSets({ combineSet });
 
@@ -223,9 +223,9 @@ void CosmosRenderer::updateCameraBuffer(Camera * camera, double time)
     eventBus->processQueue();
 
     observerCameraPosition = camera->getPosition();
-    VulkanBinaryBufferBuilder bb = VulkanBinaryBufferBuilder();
+    BinaryBufferBuilder bb = BinaryBufferBuilder();
     double xpos, ypos;
-    auto cursorpos = vulkan->getMouse()->getCursorPosition();
+    auto cursorpos = toolkit->getMouse()->getCursorPosition();
     xpos = std::get<0>(cursorpos);
     ypos = std::get<1>(cursorpos);
 
@@ -317,7 +317,7 @@ void CosmosRenderer::draw(SceneProvider* scene, double time)
 
     measureTimeEnd("Stars galaxy draw");
 
-    //vkDeviceWaitIdle(vulkan->device);
+    //vkDeviceWaitIdle(toolkit->device);
 
     measureTimeStart();
     if (!firstRecordingDone) {
@@ -331,7 +331,7 @@ void CosmosRenderer::draw(SceneProvider* scene, double time)
 
     measureTimeEnd("Stars blit");
 
-    //vkDeviceWaitIdle(vulkan->device);
+    //vkDeviceWaitIdle(toolkit->device);
 
     measureTimeStart();
 
@@ -376,7 +376,7 @@ void CosmosRenderer::draw(SceneProvider* scene, double time)
 
     for (int i = 0; i < renderables.size(); i++) {
         measureTimeStart();
-        std::vector<Object3dInfo*> meshSequence = {};
+        std::vector<Object3dInfoInterface*> meshSequence = {};
         celestialBodySurfaceRenderStage->beginDrawing();
 
         celestialBodySurfaceRenderStage->setSets({ rendererDataSet, renderables[i]->renderSurfaceSet });
@@ -411,13 +411,13 @@ void CosmosRenderer::draw(SceneProvider* scene, double time)
         celestialStage->endDrawing();
         celestialStage->submitNoSemaphores({ });
         measureTimeEnd("Celestial atmosphere and composite for " + std::to_string(i));
-        vulkan->waitDeviceIdle();
+        toolkit->waitDeviceIdle();
     }
 
     measureTimeStart();
     combineStage->beginDrawing();
     combineStage->setSets({ combineSet });
-    combineStage->drawMesh(vulkan->getObject3dInfoFactory()->getFullScreenQuad(), 1);
+    combineStage->drawMesh(toolkit->getObject3dInfoFactory()->getFullScreenQuad(), 1);
     combineStage->endDrawing();
     combineStage->submitNoSemaphores({});
     measureTimeEnd("Composite output");
@@ -429,12 +429,12 @@ void CosmosRenderer::draw(SceneProvider* scene, double time)
 #endif
 }
 
-VulkanDescriptorSetLayout * CosmosRenderer::getModelMRTLayout()
+DescriptorSetLayoutInterface * CosmosRenderer::getModelMRTLayout()
 {
     return modelMRTLayout;
 }
 
-VulkanImage * CosmosRenderer::getUiOutputImage()
+ImageInterface * CosmosRenderer::getUiOutputImage()
 {
     return uiOutputImage;
 }
@@ -450,7 +450,7 @@ void CosmosRenderer::onClosestStarChange(Star star)
 
     for (auto planet : galaxy->getClosestStarPlanets()) {
         
-        auto renderable = new RenderedCelestialBody(vulkan,
+        auto renderable = new RenderedCelestialBody(toolkit,
             planet,
             celestialBodyDataUpdater->getBodyDataSetLayout(),
             celestialBodyRenderSetLayout,
@@ -466,8 +466,8 @@ void CosmosRenderer::onClosestStarChange(Star star)
             //renderable->updateData(celestialDataUpdateComputeStage);
     }
     
-    //  vkDeviceWaitIdle(vulkan->device);
-    //   vkDeviceWaitIdle(vulkan->device);
+    //  vkDeviceWaitIdle(toolkit->device);
+    //   vkDeviceWaitIdle(toolkit->device);
 }
 
 void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
@@ -479,7 +479,7 @@ void CosmosRenderer::onClosestPlanetChange(CelestialBody planet)
     renderableMoons.clear();
     auto moons = galaxy->getClosestPlanetMoons();
     for (int i = 0; i < moons.size(); i++) {
-        auto renderable = new RenderedCelestialBody(vulkan,
+        auto renderable = new RenderedCelestialBody(toolkit,
             moons[i],
             celestialBodyDataUpdater->getBodyDataSetLayout(),
             celestialBodyRenderSetLayout,
@@ -501,7 +501,7 @@ void CosmosRenderer::onClosestMoonChange(CelestialBody moon)
 void CosmosRenderer::measureTimeStart()
 {
 #ifdef PERFORMANCE_DEBUG
-    vulkan->waitDeviceIdle();
+    toolkit->waitDeviceIdle();
     measurementStopwatch = glfwGetTime();
 #endif
 }
@@ -509,7 +509,7 @@ void CosmosRenderer::measureTimeStart()
 void CosmosRenderer::measureTimeEnd(std::string name)
 {
 #ifdef PERFORMANCE_DEBUG
-    vulkan->waitDeviceIdle();
+    toolkit->waitDeviceIdle();
     double end = glfwGetTime();
     printf("    \"%s\": %f,\n", name.c_str(), 1000.0 * (end - measurementStopwatch));
 #endif
@@ -531,7 +531,7 @@ void CosmosRenderer::setExposure(double value)
 void CosmosRenderer::setRaycastPoints(std::vector<glm::dvec3> points)
 {
     raycastPoints = points;
-    auto bb = VulkanBinaryBufferBuilder();
+    auto bb = BinaryBufferBuilder();
     bb.emplaceInt32(static_cast<int32_t>(raycastPoints.size()));
     bb.emplaceInt32(static_cast<int32_t>(raycastPoints.size()));
     bb.emplaceInt32(static_cast<int32_t>(raycastPoints.size()));
@@ -553,7 +553,7 @@ std::vector<glm::dvec3> CosmosRenderer::getRaycastPoints()
     return raycastPoints;
 }
 
-VulkanImage * CosmosRenderer::getOpaqueSurfaceDistanceImage()
+ImageInterface * CosmosRenderer::getOpaqueSurfaceDistanceImage()
 {
     return surfaceRenderedDistanceImage;
 }

@@ -10,22 +10,22 @@ enum class SubdividedMeshQuality
 class SubdividedMeshesProvider
 {
 public:
-    SubdividedMeshesProvider(VulkanToolkit* vulkan);
+    SubdividedMeshesProvider(ToolkitInterface* vulkan);
     ~SubdividedMeshesProvider();
 
-    std::vector<std::tuple<glm::vec3, Object3dInfo*>>& getPatches(SubdividedMeshQuality quality);
-    Object3dInfo* getIcosphere(SubdividedMeshQuality quality);
+    std::vector<std::tuple<glm::vec3, Object3dInfoInterface*>>& getPatches(SubdividedMeshQuality quality);
+    Object3dInfoInterface* getIcosphere(SubdividedMeshQuality quality);
 private:
-    VulkanToolkit * vulkan;
+    ToolkitInterface * toolkit;
 
-    std::vector<std::tuple<glm::vec3, Object3dInfo*>> patchesLowPoly = {};
-    std::vector<std::tuple<glm::vec3, Object3dInfo*>> patchesMediumPoly = {};
-    std::vector<std::tuple<glm::vec3, Object3dInfo*>> patchesHighPoly = {};
+    std::vector<std::tuple<glm::vec3, Object3dInfoInterface*>> patchesLowPoly = {};
+    std::vector<std::tuple<glm::vec3, Object3dInfoInterface*>> patchesMediumPoly = {};
+    std::vector<std::tuple<glm::vec3, Object3dInfoInterface*>> patchesHighPoly = {};
 
-    Object3dInfo* subdivide(Object3dInfo* info);
-    std::vector<Object3dInfo*> splitTriangles(Object3dInfo* info);
+    Object3dInfoInterface* subdivide(Object3dInfoInterface* info);
+    std::vector<Object3dInfoInterface*> splitTriangles(Object3dInfoInterface* info);
 
-    Object3dInfo* icosphereLow;
-    Object3dInfo* icosphereMedium;
-    Object3dInfo* icosphereHigh;
+    Object3dInfoInterface* icosphereLow;
+    Object3dInfoInterface* icosphereMedium;
+    Object3dInfoInterface* icosphereHigh;
 };

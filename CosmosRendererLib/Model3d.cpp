@@ -2,10 +2,10 @@
 #include "Model3d.h"
  
 
-Model3d::Model3d(VulkanToolkit * vulkan, VulkanDescriptorSetLayout * descriptorSetLayout, std::string info3d_file, std::string albedo_image, 
+Model3d::Model3d(ToolkitInterface * toolkit, DescriptorSetLayoutInterface * descriptorSetLayout, std::string info3d_file, std::string albedo_image, 
     std::string normal_image, std::string roughness_image, std::string metalness_image, std::string emission_idle_image, std::string emission_powered_image,
     glm::dquat orientationCorrection, double modelScale)
-    : vulkan(vulkan), 
+    : toolkit(toolkit),
     info3d_file(info3d_file), 
     orientationCorrection(orientationCorrection),
     albedo_image(albedo_image),
@@ -17,16 +17,16 @@ Model3d::Model3d(VulkanToolkit * vulkan, VulkanDescriptorSetLayout * descriptorS
     modelScale(modelScale)
 {
 
-    info3d = vulkan->getObject3dInfoFactory()->build(info3d_file);
-    albedoImage = vulkan->getVulkanImageFactory()->build(albedo_image);
-    normalImage = vulkan->getVulkanImageFactory()->build(normal_image);
-    roughnessImage = vulkan->getVulkanImageFactory()->build(roughness_image);
-    metalnessImage = vulkan->getVulkanImageFactory()->build(metalness_image);
-    emissionIdleImage = vulkan->getVulkanImageFactory()->build(emission_idle_image);
-    emissionPoweredImage = vulkan->getVulkanImageFactory()->build(emission_powered_image);
+    info3d = toolkit->getObject3dInfoFactory()->build(info3d_file);
+    albedoImage = toolkit->getImageFactory()->build(albedo_image);
+    normalImage = toolkit->getImageFactory()->build(normal_image);
+    roughnessImage = toolkit->getImageFactory()->build(roughness_image);
+    metalnessImage = toolkit->getImageFactory()->build(metalness_image);
+    emissionIdleImage = toolkit->getImageFactory()->build(emission_idle_image);
+    emissionPoweredImage = toolkit->getImageFactory()->build(emission_powered_image);
 
     descriptorSet = descriptorSetLayout->generateDescriptorSet();
-    dataBuffer = vulkan->getVulkanBufferFactory()->build(VulkanBufferType::BufferTypeStorage, sizeof(float) * 1024);
+    dataBuffer = toolkit->getBufferFactory()->build(VEngineBufferType::BufferTypeStorage, sizeof(float) * 1024);
     descriptorSet->bindBuffer(0, dataBuffer);
     descriptorSet->bindImageViewSampler(1, albedoImage);
     descriptorSet->bindImageViewSampler(2, normalImage);
@@ -50,9 +50,9 @@ Model3d::~Model3d()
     delete emissionPoweredImage;
 }
 
-void Model3d::draw(VulkanRenderStage * stage, VulkanDescriptorSet* celestialSet, glm::dvec3 position, glm::dquat orientation, double scale, int id, double emission)
+void Model3d::draw(RenderStageInterface * stage, DescriptorSetInterface* celestialSet, glm::dvec3 position, glm::dquat orientation, double scale, int id, double emission)
 {
-    VulkanBinaryBufferBuilder bb2 = VulkanBinaryBufferBuilder();
+    BinaryBufferBuilder bb2 = BinaryBufferBuilder();
     glm::mat4 shipmat = glm::mat4_cast(orientation * orientationCorrection);
     bb2.emplaceGeneric((unsigned char*)&shipmat, sizeof(shipmat));
     position *= scale;

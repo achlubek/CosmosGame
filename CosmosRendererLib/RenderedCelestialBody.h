@@ -3,19 +3,19 @@ class CelestialBody;
 class RenderedCelestialBody
 {
 public:
-    RenderedCelestialBody(VulkanToolkit* toolkit, CelestialBody body, 
-        VulkanDescriptorSetLayout* dataSetLayout, VulkanDescriptorSetLayout* renderSetLayout,
-        VulkanDescriptorSetLayout* celestialBodySurfaceSetLayout,
-        VulkanDescriptorSetLayout* celestialBodyRaycastUniqueSetLayout,
-        VulkanImage* surfaceRenderedAlbedoRoughnessImage,
-        VulkanImage* surfaceRenderedNormalMetalnessImage,
-        VulkanImage* surfaceRenderedEmissionImage,
-        VulkanImage* surfaceRenderedDistanceImage);
+    RenderedCelestialBody(ToolkitInterface* toolkit, CelestialBody body, 
+        DescriptorSetLayoutInterface* dataSetLayout, DescriptorSetLayoutInterface* renderSetLayout,
+        DescriptorSetLayoutInterface* celestialBodySurfaceSetLayout,
+        DescriptorSetLayoutInterface* celestialBodyRaycastUniqueSetLayout,
+        ImageInterface* surfaceRenderedAlbedoRoughnessImage,
+        ImageInterface* surfaceRenderedNormalMetalnessImage,
+        ImageInterface* surfaceRenderedEmissionImage,
+        ImageInterface* surfaceRenderedDistanceImage);
     ~RenderedCelestialBody();
-    void updateRaycasts(uint32_t raycastPointsCount, VulkanDescriptorSet* celestialBodyRaycastSharedSet, VulkanComputeStage* stage);
-    void updateData(VulkanComputeStage* stage);
-    void draw(VulkanRenderStage* stage, VulkanDescriptorSet* rendererDataSet, Object3dInfo* info3d);
-    void drawSurface(VulkanRenderStage* stage, VulkanDescriptorSet* rendererDataSet, Object3dInfo* info3d);
+    void updateRaycasts(uint32_t raycastPointsCount, DescriptorSetInterface* celestialBodyRaycastSharedSet, ComputeStageInterface* stage);
+    void updateData(ComputeStageInterface* stage);
+    void draw(RenderStageInterface* stage, DescriptorSetInterface* rendererDataSet, Object3dInfoInterface* info3d);
+    void drawSurface(RenderStageInterface* stage, DescriptorSetInterface* rendererDataSet, Object3dInfoInterface* info3d);
     void updateBuffer(glm::dvec3 observerPosition, double scale, double time);
     double getDistance(glm::dvec3 position, double at_time);
     void resizeDataImages(int lowFreqWidth, int lowFreqHeight, int hiFreqWidth, int hiFreqHeight);
@@ -24,7 +24,7 @@ public:
     double getRadius();
     std::vector<glm::dvec4> getRaycastResults(int32_t count);
 
-    VulkanDescriptorSet* renderSurfaceSet;
+    DescriptorSetInterface* renderSurfaceSet;
     CelestialBody body;
 private:
 
@@ -37,26 +37,26 @@ private:
     bool initialized = false;
     bool needsUpdate = true;
 
-    VulkanToolkit * toolkit;
+    ToolkitInterface * toolkit;
 
 
-    VulkanImage* heightMapImage = nullptr;
-    VulkanImage* baseColorImage = nullptr;
-    VulkanImage* cloudsImage = nullptr;
+    ImageInterface* heightMapImage = nullptr;
+    ImageInterface* baseColorImage = nullptr;
+    ImageInterface* cloudsImage = nullptr;
     
-    VulkanImage* surfaceRenderedAlbedoRoughnessImage;
-    VulkanImage* surfaceRenderedNormalMetalnessImage;
-    VulkanImage* surfaceRenderedEmissionImage;
-    VulkanImage* surfaceRenderedDistanceImage;
+    ImageInterface* surfaceRenderedAlbedoRoughnessImage;
+    ImageInterface* surfaceRenderedNormalMetalnessImage;
+    ImageInterface* surfaceRenderedEmissionImage;
+    ImageInterface* surfaceRenderedDistanceImage;
 
-    VulkanGenericBuffer* dataBuffer;
+    GenericBufferInterface* dataBuffer;
 
-    VulkanDescriptorSet* dataSet;
+    DescriptorSetInterface* dataSet;
 
-    VulkanDescriptorSet* renderSet;
+    DescriptorSetInterface* renderSet;
 
-    VulkanDescriptorSet* celestialBodyRaycastUniqueSet;
+    DescriptorSetInterface* celestialBodyRaycastUniqueSet;
 
-    VulkanGenericBuffer* raycastResultsBuffer;
+    GenericBufferInterface* raycastResultsBuffer;
 };
 

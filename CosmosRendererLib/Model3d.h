@@ -3,8 +3,8 @@
 class Model3d
 {
 public: 
-    Model3d(VulkanToolkit* vulkan, 
-        VulkanDescriptorSetLayout* descriptorSetLayout, 
+    Model3d(ToolkitInterface* toolkit,
+        DescriptorSetLayoutInterface* descriptorSetLayout,
         std::string info3d_file,
         std::string albedo_image, 
         std::string normal_image, 
@@ -15,10 +15,10 @@ public:
         glm::dquat orientationCorrection,
         double modelScale);
     ~Model3d();
-    void draw(VulkanRenderStage* stage, VulkanDescriptorSet* celestialSet, glm::dvec3 position, glm::dquat orientation, double scale, int id, double emission);
+    void draw(RenderStageInterface* stage, DescriptorSetInterface* celestialSet, glm::dvec3 position, glm::dquat orientation, double scale, int id, double emission);
 private:
-    VulkanToolkit* vulkan;
-    Object3dInfo* info3d;
+    ToolkitInterface* toolkit;
+    Object3dInfoInterface* info3d;
     std::string info3d_file;
 
     std::string albedo_image;
@@ -29,14 +29,14 @@ private:
     std::string emission_powered_image;
     double modelScale;
 
-    VulkanGenericBuffer* dataBuffer;
-    VulkanImage* albedoImage;
-    VulkanImage* normalImage;
-    VulkanImage* roughnessImage;
-    VulkanImage* metalnessImage;
-    VulkanImage* emissionIdleImage;
-    VulkanImage* emissionPoweredImage;
-    VulkanDescriptorSet* descriptorSet;
+    GenericBufferInterface* dataBuffer;
+    ImageInterface* albedoImage;
+    ImageInterface* normalImage;
+    ImageInterface* roughnessImage;
+    ImageInterface* metalnessImage;
+    ImageInterface* emissionIdleImage;
+    ImageInterface* emissionPoweredImage;
+    DescriptorSetInterface* descriptorSet;
     glm::dquat orientationCorrection;
 };
 
