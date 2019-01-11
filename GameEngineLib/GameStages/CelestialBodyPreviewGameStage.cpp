@@ -19,9 +19,9 @@ CelestialBodyPreviewGameStage::CelestialBodyPreviewGameStage(GameContainer* cont
 
     // TODO : INTERPOLATOR
     /*getCosmosGameContainer()->getControls()->getRawKeyboard()->onKeyPress.add([&](int key) {
-        if (key == GLFW_KEY_PAUSE) getCosmosGameContainer()->getCosmosRenderer()->recompileShaders(true);
+        if (key == KEY_PAUSE) getCosmosGameContainer()->getCosmosRenderer()->recompileShaders(true);
 
-        if (key == GLFW_KEY_9 || key == GLFW_KEY_0) {
+        if (key == KEY_9 || key == KEY_0) {
             // well todo
         }
     });
@@ -80,79 +80,79 @@ void CelestialBodyPreviewGameStage::onUpdate(double elapsed)
     float orbitSpeed = elapsed * 2.0131;
     float panSpeed = elapsed * fov * 0.01f;
     float zoomSpeed = elapsed;
-    /*
-    if (keyboard->getKeyStatus(GLFW_KEY_F1) == GLFW_PRESS) {
+    
+    /*if (keyboard->isKeyDown("time_scale_x1")) {
         timeScale = 0.001;
     }
-    if (keyboard->getKeyStatus(GLFW_KEY_F2) == GLFW_PRESS) {
+    if (keyboard->isKeyDown("time_scale_x10")) {
         timeScale = 0.01;
     }
-    if (keyboard->getKeyStatus(GLFW_KEY_F3) == GLFW_PRESS) {
+    if (keyboard->isKeyDown("time_scale_x100")) {
         timeScale = 0.5;
     }
-    if (keyboard->getKeyStatus(GLFW_KEY_F4) == GLFW_PRESS) {
+    if (keyboard->isKeyDown("time_scale_x1000")) {
         timeScale = 4.0;
     }*/
 
-    /*
-    if (keyboard->getKeyStatus(GLFW_KEY_UP) == GLFW_PRESS) {
+    
+    if (keyboard->isKeyDown("celestial_preview_pan_up")) {
         xrot -= orbitSpeed;
     }
-    if (keyboard->getKeyStatus(GLFW_KEY_DOWN) == GLFW_PRESS) {
+    if (keyboard->isKeyDown("celestial_preview_pan_down")) {
         xrot += orbitSpeed;
     }
-    if (keyboard->getKeyStatus(GLFW_KEY_LEFT) == GLFW_PRESS) {
+    if (keyboard->isKeyDown("celestial_preview_pan_left")) {
         yrot -= orbitSpeed;
     }
-    if (keyboard->getKeyStatus(GLFW_KEY_RIGHT) == GLFW_PRESS) {
+    if (keyboard->isKeyDown("celestial_preview_pan_right")) {
         yrot += orbitSpeed;
     }
-    if (keyboard->getKeyStatus(GLFW_KEY_W) == GLFW_PRESS) {
+    if (keyboard->isKeyDown("celestial_preview_rotate_up")) {
         Rxrot -= panSpeed;
     }
-    if (keyboard->getKeyStatus(GLFW_KEY_S) == GLFW_PRESS) {
+    if (keyboard->isKeyDown("celestial_preview_rotate_down")) {
         Rxrot += panSpeed;
     }
-    if (keyboard->getKeyStatus(GLFW_KEY_A) == GLFW_PRESS) {
+    if (keyboard->isKeyDown("celestial_preview_rotate_left")) {
         Ryrot -= panSpeed;
     }
-    if (keyboard->getKeyStatus(GLFW_KEY_D) == GLFW_PRESS) {
+    if (keyboard->isKeyDown("celestial_preview_rotate_right")) {
         Ryrot += panSpeed;
     }
-    if (keyboard->getKeyStatus(GLFW_KEY_Q) == GLFW_PRESS) {
+    if (keyboard->isKeyDown("celestial_preview_rotate_roll_left")) {
         Rzrot -= panSpeed;
     }
-    if (keyboard->getKeyStatus(GLFW_KEY_E) == GLFW_PRESS) {
+    if (keyboard->isKeyDown("celestial_preview_rotate_roll_right")) {
         Rzrot += panSpeed;
     }
-    if (keyboard->getKeyStatus(GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+    if (keyboard->isKeyDown("celestial_preview_closer")) {
         dist = dist * 0.95 + mindist * 0.05;
     }
-    if (keyboard->getKeyStatus(GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+    if (keyboard->isKeyDown("celestial_preview_further")) {
         dist += glm::sqrt(dist) * 1.1;
     }
-    if (keyboard->getKeyStatus(GLFW_KEY_LEFT_BRACKET) == GLFW_PRESS) {
+    if (keyboard->isKeyDown("celestial_preview_fov_add")) {
         fov += 51.0f * elapsed;
         fov = glm::clamp(fov, 0.1f, 179.0f);
         getViewCamera()->setFov(fov);
     }
-    if (keyboard->getKeyStatus(GLFW_KEY_RIGHT_BRACKET) == GLFW_PRESS) {
+    if (keyboard->isKeyDown("celestial_preview_fov_sub")) {
         fov -= 51.0f * elapsed;
         fov = glm::clamp(fov, 0.1f, 179.0f);
         getViewCamera()->setFov(fov);
     }
-    if (keyboard->getKeyStatus(GLFW_KEY_MINUS) == GLFW_PRESS) {
+    if (keyboard->isKeyDown("celestial_preview_exposure_add")) {
+        double e = getCosmosGameContainer()->getCosmosRenderer()->getExposure();
+        e += e * 0.5;
+        e = glm::clamp(e, 0.0000001, 10.0);
+        getCosmosGameContainer()->getCosmosRenderer()->setExposure(e);
+    }
+    if (keyboard->isKeyDown("celestial_preview_exposure_sub")) {
         double e = getCosmosGameContainer()->getCosmosRenderer()->getExposure();
         e -= e * 0.5;
         e = glm::clamp(e, 0.0000001, 10.0);
         getCosmosGameContainer()->getCosmosRenderer()->setExposure(e);
     }
-    if (keyboard->getKeyStatus(GLFW_KEY_EQUAL) == GLFW_PRESS) {
-        double e = getCosmosGameContainer()->getCosmosRenderer()->getExposure();
-        e += e * 0.5;
-        e = glm::clamp(e, 0.0000001, 10.0);
-        getCosmosGameContainer()->getCosmosRenderer()->setExposure(e);
-    }*/
 
 
     auto rotxmat = glm::angleAxis(xrot, glm::dvec3(1.0, 0.0, 0.0));

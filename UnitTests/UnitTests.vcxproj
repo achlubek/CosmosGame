@@ -94,7 +94,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(VCInstallDir)UnitTest\include;C:\Code\SFML-2.4.2\include\;C:\Code\squirrel3\include;C:\Code\bullet3-2.86.1\src;C:\Code\glfw-3.2.1\include;C:\VulkanSDK\1.0.68.0\Include\vulkan;C:\Code\VEngineNative\VESound;C:\Code\glm-0.9.9-a1;C:\Code\VEngineNative\VECommon;C:\Code\VEngineNative\VEInput;C:\Code\VEngineNative\VERenderer;C:\Code\VEngineNative\VEUserInterface;C:\Code\VEngineNative\VEMultiplayer;C:\Code\VEngineNative\VEngineNative;C:\Code\VEngineNative\VESQLite3Wrapper;C:\Code\CosmosGame\CosmosRendererLib;C:\Code\CosmosGame\GalaxyLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VCInstallDir)UnitTest\include;C:\Code\glm-0.9.9-a1;C:\Code\CosmosGame\GalaxyLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
     </ClCompile>

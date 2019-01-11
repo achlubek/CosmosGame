@@ -167,7 +167,7 @@ void GameContainer::startGameLoops()
     double lastTimeFloored = 0.0;
     while (!toolkit->shouldCloseWindow() && !shouldClose) {
         frames++;
-        double time = glfwGetTime();
+        double time = toolkit->getExecutionTime();
         double floored = floor(time);
         if (floored != lastTimeFloored) {
             fps = frames;
