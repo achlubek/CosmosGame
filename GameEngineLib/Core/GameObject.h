@@ -1,6 +1,6 @@
 #pragma once
-class AbsComponent;
-#include "Components/ComponentTypes.h"
+#include "../Components/AbsComponent.h"
+#include "../Components/ComponentTypes.h"
 #include "GameObjectTags.h"
 class GameObject
 {
