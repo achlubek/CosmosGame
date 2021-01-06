@@ -48,6 +48,7 @@ float celestialGetHeight(vec3 direction){
     float refinement = pow(getwavesHighPhaseTerrainRefinement(direction.xyz * 10.1, 1.0, 0.0, 0.0),1.0);
     //return primary * 30.0 + secondary;
     vec3 coord = normalize(direction) * 10.0;
+    //return 0.0;
     return primary * 0.98 + secondary * 0.02;//smoothstep(0.99, 0.999, primary);
     //return texture(heightMapImage, xyzToPolar(dir)).r;
 }

@@ -134,15 +134,17 @@ void main() {
 
     vec2 projectedSunDir = project(starDir);
     vec4 adddata2 = texture(texCelestialAdditive, clamp(projectedSunDir, 0.0, 1.0)).rgba;
-//    vec4 shipdata222 = texture(texModelsNormalMetalness, clamp(projectedSunDir, 0.0, 1.0)).rgba;
-//    vec4 shipdata1 = texture(texModelsAlbedoRoughness, UV).rgba;
-//    vec4 shipdata2 = texture(texModelsNormalMetalness, UV).rgba;
+    //vec4 shipdata222 = texture(texModelsNormalMetalness, clamp(projectedSunDir, 0.0, 1.0)).rgba;
+    //vec4 shipdata1 = texture(texModelsAlbedoRoughness, UV).rgba;
+    //vec4 shipdata2 = texture(texModelsNormalMetalness, UV).rgba;
 
     //sunflare = ((starhit > 0.0 && starhit < 9999999.0) ? 1.0 : 0.0) * ClosestStarColor * max(0.0, 1.0 - adddata.a) * (1.0 - step(0.09, length(shipdata2.rgb))) * sunFlareColorizer * Exposure * 21.8 * snois;
 
     vec3 sunflare2 = flare(UV, projectedSunDir) * (1000.0 / length(ClosestStarPosition)) * (1.0 - step(0.01, adddata2.a)) * Exposure * (ClosestStarColor) * 0.14 * pow(max(0.0, -dot(dir, starDir)), 3.0);
 
-    a += adddata.rgb;/*
+    a += adddata.rgb + sunflare2;// + adddata2.rgb + sunflare2;
+    //a = celestial.aaa * 1000.0;
+    /*
     float shipdata3 = texture(texModelsDistance, UV).r;
     vec3 albedo = shipdata1.rgb;
     vec3 emission = texture(texModelsEmission, UV).rgb;

@@ -157,7 +157,7 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
             surfaceRenderedEmissionImage->getAttachment(VEngineAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
             surfaceRenderedNormalMetalnessImage->getAttachment(VEngineAttachmentBlending::None, false,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
             surfaceRenderedDistanceImage->getAttachment(VEngineAttachmentBlending::None, false,{ { 0.0f, 0.0f, 0.0f, 0.0f } }),
-            renderedDepthImage->getAttachment(VEngineAttachmentBlending::None, false)
+            renderedDepthImage->getAttachment(VEngineAttachmentBlending::None, true)
         }, VEngineCullMode::CullModeFront);
 
     //**********************//
@@ -165,12 +165,14 @@ void CosmosRenderer::recompileShaders(bool deleteOld)
     auto shipvert = toolkit->getShaderFactory()->build(VEngineShaderModuleType::Vertex, "cosmos-ship.vert.spv");
     auto shipfrag = toolkit->getShaderFactory()->build(VEngineShaderModuleType::Fragment, "cosmos-ship.frag.spv");
 
-    modelsStage = toolkit->getRenderStageFactory()->build(width, height, { shipvert, shipfrag }, { modelsDataLayout, modelMRTLayout }, {
-        surfaceRenderedAlbedoRoughnessImage->getAttachment(VEngineAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
-        surfaceRenderedEmissionImage->getAttachment(VEngineAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
-        surfaceRenderedNormalMetalnessImage->getAttachment(VEngineAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
-        surfaceRenderedDistanceImage->getAttachment(VEngineAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
-        renderedDepthImage->getAttachment(VEngineAttachmentBlending::None)
+    modelsStage = toolkit->getRenderStageFactory()->build(width, height, 
+        { shipvert, shipfrag }, { modelsDataLayout, modelMRTLayout }, 
+        {
+            surfaceRenderedAlbedoRoughnessImage->getAttachment(VEngineAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
+            surfaceRenderedEmissionImage->getAttachment(VEngineAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
+            surfaceRenderedNormalMetalnessImage->getAttachment(VEngineAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
+            surfaceRenderedDistanceImage->getAttachment(VEngineAttachmentBlending::None, true,{ { 0.0f, 0.0f, 0.0f, 1.0f } }),
+            renderedDepthImage->getAttachment(VEngineAttachmentBlending::None, true)
         });
 
     //**********************//
@@ -249,11 +251,15 @@ void CosmosRenderer::updateCameraBuffer(Camera * camera, double time)
     bb.emplaceGeneric((unsigned char*)&newcamerapos, sizeof(cone->leftBottom));
     bb.emplaceFloat32(0.0f);
 
-    bb.emplaceGeneric((unsigned char*)&(cone->leftBottom), sizeof(cone->leftBottom));
+    auto coneLeftBottom = cone->leftBottom;
+    auto conerightBottomMinusLeftBottom = cone->rightBottom - cone->leftBottom;
+    auto coneLeftTopMinusLeftBottom = cone->leftTop - cone->leftBottom;
+
+    bb.emplaceGeneric((unsigned char*)&coneLeftBottom, sizeof(cone->leftBottom));
     bb.emplaceFloat32(0.0f);
-    bb.emplaceGeneric((unsigned char*)&(cone->rightBottom - cone->leftBottom), sizeof(cone->leftBottom));
+    bb.emplaceGeneric((unsigned char*)&conerightBottomMinusLeftBottom, sizeof(cone->leftBottom));
     bb.emplaceFloat32(0.0f);
-    bb.emplaceGeneric((unsigned char*)&(cone->leftTop - cone->leftBottom), sizeof(cone->leftBottom));
+    bb.emplaceGeneric((unsigned char*)&coneLeftTopMinusLeftBottom, sizeof(cone->leftBottom));
     bb.emplaceFloat32(0.0f);
     bb.emplaceFloat32((float)width);
     bb.emplaceFloat32((float)height);

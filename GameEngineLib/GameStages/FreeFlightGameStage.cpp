@@ -25,26 +25,7 @@ FreeFlightGameStage::FreeFlightGameStage(GameContainer* container)
 
     velocityText = new UIText(ui, 0.01, 0.028 * 6.0, UIColor(1.0, 1.0, 1.0, 1.0), "Sansation_Regular.ttf", 23, "Hmm");
     ui->addDrawable(velocityText);
-    /*
-    getCosmosGameContainer()->getControls()->onKeyDown.add([&](std::string key) {
-        if (key == "recompile_shaders") getCosmosGameContainer()->getCosmosRenderer()->recompileShaders(true);
-    });
-    
-    getGameContainer()->getControls()->onKeyDown.add([&](std::string key) {
-        if (key == "time_scale_x1") {
-            setTimeScale(1.0);
-        }
-        if (key == "time_scale_x10") {
-            setTimeScale(10.0);
-        }
-        if (key == "time_scale_x100") {
-            setTimeScale(100.0);
-        }
-        if (key == "time_scale_x1000") {
-            setTimeScale(1000.0);
-        }
-    });*/
-
+        
     playerMountState = new PlayerMountState();
 }
 
@@ -64,7 +45,7 @@ FreeFlightGameStage::~FreeFlightGameStage()
 
 void FreeFlightGameStage::initializeNew()
 {
-    int targetStar = 8191;
+    int targetStar = 666;
     int targetPlanet = 3;
     int targetMoon = 0;
     auto galaxy = getCosmosGameContainer()->getCosmosRenderer()->getGalaxy();
@@ -79,7 +60,7 @@ void FreeFlightGameStage::initializeNew()
     testship->addTag(GameObjectTags::Ship);
     testship->addTag(GameObjectTags::ControllableVehicle);
 
-    testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(center - glm::dvec3(dist * 1.403, 0.0, 0.0));
+    testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setPosition(center + glm::dvec3(dist * 1.403, 0.0, 0.0));
     testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(velocity + 1000.0 * targetBody->calculateOrbitVelocity(dist * 0.03) * glm::dvec3(0.0, 1.0, 0.0));
     //testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(glm::dvec3(0.0));
 
@@ -92,11 +73,15 @@ void FreeFlightGameStage::initializeNew()
     player->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(velocity + 1000.0 * targetBody->calculateOrbitVelocity(dist * 0.03) * glm::dvec3(0.0, 1.0, 0.0));
     //testship->getComponent<Transformation3DComponent>(ComponentTypes::Transformation3D)->setLinearVelocity(glm::dvec3(0.0));
 
-    player->addComponent(new FocusComponent());
+    //player->addComponent(new FocusComponent());
 
     addObject(player);
 
-    getViewCamera()->setTarget(player);
+    testship->addComponent(new FocusComponent);
+    playerMountState->setVehicle(testship);
+    playerMountState->changeState("mounted");
+
+    getViewCamera()->setTarget(testship);
     getViewCamera()->setStrategy(new CameraFirstPersonStrategy());
     getViewCamera()->setFov(66.0);
 
@@ -144,6 +129,35 @@ void FreeFlightGameStage::onUpdate(double elapsed)
                 )
         );
     printf("componentid %d\n", componentId);*/
+
+    if (getGameContainer()->getControls()->isKeyDown("recompile_shaders")) {
+        getCosmosGameContainer()->getCosmosRenderer()->recompileShaders(true);
+    };
+
+    if (getGameContainer()->getControls()->isKeyDown("time_scale_x1")) {
+        setTimeScale(1.0);
+    };
+    if (getGameContainer()->getControls()->isKeyDown("time_scale_x10")) {
+        setTimeScale(10.0);
+    };
+    if (getGameContainer()->getControls()->isKeyDown("time_scale_x100")) {
+        setTimeScale(100.0);
+    };
+    if (getGameContainer()->getControls()->isKeyDown("time_scale_x1000")) {
+        setTimeScale(1000.0);
+    };
+    if (getGameContainer()->getControls()->isKeyDown("exposure_x1")) {
+        getCosmosGameContainer()->getCosmosRenderer()->setExposure(0.00001 * 1.0);
+    };
+    if (getGameContainer()->getControls()->isKeyDown("exposure_x10")) {
+        getCosmosGameContainer()->getCosmosRenderer()->setExposure(0.00001 * 10.0);
+    };
+    if (getGameContainer()->getControls()->isKeyDown("exposure_x100")) {
+        getCosmosGameContainer()->getCosmosRenderer()->setExposure(0.00001 * 100.0);
+    };
+    if (getGameContainer()->getControls()->isKeyDown("exposure_x1000")) {
+        getCosmosGameContainer()->getCosmosRenderer()->setExposure(0.00001 * 1000.0);
+    };
 }
 
 void FreeFlightGameStage::onKeyDown(std::string key)

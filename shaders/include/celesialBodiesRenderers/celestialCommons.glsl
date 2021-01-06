@@ -246,7 +246,7 @@ void updatePassHits(inout RenderPass pass){
     vec2 uv = vec2(0.0);
 #ifndef SHADOW_MAP_COMPUTE_STAGE
     uv = gl_FragCoord.xy / Resolution;
-        hit_Surface = texture(surfaceRenderedDistanceImage, uv).r;//raymarchCelestialTerrain(pass.ray, hit_Surface > 0.0 && hit_Surface < DISTANCE_INFINITY ? hit_Surface : 0.0, heightMapImage, pass.body, 0.00001 );
+    hit_Surface = texture(surfaceRenderedDistanceImage, uv).r;//raymarchCelestialTerrain(pass.ray, hit_Surface > 0.0 && hit_Surface < DISTANCE_INFINITY ? hit_Surface : 0.0, heightMapImage, pass.body, 0.00001 );
 #endif
 //    }
 
@@ -393,6 +393,9 @@ CelestialRenderResult renderCelestialBody(RenderedCelestialBody body, Ray ray){
     result.additionLight.a = 0.0;
     if(pass.isSurfaceHit) result.additionLight.a = length(pass.surfaceHitPos);
     if(pass.isWaterHit) result.additionLight.a = min(result.additionLight.a, length(pass.waterHitPos));
+    //if(pass.isSurfaceHit) result.alphaBlendedLight = vec4(10000.0);
+    //result.alphaBlendedLight = vec4(1.0, 1.0, 1.0, 0.01 + texture(surfaceRenderedDistanceImage, gl_FragCoord.xy / Resolution).r);
+    //result.additionLight = vec4(10000.0);
     return result;
 }
 
